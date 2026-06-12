@@ -19,7 +19,7 @@
     "ignoreDevUnusedFiles": true,
     "bigPackageSizeSupport": false
   },
-  "libVersion": "3.15.2",
+  "libVersion": "3.16.1",
   "condition": {
     "miniprogram": {
       "list": [

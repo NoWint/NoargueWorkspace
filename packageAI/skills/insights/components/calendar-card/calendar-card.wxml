@@ -1,9 +1,20 @@
 <view class="calendar-card">
-  <view class="calendar-header">{{year}} 年 {{month}} 月</view>
-  <view class="calendar-days">
-    <view wx:for="{{days}}" wx:key="date" class="day-item">
-      <text class="date">{{item.date}}</text>
-      <text class="count">{{item.count}} 条</text>
+  <view class="calendar-header">{{items.year}} 年 {{items.month}} 月</view>
+  <view wx:if="{{hasDays}}" class="calendar-days">
+    <view
+      wx:for="{{items.days}}"
+      wx:for-index="date"
+      wx:for-item="dayInfo"
+      wx:key="date"
+      class="day-item"
+      data-date="{{date}}"
+      bind:tap="onTapDay"
+    >
+      <text class="day-date">{{date.slice(5)}}</text>
+      <text class="day-count">{{dayInfo.count}}</text>
     </view>
+  </view>
+  <view wx:else class="empty-state">
+    <text>{{items.year}} 年 {{items.month}} 月暂无待办</text>
   </view>
 </view>

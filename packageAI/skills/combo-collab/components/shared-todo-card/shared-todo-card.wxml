@@ -1,7 +1,32 @@
-<view class="shared-todo-list" wx:if="{{name}}">
-  <view class="combo-name">{{name}}</view>
-  <view wx:for="{{shared_todos}}" wx:key="id" class="todo-item">
-    <view class="todo-text">{{item.text}}</view>
-    <view class="todo-meta">{{item.set_date}} {{item.set_time}}</view>
+<view class="shared-todo-list" wx:if="{{items.name}}">
+  <view class="combo-name">{{items.name}}</view>
+  <view wx:if="{{items.shared_todos && items.shared_todos.length > 0}}">
+    <view
+      wx:for="{{items.shared_todos}}"
+      wx:key="id"
+      class="todo-item"
+      data-id="{{item.id}}"
+      data-comboid="{{items.id}}"
+      bind:tap="onTapTodo"
+    >
+      <view class="todo-text">{{item.text}}</view>
+      <view class="todo-meta">
+        <text>{{item.set_date}} {{item.set_time}}</text>
+        <text wx:if="{{item.assign_type}}" class="assign-badge">{{item.assign_type === 'all' ? '全员' : '指定'}}</text>
+      </view>
+    </view>
   </view>
+  <view wx:elif="{{items.shared_todos && items.shared_todos.length === 0}}" class="empty-state">
+    <text>该组合暂无共享待办</text>
+  </view>
+  <view wx:if="{{items.members && items.members.length > 0}}" class="member-section">
+    <view class="member-title">成员（{{items.members.length}}人）</view>
+    <view wx:for="{{items.members}}" wx:key="id" class="member-item">
+      <text class="member-name">{{item.nickname}}</text>
+      <text class="member-role {{item.role}}">{{item.role === 'owner' ? '超管' : item.role === 'admin' ? '管理' : '成员'}}</text>
+    </view>
+  </view>
+</view>
+<view wx:else class="empty-state">
+  <text>暂无组合数据</text>
 </view>

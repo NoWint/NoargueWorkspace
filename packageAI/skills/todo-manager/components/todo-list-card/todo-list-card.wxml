@@ -1,7 +1,31 @@
 <view class="todo-list">
-  <view class="summary">共 {{total}} 条，已完成 {{completedCount}} 条</view>
-  <view wx:for="{{todos}}" wx:key="id" class="todo-item">
-    <view class="todo-text {{item.completed ? 'completed' : ''}}">{{item.text}}</view>
-    <view class="todo-meta">{{item.setDate}} {{item.setTime}}</view>
+  <view class="summary" wx:if="{{items.total !== undefined}}">
+    <text>共 {{items.total}} 条，已完成 {{items.completedCount}} 条</text>
+  </view>
+  <view wx:if="{{items.todos && items.todos.length > 0}}">
+    <view
+      wx:for="{{items.todos}}"
+      wx:key="id"
+      class="todo-item {{item.completed ? 'completed' : ''}}"
+      data-id="{{item.id}}"
+      data-text="{{item.text}}"
+      bind:tap="onTapTodo"
+    >
+      <view class="todo-left">
+        <view class="todo-check {{item.completed ? 'checked' : ''}}" data-id="{{item.id}}" bind:tap="onTapComplete">
+          <text wx:if="{{item.completed}}">✓</text>
+        </view>
+      </view>
+      <view class="todo-body">
+        <view class="todo-text">{{item.text}}</view>
+        <view class="todo-meta">
+          <text>{{item.setDate}} {{item.setTime}}</text>
+          <text wx:if="{{item.tags && item.tags.length > 0}}" class="tag-badge">{{item.tags.length}}个标签</text>
+        </view>
+      </view>
+    </view>
+  </view>
+  <view wx:elif="{{items.todos && items.todos.length === 0}}" class="empty-state">
+    <text>暂无待办，试试说「帮我创建一个待办」</text>
   </view>
 </view>

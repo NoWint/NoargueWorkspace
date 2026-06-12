@@ -1,8 +1,38 @@
-<view class="todo-detail" wx:if="{{id}}">
-  <view class="todo-text {{completed ? 'completed' : ''}}">{{text}}</view>
-  <view class="todo-meta">{{setDate}} {{setTime}}</view>
-  <view class="todo-remarks" wx:if="{{remarks}}">{{remarks}}</view>
-  <view class="todo-tags" wx:if="{{tags && tags.length}}">
-    <text wx:for="{{tags}}" wx:key="this" class="tag">#{{item}}</text>
+<view class="todo-detail" wx:if="{{todo.id}}">
+  <view class="todo-status {{todo.completed ? 'done' : 'pending'}}">
+    <text wx:if="{{todo.completed}}">已完成</text>
+    <text wx:else>待完成</text>
   </view>
+  <view class="todo-text {{todo.completed ? 'completed' : ''}}">{{todo.text}}</view>
+  <view class="todo-detail-row" bind:tap="onTapDetail">
+    <text class="detail-link">查看完整详情 ›</text>
+  </view>
+  <view class="todo-meta-row">
+    <view class="meta-item">
+      <text class="meta-label">日期</text>
+      <text class="meta-value">{{todo.setDate || '未设置'}}</text>
+    </view>
+    <view class="meta-item">
+      <text class="meta-label">时间</text>
+      <text class="meta-value">{{todo.setTime || '未设置'}}</text>
+    </view>
+  </view>
+  <view wx:if="{{todo.remarks}}" class="todo-remarks">
+    <text class="meta-label">备注</text>
+    <text>{{todo.remarks}}</text>
+  </view>
+  <view wx:if="{{todo.tags && todo.tags.length > 0}}" class="todo-tags">
+    <text wx:for="{{todo.tags}}" wx:key="this" class="tag-item">#{{item}}</text>
+  </view>
+  <view class="action-bar">
+    <view class="action-btn complete" bind:tap="onTapComplete">
+      <text>{{todo.completed ? '取消完成' : '标记完成'}}</text>
+    </view>
+    <view class="action-btn delete" bind:tap="onTapDelete">
+      <text>删除</text>
+    </view>
+  </view>
+</view>
+<view wx:else class="empty-state">
+  <text>暂无待办信息</text>
 </view>

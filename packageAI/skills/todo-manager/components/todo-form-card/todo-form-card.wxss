@@ -1,4 +1,42 @@
-.todo-form { padding: 24rpx; }
-.form-text { font-size: 32rpx; color: #333; }
-.form-meta { font-size: 26rpx; color: #999; margin-top: 12rpx; }
-.form-hint { font-size: 24rpx; color: #00b26a; margin-top: 16rpx; }
+.todo-form {
+  padding: 24rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+.form-header {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+.form-body {
+  background-color: #f9f9f9;
+  border-radius: 12rpx;
+  padding: 20rpx;
+}
+.form-row {
+  display: flex;
+  flex-direction: row;
+  padding: 10rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+.form-row:last-child {
+  border-bottom: none;
+}
+.form-label {
+  font-size: 26rpx;
+  color: #999;
+  width: 100rpx;
+  flex-shrink: 0;
+}
+.form-value {
+  font-size: 28rpx;
+  color: #333;
+  flex: 1;
+}
+.form-hint {
+  margin-top: 16rpx;
+  font-size: 26rpx;
+  color: #00b26a;
+  text-align: center;
+}

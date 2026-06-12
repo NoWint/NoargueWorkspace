@@ -1,6 +1,25 @@
 <view class="combo-list">
-  <view wx:for="{{combos}}" wx:key="id" class="combo-item">
-    <view class="combo-name">{{item.name}}</view>
-    <view class="combo-desc">{{item.is_shared ? '共享' : '私有'}} · {{item.todo_count || 0}} 条待办</view>
+  <view wx:if="{{items.combos && items.combos.length > 0}}">
+    <view
+      wx:for="{{items.combos}}"
+      wx:key="id"
+      class="combo-item"
+      data-id="{{item.id}}"
+      data-name="{{item.name}}"
+      bind:tap="onTapCombo"
+    >
+      <view class="combo-icon {{item.is_shared ? 'shared' : 'private'}}">
+        <text wx:if="{{item.is_shared}}">👥</text>
+        <text wx:else>📁</text>
+      </view>
+      <view class="combo-body">
+        <view class="combo-name">{{item.name}}</view>
+        <view class="combo-desc">{{item.is_shared ? '共享组合' : '私有组合'}} · {{item.todo_count || 0}} 条待办</view>
+      </view>
+      <view class="combo-arrow">›</view>
+    </view>
+  </view>
+  <view wx:elif="{{items.combos && items.combos.length === 0}}" class="empty-state">
+    <text>暂无组合，试试说「帮我创建一个组合」</text>
   </view>
 </view>

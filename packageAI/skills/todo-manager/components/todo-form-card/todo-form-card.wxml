@@ -1,5 +1,24 @@
-<view class="todo-form" wx:if="{{text}}">
-  <view class="form-text">{{text}}</view>
-  <view class="form-meta" wx:if="{{setDate}}">{{setDate}} {{setTime}}</view>
-  <view class="form-hint">确认后即可创建</view>
+<view class="todo-form" wx:if="{{todo.text || input.text}}">
+  <view class="form-header">
+    <text>确认待办信息</text>
+  </view>
+  <view class="form-body">
+    <view class="form-row">
+      <text class="form-label">内容</text>
+      <text class="form-value">{{input.text || todo.text}}</text>
+    </view>
+    <view wx:if="{{input.setDate || todo.setDate}}" class="form-row">
+      <text class="form-label">日期</text>
+      <text class="form-value">{{input.setDate || todo.setDate}}</text>
+    </view>
+    <view wx:if="{{input.setTime || todo.setTime}}" class="form-row">
+      <text class="form-label">时间</text>
+      <text class="form-value">{{input.setTime || todo.setTime}}</text>
+    </view>
+    <view wx:if="{{input.remarks || todo.remarks}}" class="form-row">
+      <text class="form-label">备注</text>
+      <text class="form-value">{{input.remarks || todo.remarks}}</text>
+    </view>
+  </view>
+  <view class="form-hint">已成功创建，可在待办列表中查看</view>
 </view>

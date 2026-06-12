@@ -4,9 +4,28 @@ Component({
       const modelCtx = wx.modelContext.getContext(this)
       const viewCtx = wx.modelContext.getViewContext(this)
       modelCtx.on(wx.modelContext.NotificationType.Result, (data) => {
-        const result = data.result.structuredContent || {}
-        this.setData(result)
-        if (result.id) viewCtx.setRelatedPage({ query: `id=${result.id}` })
+        const r = data.result.structuredContent || {}
+        this.setData({ items: r })
+        if (r.id) viewCtx.setRelatedPage({ query: `id=${r.id}` })
+      })
+    }
+  },
+  methods: {
+    onTapTodo(e) {
+      const todoId = e.currentTarget.dataset.id
+      const comboId = e.currentTarget.dataset.comboid
+      if (!todoId || !comboId) return
+      wx.modelContext.getContext().sendFollowUpMessage({
+        content: [
+          { type: 'text', text: '完成共享待办' },
+          {
+            type: 'api/call',
+            data: {
+              name: 'completeSharedTodo',
+              arguments: { comboId: Number(comboId), todoId: Number(todoId), completed: true }
+            }
+          }
+        ]
       })
     }
   }
