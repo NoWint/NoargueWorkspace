@@ -1,0 +1,152 @@
+{
+  "apis": [
+    {
+      "name": "createTodo",
+      "description": "创建一条新的待办事项。用户表达『添加』『新建』『创建』『记一下』等意图时调用",
+      "_meta": {
+        "ui": { "componentPath": "components/todo-form-card" }
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "待办内容，必填。例如『买牛奶』『提交周报』"
+          },
+          "setDate": {
+            "type": "string",
+            "description": "日期，YYYY-MM-DD 格式。未指定时留空"
+          },
+          "setTime": {
+            "type": "string",
+            "description": "时间，HH:MM 格式。未指定时留空"
+          },
+          "remarks": {
+            "type": "string",
+            "description": "备注说明，可留空"
+          },
+          "tags": {
+            "type": "array",
+            "items": { "type": "number" },
+            "description": "标签ID数组，如 [1,2]。1=工作 2=学习 3=生活 4=健康 5=购物 6=其他。用户未指定时传空数组"
+          }
+        },
+        "required": ["text"]
+      },
+      "outputSchema": {}
+    },
+    {
+      "name": "listTodos",
+      "description": "查询待办列表，支持按条件筛选。用户问『我的待办』『今天有什么』等时调用",
+      "_meta": {
+        "ui": { "componentPath": "components/todo-list-card" }
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "筛选日期，YYYY-MM-DD 格式。不传则返回所有待办"
+          },
+          "completed": {
+            "type": "boolean",
+            "description": "筛选完成状态。不传返回全部"
+          },
+          "tagId": {
+            "type": "number",
+            "description": "按标签筛选。不传返回全部"
+          },
+          "isStar": {
+            "type": "boolean",
+            "description": "是否只显示收藏的待办。不传返回全部"
+          },
+          "keyword": {
+            "type": "string",
+            "description": "关键词搜索（text 和 remarks 字段）。不传返回全部"
+          }
+        }
+      },
+      "outputSchema": {}
+    },
+    {
+      "name": "completeTodo",
+      "description": "切换待办的完成/未完成状态。用户说『完成』『标记完成』『取消完成』时调用",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "todoId": {
+            "type": "string",
+            "description": "待办ID，取自 listTodos 返回的 id 字段"
+          },
+          "completed": {
+            "type": "boolean",
+            "description": "true=标记完成，false=取消完成"
+          }
+        },
+        "required": ["todoId", "completed"]
+      },
+      "outputSchema": {}
+    },
+    {
+      "name": "updateTodo",
+      "description": "编辑已有的待办事项。用户说『修改』『编辑』『改一下』等意图时调用",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "todoId": {
+            "type": "string",
+            "description": "待办ID，取自 listTodos 返回的 id 字段"
+          },
+          "text": {
+            "type": "string",
+            "description": "新的待办内容"
+          },
+          "setDate": {
+            "type": "string",
+            "description": "新的日期，YYYY-MM-DD 格式"
+          },
+          "setTime": {
+            "type": "string",
+            "description": "新的时间，HH:MM 格式"
+          },
+          "remarks": {
+            "type": "string",
+            "description": "新的备注"
+          }
+        },
+        "required": ["todoId"]
+      },
+      "outputSchema": {}
+    },
+    {
+      "name": "deleteTodo",
+      "description": "删除待办事项（软删除，进入回收站）。用户说『删除』『移除』时调用",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "todoId": {
+            "type": "string",
+            "description": "待办ID，取自 listTodos 返回的 id 字段"
+          }
+        },
+        "required": ["todoId"]
+      },
+      "outputSchema": {}
+    },
+    {
+      "name": "searchTodos",
+      "description": "搜索待办事项。用户说『搜索』『查找』『找一下』时调用",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "keyword": {
+            "type": "string",
+            "description": "搜索关键词，匹配 text 和 remarks 字段"
+          }
+        },
+        "required": ["keyword"]
+      },
+      "outputSchema": {}
+    }
+  ]
+}
