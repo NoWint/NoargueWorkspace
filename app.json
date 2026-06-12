@@ -54,6 +54,12 @@
         "datamanage/datamanage",
         "tag-manage/tag-manage"
       ]
+    },
+    {
+      "root": "packageAI",
+      "name": "ai",
+      "independent": true,
+      "pages": []
     }
   ],
   "preloadRule": {
@@ -106,6 +112,26 @@
   },
   "sitemapLocation": "sitemap.json",
   "lazyCodeLoading": "requiredComponents",
+  "agent": {
+    "skills": [
+      {
+        "name": "todo-manager",
+        "description": "管理个人待办事项，支持创建、查看、完成、编辑、删除和搜索待办",
+        "path": "packageAI/skills/todo-manager"
+      },
+      {
+        "name": "combo-collab",
+        "description": "管理组合与协作，支持查看组合、共享待办、成员信息和完成共享待办",
+        "path": "packageAI/skills/combo-collab"
+      },
+      {
+        "name": "insights",
+        "description": "数据洞察与小工具，支持日历查询、统计、收藏、回收站、每日激励和美食推荐",
+        "path": "packageAI/skills/insights"
+      }
+    ],
+    "instruction": "AGENTS.md"
+  },
   "permission": {
     "scope.userLocation": {
       "desc": "需要获取您的位置以选择待办地点、获取当地天气信息"
