@@ -1,0 +1,81 @@
+{
+  "apis": [
+    {
+      "name": "getCalendar",
+      "description": "查询某个月份的日历数据，展示每天有多少待办。用户问『日历』『这个月』时调用",
+      "_meta": { "ui": { "componentPath": "components/calendar-card" } },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "year": { "type": "number", "description": "年份，如 2026。不传默认当年" },
+          "month": { "type": "number", "description": "月份，1-12。不传默认当月" }
+        }
+      },
+      "outputSchema": {}
+    },
+    {
+      "name": "getStats",
+      "description": "获取待办完成情况的统计数据。用户问『统计』『完成率』『进度』时调用",
+      "_meta": { "ui": { "componentPath": "components/stats-card" } },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "type": "number",
+            "description": "统计最近多少天的数据，默认7天"
+          }
+        }
+      },
+      "outputSchema": {}
+    },
+    {
+      "name": "getStarredTodos",
+      "description": "获取所有收藏的待办。用户问『收藏』『星标』时调用",
+      "inputSchema": { "type": "object", "properties": {} },
+      "outputSchema": {}
+    },
+    {
+      "name": "getDeletedTodos",
+      "description": "获取回收站中的已删除待办列表。用户问『回收站』『已删除』时调用",
+      "_meta": { "ui": { "componentPath": "components/trash-list" } },
+      "inputSchema": { "type": "object", "properties": {} },
+      "outputSchema": {}
+    },
+    {
+      "name": "restoreTodo",
+      "description": "从回收站恢复已删除的待办。用户说『恢复』时调用",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "todoId": {
+            "type": "string",
+            "description": "待办ID，取自 getDeletedTodos 返回的 id"
+          }
+        },
+        "required": ["todoId"]
+      },
+      "outputSchema": {}
+    },
+    {
+      "name": "getMotivation",
+      "description": "获取每日激励语录。用户说『激励』『鸡汤』『鼓励』时调用",
+      "inputSchema": { "type": "object", "properties": {} },
+      "outputSchema": {}
+    },
+    {
+      "name": "getFoodSuggestion",
+      "description": "随机推荐今天吃什么。用户说『吃什么』『美食推荐』时调用",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "mealType": {
+            "type": "string",
+            "enum": ["breakfast", "lunch", "dinner", "snack"],
+            "description": "餐型：breakfast=早餐 lunch=午餐 dinner=晚餐 snack=宵夜。不传则随机"
+          }
+        }
+      },
+      "outputSchema": {}
+    }
+  ]
+}

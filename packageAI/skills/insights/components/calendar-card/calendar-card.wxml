@@ -1,0 +1,9 @@
+<view class="calendar-card">
+  <view class="calendar-header">{{year}} 年 {{month}} 月</view>
+  <view class="calendar-days">
+    <view wx:for="{{days}}" wx:key="date" class="day-item">
+      <text class="date">{{item.date}}</text>
+      <text class="count">{{item.count}} 条</text>
+    </view>
+  </view>
+</view>

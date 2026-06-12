@@ -1,0 +1,5 @@
+.trash-list { padding: 16rpx; }
+.summary { font-size: 28rpx; color: #666; margin-bottom: 16rpx; }
+.trash-item { padding: 16rpx 0; border-bottom: 1rpx solid #eee; }
+.todo-text { font-size: 28rpx; color: #999; }
+.todo-date { font-size: 24rpx; color: #ccc; margin-top: 4rpx; }

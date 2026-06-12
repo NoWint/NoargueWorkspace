@@ -1,0 +1,7 @@
+<view class="trash-list">
+  <view class="summary">回收站共 {{total}} 条</view>
+  <view wx:for="{{todos}}" wx:key="id" class="trash-item">
+    <view class="todo-text">{{item.text}}</view>
+    <view class="todo-date">删除于 {{item.deletedAt | formatDate}}</view>
+  </view>
+</view>

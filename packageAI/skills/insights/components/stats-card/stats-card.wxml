@@ -1,0 +1,14 @@
+<view class="stats-card">
+  <view class="stat-row">
+    <text class="stat-label">总待办</text>
+    <text class="stat-value">{{total}}</text>
+  </view>
+  <view class="stat-row">
+    <text class="stat-label">已完成</text>
+    <text class="stat-value">{{completed}}</text>
+  </view>
+  <view class="stat-row">
+    <text class="stat-label">完成率</text>
+    <text class="stat-value rate">{{rate}}%</text>
+  </view>
+</view>
