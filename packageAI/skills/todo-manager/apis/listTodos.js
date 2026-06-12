@@ -1,4 +1,22 @@
-async function listTodos(args) {
-  return { isError: true, content: [{ type: 'text', text: '待实现' }] }
+async function listTodos({ date, completed, tagId, isStar, keyword }) {
+  let todos = wx.getStorageSync('todos') || []
+  todos = todos.filter(t => !t.isDeleted)
+  if (date) todos = todos.filter(t => t.setDate === date)
+  if (completed !== undefined) todos = todos.filter(t => t.completed === completed)
+  if (tagId) todos = todos.filter(t => (t.tags || []).includes(tagId))
+  if (isStar) todos = todos.filter(t => t.isStar)
+  if (keyword) {
+    const kw = keyword.toLowerCase()
+    todos = todos.filter(t => t.text.toLowerCase().includes(kw) || (t.remarks || '').toLowerCase().includes(kw))
+  }
+  todos.sort((a, b) => (b.time || 0) - (a.time || 0))
+  const total = todos.length
+  const completedCount = todos.filter(t => t.completed).length
+  return {
+    isError: false,
+    content: [{ type: 'text', text: `找到 ${total} 条待办，已完成 ${completedCount} 条` }],
+    structuredContent: { todos: todos.slice(0, 20), total, completedCount }
+  }
 }
+
 module.exports = listTodos
