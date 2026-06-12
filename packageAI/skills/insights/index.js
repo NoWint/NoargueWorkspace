@@ -9,17 +9,23 @@ const getFoodSuggestion = require('./apis/getFoodSuggestion')
 const skill = wx.modelContext.createSkill('/packageAI/skills/insights')
 
 skill.use(async (ctx, next) => {
-  const token = wx.getStorageSync('token')
-  if (!token) {
-    const { code } = await wx.login()
-    const res = await wx.request({
-      url: 'https://api.yzjtiantian.cn/auth/login',
-      method: 'POST',
-      data: { code }
-    })
-    if (res.data && res.data.token) {
-      wx.setStorageSync('token', res.data.token)
+  try {
+    const token = wx.getStorageSync('token')
+    if (!token) {
+      const loginRes = await wx.login()
+      if (loginRes && loginRes.code) {
+        const res = await wx.request({
+          url: 'https://api.yzjtiantian.cn/auth/login',
+          method: 'POST',
+          data: { code: loginRes.code }
+        })
+        if (res.data && res.data.token) {
+          wx.setStorageSync('token', res.data.token)
+        }
+      }
     }
+  } catch (e) {
+    console.warn(`[AI Skill] Auth skipped for ${ctx.name}: ${e.message}`)
   }
   await next()
 })

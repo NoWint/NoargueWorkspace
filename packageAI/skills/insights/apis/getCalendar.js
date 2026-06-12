@@ -2,13 +2,18 @@ async function getCalendar({ year, month }) {
   const now = new Date()
   const y = year || now.getFullYear()
   const m = month || (now.getMonth() + 1)
-  const app = getApp()
-  const cache = app.globalData.calendarCache || {}
-  const prefix = `${y}-${String(m).padStart(2, '0')}`
   const days = {}
-  for (const [date, info] of Object.entries(cache)) {
-    if (date.startsWith(prefix)) {
-      days[date] = info
+  const todos = (wx.getStorageSync('todos') || []).filter(t => !t.isDeleted)
+  const prefix = `${y}-${String(m).padStart(2, '0')}`
+  for (const t of todos) {
+    if (t.setDate && t.setDate.startsWith(prefix)) {
+      if (!days[t.setDate]) {
+        days[t.setDate] = { count: 0, sampleText: '' }
+      }
+      days[t.setDate].count++
+      if (!days[t.setDate].sampleText) {
+        days[t.setDate].sampleText = t.text
+      }
     }
   }
   return {
