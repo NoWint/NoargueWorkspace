@@ -69,7 +69,8 @@
   color: #7a8b80;
 }
 
-.agreement-section {
+.agreement-section,
+.agreement {
   display: flex;
   align-items: center;
   flex-wrap: wrap;

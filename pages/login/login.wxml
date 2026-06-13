@@ -16,16 +16,16 @@
         </view>
       </view>
 
-      <view class="agreement-section">
+      <view class="agreement" bindtap="onTapAgreement">
         <t-checkbox
           checked="{{agreed}}"
           bind:change="onAgreeChange"
           borderless="{{true}}"
         />
         <text class="agreement-text">我已阅读并同意</text>
-        <text class="agreement-link" bindtap="showUserAgreement">《用户协议》</text>
+        <text class="agreement-link" catchtap="showUserAgreement">《用户协议》</text>
         <text class="agreement-text">和</text>
-        <text class="agreement-link" bindtap="showPrivacyPolicy">《隐私政策》</text>
+        <text class="agreement-link" catchtap="showPrivacyPolicy">《隐私政策》</text>
       </view>
 
       <button class="login-btn {{agreed ? '' : 'disabled'}}" loading="{{loading}}" bindtap="handleLogin">微信一键登录</button>
@@ -42,16 +42,16 @@
         </view>
       </view>
 
-      <view class="agreement-section">
+      <view class="agreement" bindtap="onTapAgreement">
         <t-checkbox
           checked="{{agreed}}"
           bind:change="onAgreeChange"
           borderless="{{true}}"
         />
         <text class="agreement-text">我已阅读并同意</text>
-        <text class="agreement-link" bindtap="showUserAgreement">《用户协议》</text>
+        <text class="agreement-link" catchtap="showUserAgreement">《用户协议》</text>
         <text class="agreement-text">和</text>
-        <text class="agreement-link" bindtap="showPrivacyPolicy">《隐私政策》</text>
+        <text class="agreement-link" catchtap="showPrivacyPolicy">《隐私政策》</text>
       </view>
 
       <button class="login-btn {{agreed ? '' : 'disabled'}}" loading="{{loading}}" bindtap="handleLogin">微信一键登录</button>

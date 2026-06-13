@@ -360,6 +360,10 @@ Page({
     });
   },
 
+  onTapAgreement() {
+    this.setData({ agreed: !this.data.agreed });
+  },
+
   showUserAgreement() {
     this.setData({ showUserAgreement: true });
   },
