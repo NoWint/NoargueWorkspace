@@ -121,7 +121,7 @@
           </button>
           <view class="avatar-badge"><t-icon name="camera" size="32rpx" color="#fff" /></view>
         </view>
-        <input class="nickname-input" type="nickname" placeholder="请输入昵称" value="{{profileNickname}}" bindinput="onInputNickname" maxlength="16" adjust-position="{{true}}" />
+        <input class="nickname-input" type="nickname" placeholder="请输入昵称" value="{{profileNickname}}" bindinput="onInputNickname" bindnicknamereview="onNicknameReview" maxlength="16" adjust-position="{{true}}" />
         <view class="profile-actions">
           <button class="btn-secondary" bindtap="skipProfileSetup">跳过</button>
           <button class="btn-primary" loading="{{loading}}" bindtap="handleSaveProfile">保存并继续</button>

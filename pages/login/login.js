@@ -295,6 +295,12 @@ Page({
     this.setData({ profileNickname: e.detail.value.trim() });
   },
 
+  onNicknameReview(e) {
+    if (e.detail && e.detail.value) {
+      this.setData({ profileNickname: e.detail.value });
+    }
+  },
+
   async handleSaveProfile() {
     let nickname = this.data.profileNickname.trim();
     if (!nickname) {
