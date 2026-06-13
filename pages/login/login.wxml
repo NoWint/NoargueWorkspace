@@ -10,7 +10,7 @@
   <!-- ===== 标准登录 ===== -->
   <block wx:if="{{!isQrCodeMode}}">
     <view class="login-body">
-      <view class="cmp-section">
+      <view class="cmp-section" wx:if="{{qrStep === 'detect'}}">
         <view class="cmp-label">功能对比</view>
         <view class="cmp-row">
           <view class="cmp-col cmp-col--left">
@@ -59,7 +59,7 @@
         <text class="cmp-footer">登录后解锁以上所有功能，数据安全不丢失</text>
       </view>
     </view>
-    <view class="login-bottom">
+    <view class="login-bottom" wx:if="{{qrStep === 'detect'}}">
       <view class="agreement">
         <view class="agreement-checkbox">
           <t-checkbox checked="{{agreed}}" bind:change="onAgreeChange" borderless="{{true}}" />
@@ -83,7 +83,7 @@
         <t-icon name="info-circle" size="48rpx" color="#2dd4bf" />
         <view class="banner-body">
           <text class="banner-title">检测到网页端登录请求</text>
-          <text class="banner-desc">请先登录您的账号，然后即可授权网页端登录</text>
+          <text class="banner-desc">请先登录您的账号，然后授权网页端登录</text>
         </view>
       </view>
     </view>
@@ -111,15 +111,15 @@
         <t-icon name="user-add" size="48rpx" color="#00b26a" />
         <view class="banner-body">
           <text class="banner-title">欢迎加入时光绿径待办！</text>
-          <text class="banner-desc">{{isQrCodeMode ? '请设置您的昵称和头像，完成后即可授权网页端登录' : '设置昵称和头像，让其他小伙伴认识你吧'}}</text>
+          <text class="banner-desc">{{isQrCodeMode ? '设置您的昵称和头像' : '设置昵称和头像，让其他小伙伴认识你吧'}}</text>
         </view>
       </view>
       <view class="profile-setup">
         <view class="profile-avatar-wrap">
           <button class="avatar-btn" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
             <image class="profile-avatar" src="{{profileAvatarUrl || '/assets/default-avatar.png'}}" mode="aspectFill" />
-            <view class="avatar-badge"><t-icon name="camera" size="28rpx" color="#fff" /></view>
           </button>
+          <view class="avatar-badge"><t-icon name="camera" size="32rpx" color="#fff" /></view>
         </view>
         <input class="nickname-input" type="nickname" placeholder="请输入昵称" value="{{profileNickname}}" bindinput="onInputNickname" maxlength="16" adjust-position="{{true}}" />
         <view class="profile-actions">
@@ -134,7 +134,7 @@
   <block wx:if="{{isQrCodeMode && qrStep === 'confirm'}}">
     <view class="qr-body qr-body--center">
       <view class="confirm-header">
-        <view class="confirm-icon"><t-icon name="check-circle" size="80rpx" color="#00b26a" /></view>
+        <view class="confirm-icon"><t-icon name="check-circle" size="180rpx" color="#00b26a" /></view>
         <text class="confirm-title">登录验证成功</text>
         <text class="confirm-desc">以下账号将用于登录网页端</text>
       </view>
@@ -146,8 +146,10 @@
         </view>
       </view>
       <view class="banner banner--warn">
-        <t-icon name="info-circle" size="32rpx" color="#faad14" />
-        <text class="banner-desc">点击确认后，网页端将获得您的登录权限</text>
+        <t-icon name="info-circle" size="48rpx" color="#faad14" />
+        <view class="banner-body">
+          <text class="banner-title">点击确认后，网页端将登录账号</text>
+        </view>
       </view>
     </view>
     <view class="login-bottom">
@@ -162,9 +164,9 @@
   <block wx:if="{{isQrCodeMode && qrStep === 'success'}}">
     <view class="qr-body qr-body--center">
       <view class="success-section">
-        <view class="success-icon"><t-icon name="check-circle-filled" size="120rpx" color="#00b26a" /></view>
-        <text class="success-title">授权成功！</text>
-        <text class="success-desc">网页端已成功登录，您可以返回网页端使用</text>
+        <view class="success-icon"><t-icon name="check-circle-filled" size="180rpx" color="#00b26a" /></view>
+        <text class="success-title">授权成功</text>
+        <text class="success-desc">网页端已成功登录，您可以在网页端使用</text>
       </view>
     </view>
     <view class="login-bottom">

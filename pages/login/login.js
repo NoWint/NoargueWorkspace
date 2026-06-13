@@ -169,10 +169,10 @@ Page({
     userAgreementContent,
     privacyPolicyContent,
 
-    isQrCodeMode: true,//
+    isQrCodeMode: false, //
     sceneId: '',
     qrStatus: 'waiting',
-    qrStep: 'setup_profile',//detect, need_login, setup_profile, confirm, success
+    qrStep: 'detect', //detect, need_login, setup_profile, confirm, success
     authConfirmed: false,
     showProfileModal: false,
     profileNickname: '',
