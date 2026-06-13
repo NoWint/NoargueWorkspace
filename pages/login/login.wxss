@@ -37,7 +37,7 @@
   text-align: center;
 }
 
-/* ===== Comparison Body (pushes bottom down) ===== */
+/* ===== Comparison Body ===== */
 .login-body {
   flex: 1;
   display: flex;
@@ -49,25 +49,24 @@
 .cmp-section {
   background: #fff;
   border-radius: 32rpx;
-  padding: 32rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.06);
+  padding: 36rpx 32rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0,0,0,0.08);
 }
 
 .cmp-label {
-  font-size: 26rpx;
+  font-size: 28rpx;
   color: #999;
   font-weight: 500;
   text-align: center;
-  margin-bottom: 28rpx;
-  letter-spacing: 2rpx;
+  margin-bottom: 32rpx;
+  letter-spacing: 4rpx;
 }
 
 .cmp-row {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
-  padding: 14rpx 0;
+  padding: 18rpx 0;
   border-bottom: 1rpx solid #f5f5f5;
 }
 
@@ -80,15 +79,34 @@
   flex-direction: row;
   align-items: center;
   gap: 12rpx;
+  flex: 1;
+}
+
+.cmp-col--left {
+  justify-content: flex-end;
+}
+
+.cmp-col--right {
+  justify-content: flex-start;
+}
+
+.cmp-arrow {
+  width: 80rpx;
+  text-align: center;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12rpx;
 }
 
 .cmp-text-before {
-  font-size: 26rpx;
+  font-size: 28rpx;
   color: #bbb;
 }
 
 .cmp-text-after {
-  font-size: 26rpx;
+  font-size: 28rpx;
   color: #333;
   font-weight: 500;
 }
@@ -96,15 +114,16 @@
 .cmp-footer {
   display: block;
   text-align: center;
-  margin-top: 24rpx;
-  font-size: 24rpx;
+  margin-top: 28rpx;
+  font-size: 26rpx;
   color: #999;
-  line-height: 1.4;
+  line-height: 1.5;
+  padding: 0 16rpx;
 }
 
 /* ===== Bottom Section ===== */
 .login-bottom {
-  padding-top: 8rpx;
+  padding-top: 16rpx;
 }
 
 .agreement {
@@ -112,16 +131,16 @@
   align-items: center;
   flex-wrap: wrap;
   justify-content: center;
-  margin-bottom: 20rpx;
+  margin-bottom: 24rpx;
 }
 
 .agreement-text {
-  font-size: 24rpx;
+  font-size: 26rpx;
   color: #999;
 }
 
 .agreement-link {
-  font-size: 24rpx;
+  font-size: 26rpx;
   color: #00b26a;
 }
 

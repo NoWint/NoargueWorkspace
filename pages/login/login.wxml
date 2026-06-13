@@ -14,48 +14,56 @@
         <view class="cmp-label">功能对比</view>
 
         <view class="cmp-row">
-          <view class="cmp-col">
-            <t-icon name="cloud" size="32rpx" color="#ccc" />
+          <view class="cmp-col cmp-col--left">
             <text class="cmp-text-before">本地存储</text>
+            <t-icon name="cloud" size="32rpx" color="#ccc" />
           </view>
-          <t-icon name="arrow-right" size="24rpx" color="#ddd" />
-          <view class="cmp-col">
+          <view class="cmp-arrow">
+            <t-icon name="arrow-right" size="28rpx" color="#ccc" />
+          </view>
+          <view class="cmp-col cmp-col--right">
             <t-icon name="cloud-download" size="32rpx" color="#00b26a" />
             <text class="cmp-text-after">云端同步</text>
           </view>
         </view>
 
         <view class="cmp-row">
-          <view class="cmp-col">
-            <t-icon name="notification" size="32rpx" color="#ccc" />
+          <view class="cmp-col cmp-col--left">
             <text class="cmp-text-before">无提醒</text>
+            <t-icon name="notification" size="32rpx" color="#ccc" />
           </view>
-          <t-icon name="arrow-right" size="24rpx" color="#ddd" />
-          <view class="cmp-col">
+          <view class="cmp-arrow">
+            <t-icon name="arrow-right" size="28rpx" color="#ccc" />
+          </view>
+          <view class="cmp-col cmp-col--right">
             <t-icon name="notification" size="32rpx" color="#00b26a" />
             <text class="cmp-text-after">微信通知</text>
           </view>
         </view>
 
         <view class="cmp-row">
-          <view class="cmp-col">
-            <t-icon name="user-circle" size="32rpx" color="#ccc" />
+          <view class="cmp-col cmp-col--left">
             <text class="cmp-text-before">单人模式</text>
+            <t-icon name="user-circle" size="32rpx" color="#ccc" />
           </view>
-          <t-icon name="arrow-right" size="24rpx" color="#ddd" />
-          <view class="cmp-col">
+          <view class="cmp-arrow">
+            <t-icon name="arrow-right" size="28rpx" color="#ccc" />
+          </view>
+          <view class="cmp-col cmp-col--right">
             <t-icon name="user-group" size="32rpx" color="#00b26a" />
             <text class="cmp-text-after">共享协作</text>
           </view>
         </view>
 
         <view class="cmp-row">
-          <view class="cmp-col">
-            <t-icon name="file-copy" size="32rpx" color="#ccc" />
+          <view class="cmp-col cmp-col--left">
             <text class="cmp-text-before">单设备</text>
+            <t-icon name="file-copy" size="32rpx" color="#ccc" />
           </view>
-          <t-icon name="arrow-right" size="24rpx" color="#ddd" />
-          <view class="cmp-col">
+          <view class="cmp-arrow">
+            <t-icon name="arrow-right" size="28rpx" color="#ccc" />
+          </view>
+          <view class="cmp-col cmp-col--right">
             <t-icon name="file-copy" size="32rpx" color="#00b26a" />
             <text class="cmp-text-after">自动备份</text>
           </view>
