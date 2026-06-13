@@ -6,11 +6,27 @@
   width: 100%;
   box-sizing: border-box;
 }
-.form-header {
-  font-size: 30rpx;
+.success-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-size: 32rpx;
   font-weight: 500;
-  color: #333333;
+  color: #00b26a;
   margin-bottom: 20rpx;
+}
+.success-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  background-color: #00b26a;
+  color: #ffffff;
+  font-size: 26rpx;
+  font-weight: bold;
+  margin-right: 12rpx;
 }
 .form-body {
   background-color: #f9f9f9;

@@ -1,24 +1,25 @@
 <view class="todo-form" wx:if="{{todo.text || input.text}}">
-  <view class="form-header">
-    <text>确认待办信息</text>
+  <view class="success-header">
+    <text class="success-icon">✓</text>
+    <text>创建成功</text>
   </view>
   <view class="form-body">
     <view class="form-row">
       <text class="form-label">内容</text>
-      <text class="form-value">{{input.text || todo.text}}</text>
+      <text class="form-value">{{todo.text || input.text}}</text>
     </view>
-    <view wx:if="{{input.setDate || todo.setDate}}" class="form-row">
+    <view wx:if="{{todo.setDate || input.setDate}}" class="form-row">
       <text class="form-label">日期</text>
-      <text class="form-value">{{input.setDate || todo.setDate}}</text>
+      <text class="form-value">{{todo.setDate || input.setDate}}</text>
     </view>
-    <view wx:if="{{input.setTime || todo.setTime}}" class="form-row">
+    <view wx:if="{{todo.setTime || input.setTime}}" class="form-row">
       <text class="form-label">时间</text>
-      <text class="form-value">{{input.setTime || todo.setTime}}</text>
+      <text class="form-value">{{todo.setTime || input.setTime}}</text>
     </view>
-    <view wx:if="{{input.remarks || todo.remarks}}" class="form-row">
+    <view wx:if="{{todo.remarks || input.remarks}}" class="form-row">
       <text class="form-label">备注</text>
-      <text class="form-value">{{input.remarks || todo.remarks}}</text>
+      <text class="form-value">{{todo.remarks || input.remarks}}</text>
     </view>
   </view>
-  <view class="form-hint">已成功创建，可在待办列表中查看</view>
+  <view class="form-hint">可在待办列表中查看</view>
 </view>

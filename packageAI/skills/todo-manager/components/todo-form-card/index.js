@@ -9,9 +9,7 @@ Component({
       modelCtx.on(wx.modelContext.NotificationType.Result, (data) => {
         const r = data.result.structuredContent || {}
         this.setData({ todo: r })
-        if (r.setDate) {
-          viewCtx.setRelatedPage({ query: `setDate=${r.setDate}&text=${encodeURIComponent(r.text || '')}` })
-        }
+        viewCtx.setRelatedPage({ path: '/pages/todo/todo' })
       })
     }
   }

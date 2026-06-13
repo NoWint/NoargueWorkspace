@@ -4,15 +4,19 @@
     <view
       wx:for="{{items.shared_todos}}"
       wx:key="id"
-      class="todo-item"
+      class="todo-item {{item.completed_at > 0 ? 'completed' : ''}}"
       data-id="{{item.id}}"
       data-comboid="{{items.id}}"
-      bind:tap="onTapCompleteSharedTodo"
     >
-      <view class="todo-text">{{item.text}}</view>
-      <view class="todo-meta">
-        <text>{{item.set_date}} {{item.set_time}}</text>
-        <text wx:if="{{item.assign_type}}" class="assign-badge">{{item.assign_type === 'all' ? '全员' : '指定'}}</text>
+      <view class="todo-check {{item.completed_at > 0 ? 'checked' : ''}}">
+        <text wx:if="{{item.completed_at > 0}}">✓</text>
+      </view>
+      <view class="todo-body" bind:tap="onTapCompleteSharedTodo">
+        <view class="todo-text {{item.completed_at > 0 ? 'done' : ''}}">{{item.text}}</view>
+        <view class="todo-meta">
+          <text>{{item.set_date}} {{item.set_time}}</text>
+          <text wx:if="{{item.assign_type}}" class="assign-badge">{{item.assign_type === 'all' ? '全员' : '指定'}}</text>
+        </view>
       </view>
     </view>
   </view>
