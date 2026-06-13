@@ -73,6 +73,9 @@
     {
       "name": "completeSharedTodo",
       "description": "完成或取消完成共享组合中的待办。需先调用 getComboDetail 获取共享待办列表",
+      "_meta": {
+        "ui": { "componentPath": "components/complete-shared-card/index" }
+      },
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -137,6 +140,10 @@
     {
       "path": "components/member-list-card/index",
       "relatedPage": "/packageCombo/collaboration/collaboration"
+    },
+    {
+      "path": "components/complete-shared-card/index",
+      "relatedPage": "/packageCombo/combo-detail/combo-detail"
     }
   ]
 }

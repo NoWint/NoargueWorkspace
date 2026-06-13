@@ -101,6 +101,9 @@
     {
       "name": "completeTodo",
       "description": "切换待办的完成/未完成状态。用户说『完成』『标记完成』『取消完成』时调用。需先调用 listTodos 获取 todoId",
+      "_meta": {
+        "ui": { "componentPath": "components/complete-card/index" }
+      },
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -120,6 +123,9 @@
     {
       "name": "updateTodo",
       "description": "编辑已有的待办事项。用户说『修改』『编辑』『改一下』时调用。需先调用 listTodos 获取 todoId",
+      "_meta": {
+        "ui": { "componentPath": "components/update-card/index" }
+      },
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -151,6 +157,9 @@
     {
       "name": "deleteTodo",
       "description": "删除待办事项（软删除，进入回收站）。用户说『删除』『移除』时调用。需先调用 listTodos 获取 todoId",
+      "_meta": {
+        "ui": { "componentPath": "components/delete-card/index" }
+      },
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -213,6 +222,18 @@
     {
       "path": "components/search-results-card/index",
       "relatedPage": "/pages/todo-search/todo-search"
+    },
+    {
+      "path": "components/complete-card/index",
+      "relatedPage": "/pages/todo/todo"
+    },
+    {
+      "path": "components/update-card/index",
+      "relatedPage": "/pages/todo/todo"
+    },
+    {
+      "path": "components/delete-card/index",
+      "relatedPage": "/packageTools/trash/trash"
     }
   ]
 }

@@ -1,0 +1,10 @@
+<view class="op-card" wx:if="{{result}}">
+  <view class="op-icon {{result.isError ? 'error' : 'success'}}">
+    <text wx:if="{{!result.isError}}">↩</text>
+    <text wx:else>✕</text>
+  </view>
+  <view class="op-title {{result.isError ? 'error' : 'success'}}">
+    {{result.isError ? '恢复失败' : '已恢复'}}
+  </view>
+  <view class="op-desc">待办已恢复到列表中</view>
+</view>

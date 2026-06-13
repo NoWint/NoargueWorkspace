@@ -1,0 +1,5 @@
+<view class="food-card">
+  <view class="food-icon">🍽</view>
+  <view class="food-suggestion">{{items.suggestion}}</view>
+  <view wx:if="{{items.mealType}}" class="food-meal">{{items.mealType === 'breakfast' ? '早餐' : items.mealType === 'lunch' ? '午餐' : items.mealType === 'dinner' ? '晚餐' : '宵夜'}}</view>
+</view>

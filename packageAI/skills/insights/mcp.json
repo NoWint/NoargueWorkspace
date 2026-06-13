@@ -81,6 +81,9 @@
     {
       "name": "restoreTodo",
       "description": "从回收站恢复已删除的待办。用户说『恢复』『还原』时调用。需先调用 getDeletedTodos 获取 todoId",
+      "_meta": {
+        "ui": { "componentPath": "components/restore-card/index" }
+      },
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -96,6 +99,9 @@
     {
       "name": "getMotivation",
       "description": "获取每日激励语录。用户说『激励』『鸡汤』『鼓励我』『来句励志的话』时调用",
+      "_meta": {
+        "ui": { "componentPath": "components/motivation-card/index" }
+      },
       "inputSchema": { "type": "object", "properties": {} },
       "outputSchema": {
         "type": "object",
@@ -105,6 +111,9 @@
     {
       "name": "getFoodSuggestion",
       "description": "随机推荐今天吃什么。用户说『吃什么』『美食推荐』『有啥好吃的』时调用",
+      "_meta": {
+        "ui": { "componentPath": "components/food-card/index" }
+      },
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -140,6 +149,18 @@
     {
       "path": "components/starred-list-card/index",
       "relatedPage": "/packageTools/star/star"
+    },
+    {
+      "path": "components/restore-card/index",
+      "relatedPage": "/pages/todo/todo"
+    },
+    {
+      "path": "components/motivation-card/index",
+      "relatedPage": "/packageTools/motivation/motivation"
+    },
+    {
+      "path": "components/food-card/index",
+      "relatedPage": "/packageTools/eating/eating"
     }
   ]
 }

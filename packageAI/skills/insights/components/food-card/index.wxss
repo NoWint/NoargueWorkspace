@@ -1,0 +1,27 @@
+.food-card {
+  background: #fff;
+  border-radius: 16rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.08);
+  padding: 40rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.food-icon {
+  font-size: 48rpx;
+  margin-bottom: 16rpx;
+}
+.food-suggestion {
+  font-size: 34rpx;
+  color: #333;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 12rpx;
+}
+.food-meal {
+  font-size: 24rpx;
+  color: #999;
+  background-color: #e3f5eb;
+  padding: 4rpx 16rpx;
+  border-radius: 8rpx;
+}
