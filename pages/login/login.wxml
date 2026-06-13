@@ -1,28 +1,22 @@
 <view class="page {{isQrCodeMode ? 'qrcode-mode' : ''}}">
 
-  <!-- ============ Hero ============ -->
-  <view class="hero">
-    <view class="deco-circle"></view>
-    <view class="deco-ring"></view>
+  <view class="hero" wx:if="{{!isQrCodeMode || qrStep === 'need_login' || qrStep === 'setup_profile'}}">
     <image class="logo" src="https://api.yzjtiantian.cn/uploads/logo/logo.png" mode="aspectFill" />
-    <text class="title">时光绿径待办</text>
-    <text class="subtitle">登录后同步数据与通知提醒</text>
+    <text class="title">{{isQrCodeMode ? '扫码登录确认' : '时光绿径待办'}}</text>
+    <text class="subtitle">{{isQrCodeMode ? '请先完成微信登录以授权网页端' : '登录后同步数据与通知提醒'}}</text>
   </view>
 
-  <!-- ============ 标准登录 ============ -->
   <block wx:if="{{!isQrCodeMode}}">
     <view class="card">
-      <view class="card-item">
-        <view class="card-item-icon">
-          <t-icon name="logo-wechat-stroke" size="36rpx" color="#00b26a" />
-        </view>
-        <view class="card-item-body">
-          <text class="card-item-title">微信一键登录</text>
-          <text class="card-item-desc">安全授权，仅用于身份识别</text>
+      <view class="item">
+        <t-icon name="logo-wechat-stroke" size="32px" color="#00b26a" />
+        <view class="item-text">
+          <text class="item-title">微信一键登录</text>
+          <text class="item-desc">安全授权，仅用于身份识别</text>
         </view>
       </view>
-      <view class="card-divider"></view>
-      <view class="agreement">
+
+      <view class="agreement-section">
         <t-checkbox
           checked="{{agreed}}"
           bind:change="onAgreeChange"
@@ -33,24 +27,22 @@
         <text class="agreement-text">和</text>
         <text class="agreement-link" bindtap="showPrivacyPolicy">《隐私政策》</text>
       </view>
-      <button class="login-btn {{agreed ? '' : 'disabled'}}" loading="{{loading}}" bindtap="handleLogin">
-        <t-icon wx:if="{{!loading}}" name="logo-wechat-stroke" size="36rpx" color="#fff" />
-        <text>微信一键登录</text>
-      </button>
+
+      <button class="login-btn {{agreed ? '' : 'disabled'}}" loading="{{loading}}" bindtap="handleLogin">微信一键登录</button>
     </view>
   </block>
 
-  <!-- ============ QR 需要登录 ============ -->
   <block wx:if="{{isQrCodeMode && qrStep === 'need_login'}}">
     <view class="card">
-      <view class="banner banner--info">
-        <t-icon name="info-circle" size="40rpx" color="#2dd4bf" />
-        <view class="banner-body">
-          <text class="banner-title">检测到网页端登录请求</text>
-          <text class="banner-desc">请先登录您的账号，然后即可授权网页端登录</text>
+      <view class="qr-banner qr-banner--info">
+        <t-icon name="info-circle" size="48rpx" color="#1890ff" />
+        <view class="qr-banner-text">
+          <text class="qr-banner-title">检测到网页端登录请求</text>
+          <text class="qr-banner-desc">请先登录您的账号，然后即可授权网页端登录</text>
         </view>
       </view>
-      <view class="agreement">
+
+      <view class="agreement-section">
         <t-checkbox
           checked="{{agreed}}"
           bind:change="onAgreeChange"
@@ -61,23 +53,21 @@
         <text class="agreement-text">和</text>
         <text class="agreement-link" bindtap="showPrivacyPolicy">《隐私政策》</text>
       </view>
-      <button class="login-btn {{agreed ? '' : 'disabled'}}" loading="{{loading}}" bindtap="handleLogin">
-        <t-icon wx:if="{{!loading}}" name="logo-wechat-stroke" size="36rpx" color="#fff" />
-        <text>微信一键登录</text>
-      </button>
+
+      <button class="login-btn {{agreed ? '' : 'disabled'}}" loading="{{loading}}" bindtap="handleLogin">微信一键登录</button>
     </view>
   </block>
 
-  <!-- ============ QR 设置资料 ============ -->
   <block wx:if="{{isQrCodeMode && qrStep === 'setup_profile'}}">
     <view class="card">
-      <view class="banner banner--setup">
-        <t-icon name="user-add" size="40rpx" color="#00b26a" />
-        <view class="banner-body">
-          <text class="banner-title">欢迎加入时光绿径待办！</text>
-          <text class="banner-desc">请设置您的昵称和头像，完成后即可授权网页端登录</text>
+      <view class="qr-banner qr-banner--setup">
+        <t-icon name="user-add" size="48rpx" color="#00b26a" />
+        <view class="qr-banner-text">
+          <text class="qr-banner-title">欢迎加入时光绿径待办！</text>
+          <text class="qr-banner-desc">请设置您的昵称和头像，完成后即可授权网页端登录</text>
         </view>
       </view>
+
       <view class="profile-setup">
         <view class="profile-avatar-wrap">
           <button class="avatar-btn" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
@@ -91,6 +81,7 @@
             </view>
           </button>
         </view>
+
         <input
           class="nickname-input"
           type="nickname"
@@ -99,6 +90,7 @@
           bindinput="onInputNickname"
           maxlength="16"
         />
+
         <view class="profile-actions">
           <button class="btn-secondary" bindtap="skipProfileSetup">跳过</button>
           <button class="btn-primary" loading="{{loading}}" bindtap="handleSaveProfile">保存并继续</button>
@@ -107,16 +99,16 @@
     </view>
   </block>
 
-  <!-- ============ QR 确认授权 ============ -->
   <block wx:if="{{isQrCodeMode && qrStep === 'confirm'}}">
     <view class="card">
-      <view class="confirm-header">
-        <view class="confirm-icon">
+      <view class="qr-confirm-header">
+        <view class="confirm-icon-wrap confirm-icon-wrap--success">
           <t-icon name="check-circle" size="64rpx" color="#00b26a" />
         </view>
         <text class="confirm-title">登录验证成功</text>
         <text class="confirm-desc">以下账号将用于登录网页端</text>
       </view>
+
       <view class="confirm-user-card">
         <image
           class="confirm-avatar"
@@ -128,45 +120,45 @@
           <text class="confirm-id">ID: {{currentUserInfo.id}}</text>
         </view>
       </view>
-      <view class="banner banner--warn">
+
+      <view class="confirm-warning">
         <t-icon name="info-circle" size="28rpx" color="#faad14" />
-        <text class="banner-desc">点击确认后，网页端将获得您的登录权限</text>
+        <text class="warning-text">点击确认后，网页端将获得您的登录权限</text>
       </view>
-      <button class="login-btn" loading="{{loading}}" bindtap="handleConfirmAuth">
+
+      <button class="confirm-btn" loading="{{loading}}" bindtap="handleConfirmAuth">
         确认授权网页端登录
       </button>
-      <view class="cancel-btn-wrap">
-        <text class="cancel-btn" bindtap="goBackToApp">取消</text>
-      </view>
+
+      <button class="cancel-btn" bindtap="goBackToApp">取消</button>
     </view>
   </block>
 
-  <!-- ============ QR 授权成功 ============ -->
   <block wx:if="{{isQrCodeMode && qrStep === 'success'}}">
     <view class="card">
       <view class="success-result">
-        <view class="success-icon">
+        <view class="success-icon-wrap">
           <t-icon name="check-circle-filled" size="96rpx" color="#00b26a" />
         </view>
         <text class="success-title">授权成功！</text>
         <text class="success-desc">网页端已成功登录，您可以返回网页端使用</text>
       </view>
-      <button class="login-btn" bindtap="goBackToApp">返回小程序</button>
+
+      <button class="back-btn" bindtap="goBackToApp">返回小程序</button>
     </view>
   </block>
 
-  <!-- ============ Popups ============ -->
   <t-popup
     visible="{{showUserAgreement}}"
     bind:visible-change="hideUserAgreement"
     placement="bottom"
     close-on-overlay-click="{{true}}"
   >
-    <view class="popup">
+    <view class="popup-content">
       <view class="popup-header">
         <text class="popup-title">用户协议</text>
         <view class="popup-close" bindtap="hideUserAgreement">
-          <t-icon name="close" size="40rpx" color="#999" />
+          <t-icon name="close" size="24px" color="#666" />
         </view>
       </view>
       <scroll-view scroll-y class="popup-body">
@@ -181,11 +173,11 @@
     placement="bottom"
     close-on-overlay-click="{{true}}"
   >
-    <view class="popup">
+    <view class="popup-content">
       <view class="popup-header">
         <text class="popup-title">隐私政策</text>
         <view class="popup-close" bindtap="hidePrivacyPolicy">
-          <t-icon name="close" size="40rpx" color="#999" />
+          <t-icon name="close" size="24px" color="#666" />
         </view>
       </view>
       <scroll-view scroll-y class="popup-body">
