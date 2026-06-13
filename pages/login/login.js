@@ -172,7 +172,7 @@ Page({
     isQrCodeMode: true,//
     sceneId: '',
     qrStatus: 'waiting',
-    qrStep: 'need_login',//detect, need_login, setup_profile, confirm, success
+    qrStep: 'setup_profile',//detect, need_login, setup_profile, confirm, success
     authConfirmed: false,
     showProfileModal: false,
     profileNickname: '',

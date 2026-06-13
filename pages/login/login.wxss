@@ -239,6 +239,22 @@
 
 .btn-secondary::after { border: none; }
 
+.btn-primary {
+  flex: 2;
+  height: 96rpx;
+  line-height: 96rpx;
+  text-align: center;
+  font-size: 36rpx;
+  color: #fff;
+  background: #00b26a;
+  border-radius: 48rpx;
+  border: none;
+  font-weight: 600;
+  box-shadow: 0 6rpx 16rpx rgba(0,178,106,0.25);
+}
+
+.btn-primary::after { border: none; }
+
 /* ===== Bottom Section ===== */
 .login-bottom {
   padding-top: 8rpx;
