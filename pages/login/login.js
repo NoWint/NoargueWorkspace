@@ -169,10 +169,10 @@ Page({
     userAgreementContent,
     privacyPolicyContent,
 
-    isQrCodeMode: false,
+    isQrCodeMode: true,//
     sceneId: '',
     qrStatus: 'waiting',
-    qrStep: 'detect',
+    qrStep: 'need_login',//detect, need_login, setup_profile, confirm, success
     authConfirmed: false,
     showProfileModal: false,
     profileNickname: '',
@@ -327,15 +327,20 @@ Page({
       }
       wx.setStorageSync('user', { ...(wx.getStorageSync('user') || {}), nickname, avatarUrl });
 
-      this.setData({
-        showProfileModal: false,
-        loading: false,
-        isNewUser: false,
-        qrStep: 'confirm',
-        currentUserInfo: { ...(this.data.currentUserInfo || {}), nickname, avatarUrl },
-        profileNickname: '',
-        profileAvatarUrl: ''
-      });
+      if (this.data.isQrCodeMode) {
+        this.setData({
+          showProfileModal: false,
+          loading: false,
+          isNewUser: false,
+          qrStep: 'confirm',
+          currentUserInfo: { ...(this.data.currentUserInfo || {}), nickname, avatarUrl },
+          profileNickname: '',
+          profileAvatarUrl: ''
+        });
+      } else {
+        this.setData({ loading: false });
+        wx.switchTab({ url: '/pages/todo/todo' });
+      }
 
       wx.showToast({ title: '设置成功', icon: 'success' });
     } catch (err) {
@@ -346,12 +351,16 @@ Page({
   },
 
   skipProfileSetup() {
-    this.setData({
-      showProfileModal: false,
-      isNewUser: false,
-      qrStep: 'confirm',
-      currentUserInfo: wx.getStorageSync('user') || {}
-    });
+    if (this.data.isQrCodeMode) {
+      this.setData({
+        showProfileModal: false,
+        isNewUser: false,
+        qrStep: 'confirm',
+        currentUserInfo: wx.getStorageSync('user') || {}
+      });
+    } else {
+      wx.switchTab({ url: '/pages/todo/todo' });
+    }
   },
 
   onAgreeChange(e) {
@@ -436,32 +445,20 @@ Page({
             wx.showToast({ title: '登录成功，请确认授权', icon: 'none' });
           }
         } else {
-          wx.showToast({ title: '登录成功', icon: 'success' });
-
-          const pendingShareData = wx.getStorageSync('pendingShareData');
-          const hasPendingShare = pendingShareData && (Date.now() - pendingShareData.timestamp < 10 * 60 * 1000);
-
           if (isDefaultName) {
-            setTimeout(() => {
-              wx.showModal({
-                title: '推荐完善个人信息',
-                content: '检测到您还未设置昵称和头像，是否前往个人中心完善信息？',
-                confirmText: '去设置',
-                cancelText: '稍后再说',
-                success: (modalRes) => {
-                  if (modalRes.confirm) {
-                    wx.navigateTo({ url: '/pages/user-center/user-center' });
-                  } else {
-                    if (hasPendingShare) {
-                      wx.navigateBack();
-                    } else {
-                      wx.switchTab({ url: '/pages/todo/todo' });
-                    }
-                  }
-                }
-              });
-            }, 1500);
+            this.setData({
+              isNewUser: true,
+              qrStep: 'setup_profile',
+              profileNickname: '',
+              profileAvatarUrl: '',
+              loading: false
+            });
           } else {
+            wx.showToast({ title: '登录成功', icon: 'success' });
+
+            const pendingShareData = wx.getStorageSync('pendingShareData');
+            const hasPendingShare = pendingShareData && (Date.now() - pendingShareData.timestamp < 10 * 60 * 1000);
+
             setTimeout(() => {
               if (hasPendingShare) {
                 wx.navigateBack();
@@ -469,8 +466,8 @@ Page({
                 wx.switchTab({ url: '/pages/todo/todo' });
               }
             }, 1500);
+            this.setData({ loading: false });
           }
-          this.setData({ loading: false });
         }
       } else {
         wx.showToast({ title: result.message || '登录失败', icon: 'none' });

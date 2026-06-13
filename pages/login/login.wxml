@@ -16,24 +16,24 @@
         <view class="cmp-row">
           <view class="cmp-col cmp-col--left">
             <text class="cmp-text-before">本地存储</text>
-            <t-icon name="cloud" size="32rpx" color="#ccc" />
+            <t-icon name="save" size="32rpx" color="#ccc" />
           </view>
           <view class="cmp-arrow">
-            <t-icon name="arrow-right" size="28rpx" color="#ccc" />
+            <t-icon name="arrow-right" size="42rpx" color="#ccc" />
           </view>
           <view class="cmp-col cmp-col--right">
-            <t-icon name="cloud-download" size="32rpx" color="#00b26a" />
+            <t-icon name="cloud-upload" size="32rpx" color="#00b26a" />
             <text class="cmp-text-after">云端同步</text>
           </view>
         </view>
 
         <view class="cmp-row">
           <view class="cmp-col cmp-col--left">
-            <text class="cmp-text-before">无提醒</text>
-            <t-icon name="notification" size="32rpx" color="#ccc" />
+            <text class="cmp-text-before">没有提醒</text>
+            <t-icon name="notification-error" size="32rpx" color="#ccc" />
           </view>
           <view class="cmp-arrow">
-            <t-icon name="arrow-right" size="28rpx" color="#ccc" />
+            <t-icon name="arrow-right" size="42rpx" color="#ccc" />
           </view>
           <view class="cmp-col cmp-col--right">
             <t-icon name="notification" size="32rpx" color="#00b26a" />
@@ -44,28 +44,28 @@
         <view class="cmp-row">
           <view class="cmp-col cmp-col--left">
             <text class="cmp-text-before">单人模式</text>
-            <t-icon name="user-circle" size="32rpx" color="#ccc" />
+            <t-icon name="user" size="32rpx" color="#ccc" />
           </view>
           <view class="cmp-arrow">
-            <t-icon name="arrow-right" size="28rpx" color="#ccc" />
+            <t-icon name="arrow-right" size="42rpx" color="#ccc" />
           </view>
           <view class="cmp-col cmp-col--right">
-            <t-icon name="user-group" size="32rpx" color="#00b26a" />
-            <text class="cmp-text-after">共享协作</text>
+            <t-icon name="usergroup" size="32rpx" color="#00b26a" />
+            <text class="cmp-text-after">多人协作</text>
           </view>
         </view>
 
         <view class="cmp-row">
           <view class="cmp-col cmp-col--left">
-            <text class="cmp-text-before">单设备</text>
-            <t-icon name="file-copy" size="32rpx" color="#ccc" />
+            <text class="cmp-text-before">单一设备</text>
+            <t-icon name="mobile" size="32rpx" color="#ccc" />
           </view>
           <view class="cmp-arrow">
-            <t-icon name="arrow-right" size="28rpx" color="#ccc" />
+            <t-icon name="arrow-right" size="42rpx" color="#ccc" />
           </view>
           <view class="cmp-col cmp-col--right">
-            <t-icon name="file-copy" size="32rpx" color="#00b26a" />
-            <text class="cmp-text-after">自动备份</text>
+            <t-icon name="device" size="32rpx" color="#00b26a" />
+            <text class="cmp-text-after">多端同步</text>
           </view>
         </view>
 
@@ -84,7 +84,7 @@
         <text class="agreement-link" catchtap="showPrivacyPolicy">《隐私政策》</text>
       </view>
       <button class="login-btn {{agreed ? '' : 'disabled'}}" loading="{{loading}}" bindtap="handleLogin">
-        <t-icon wx:if="{{!loading}}" name="logo-wechat-stroke" size="36rpx" color="#fff" />
+        <t-icon wx:if="{{!loading}}" name="logo-wechat-stroke" size="48rpx" color="#fff" />
         <text>微信一键登录</text>
       </button>
     </view>
@@ -116,14 +116,14 @@
     </view>
   </block>
 
-  <!-- ===== QR: setup_profile ===== -->
-  <block wx:if="{{isQrCodeMode && qrStep === 'setup_profile'}}">
+  <!-- ===== setup_profile (共用) ===== -->
+  <block wx:if="{{qrStep === 'setup_profile'}}">
     <view class="card">
       <view class="banner banner--setup">
         <t-icon name="user-add" size="40rpx" color="#00b26a" />
         <view class="banner-body">
           <text class="banner-title">欢迎加入时光绿径待办！</text>
-          <text class="banner-desc">请设置您的昵称和头像，完成后即可授权网页端登录</text>
+          <text class="banner-desc">{{isQrCodeMode ? '请设置您的昵称和头像，完成后即可授权网页端登录' : '设置昵称和头像，让其他小伙伴认识你吧'}}</text>
         </view>
       </view>
       <view class="profile-setup">
