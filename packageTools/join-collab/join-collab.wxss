@@ -47,7 +47,7 @@
   height: 88rpx;
   background: rgba(255,255,255,0.9);
   border: 2rpx solid rgba(255,255,255,0.5);
-  border-radius: 24rpx;
+  border-radius: 32rpx;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -71,7 +71,7 @@
 .code-char {
   font-size: 40rpx;
   font-weight: 600;
-  color: #12b086;
+  color: #00b26a;
 }
 
 .cursor {
@@ -88,7 +88,7 @@
   gap: 12rpx;
   padding: 20rpx 32rpx;
   background: rgba(255, 255, 255, 0.2);
-  border-radius: 40rpx;
+  border-radius: 32rpx;
   transition: all 0.2s ease;
   flex: 1;
 }
@@ -117,7 +117,7 @@
   gap: 12rpx;
   padding: 20rpx 32rpx;
   background: rgba(255, 255, 255, 0.2);
-  border-radius: 40rpx;
+  border-radius: 32rpx;
   transition: all 0.2s ease;
   flex: 1;
 }
@@ -286,23 +286,24 @@
 }
 
 .tips-section {
-  background: linear-gradient(135deg, #fff7e6 0%, #ffe7ba 100%);
+  background: #ffffff;
   border-radius: 32rpx;
-  padding: 32rpx;
-  box-shadow: 0 4rpx 20rpx rgba(255, 152, 0, 0.12);
-  border-left: 6rpx solid #ff9800;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  border-left: 6rpx solid #2dd4bf;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.06);
 }
 
 .tips-title {
   font-size: 32rpx;
   font-weight: 500;
-  color: #e65100;
+  color: #333333;
   display: block;
   margin-bottom: 20rpx;
 }
 
 .tips-item {
-  font-size: 30rpx;
+  font-size: 28rpx;
   color: #666;
   display: block;
   margin-bottom: 12rpx;

@@ -41,7 +41,8 @@
         </view>
       </view>
       <view wx:if="{{userTags.length === 0}}" class="empty-tip">
-        暂无自定义标签，点击上方添加
+        <t-icon name="tag" size="48rpx" class="empty-icon"></t-icon>
+        <text>暂无标签...</text>
       </view>
     </view>
   </view>
