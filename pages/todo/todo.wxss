@@ -1163,16 +1163,15 @@
 .action-btn.reject {
   background: #f5f5f5;
   color: #d90000;
-
-.priority-bar {
-  position: absolute;
-  left: 0;
-  top: 20rpx;
-  width: 6rpx;
-  height: 48rpx;
-  border-radius: 0 4rpx 4rpx 0;
-  z-index: 5;
+}.priority-indicator {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 12rpx;
+  flex-shrink: 0;
 }
-.priority-bar.priority-bar-p1 { background: #e34d59; }
-.priority-bar.priority-bar-p3 { background: #ff9800; }
-.priority-bar.priority-bar-p4 { background: #999; }
+.priority-indicator.priority-p1 { background: #e34d59; }
+.priority-indicator.priority-p3 { background: #ff9800; }
+.priority-indicator.priority-p4 { background: #999; }
+

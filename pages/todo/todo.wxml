@@ -131,9 +131,6 @@ wx:key="*this"
           <view wx:if="{{todo.isStar}}" class="star-badge">
             <t-icon name="star-filled" size="26rpx" color="#ffffff" />
           </view>
-          <view wx:if="{{todo.priority && todo.priority !== 'p2'}}"
-                class="priority-bar priority-bar-{{todo.priority}}">
-          </view>
           <t-cell
           <view wx:if="{{todo.priority && todo.priority !== 'p2'}}" 
                 class="priority-indicator priority-{{todo.priority}}">
