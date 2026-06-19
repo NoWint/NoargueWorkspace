@@ -205,7 +205,6 @@ const getById = async (req, res) => {
             excludeType: todo.exclude_type || '',
             tags: todo.tags ? JSON.parse(todo.tags) : [],
             images: images,
-            priority: todo.priority || 'p2',
             completedAt: todo.completed_at,
             myCompletedAt: myCompletedAt,
             createdAt: todo.created_at,
@@ -326,9 +325,9 @@ const create = async (req, res) => {
             
             const sharedTodoResult = await query(
               `INSERT INTO shared_todos 
-               (combo_id, creator_id, text, set_date, set_time, remarks, assign_type, priority, created_at) 
-               VALUES (?, ?, ?, ?, ?, ?, 'all', ?, NOW())`,
-              [comboId, userId, todo.text, todo.set_date, todo.set_time, todo.remarks, todo.priority || 'p2']
+               (combo_id, creator_id, text, set_date, set_time, remarks, assign_type, created_at) 
+               VALUES (?, ?, ?, ?, ?, ?, 'all', NOW())`,
+              [comboId, userId, todo.text, todo.set_date, todo.set_time, todo.remarks]
             );
             
             const sharedTodoId = sharedTodoResult.insertId;
