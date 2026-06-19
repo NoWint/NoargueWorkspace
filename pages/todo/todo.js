@@ -771,7 +771,7 @@ Page({
   /**
    * 从子页面添加待办事项
    */
-  addTodoFromChild(text, setDate, setTime, remarks, location, tags, comboId, images) {
+  addTodoFromChild(text, setDate, setTime, remarks, location, tags, comboId, images, priority) {
     const now = Date.now();
     const newTodo = {
       id: generateTodoId(),
@@ -786,6 +786,7 @@ Page({
       tags: tags || [],
       comboId: comboId || '',
       images: images || [],
+      priority: priority || 'p2',
       version: 1,
       isDeleted: false,
       deletedAt: null,

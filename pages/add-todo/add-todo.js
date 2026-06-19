@@ -785,6 +785,7 @@ Page({
       tags: this.data.selectedTags,
       comboId: this.data.comboId || '',
       images: this.data.images,
+      priority: this.data.priority,
       version: 1,
       isDeleted: false,
       deletedAt: null,
@@ -800,7 +801,8 @@ Page({
         newTodo.location,
         newTodo.tags,
         newTodo.comboId,
-        newTodo.images
+        newTodo.images,
+        newTodo.priority
       );
     } else {
       const todos = wx.getStorageSync('todos') || [];
