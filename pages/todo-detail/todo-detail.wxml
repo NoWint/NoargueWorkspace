@@ -118,11 +118,11 @@
       <text class="value">{{formatAllCompletedTime}}</text>
     </view>
 
-    <view wx:if="{{todo.priority && todo.priority !== 'p2'}}" class="date-info">
+    <view wx:if="{{todo.priority}}" class="date-info">
       <text class="label">优先级</text>
       <view class="priority-detail-row">
         <view class="pd priority-detail-{{todo.priority}}"></view>
-        <text class="value">{{todo.priority === 'p1' ? 'P1 紧急重要' : todo.priority === 'p3' ? 'P3 紧急不重要' : 'P4 不紧急不重要'}}</text>
+        <text class="value">{{todo.priority === 'p1' ? 'P1 紧急重要' : todo.priority === 'p2' ? 'P2 重要不紧急' : todo.priority === 'p3' ? 'P3 紧急不重要' : 'P4 不紧急不重要'}}</text>
       </view>
     </view>
 

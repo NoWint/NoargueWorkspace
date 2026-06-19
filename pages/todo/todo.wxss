@@ -362,9 +362,8 @@
 
 /* swipe-cell 的完成态样式（背景色）- 无动画，只有样式 */
 .todo-item.completed {
-  opacity: 0.5;
-  filter: grayscale(0.4);
-  background: #f8fbf9;
+  background: linear-gradient(135deg, #ecfdf5 0%, #90e0b7 100%) !important;
+  box-shadow: 0 4rpx 16rpx rgba(76,175,80,0.15);
 }
 
 /* 完成态文字样式 */
