@@ -48,6 +48,7 @@ Page({
     isSharedCombo: false,
     members: [],
     assignType: 'all',
+    priority: 'p2',
     selectedMembers: [],
     userRole: '',
     excludeType: '',
@@ -338,6 +339,10 @@ Page({
     } catch (err) {
       console.error('加载成员失败:', err);
     }
+  },
+
+  setPriority(e) {
+    this.setData({ priority: e.currentTarget.dataset.priority });
   },
 
   setAssignType(e) {

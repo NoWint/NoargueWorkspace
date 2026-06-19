@@ -123,7 +123,7 @@ const create = async (req, res) => {
     
     const result = await query(
       `INSERT INTO todos 
-       (user_id, todo_id, text, set_date, set_time, remarks, location_text, is_star, combo_id, images, version, created_at, updated_at) 
+       (user_id, todo_id, text, set_date, set_time, remarks, location_text, is_star, combo_id, images, priority, version, created_at, updated_at) 
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, NOW(), NOW())`,
       [
         userId,
@@ -135,7 +135,8 @@ const create = async (req, res) => {
         location ? JSON.stringify(location) : null,
         isStar ? 1 : 0,
         comboId || null,
-        imagesJson
+        imagesJson,
+        req.body.priority || 'p2'
       ]
     );
     
@@ -228,6 +229,10 @@ const update = async (req, res) => {
     if (comboId !== undefined) {
       updateFields.push('combo_id = ?');
       updateValues.push(comboId);
+    }
+    if (priority !== undefined) {
+      updateFields.push('priority = ?');
+      updateValues.push(priority);
     }
     if (images !== undefined) {
       updateFields.push('images = ?');
@@ -425,10 +430,11 @@ const sync = async (req, res) => {
               await query(
                 `UPDATE todos SET 
                  text = ?, set_date = ?, set_time = ?, remarks = ?, location_text = ?, 
-                 completed = ?, is_star = ?, tags = ?, images = ?, combo_id = ?, version = ?, updated_at = NOW()
+                 completed = ?, is_star = ?, tags = ?, images = ?, priority = ?, combo_id = ?, version = ?, updated_at = NOW()
                  WHERE id = ? AND user_id = ?`,
                 [
                   resolved.text,
+                  resolved.priority || 'p2',
                   resolved.setDate || null,
                   resolved.setTime || null,
                   resolved.remarks || null,
@@ -679,7 +685,8 @@ function formatTodo(todo) {
     version: todo.version || 1,
     isDeleted: todo.is_deleted === 1,
     deletedAt: todo.deleted_at ? new Date(todo.deleted_at).getTime() : null,
-    updatedAt: todo.updated_at ? new Date(todo.updated_at).getTime() : null
+    updatedAt: todo.updated_at ? new Date(todo.updated_at).getTime() : null,
+    priority: todo.priority || 'p2'
   };
 }
 
