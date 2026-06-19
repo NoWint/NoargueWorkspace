@@ -13,6 +13,7 @@
       <view class="creator-content" bindlongpress="copyCreator">
         <image class="creator-avatar" src="{{creator.avatar || '/images/avatar.png'}}" mode="aspectFill" />
         <text class="creator-name">{{creator.nickname || '未知用户'}}</text>
+      </view>
     </view>
     
     <!-- 添加时间显示部分 -->
@@ -117,7 +118,7 @@
       <text class="value">{{formatAllCompletedTime}}</text>
     </view>
 
-    <view wx:if="{{todo.priority}}" class="date-info date-info-priority">
+<view wx:if="{{todo.priority}}" class="date-info date-info-priority">
       <text class="label">优先级</text>
       <text class="value">{{todo.priority === 'p1' ? 'P1 紧急重要' : todo.priority === 'p2' ? 'P2 重要不紧急' : todo.priority === 'p3' ? 'P3 紧急不重要' : 'P4 不紧急不重要'}}</text>
     </view>
