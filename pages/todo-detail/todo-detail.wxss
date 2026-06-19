@@ -954,3 +954,18 @@
   width: 90%;
 }
 
+
+.priority-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+.priority-detail-dot {
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.priority-detail-dot.priority-detail-p1 { background: #e34d59; }
+.priority-detail-dot.priority-detail-p3 { background: #ff9800; }
+.priority-detail-dot.priority-detail-p4 { background: #999; }

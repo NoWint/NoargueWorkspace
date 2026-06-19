@@ -90,6 +90,32 @@ module.exports = {
     </view>
 
     <view class="form-item">
+      <text class="question-title">优先级</text>
+      <view class="priority-grid">
+        <view class="quadrant {{priority === 'p1' ? 'active' : ''}}" data-priority="p1" bindtap="setPriority">
+          <view class="priority-dot dot-p1"></view>
+          <text class="quadrant-label">P1 紧急重要</text>
+          <text class="quadrant-desc">马上做</text>
+        </view>
+        <view class="quadrant {{priority === 'p2' ? 'active' : ''}}" data-priority="p2" bindtap="setPriority">
+          <view class="priority-dot dot-p2"></view>
+          <text class="quadrant-label">P2 重要不紧急</text>
+          <text class="quadrant-desc">计划做</text>
+        </view>
+        <view class="quadrant {{priority === 'p3' ? 'active' : ''}}" data-priority="p3" bindtap="setPriority">
+          <view class="priority-dot dot-p3"></view>
+          <text class="quadrant-label">P3 紧急不重要</text>
+          <text class="quadrant-desc">快速处理</text>
+        </view>
+        <view class="quadrant {{priority === 'p4' ? 'active' : ''}}" data-priority="p4" bindtap="setPriority">
+          <view class="priority-dot dot-p4"></view>
+          <text class="quadrant-label">P4 不紧急不重要</text>
+          <text class="quadrant-desc">可做可不做</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="form-item">
       <text class="question-title">附加图片</text>
       <view class="image-upload-tip">图片由第三方图床托管，图片连续60天未访问将被自动清理</view>
       <t-upload

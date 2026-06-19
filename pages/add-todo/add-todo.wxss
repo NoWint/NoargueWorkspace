@@ -418,3 +418,43 @@
   font-size: 28rpx;
   color: #666;
 }
+.priority-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+  margin-left: 24rpx;
+}
+.quadrant {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+  padding: 24rpx 16rpx;
+  background: #f5f5f5;
+  border-radius: 24rpx;
+  transition: all 0.3s ease;
+}
+.quadrant.active {
+  background: #ccebda;
+}
+.priority-dot {
+  width: 24rpx;
+  height: 24rpx;
+  border-radius: 50%;
+}
+.dot-p1 { background: #e34d59; }
+.dot-p2 { background: #2196F3; }
+.dot-p3 { background: #ff9800; }
+.dot-p4 { background: #999; }
+.quadrant-label {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+}
+.quadrant-desc {
+  font-size: 22rpx;
+  color: #999;
+}
+.quadrant.active .quadrant-label { color: #00b26a; }
+.quadrant.active .quadrant-desc { color: #00b26a; }
+

@@ -1163,4 +1163,15 @@
 .action-btn.reject {
   background: #f5f5f5;
   color: #d90000;
+}.priority-indicator {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 12rpx;
+  flex-shrink: 0;
 }
+.priority-indicator.priority-p1 { background: #e34d59; }
+.priority-indicator.priority-p3 { background: #ff9800; }
+.priority-indicator.priority-p4 { background: #999; }
+

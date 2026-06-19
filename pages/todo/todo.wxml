@@ -132,6 +132,9 @@ wx:key="*this"
             <t-icon name="star-filled" size="26rpx" color="#ffffff" />
           </view>
           <t-cell
+          <view wx:if="{{todo.priority && todo.priority !== 'p2'}}" 
+                class="priority-indicator priority-{{todo.priority}}">
+          </view>
             title="{{todo.text}}"
             description="{{todo.location ? (todo.remarks ? '📍' + todo.location.name + '｜' + todo.remarks : '📍' + todo.location.name) : todo.remarks}}"
             note="{{todo.friendlyDate || todo.setDate}}"
