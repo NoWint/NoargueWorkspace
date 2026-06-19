@@ -85,6 +85,25 @@
           catchtap="selectTagFilter"
         >待完成</view>
         <view class="dropdown-divider"></view>
+        <view class="dropdown-group-label">优先级</view>
+        <view class="dropdown-item {{currentTagFilter === 'p1' ? 'selected' : ''}}" data-filter="p1" catchtap="selectTagFilter">
+          <view class="tag-color-dot priority-dot p1"></view>
+          <text>紧急重要</text>
+        </view>
+        <view class="dropdown-item {{currentTagFilter === 'p2' ? 'selected' : ''}}" data-filter="p2" catchtap="selectTagFilter">
+          <view class="tag-color-dot priority-dot p2"></view>
+          <text>重要不紧急</text>
+        </view>
+        <view class="dropdown-item {{currentTagFilter === 'p3' ? 'selected' : ''}}" data-filter="p3" catchtap="selectTagFilter">
+          <view class="tag-color-dot priority-dot p3"></view>
+          <text>紧急不重要</text>
+        </view>
+        <view class="dropdown-item {{currentTagFilter === 'p4' ? 'selected' : ''}}" data-filter="p4" catchtap="selectTagFilter">
+          <view class="tag-color-dot priority-dot p4"></view>
+          <text>不紧急不重要</text>
+        </view>
+        <view class="dropdown-divider"></view>
+        <view class="dropdown-group-label">标签</view>
         <view 
           class="dropdown-item {{currentTagFilter === 'none' ? 'selected' : ''}}" 
           data-filter="none"

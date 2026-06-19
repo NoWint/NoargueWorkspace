@@ -340,6 +340,14 @@ Page({
       tagName = '已完成';
     } else if (filter === 'uncompleted') {
       tagName = '待完成';
+    } else if (filter === 'p1') {
+      tagName = '紧急重要';
+    } else if (filter === 'p2') {
+      tagName = '重要不紧急';
+    } else if (filter === 'p3') {
+      tagName = '紧急不重要';
+    } else if (filter === 'p4') {
+      tagName = '不紧急不重要';
     } else if (filter === 'none') {
       tagName = '未分类';
     } else if (filter !== 'all') {
@@ -365,6 +373,8 @@ Page({
       filteredTodos = allTodos.filter(todo => todo.completed);
     } else if (currentTagFilter === 'uncompleted') {
       filteredTodos = allTodos.filter(todo => !todo.completed);
+    } else if (currentTagFilter === 'p1' || currentTagFilter === 'p2' || currentTagFilter === 'p3' || currentTagFilter === 'p4') {
+      filteredTodos = allTodos.filter(todo => (todo.priority || 'p2') === currentTagFilter);
     } else if (currentTagFilter === 'none') {
       filteredTodos = allTodos.filter(todo => !todo.tags || todo.tags.length === 0);
     } else if (currentTagFilter !== 'all') {

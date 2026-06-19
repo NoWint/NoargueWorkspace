@@ -786,6 +786,13 @@
   margin: 8rpx 0;
 }
 
+.dropdown-group-label {
+  padding: 12rpx 32rpx 4rpx;
+  font-size: 32rpx;
+  color: #999;
+  font-weight: 500;
+}
+
 .tag-color-dot {
   width: 24rpx;
   height: 24rpx;
@@ -793,6 +800,11 @@
   margin-right: 16rpx;
   flex-shrink: 0;
 }
+
+.tag-color-dot.priority-dot.p1 { background: #e34d59; }
+.tag-color-dot.priority-dot.p2 { background: #2196F3; }
+.tag-color-dot.priority-dot.p3 { background: #ff9800; }
+.tag-color-dot.priority-dot.p4 { background: #999; }
 
 .dropdown-mask {
   position: fixed;
