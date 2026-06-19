@@ -1409,7 +1409,7 @@ Page({
               // 实际调用位置接口触发权限系统记录
               wx.getLocation({
                 type: 'wgs84',
-                success: () => this.connectBluetooth(),
+                success: () => console.log('location granted'),
                 fail: () => this.showLocationGuide()
               });
             },
