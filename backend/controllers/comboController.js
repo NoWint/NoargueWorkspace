@@ -197,6 +197,7 @@ const getById = async (req, res) => {
           return {
             id: todo.id,
             text: todo.text,
+            parentId: todo.parent_id,
             setDate: todo.set_date,
             setTime: todo.set_time,
             remarks: todo.remarks,
@@ -314,54 +315,24 @@ const create = async (req, res) => {
     
     if (todoIds && Array.isArray(todoIds) && todoIds.length > 0) {
       if (isShared) {
+        const members = await query(
+          'SELECT user_id FROM combo_members WHERE combo_id = ?',
+          [comboId]
+        );
         for (const todoId of todoIds) {
-          const todos = await query(
-            `SELECT * FROM todos WHERE (todo_id = ? OR id = ? OR created_at = FROM_UNIXTIME(? / 1000)) AND user_id = ?`,
-            [todoId, todoId, todoId, userId]
-          );
-          
-          if (todos.length > 0) {
-            const todo = todos[0];
-            
-            const sharedTodoResult = await query(
-              `INSERT INTO shared_todos 
-               (combo_id, creator_id, text, set_date, set_time, remarks, assign_type, priority, created_at) 
-               VALUES (?, ?, ?, ?, ?, ?, 'all', ?, NOW())`,
-              [comboId, userId, todo.text, todo.set_date, todo.set_time, todo.remarks, todo.priority || 'p2']
-            );
-            
-            const sharedTodoId = sharedTodoResult.insertId;
-            
-            const members = await query(
-              'SELECT user_id FROM combo_members WHERE combo_id = ?',
-              [comboId]
-            );
-            
-            if (members.length > 0) {
-              const assignValues = members.map(m => [sharedTodoId, m.user_id]);
-              await query(
-                'INSERT INTO shared_todo_assignments (shared_todo_id, user_id) VALUES ?',
-                [assignValues]
-              );
-            }
-            
-            await query(
-              'UPDATE todos SET is_deleted = 1, deleted_at = NOW(), combo_id = NULL WHERE id = ?',
-              [todo.id]
-            );
-          }
+          await copyTodoTree(todoId, userId, comboId, members);
         }
       } else {
         for (const todoId of todoIds) {
           await query(
-            `UPDATE todos SET combo_id = ?, updated_at = NOW() 
+            `UPDATE todos SET combo_id = ?, updated_at = NOW()
              WHERE (todo_id = ? OR id = ? OR created_at = FROM_UNIXTIME(? / 1000)) AND user_id = ?`,
             [comboId, todoId, todoId, todoId, userId]
           );
         }
       }
     }
-    
+
     const todoCount = todoIds ? todoIds.length : 0;
     
     res.json({
@@ -647,6 +618,66 @@ const setMemberRole = async (req, res) => {
     });
   }
 };
+
+async function copyTodoTree(todoId, userId, comboId, members) {
+  const todos = await query(
+    `SELECT * FROM todos WHERE (todo_id = ? OR id = ? OR created_at = FROM_UNIXTIME(? / 1000)) AND user_id = ?`,
+    [todoId, todoId, todoId, userId]
+  );
+
+  if (todos.length === 0) return null;
+  const todo = todos[0];
+
+  const result = await query(
+    `INSERT INTO shared_todos
+     (combo_id, creator_id, text, parent_id, set_date, set_time, remarks, assign_type, priority, created_at)
+     VALUES (?, ?, ?, NULL, ?, ?, ?, 'all', ?, NOW())`,
+    [comboId, userId, todo.text, todo.set_date, todo.set_time, todo.remarks, todo.priority || 'p2']
+  );
+
+  const newSharedId = result.insertId;
+
+  if (todo.todo_id) {
+    await copySubtaskTree(todo.todo_id, userId, comboId, newSharedId);
+  }
+
+  if (members && members.length > 0) {
+    const assignValues = members.map(m => [newSharedId, m.user_id]);
+    await query(
+      'INSERT INTO shared_todo_assignments (shared_todo_id, user_id) VALUES ?',
+      [assignValues]
+    );
+  }
+
+  await query(
+    'UPDATE todos SET is_deleted = 1, deleted_at = NOW(), combo_id = NULL WHERE id = ?',
+    [todo.id]
+  );
+
+  return newSharedId;
+}
+
+async function copySubtaskTree(parentTodoId, userId, comboId, parentSharedId) {
+  const children = await query(
+    `SELECT * FROM todos WHERE parent_id = ? AND user_id = ? AND is_deleted = 0`,
+    [parentTodoId, userId]
+  );
+
+  for (const child of children) {
+    const result = await query(
+      `INSERT INTO shared_todos
+       (combo_id, creator_id, text, parent_id, set_date, set_time, remarks, assign_type, priority, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 'all', ?, NOW())`,
+      [comboId, userId, child.text, parentSharedId, child.set_date, child.set_time, child.remarks, child.priority || 'p2']
+    );
+
+    const newChildId = result.insertId;
+
+    if (child.todo_id) {
+      await copySubtaskTree(child.todo_id, userId, comboId, newChildId);
+    }
+  }
+}
 
 module.exports = {
   getList,

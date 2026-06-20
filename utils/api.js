@@ -624,6 +624,19 @@ const commentsApi = {
   })
 };
 
+const shareApi = {
+  createSnapshot: (todo, subtasks) => request({
+    url: '/share/snapshot',
+    method: 'POST',
+    data: { todo, subtasks }
+  }),
+
+  getSnapshot: (shareId) => request({
+    url: `/share/snapshot/${shareId}`,
+    method: 'GET'
+  })
+};
+
 module.exports = {
   setToken,
   getToken,
@@ -639,5 +652,6 @@ module.exports = {
   notifyApi,
   configApi,
   adminApi,
-  commentsApi
+  commentsApi,
+  shareApi
 };

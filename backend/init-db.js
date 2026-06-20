@@ -197,6 +197,17 @@ const initDatabase = () => {
         INDEX idx_parent (parent_id),
         INDEX idx_created (created_at)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='共享待办评论表';
+
+      CREATE TABLE IF NOT EXISTS share_snapshots (
+        id BIGINT PRIMARY KEY AUTO_INCREMENT,
+        share_id VARCHAR(32) NOT NULL UNIQUE,
+        user_id BIGINT NOT NULL,
+        data TEXT NOT NULL,
+        expires_at DATETIME NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_share_id (share_id),
+        INDEX idx_expires (expires_at)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='分享快照（24h TTL）';
     `;
     
     connection.query(createTables, (err, result) => {

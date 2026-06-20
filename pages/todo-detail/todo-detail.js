@@ -1,7 +1,7 @@
 import ActionSheet, { ActionSheetTheme } from 'tdesign-miniprogram/action-sheet';
 
 const app = getApp();
-const { combosApi, collabApi, notifyApi, commentsApi, isLoggedIn } = require('../../utils/api.js');
+const { combosApi, collabApi, notifyApi, commentsApi, shareApi, isLoggedIn } = require('../../utils/api.js');
 const { syncWithCloud, getLocalTodos, saveTodo, getTodoById, deleteTodoById } = require('../../utils/sync.js');
 
 const NOTIFY_TEMPLATE_ID = '1jvRWbLBNSasPzKtUnrQEiVrU6hj2lWwhKNq2u8jjWg';
@@ -23,6 +23,8 @@ Page({
     
     notification: null,
     showNotifyConfig: false,
+    pendingShareId: null,
+    shareSnapshotSubtasks: null,
     notifyDateOffset: '0',
     notifyTime: '09:00',
     customDays: 3,
@@ -67,14 +69,21 @@ Page({
 
   onShareAppMessage() {
     const currentTodo = this.data.todo;
-    
+
     if (this.data.isSharedTodo) {
       return {
         title: '分享待办：' + currentTodo.text,
         path: `/pages/todo-detail/todo-detail?sharedTodoId=${this.data.sharedTodoId}&comboId=${this.data.comboId}`,
       };
     }
-    
+
+    if (this.data.pendingShareId) {
+      return {
+        title: '分享待办：' + currentTodo.text,
+        path: `/pages/todo-detail/todo-detail?isShare=1&shareId=${this.data.pendingShareId}`,
+      };
+    }
+
     const locationStr = currentTodo.location ? encodeURIComponent(JSON.stringify(currentTodo.location)) : '';
     const tagsStr = currentTodo.tags ? encodeURIComponent(JSON.stringify(currentTodo.tags)) : '';
     const imagesStr = currentTodo.images && currentTodo.images.length > 0 ? encodeURIComponent(JSON.stringify(currentTodo.images)) : '';
@@ -85,19 +94,194 @@ Page({
     }
   },
 
-  // 新增添加到待办方法
-  addToMyTodos() {
-    const newTodo = {
-      ...this.data.todo,
-      setDate: this.formatDate(new Date()),
-      time: Date.now(),
-      completed: false
+  // 分享前静默上传子任务树到服务端
+  async prepareShareSnapshotIfNeeded() {
+    const todo = this.data.todo;
+    if (!todo || !todo.id || this.data.isSharedTodo || this.data.adminView) return;
+
+    const allTodos = getLocalTodos();
+    const hasSubtasks = allTodos.some(t => t.parent_id === todo.id && !t.isDeleted);
+    if (!hasSubtasks) return;
+
+    const subtasks = {};
+    this.collectSubtaskTree(allTodos, todo.id, subtasks);
+
+    try {
+      const result = await shareApi.createSnapshot(todo, subtasks);
+      if (result.success) {
+        this.setData({ pendingShareId: result.shareId });
+      }
+    } catch (err) {
+      console.debug('预加载分享快照失败:', err);
     }
+  },
+
+  // 递归构建 { [parentId]: [child, ...] } 映射
+  collectSubtaskTree(allTodos, rootParentId, result = {}) {
+    const children = allTodos.filter(t => t.parent_id === rootParentId && !t.isDeleted);
+    if (children.length === 0) return;
+    result[rootParentId] = children.map(t => ({
+      id: t.id,
+      text: t.text,
+      parent_id: t.parent_id,
+      completed: t.completed,
+      time: t.time,
+      setDate: t.setDate,
+      setTime: t.setTime,
+      priority: t.priority || 'p2',
+      remarks: t.remarks || '',
+      tags: t.tags || [],
+      images: t.images || [],
+      location: t.location || null,
+      isStar: t.isStar || false
+    }));
+    for (const child of children) {
+      this.collectSubtaskTree(allTodos, child.id, result);
+    }
+  },
+
+  // 添加到我的待办 — 根据来源路由
+  addToMyTodos() {
+    if (this.data.isSharedTodo && this.data.sharedTodoId && this.data.comboId) {
+      this.addToMyTodosShared(this.data.sharedTodoId, this.data.comboId);
+      return;
+    }
+
+    const { todo, shareSnapshotSubtasks } = this.data;
+    const now = Date.now();
+    const newParentId = `todo_${now}_${Math.random().toString(36).substring(2, 8)}`;
+
+    const newTodo = {
+      ...todo,
+      id: newParentId,
+      completed: false,
+      time: now,
+      version: 1,
+      isDeleted: false,
+      deletedAt: null,
+      updatedAt: now,
+      parent_id: null
+    };
     saveTodo(newTodo);
+
+    if (shareSnapshotSubtasks && Object.keys(shareSnapshotSubtasks).length > 0) {
+      this.restoreSubtasksFromSnapshot(newParentId, shareSnapshotSubtasks);
+    }
+
     const todos = getLocalTodos();
     app.updateCalendarCache(todos);
     wx.showToast({ title: '已添加', icon: 'success' })
-    wx.navigateBack()
+    wx.navigateBack();
+  },
+
+  // 从共享组合添加到我的待办（递归拉取整棵子树）
+  async addToMyTodosShared(sharedTodoId, comboId) {
+    wx.showLoading({ title: '添加中...' });
+    try {
+      const result = await combosApi.getById(comboId);
+      const combo = result.combo || result;
+      const allSharedTodos = combo.sharedTodos || [];
+      const tree = this.buildTreeForAddition(allSharedTodos, parseInt(sharedTodoId));
+
+      const idMapping = {};
+      const now = Date.now();
+
+      for (const node of tree) {
+        const newId = `todo_${now}_${Math.random().toString(36).substring(2, 8)}`;
+        const parentNewId = node.parentId ? (idMapping[node.parentId] || null) : null;
+
+        saveTodo({
+          id: newId,
+          text: node.text,
+          setDate: node.setDate || '',
+          setTime: node.setTime || '12:00',
+          remarks: node.remarks || '',
+          location: node.location || null,
+          completed: false,
+          time: now,
+          isStar: false,
+          priority: node.priority || 'p2',
+          tags: node.tags || [],
+          images: [],
+          parent_id: parentNewId,
+          version: 1,
+          isDeleted: false,
+          deletedAt: null,
+          updatedAt: now
+        });
+        idMapping[node.id] = newId;
+      }
+
+      wx.hideLoading();
+      const todos = getLocalTodos();
+      app.updateCalendarCache(todos);
+      wx.showToast({ title: '已添加', icon: 'success' });
+      wx.navigateBack();
+    } catch (err) {
+      wx.hideLoading();
+      wx.showToast({ title: err.message || '添加失败', icon: 'none' });
+    }
+  },
+
+  // BFS 遍历共享待办列表获取完整子树
+  buildTreeForAddition(sharedTodos, rootId) {
+    const map = {};
+    for (const t of sharedTodos) {
+      map[t.id] = t;
+    }
+    const result = [];
+    const queue = [rootId];
+    const visited = new Set();
+    while (queue.length > 0) {
+      const currentId = queue.shift();
+      if (visited.has(currentId)) continue;
+      visited.add(currentId);
+      const current = map[currentId];
+      if (!current) continue;
+      result.push(current);
+      for (const t of sharedTodos) {
+        if (t.parentId == currentId && !visited.has(t.id)) {
+          queue.push(t.id);
+        }
+      }
+    }
+    return result;
+  },
+
+  // 从 snapshot 递归保存子任务子树（重映射 parent_id）
+  restoreSubtasksFromSnapshot(newParentId, subtaskMap) {
+    if (!subtaskMap || Object.keys(subtaskMap).length === 0) return;
+
+    const idMapping = {};
+    const queue = [newParentId];
+    const oldParentIds = [this.data.todo.id];
+    const now = Date.now();
+
+    while (queue.length > 0) {
+      const currentNewId = queue.shift();
+      const oldParentId = oldParentIds.shift();
+      const children = subtaskMap[oldParentId] || [];
+
+      for (const childData of children) {
+        const newId = `todo_${now}_${Math.random().toString(36).substring(2, 8)}`;
+
+        saveTodo({
+          ...childData,
+          id: newId,
+          parent_id: currentNewId,
+          completed: false,
+          time: now,
+          version: 1,
+          isDeleted: false,
+          deletedAt: null,
+          updatedAt: now
+        });
+
+        idMapping[childData.id] = newId;
+        queue.push(newId);
+        oldParentIds.push(childData.id);
+      }
+    }
   },
 
   onLoad(options) {
@@ -133,7 +317,11 @@ Page({
     }
 
     if (options.isShare === '1') {
-      this._loadByShare(options);
+      if (options.shareId) {
+        this._loadByShareWithSnapshot(options);
+      } else {
+        this._loadByShare(options);
+      }
     } else {
       this._loadByIndex(options);
     }
@@ -242,6 +430,7 @@ Page({
 
       this.loadNotification();
       this.loadSubtasks();
+      this.prepareShareSnapshotIfNeeded();
     } else {
       wx.showToast({
         title: '待办不存在或已被删除',
@@ -322,6 +511,7 @@ Page({
 
       this.loadNotification();
       this.loadSubtasks();
+      this.prepareShareSnapshotIfNeeded();
     } else {
       wx.showToast({
         title: '待办不存在或已被删除',
@@ -394,6 +584,81 @@ Page({
     });
   },
 
+  // 路径6b: 微信分享快照加载（含子任务）
+  async _loadByShareWithSnapshot(options) {
+    const shareId = options.shareId;
+    if (!shareId) {
+      this._loadByShare(options);
+      return;
+    }
+
+    try {
+      wx.showLoading({ title: '加载分享...' });
+      const result = await shareApi.getSnapshot(shareId);
+      wx.hideLoading();
+
+      if (!result.success || !result.data) {
+        wx.showToast({ title: '分享已过期', icon: 'none' });
+        return;
+      }
+
+      const { todo: sharedTodo, subtasks } = result.data;
+
+      let setDateObj;
+      if (sharedTodo.setDate) {
+        setDateObj = new Date(sharedTodo.setDate);
+        if (isNaN(setDateObj.getTime())) setDateObj = new Date();
+      } else {
+        setDateObj = new Date();
+      }
+
+      const formattedDate = this.formatRichDate(setDateObj);
+      let parsedImages = this.parseImages(sharedTodo.images);
+      let parsedTags = sharedTodo.tags || [];
+
+      this.setData({
+        todo: {
+          ...sharedTodo,
+          id: sharedTodo.id,
+          setDate: this.formatDate(setDateObj),
+          setTime: this.formatTime(sharedTodo.setTime),
+          completed: false
+        },
+        todoTags: this.getTagsByIds(parsedTags),
+        formattedDate,
+        formatDateTime: this.formatDateTime(Date.now()),
+        isShare: true,
+        imagesLayout: this.calculateImagesLayout(parsedImages),
+        shareSnapshotSubtasks: subtasks || {}
+      });
+
+      this.loadSubtasksFromSnapshot(subtasks || {}, sharedTodo.id);
+    } catch (err) {
+      wx.hideLoading();
+      console.error('加载分享快照失败:', err);
+      this._loadByShare(options);
+    }
+  },
+
+  // 从 snapshot 渲染子任务树（只读）
+  loadSubtasksFromSnapshot(subtaskMap, rootParentId) {
+    if (!subtaskMap || !rootParentId) {
+      this.setData({ subtaskList: [] });
+      return;
+    }
+    const flat = [];
+    this.flattenSubtaskSnapshot(subtaskMap, rootParentId, 0, flat);
+    this.setData({ subtaskList: flat });
+  },
+
+  flattenSubtaskSnapshot(subtaskMap, parentId, depth, result) {
+    const children = subtaskMap[parentId] || [];
+    for (const child of children) {
+      result.push({ ...child, _depth: depth });
+      this.flattenSubtaskSnapshot(subtaskMap, child.id, depth + 1, result);
+    }
+  },
+
   // 路径7: 按数组索引加载
   _loadByIndex(options) {
     const index = options.index;
@@ -437,6 +702,8 @@ Page({
     });
 
     this.loadNotification();
+    this.loadSubtasks();
+    this.prepareShareSnapshotIfNeeded();
   },
 
   async loadSharedTodo(todoId, comboId) {
@@ -552,7 +819,11 @@ Page({
       if (isLoggedIn()) {
         this.loadSharedNotification(todoId);
       }
-      
+
+      if (combo.sharedTodos && combo.sharedTodos.length > 0) {
+        this.loadSharedSubtasks(combo.sharedTodos, numTodoId);
+      }
+
       this.updateCompletionStats();
       
       wx.hideLoading();
@@ -763,6 +1034,7 @@ Page({
     })
     
     this.loadSubtasks();
+    this.prepareShareSnapshotIfNeeded();
   },
 
   countSubtasks(todos, parentId) {
@@ -1601,6 +1873,27 @@ Page({
   },
 
   // ==================== 子任务 ====================
+
+  // 从共享组合的 sharedTodos 数组中加载子任务树
+  loadSharedSubtasks(allSharedTodos, rootSharedId) {
+    const flat = [];
+    const buildFlat = (parentId, depth) => {
+      for (const t of allSharedTodos) {
+        if (t.parentId == parentId) {
+          flat.push({
+            id: t.id,
+            text: t.text,
+            _depth: depth,
+            completed: t.myCompletedAt ? true : false,
+            parent_id: t.parentId
+          });
+          buildFlat(t.id, depth + 1);
+        }
+      }
+    };
+    buildFlat(rootSharedId, 0);
+    this.setData({ subtaskList: flat });
+  },
 
   loadSubtasks() {
     const { todo } = this.data;

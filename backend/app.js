@@ -17,6 +17,7 @@ const configRoutes = require('./routes/configRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const commentRoutes = require('./routes/commentRoutes');
+const shareRoutes = require('./routes/shareRoutes');
 const { startNotificationScheduler } = require('./services/wechatService');
 
 const app = express();
@@ -55,6 +56,7 @@ app.use('/config', configRoutes);
 app.use('/upload', uploadRoutes);
 app.use('/admin', adminRoutes);
 app.use('/comments', commentRoutes);
+app.use('/share', shareRoutes);
 
 app.use((err, req, res, next) => {
   logger.systemError('全局错误处理', err.message, { stack: err.stack });
@@ -75,4 +77,15 @@ app.use((req, res) => {
 app.listen(PORT, () => {
   logger.systemInfo('服务启动', '时光绿径待办后端服务已启动', { port: PORT });
   startNotificationScheduler();
+  cleanupExpiredSnapshots();
+  setInterval(cleanupExpiredSnapshots, 60 * 60 * 1000);
 });
+
+async function cleanupExpiredSnapshots() {
+  try {
+    const { query } = require('./config/database');
+    await query('DELETE FROM share_snapshots WHERE expires_at < NOW()');
+  } catch (err) {
+    logger.dbError('清理', '清理过期分享快照失败', { error: err.message });
+  }
+}

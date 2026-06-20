@@ -456,7 +456,7 @@ const getSharedList = async (req, res) => {
 const createSharedTodo = async (req, res) => {
   const userId = req.user.id;
   const { comboId } = req.params;
-  const { text, setDate, setTime, remarks, location, assignType, assigneeIds, tags, excludeType, images, priority } = req.body;
+  const { text, parent_id, setDate, setTime, remarks, location, assignType, assigneeIds, tags, excludeType, images, priority } = req.body;
   
   if (!text || !text.trim()) {
     return res.status(400).json({
@@ -485,9 +485,9 @@ const createSharedTodo = async (req, res) => {
     
     const result = await query(
       `INSERT INTO shared_todos
-       (combo_id, creator_id, text, set_date, set_time, remarks, location_text, assign_type, exclude_type, tags, images, priority, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
-      [comboId, userId, text.trim(), setDate || null, setTime || null, remarks || null, locationJson, assignType || 'all', effectiveExcludeType, tagsJson, imagesJson, priority || 'p2']
+       (combo_id, creator_id, text, parent_id, set_date, set_time, remarks, location_text, assign_type, exclude_type, tags, images, priority, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+      [comboId, userId, text.trim(), parent_id || null, setDate || null, setTime || null, remarks || null, locationJson, assignType || 'all', effectiveExcludeType, tagsJson, imagesJson, priority || 'p2']
     );
     
     const sharedTodoId = result.insertId;

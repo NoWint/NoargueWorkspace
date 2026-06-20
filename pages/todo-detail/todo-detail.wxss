@@ -1132,3 +1132,26 @@
 .subtask-send-btn.active {
   background: #00b26a;
 }
+
+/* ==================== 子任务只读样式（分享预览） ==================== */
+.subtask-readonly .subtask-header {
+  cursor: default;
+}
+
+.subtask-readonly .subtask-body {
+  padding-top: 8rpx;
+}
+
+.subtask-readonly-dot {
+  flex-shrink: 0;
+  width: 20rpx;
+  height: 20rpx;
+  margin-right: 12rpx;
+  border-radius: 50%;
+  background: #ddd;
+  transition: all 0.2s ease;
+}
+
+.subtask-readonly-dot.checked {
+  background: #00b26a;
+}

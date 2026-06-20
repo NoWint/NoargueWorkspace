@@ -145,8 +145,8 @@
       </view>
     </view>
 
-    <!-- 子任务区块 -->
-    <view wx:if="{{!isSharedTodo && !adminView && todo.id}}" class="subtask-section">
+    <!-- 子任务区块（完整交互模式） -->
+    <view wx:if="{{!isShare && !isSharedTodo && !adminView && todo.id}}" class="subtask-section">
       <view class="subtask-header" bindtap="toggleSubtaskCollapse">
         <text class="subtask-header-text">子任务 ({{subtaskList.length}})</text>
         <t-icon name="{{subtaskCollapsed ? 'chevron-right' : 'chevron-down'}}" size="28rpx" color="#999" />
@@ -175,6 +175,19 @@
           <view class="subtask-send-btn {{subtaskHasInput ? 'active' : ''}}" catchtap="createSubtask">
             <t-icon name="arrow-up" size="36rpx" color="#fff" />
           </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 子任务区块（只读预览模式：微信分享 / 共享组合） -->
+    <view wx:elif="{{!adminView && subtaskList.length > 0}}" class="subtask-section subtask-readonly">
+      <view class="subtask-header">
+        <text class="subtask-header-text">子任务 ({{subtaskList.length}})</text>
+      </view>
+      <view class="subtask-body">
+        <view wx:for="{{subtaskList}}" wx:key="id" class="subtask-row" style="padding-left: {{item._depth * 40 + 24}}rpx">
+          <view class="subtask-readonly-dot {{item.completed ? 'checked' : ''}}"></view>
+          <text class="subtask-text {{item.completed ? 'completed' : ''}}">{{item.text}}</text>
         </view>
       </view>
     </view>
