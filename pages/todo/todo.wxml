@@ -458,39 +458,56 @@ wx:key="*this"
 </t-popup>
 
 <block wx:if="{{showCardAction}}">
-  <t-overlay
-    visible="{{showCardAction}}"
-    background-color="rgba(0,0,0,0.55)"
-    prevent-scroll-through="{{true}}"
-    bind:click="closeCardAction"
-  />
+  <!-- 遮罩 -->
+  <view class="card-action-overlay" catchtouchmove="preventTouchMove" bindtap="closeCardAction"></view>
 
-  <!-- 浮动卡片 -->
-  <view class="card-action-wrapper">
-    <view class="card-action-inner {{_cardPhase >= 1 ? 'show' : ''}}">
-      <view class="card-action-card">
-        <t-cell
-          title="{{actionTodo.text}}"
-          description="{{actionTodo.location ? '📍' + actionTodo.location.name + '｜' + actionTodo.remarks : actionTodo.remarks}}"
-          note="{{actionTodo.friendlyDate || actionTodo.setDate}}"
-          bordered="{{false}}"
-          custom-style="width:100%"
-        >
-          <view wx:if="{{actionTodo.completed}}" class="completed-decorate"></view>
-          <view slot="right-icon" style="position:relative;z-index:1000;background:inherit;padding-left:20rpx">
-            <t-radio
-              checked="{{actionTodo.completed}}"
-              block="{{false}}"
-              custom-style="--td-radio-bg-color: transparent;"
-            />
-          </view>
-        </t-cell>
+  <!-- 原地克隆 cell（t-cell，无 swipe/radio） -->
+  <view
+    class="card-action-cell-clone"
+    style="top:{{_actionCardTop}}px;left:{{_actionCardLeft}}px;width:{{_actionCardWidth}}px;"
+  >
+    <t-swipe-cell
+      class="todo-item {{actionTodo.completed ? 'completed' : ''}}"
+    >
+      <view wx:if="{{actionTodo.isStar}}" class="star-badge">
+        <t-icon name="star-filled" size="26rpx" color="#ffffff" />
       </view>
-    </view>
+      <t-cell
+        title="{{actionTodo.text}}"
+        description="{{actionTodo.location ? (actionTodo.remarks ? '📍' + actionTodo.location.name + '｜' + actionTodo.remarks : '📍' + actionTodo.location.name) : actionTodo.remarks}}"
+        note="{{actionTodo.friendlyDate || actionTodo.setDate}}"
+        bordered="{{false}}"
+        custom-style="width:100%"
+        bindtap="navigateToDetail"
+        data-id="{{actionTodo.id}}"
+      >
+        <view
+          wx:if="{{actionTodo.completed}}"
+          class="completed-decorate"
+        ></view>
+        <view
+          slot="right-icon"
+          style="position:relative;z-index:1000;background:inherit;padding-left:20rpx"
+        >
+          <t-radio
+            checked="{{actionTodo.completed}}"
+            catch:change="toggleTodo"
+            block="{{false}}"
+            data-index="{{index}}"
+            data-component="t-radio"
+            custom-style="--td-radio-bg-color: transparent;"
+          />
+        </view>
+      </t-cell>
+    </t-swipe-cell>
   </view>
 
   <!-- 操作菜单 -->
-  <view class="card-action-menu {{_cardPhase >= 2 ? 'show' : ''}}">
+  <view
+    class="card-action-menu {{_actionMenuDir}} {{_actionMenuShow ? 'show' : ''}}"
+    style="{{_actionMenuStyle}}"
+    catchtap=""
+  >
     <view class="menu-btn" data-action="detail" bindtap="onCardActionTap">
       <t-icon name="info-circle" size="40rpx" color="#fff" />
       <text class="menu-label">详情</text>

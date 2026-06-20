@@ -95,10 +95,12 @@ Page({
     showCardAction: false,
     actionTodo: null,
     actionTodoIndex: -1,
-    _cardOriginY: 0,
-    _cardTargetY: 0,
-    _cardPhase: 0,    // 0=关闭, 1=原位显示, 2=飞入目标位置
-    _cardRectWidth: 0,
+    _actionCardTop: 0,
+    _actionCardLeft: 0,
+    _actionCardWidth: 0,
+    _actionMenuStyle: '',
+    _actionMenuDir: 'down',
+    _actionMenuShow: false,
   },
 
   // ===========================
@@ -1811,7 +1813,7 @@ Page({
       showCardAction: false,
       actionTodo: null,
       actionTodoIndex: -1,
-      _cardPhase: 0
+      _actionMenuShow: false
     });
   },
 
@@ -1830,17 +1832,37 @@ Page({
 
     wx.vibrateShort({ type: 'medium' });
 
-    this.setData({
-      showCardAction: true,
-      actionTodo: todo,
-      actionTodoIndex: index,
-      _cardPhase: 1
-    });
+    // 获取 cell 位置
+    const query = wx.createSelectorQuery().in(this);
+    query.selectAll('.todo-item-wrapper').boundingClientRect().exec((res) => {
+      if (!res || !res[0] || !res[0][index]) return;
+      const rect = res[0][index];
 
-    // 菜单延迟入场
-    setTimeout(() => {
-      this.setData({ _cardPhase: 2 });
-    }, 200);
+      const sysInfo = wx.getSystemInfoSync();
+      const screenMid = sysInfo.windowHeight / 2;
+      const isBelow = rect.top > screenMid;
+      const gap = 12;
+      const menuW = sysInfo.windowWidth * 0.9;
+      const menuLeft = (sysInfo.windowWidth - menuW) / 2;
+
+      this.setData({
+        showCardAction: true,
+        actionTodo: todo,
+        actionTodoIndex: index,
+        _actionCardTop: rect.top,
+        _actionCardLeft: rect.left,
+        _actionCardWidth: rect.width,
+        _actionMenuStyle: isBelow
+          ? `bottom:${sysInfo.windowHeight - rect.top + gap}px;left:${menuLeft}px;width:${menuW}px;`
+          : `top:${rect.bottom + gap}px;left:${menuLeft}px;width:${menuW}px;`,
+        _actionMenuDir: isBelow ? 'up' : 'down',
+        _actionMenuShow: false
+      });
+
+      setTimeout(() => {
+        this.setData({ _actionMenuShow: true });
+      }, 50);
+    });
   },
 
   onCardShareAction(e) {
