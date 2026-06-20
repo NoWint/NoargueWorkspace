@@ -89,7 +89,16 @@ Page({
     approvalLoading: false,
     totalApprovalCount: 0,
 
-    _togglingIds: {}
+    _togglingIds: {},
+
+    // 卡片长按操作模式
+    showCardAction: false,
+    actionTodo: null,
+    actionTodoIndex: -1,
+    _cardOriginY: 0,
+    _cardTargetY: 0,
+    _cardPhase: 0,    // 0=关闭, 1=原位显示, 2=飞入目标位置
+    _cardRectWidth: 0,
   },
 
   // ===========================
@@ -1007,8 +1016,8 @@ Page({
    * 触摸开始 - 启动长按检测
    */
   onTouchStart(e) {
-    // 如果正在拖拽，不处理
-    if (this.data.isDragging) return;
+    // 如果正在拖拽或卡片操作模式，不处理
+    if (this.data.isDragging || this.data.showCardAction) return;
 
     const index = parseInt(e.currentTarget.dataset.index);
     const touch = e.touches[0];
@@ -1050,7 +1059,9 @@ Page({
    * 触摸移动 - 检查是否移动过大（取消长按）
    */
   onTouchMove(e) {
-    const { isDragging, _longPressTimer, touchStartX, touchStartY, _touchStartIndex } = this.data;
+    const { isDragging, showCardAction, _longPressTimer, touchStartX, touchStartY, _touchStartIndex } = this.data;
+
+    if (showCardAction) return;
 
     const touch = e.touches[0];
     const moveThreshold = 15; // 移动阈值，超过则取消长按
@@ -1079,7 +1090,15 @@ Page({
    * 触摸结束
    */
   onTouchEnd(e) {
-    const { isDragging, _longPressTimer } = this.data;
+    const { isDragging, showCardAction, _longPressTimer } = this.data;
+
+    if (showCardAction) {
+      if (_longPressTimer) {
+        clearTimeout(_longPressTimer);
+        this.setData({ _longPressTimer: null, _touchStartIndex: -1 });
+      }
+      return;
+    }
 
     // 清除长按定时器
     if (_longPressTimer) {
@@ -1107,6 +1126,7 @@ Page({
    * 内部：开始拖拽
    */
   _startDragInternal(index, touch) {
+    if (this.data.showCardAction) return;
     const todo = this.data.todos[index];
     if (!todo || todo._isPlaceholder) return;
 
@@ -1698,6 +1718,8 @@ Page({
       return;
     }
 
+    if (this.data.showCardAction) return;
+
     if (e.target.dataset.component === 't-radio') {
       return;
     }
@@ -1777,6 +1799,101 @@ Page({
         break;
       case 'edit':
         this.editTodo(index);
+        break;
+    }
+  },
+
+  /**
+   * 关闭卡片操作模式
+   */
+  closeCardAction() {
+    this.setData({
+      showCardAction: false,
+      actionTodo: null,
+      actionTodoIndex: -1,
+      _cardPhase: 0
+    });
+  },
+
+  /**
+   * t-cell 长按 → 卡片浮起 + 操作菜单
+   */
+  onCellLongPress(e) {
+    const index = e.currentTarget.dataset.index;
+    const todo = this.data.todos[index];
+    if (!todo) return;
+
+    if (this.data._longPressTimer) {
+      clearTimeout(this.data._longPressTimer);
+      this.setData({ _longPressTimer: null });
+    }
+
+    wx.vibrateShort({ type: 'medium' });
+
+    this.setData({
+      showCardAction: true,
+      actionTodo: todo,
+      actionTodoIndex: index,
+      _cardPhase: 1
+    });
+
+    // 菜单延迟入场
+    setTimeout(() => {
+      this.setData({ _cardPhase: 2 });
+    }, 200);
+  },
+
+  onCardShareAction(e) {
+    const todo = this.data.actionTodo;
+    if (!todo) return;
+    this.closeCardAction();
+    wx.setClipboardData({
+      data: `我在「时光绿径待办」中有一个待办事项：${todo.text}`,
+      success: () => wx.showToast({ title: '已复制链接', icon: 'none' })
+    });
+  },
+
+  /**
+   * 操作菜单按钮点击
+   */
+  onCardActionTap(e) {
+    const action = e.currentTarget.dataset.action;
+    const index = this.data.actionTodoIndex;
+
+    switch (action) {
+      case 'edit':
+        this.closeCardAction();
+        setTimeout(() => this.editTodo(index), 100);
+        break;
+      case 'delete':
+        this.closeCardAction();
+        setTimeout(() => this.deleteTodo(index), 100);
+        break;
+      case 'detail':
+        this.closeCardAction();
+        const todo = this.data.actionTodo;
+        if (todo && todo.id) {
+          setTimeout(() => {
+            wx.navigateTo({
+              url: `/packagePages/todo-detail/todo-detail?todoId=${encodeURIComponent(todo.id)}`
+            });
+          }, 100);
+        }
+        break;
+      case 'share':
+        this.closeCardAction();
+        const shareTodo = this.data.actionTodo;
+        if (shareTodo && shareTodo.id) {
+          setTimeout(() => {
+            wx.setClipboardData({
+              data: `我在「时光绿径待办」中有一个待办事项：${shareTodo.text}`,
+              success: () => wx.showToast({ title: '已复制', icon: 'none' })
+            });
+          }, 100);
+        }
+        break;
+      default:
+        this.closeCardAction();
         break;
     }
   },

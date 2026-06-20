@@ -613,6 +613,8 @@ Page({
       logger.error('NOTIFY', 'APPROVAL', '发送审批通知失败', err);
     }
   },
+
+  async toggleSharedTodo(e) {
     if (!this.checkMembership()) return;
     
     const todoId = e.currentTarget.dataset.id;
@@ -986,6 +988,8 @@ Page({
       logger.error('SYNC', 'AUTO', '自动同步失败', err);
     }
   },
+
+  navigateToCollaboration() {
     const { comboId, adminView } = this.data;
     wx.navigateTo({
       url: `/packageCombo/collaboration/collaboration?id=${comboId}${adminView ? '&adminView=1' : ''}`

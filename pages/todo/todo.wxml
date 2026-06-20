@@ -143,10 +143,7 @@ wx:key="*this"
         <t-swipe-cell
           class="todo-item {{todo.completed ? 'completed' : ''}} {{todo._animate || ''}} {{isDragging && currentIndex === index ? 'dragging' : ''}}"
           data-index="{{index}}"
-          bind:touchmove="handleTouchMove"
-          bind:touchend="handleTouchEnd"
-          bindlongpress="startDrag"
-          catch:touchcancel="cancelDrag"
+          bindlongpress="onCellLongPress"
         >
           <view wx:if="{{todo.isStar}}" class="star-badge">
             <t-icon name="star-filled" size="26rpx" color="#ffffff" />
@@ -459,3 +456,56 @@ wx:key="*this"
     </scroll-view>
   </view>
 </t-popup>
+
+<block wx:if="{{showCardAction}}">
+  <t-overlay
+    visible="{{showCardAction}}"
+    background-color="rgba(0,0,0,0.55)"
+    prevent-scroll-through="{{true}}"
+    bind:click="closeCardAction"
+  />
+
+  <!-- 浮动卡片 -->
+  <view class="card-action-wrapper">
+    <view class="card-action-inner {{_cardPhase >= 1 ? 'show' : ''}}">
+      <view class="card-action-card">
+        <t-cell
+          title="{{actionTodo.text}}"
+          description="{{actionTodo.location ? '📍' + actionTodo.location.name + '｜' + actionTodo.remarks : actionTodo.remarks}}"
+          note="{{actionTodo.friendlyDate || actionTodo.setDate}}"
+          bordered="{{false}}"
+          custom-style="width:100%"
+        >
+          <view wx:if="{{actionTodo.completed}}" class="completed-decorate"></view>
+          <view slot="right-icon" style="position:relative;z-index:1000;background:inherit;padding-left:20rpx">
+            <t-radio
+              checked="{{actionTodo.completed}}"
+              block="{{false}}"
+              custom-style="--td-radio-bg-color: transparent;"
+            />
+          </view>
+        </t-cell>
+      </view>
+    </view>
+  </view>
+
+  <!-- 操作菜单 -->
+  <view class="card-action-menu {{_cardPhase >= 2 ? 'show' : ''}}">
+    <view class="menu-btn" data-action="detail" bindtap="onCardActionTap">
+      <t-icon name="info-circle" size="40rpx" color="#fff" />
+      <text class="menu-label">详情</text>
+    </view>
+    <view class="menu-btn" data-action="share" bindtap="onCardActionTap">
+      <t-icon name="share" size="40rpx" color="#fff" />
+      <text class="menu-label">分享</text>
+    </view>
+    <view class="menu-btn" data-action="edit" bindtap="onCardActionTap">
+      <t-icon name="edit" size="40rpx" color="#fff" />
+      <text class="menu-label">编辑</text>
+    </view>
+    <view class="menu-btn" data-action="delete" bindtap="onCardActionTap">
+      <t-icon name="delete" size="40rpx" color="#fff" />
+      <text class="menu-label">删除</text>
+    </view>
+  </view>
+</block>
