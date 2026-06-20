@@ -656,7 +656,7 @@ Page({
       const logoImg = await loadLogo('https://api.yzjtiantian.cn/uploads/logo/logo.png');
       ctx.drawImage(logoImg, 50, 30, 80, 80);
     } catch (e) {
-      console.log('Logo加载失败', e);
+      logger.warn('UI', 'LOGO', 'Logo加载失败', e);
     }
 
     ctx.fillStyle = '#ffffff';
@@ -1029,7 +1029,7 @@ Page({
    * 广告加载失败
    */
   onAdError(err) {
-    console.error('原生模板广告加载失败', err);
+    logger.error('UI', 'AD', '原生模板广告加载失败', err);
   },
 
   /**

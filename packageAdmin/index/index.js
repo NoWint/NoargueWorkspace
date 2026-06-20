@@ -179,7 +179,7 @@ Page({
         this.loadAnalysisStats();
       }
     } catch (err) {
-      console.error('加载统计数据失败:', err);
+      logger.error('ADMIN', 'STATS', '加载统计数据失败', err);
     }
   },
 
@@ -268,7 +268,7 @@ Page({
       
       this.setData(updates);
     } catch (err) {
-      console.error('加载分析数据失败:', err);
+      logger.error('ADMIN', 'STATS', '加载分析数据失败', err);
     }
   },
 
@@ -351,7 +351,7 @@ Page({
         });
       }
     } catch (err) {
-      console.error('加载详情失败:', err);
+      logger.error('ADMIN', 'STATS', '加载详情失败', err);
       this.setData({
         popupLoading: false,
         'popupData.list': []
@@ -389,7 +389,7 @@ Page({
         try {
           parsedLocation = JSON.parse(item.location_text);
         } catch (err) {
-          console.error('解析位置信息失败:', err);
+          logger.error('ADMIN', 'DATA', '解析位置信息失败', err);
         }
       } else if (typeof item.location_text === 'object') {
         parsedLocation = item.location_text;

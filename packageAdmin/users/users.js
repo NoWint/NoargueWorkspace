@@ -68,7 +68,7 @@ Page({
         });
       }
     } catch (err) {
-      console.error('加载用户列表失败:', err);
+      logger.error('ADMIN', 'USERS', '加载用户列表失败', err);
     } finally {
       this.setData({ loading: false });
     }

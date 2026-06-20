@@ -150,7 +150,7 @@ Page({
             try {
               scene = decodeURIComponent(scene);
             } catch (e) {
-              console.error('解码scene失败:', e);
+              logger.error('APP', 'SCENE', '解码scene失败', e);
             }
             
             if (scene.includes('=')) {
@@ -370,7 +370,7 @@ Page({
               wx.showToast({ title: '已取消订阅', icon: 'none' });
             }
           } catch (err) {
-            console.error('订阅失败:', err);
+            logger.error('NOTIFY', 'SUBSCRIBE', '订阅失败', err);
             wx.showToast({ title: '订阅失败', icon: 'none' });
           }
         }

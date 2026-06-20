@@ -54,7 +54,7 @@ Page({
     try {
       await syncWithCloud('local');
     } catch (err) {
-      console.error('自动同步失败:', err);
+      logger.error('SYNC', 'AUTO', '自动同步失败', err);
     }
   },
 
@@ -146,7 +146,7 @@ Page({
         }
         return false;
       } catch (e) {
-        console.error('日期解析错误:', todo.setDate);
+        logger.error('SYNC', 'DATE', '日期解析错误', { setDate: todo.setDate });
         return false;
       }
     });
@@ -297,7 +297,7 @@ Page({
    * 广告加载失败
    */
   onAdError(err) {
-    console.error('原生模板广告加载失败', err);
+    logger.error('UI', 'AD', '原生模板广告加载失败', err);
   },
 
   /**

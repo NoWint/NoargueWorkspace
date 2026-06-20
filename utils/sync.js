@@ -376,7 +376,7 @@ async function checkSyncDiff() {
       syncedAt: result.syncedAt
     };
   } catch (err) {
-    console.error('检查同步差异失败:', err);
+    logger.error('SYNC', 'DIFF', '检查同步差异失败', err);
     throw err;
   }
 }
@@ -460,7 +460,7 @@ async function _syncWithCloudInternal(resolveStrategy = 'merge') {
     const localOnlyDeletedIds = localDeletedIds.filter(id => !cloudDeletedIds.includes(id));
     
     if (localOnlyChanges.length > 0 || localOnlyDeletedIds.length > 0) {
-      console.log('merge - uploading local only changes:', localOnlyChanges.length, 'deleted:', localOnlyDeletedIds.length);
+      logger.debug('SYNC', 'MERGE', 'merge上传本地独有变更', { localChanges: localOnlyChanges.length, deleted: localOnlyDeletedIds.length });
       await todosApi.sync({
         localChanges: localOnlyChanges,
         localDeletedIds: localOnlyDeletedIds,
@@ -478,7 +478,7 @@ async function _syncWithCloudInternal(resolveStrategy = 'merge') {
       downloadedCount: cloudChanges.length
     };
   } catch (err) {
-    console.error('同步失败:', err);
+    logger.error('SYNC', 'SYNC', '云端同步失败', err);
     throw err;
   }
 }
@@ -516,7 +516,7 @@ async function incrementalSync() {
       downloadedCount: (result.cloudChanges || []).length
     };
   } catch (err) {
-    console.error('增量同步失败:', err);
+    logger.error('SYNC', 'INCREMENTAL', '增量同步失败', err);
     throw err;
   }
 }
@@ -574,7 +574,7 @@ async function fullSync() {
       uploadedCount: localChanges.length
     };
   } catch (err) {
-    console.error('全量同步失败:', err);
+    logger.error('SYNC', 'FULL', '全量同步失败', err);
     throw err;
   }
 }
@@ -587,14 +587,14 @@ async function ensureLogin() {
 async function syncOnAppStart() {
   const isLoggedIn = await ensureLogin();
   if (!isLoggedIn) {
-    console.log('未登录，跳过同步');
+    logger.info('SYNC', 'START', '未登录，跳过同步');
     return { status: 'not_logged_in' };
   }
   
   try {
     return await incrementalSync();
   } catch (err) {
-    console.error('启动同步失败:', err);
+    logger.error('SYNC', 'START', '启动同步失败', err);
     return { status: 'error', error: err.message };
   }
 }

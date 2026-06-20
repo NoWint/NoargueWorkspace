@@ -182,14 +182,14 @@ Page({
                 wx.showToast({ title: `已${mode === 'overwrite' ? '覆盖' : '合并'}并同步`, icon: 'success' });
               } catch (syncErr) {
                 wx.hideLoading();
-                console.error('同步失败:', syncErr);
+                logger.error('SYNC', 'SYNC', '数据导入同步失败', syncErr);
                 wx.showToast({ title: '同步失败，请手动刷新', icon: 'none', duration: 2000 });
               }
             } else {
               wx.showToast({ title: `已${mode === 'overwrite' ? '覆盖' : '合并'}${newData.length}条`, icon: 'success' });
             }
           } catch (e) {
-            console.error('导入数据解析失败:', e);
+            logger.error('STORAGE', 'IMPORT', '导入数据解析失败', e);
             wx.showToast({ title: '数据格式错误', icon: 'error' });
           }
         }

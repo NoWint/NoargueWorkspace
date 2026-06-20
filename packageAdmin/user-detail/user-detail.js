@@ -35,10 +35,9 @@ Page({
   },
 
   onLoad(options) {
-    console.log('user-detail onLoad - options:', JSON.stringify(options));
-    console.log('user-detail onLoad - options.id:', options.id);
+    logger.debug('ADMIN', 'USER', '用户详情页面参数', options);
     this.setData({ userId: options.id });
-    console.log('user-detail onLoad - userId after setData:', this.data.userId);
+    logger.debug('ADMIN', 'USER', '用户详情ID', { userId: this.data.userId });
     this.loadUserDetail();
   },
 
@@ -50,12 +49,7 @@ Page({
   async loadUserDetail() {
     try {
       const result = await adminApi.getUserDetail(this.data.userId);
-      console.log('loadUserDetail - result:', JSON.stringify(result).substring(0, 500));
-      console.log('loadUserDetail - todos count:', result.todos?.length);
-      if (result.todos && result.todos.length > 0) {
-        console.log('loadUserDetail - first todo:', JSON.stringify(result.todos[0]));
-      }
-      console.log('loadUserDetail - combos:', JSON.stringify(result.combos));
+      logger.debug('ADMIN', 'DATA', '加载用户详情结果', { keys: Object.keys(result) });
       if (result.success) {
         const user = {
           ...result.user,
@@ -78,7 +72,7 @@ Page({
         });
       }
     } catch (err) {
-      console.error('加载用户详情失败:', err);
+      logger.error('ADMIN', 'USER', '加载用户详情失败', err);
     }
   },
 
@@ -153,10 +147,7 @@ Page({
   viewCombo(e) {
     const combo = e.currentTarget.dataset.combo;
     const userId = this.data.userId;
-    console.log('viewCombo - this.data:', JSON.stringify(this.data));
-    console.log('viewCombo - combo:', JSON.stringify(combo));
-    console.log('viewCombo - combo.id:', combo.id, 'type:', typeof combo.id);
-    console.log('viewCombo - userId:', userId, 'type:', typeof userId);
+    logger.debug('ADMIN', 'DATA', '查看组合数据', this.data);
     wx.navigateTo({
       url: `/packageCombo/combo-detail/combo-detail?adminView=1&id=${combo.id}&userId=${userId}`
     });

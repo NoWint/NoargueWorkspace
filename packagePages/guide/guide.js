@@ -32,7 +32,7 @@ Page({
         this.initGuides(res.guides);
       }
     } catch (err) {
-      console.error('加载指南失败:', err);
+      logger.error('APP', 'GUIDE', '加载指南失败', err);
       const cachedGuides = wx.getStorageSync('cachedGuides');
       if (cachedGuides && cachedGuides.length > 0) {
         this.initGuides(cachedGuides);

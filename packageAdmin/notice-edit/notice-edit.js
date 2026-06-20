@@ -44,7 +44,7 @@ Page({
         });
       }
     } catch (err) {
-      console.error('加载公告失败:', err);
+      logger.error('ADMIN', 'NOTICES', '加载公告失败', err);
     }
   },
 
@@ -136,7 +136,7 @@ Page({
         wx.showToast({ title: result.message || '保存失败', icon: 'none' });
       }
     } catch (err) {
-      console.error('保存失败:', err);
+      logger.error('ADMIN', 'SAVE', '保存公告失败', err);
       wx.showToast({ title: '保存失败', icon: 'none' });
     }
   }

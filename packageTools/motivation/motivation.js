@@ -29,7 +29,7 @@ Page({
     });
     
     this.rewardedVideoAd.onError((err) => {
-      console.error('激励视频广告错误:', err);
+      logger.error('UI', 'AD', '激励视频广告错误', err);
       this.setData({ adLoaded: false });
     });
     
@@ -51,7 +51,7 @@ Page({
         this.setData({ todoLimit: result.user.todoLimit || 500 });
       }
     } catch (err) {
-      console.error('获取待办上限失败:', err);
+      logger.error('AUTH', 'LIMIT', '获取待办上限失败', err);
     }
   },
 

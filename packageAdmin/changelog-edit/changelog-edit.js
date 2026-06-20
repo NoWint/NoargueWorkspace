@@ -39,7 +39,7 @@ Page({
         });
       }
     } catch (err) {
-      console.error('加载更新日志失败:', err);
+      logger.error('ADMIN', 'CHANGELOG', '加载更新日志失败', err);
     }
   },
 

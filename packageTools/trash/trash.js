@@ -67,7 +67,7 @@ Page({
         return;
       }
     } catch (err) {
-      console.error('从云端加载已删除待办失败:', err);
+      logger.error('SYNC', 'DELETED', '从云端加载已删除待办失败', err);
     }
     
     const localTodos = wx.getStorageSync('todos') || [];
@@ -96,7 +96,7 @@ Page({
           return;
         }
       } catch (err) {
-        console.error('恢复失败:', err);
+        logger.error('TODO', 'RESTORE', '恢复失败', err);
         wx.showToast({ title: '恢复失败', icon: 'error' });
         return;
       }
@@ -168,7 +168,7 @@ Page({
           return;
         }
       } catch (err) {
-        console.error('永久删除失败:', err);
+        logger.error('TODO', 'DELETE', '永久删除失败', err);
         wx.showToast({ title: '删除失败', icon: 'error' });
         return;
       }

@@ -39,7 +39,7 @@ Page({
         app.globalData.notices = result.notices;
       }
     } catch (err) {
-      console.error('获取公告失败:', err);
+      logger.error('NOTIFY', 'NOTICES', '获取公告失败', err);
       if (app.globalData.notices) {
         this.setData({ notices: app.globalData.notices });
       }

@@ -25,13 +25,13 @@ skill.use(async (ctx, next) => {
       }
     }
   } catch (e) {
-    console.warn(`[AI Skill] Auth skipped for ${ctx.name}: ${e.message}`)
+    logger.warn('AI', 'AUTH', 'AI技能鉴权跳过', { name: ctx.name, msg: e.message });
   }
   try {
     await next()
-    console.log(`[AI Skill] ${ctx.name} OK (${Date.now() - start}ms)`)
+    logger.info('AI', 'SKILL', 'AI技能执行成功', { name: ctx.name, ms: Date.now() - start });
   } catch (err) {
-    console.error(`[AI Skill] ${ctx.name} FAILED (${Date.now() - start}ms): ${err.message}`)
+    logger.error('AI', 'SKILL', 'AI技能执行失败', { name: ctx.name, ms: Date.now() - start, err: err.message });
     throw err
   }
 })

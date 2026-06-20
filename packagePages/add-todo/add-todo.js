@@ -134,7 +134,7 @@ Page({
         try {
           parsedLocation = JSON.parse(decodeURIComponent(options.location));
         } catch (e) {
-          console.error('位置参数解析失败:', e);
+          logger.error('PAGE', 'LOCATION', '位置参数解析失败', e);
         }
       }
       
@@ -143,7 +143,7 @@ Page({
         try {
           parsedTags = JSON.parse(decodeURIComponent(options.tags));
         } catch (e) {
-          console.error('标签参数解析失败:', e);
+          logger.error('PAGE', 'TAGS', '标签参数解析失败', e);
         }
       }
       
@@ -174,7 +174,7 @@ Page({
         try {
           parsedAssigneeIds = JSON.parse(decodeURIComponent(options.assigneeIds));
         } catch (e) {
-          console.error('指定成员参数解析失败:', e);
+          logger.error('PAGE', 'MEMBERS', '指定成员参数解析失败', e);
         }
       }
       
@@ -187,7 +187,7 @@ Page({
           parsedImages = JSON.parse(decodeURIComponent(options.images));
           if (!Array.isArray(parsedImages)) parsedImages = [];
         } catch (e) {
-          console.error('图片参数解析失败:', e);
+          logger.error('PAGE', 'IMAGES', '图片参数解析失败', e);
           parsedImages = [];
         }
       }
@@ -256,7 +256,7 @@ Page({
               userRole: combo.userRole
             });
           } catch (err) {
-            console.error('加载成员失败:', err);
+            logger.error('COMBO', 'MEMBERS', '加载成员失败', err);
           }
         }
       } else {
@@ -270,7 +270,7 @@ Page({
               userRole: combo.userRole
             });
           } catch (err) {
-            console.error('加载组合失败:', err);
+            logger.error('COMBO', 'LOAD', '加载组合失败', err);
           }
         }
       }
@@ -339,7 +339,7 @@ Page({
         userRole: combo.userRole
       });
     } catch (err) {
-      console.error('加载成员失败:', err);
+      logger.error('COMBO', 'MEMBERS', '加载成员失败', err);
     }
   },
 
@@ -526,7 +526,7 @@ Page({
         compressedPath = await this.compressImage(filePath);
       }
     } catch (e) {
-      console.log('图片压缩失败，使用原图:', e);
+      logger.warn('UPLOAD', 'COMPRESS', '图片压缩失败，使用原图', e);
     }
     
     return new Promise((resolve, reject) => {
@@ -543,7 +543,7 @@ Page({
             } else {
               const errorMsg = data.error || '上传失败';
               if (retryCount < maxRetries) {
-                console.log(`上传失败(${errorMsg})，第${retryCount + 1}次重试...`);
+                logger.warn('UPLOAD', 'RETRY', '上传失败重试', { errorMsg, retryCount });
                 setTimeout(() => {
                   this.uploadImage(filePath, retryCount + 1)
                     .then(resolve)
@@ -555,7 +555,7 @@ Page({
             }
           } catch (e) {
             if (retryCount < maxRetries) {
-              console.log(`响应解析失败，第${retryCount + 1}次重试...`);
+              logger.warn('UPLOAD', 'RETRY', '响应解析失败重试', { retryCount });
               setTimeout(() => {
                 this.uploadImage(filePath, retryCount + 1)
                   .then(resolve)
@@ -568,7 +568,7 @@ Page({
         },
         fail: (err) => {
           if (retryCount < maxRetries) {
-            console.log(`网络错误，第${retryCount + 1}次重试...`);
+            logger.warn('NETWORK', 'RETRY', '网络错误重试', { retryCount });
             setTimeout(() => {
               this.uploadImage(filePath, retryCount + 1)
                 .then(resolve)
@@ -626,7 +626,7 @@ Page({
           fileList: [...this.data.fileList, newFileItem]
         });
       } catch (err) {
-        console.error(`图片 ${i + 1} 上传失败:`, err);
+        logger.error('UPLOAD', 'IMAGE', '图片上传失败', { index: i, err });
         failedFiles.push({ index: i + 1, error: err.message });
       }
     }
@@ -813,7 +813,7 @@ Page({
       
       if (isLoggedIn()) {
         const { syncWithCloud } = require('../../utils/sync.js');
-        syncWithCloud('local').catch(err => console.error('同步失败:', err));
+        syncWithCloud('local').catch(err => logger.error('SYNC', 'SYNC', '同步失败', err));
       }
     }
     
@@ -888,7 +888,7 @@ Page({
     
     if (isLoggedIn()) {
       const { syncWithCloud } = require('../../utils/sync.js');
-      syncWithCloud('local').catch(err => console.error('同步失败:', err));
+      syncWithCloud('local').catch(err => logger.error('SYNC', 'SYNC', '同步失败', err));
     }
     
     wx.navigateBack();

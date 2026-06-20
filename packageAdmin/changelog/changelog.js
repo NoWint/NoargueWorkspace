@@ -18,15 +18,15 @@ Page({
     this.setData({ loading: true });
     try {
       const result = await adminApi.getChangelog();
-      console.log('更新日志API返回:', result);
+      logger.debug('ADMIN', 'CHANGELOG', '更新日志API返回', result);
       if (result.success) {
         this.setData({ changelog: result.changelog || [] });
       } else {
-        console.error('加载更新日志失败:', result.message);
+        logger.error('ADMIN', 'CHANGELOG', '加载更新日志失败', { msg: result.message });
         wx.showToast({ title: result.message || '加载失败', icon: 'none' });
       }
     } catch (err) {
-      console.error('加载更新日志失败:', err);
+      logger.error('ADMIN', 'CHANGELOG', '加载更新日志失败', err);
       wx.showModal({
         title: '加载失败',
         content: err.message || '网络请求失败',

@@ -299,7 +299,7 @@ Page({
           const logoImg = await loadLogo('https://api.yzjtiantian.cn/uploads/logo/logo.png');
           ctx.drawImage(logoImg, 50, 30, 80, 80);
         } catch (e) {
-          console.log('Logo加载失败', e);
+          logger.warn('UI', 'LOGO', 'Logo加载失败', e);
         }
 
         ctx.fillStyle = '#ffffff';

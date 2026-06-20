@@ -42,7 +42,7 @@ Page({
       this.setData({ systemTags, userTags });
       app.globalData.userTags = userTags;
     } catch (err) {
-      console.error('加载标签失败:', err);
+      logger.error('ADMIN', 'TAGS', '加载标签失败', err);
       this.setData({
         systemTags: app.globalData.systemTags || [],
         userTags: app.globalData.userTags || []

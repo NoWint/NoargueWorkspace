@@ -151,7 +151,7 @@ Page({
       }
       
     } catch (err) {
-      console.error('加载统计失败:', err);
+      logger.error('COMBO', 'STATS', '加载统计失败', err);
       wx.showToast({ title: '加载失败', icon: 'none' });
     }
   },

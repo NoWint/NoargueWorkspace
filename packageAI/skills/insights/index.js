@@ -25,7 +25,7 @@ skill.use(async (ctx, next) => {
       }
     }
   } catch (e) {
-    console.warn(`[AI Skill] Auth skipped for ${ctx.name}: ${e.message}`)
+    logger.warn('AI', 'AUTH', 'AI技能鉴权跳过', { name: ctx.name, msg: e.message });
   }
   await next()
 })

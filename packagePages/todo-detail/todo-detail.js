@@ -112,7 +112,7 @@ Page({
         this.setData({ pendingShareId: result.shareId });
       }
     } catch (err) {
-      console.debug('预加载分享快照失败:', err);
+      logger.debug('PAGE', 'SNAPSHOT', '预加载分享快照失败', err);
     }
   },
 
@@ -373,7 +373,7 @@ Page({
         imagesLayout: this.calculateImagesLayout(parsedImages)
       });
     } catch (err) {
-      console.error('解析管理员查看数据失败:', err);
+      logger.error('ADMIN', 'DATA', '解析管理员查看数据失败', err);
     }
   },
 
@@ -542,7 +542,7 @@ Page({
         parsedLocation = JSON.parse(decodeURIComponent(locationParam));
       }
     } catch (e) {
-      console.error('位置参数解析失败:', e);
+      logger.error('PAGE', 'LOCATION', '位置参数解析失败', e);
     }
 
     let parsedTags = [];
@@ -551,7 +551,7 @@ Page({
         parsedTags = JSON.parse(decodeURIComponent(options.tags));
       }
     } catch (e) {
-      console.error('标签参数解析失败:', e);
+      logger.error('PAGE', 'TAGS', '标签参数解析失败', e);
     }
 
     let parsedImages = [];
@@ -560,7 +560,7 @@ Page({
         parsedImages = this.parseImages(decodeURIComponent(options.images));
       }
     } catch (e) {
-      console.error('图片参数解析失败:', e);
+      logger.error('PAGE', 'IMAGES', '图片参数解析失败', e);
     }
 
     this.setData({
@@ -635,7 +635,7 @@ Page({
       this.loadSubtasksFromSnapshot(subtasks || {}, sharedTodo.id);
     } catch (err) {
       wx.hideLoading();
-      console.error('加载分享快照失败:', err);
+      logger.error('PAGE', 'SNAPSHOT', '加载分享快照失败', err);
       this._loadByShare(options);
     }
   },
@@ -829,7 +829,7 @@ Page({
       wx.hideLoading();
       wx.stopPullDownRefresh();
     } catch (err) {
-      console.error('加载共享待办失败:', err);
+      logger.error('COLLAB', 'LOAD', '加载共享待办失败', err);
       wx.hideLoading();
       wx.stopPullDownRefresh();
       wx.showToast({ title: err.message || '加载失败', icon: 'none' });
@@ -887,7 +887,7 @@ Page({
   // 日期格式化方法
   formatRichDate(targetDate, setTime) {
     if (!targetDate || !(targetDate instanceof Date) || isNaN(targetDate.getTime())) {
-      console.error('无效的日期对象:', targetDate);
+      logger.error('PAGE', 'DATE', '无效的日期对象', { date: targetDate });
       targetDate = new Date();
     }
     
@@ -1354,7 +1354,7 @@ Page({
         this.setData({ notification });
       }
     } catch (err) {
-      console.error('加载通知失败:', err);
+      logger.error('NOTIFY', 'LOAD', '加载通知失败', err);
     }
   },
 
@@ -1369,7 +1369,7 @@ Page({
         this.setData({ notification });
       }
     } catch (err) {
-      console.error('加载共享待办通知失败:', err);
+      logger.error('NOTIFY', 'SHARED', '加载共享待办通知失败', err);
     }
   },
 
@@ -1525,7 +1525,7 @@ Page({
         const subscribeRes = await wx.requestSubscribeMessage({
           tmplIds: [templateId]
         });
-        console.log('订阅授权结果:', subscribeRes);
+        logger.info('NOTIFY', 'SUBSCRIBE', '订阅授权结果', subscribeRes);
         
         if (subscribeRes[templateId] === 'reject') {
           wx.hideLoading();
@@ -1533,7 +1533,7 @@ Page({
           return;
         }
       } catch (subscribeErr) {
-        console.warn('订阅授权失败，模板ID可能未配置:', subscribeErr);
+        logger.warn('NOTIFY', 'SUBSCRIBE', '订阅授权失败，模板ID可能未配置', subscribeErr);
         wx.hideLoading();
         wx.showModal({
           title: '提示',
@@ -1569,7 +1569,7 @@ Page({
       }
     } catch (err) {
       wx.hideLoading();
-      console.error('保存通知失败:', err);
+      logger.error('NOTIFY', 'SAVE', '保存通知失败', err);
       wx.showToast({ title: err.message || '设置失败', icon: 'none' });
     }
   },
@@ -1743,7 +1743,7 @@ Page({
         }
       }
     } catch (err) {
-      console.error('加载评论失败:', err);
+      logger.error('COMMENT', 'LOAD', '加载评论失败', err);
       this.setData({ 
         commentLoading: false,
         commentRefreshing: false

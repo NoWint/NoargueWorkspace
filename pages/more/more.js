@@ -70,7 +70,7 @@ Page({
           return;
         }
       } catch (err) {
-        console.error('获取已删除待办数量失败:', err);
+        logger.error('SYNC', 'DELETED', '获取已删除待办数量失败', err);
       }
     }
     
@@ -134,7 +134,7 @@ Page({
         app.setUserInfo(result.user);
       }
     } catch (err) {
-      console.error('加载用户信息失败:', err);
+      logger.error('AUTH', 'USERINFO', '加载用户信息失败', err);
     }
   },
 

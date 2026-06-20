@@ -82,7 +82,7 @@ Page({
         app.setUserInfo(result.user);
       }
     } catch (err) {
-      console.error('加载用户信息失败:', err);
+      logger.error('AUTH', 'USERINFO', '加载用户信息失败', err);
     }
   },
 
@@ -115,7 +115,7 @@ Page({
         throw new Error(result.message || '登录失败');
       }
     } catch (err) {
-      console.error('登录失败:', err);
+      logger.error('AUTH', 'LOGIN', '登录失败', err);
       wx.showToast({ title: err.message || '登录失败', icon: 'none' });
     } finally {
       wx.hideLoading();
@@ -170,7 +170,7 @@ Page({
         throw new Error(result.message || '上传失败');
       }
     } catch (err) {
-      console.error('上传头像失败:', err);
+      logger.error('UPLOAD', 'AVATAR', '上传头像失败', err);
       wx.showToast({ title: err.message || '上传失败', icon: 'none' });
     } finally {
       wx.hideLoading();
@@ -239,7 +239,7 @@ Page({
       
       wx.showToast({ title: '保存成功', icon: 'success' });
     } catch (err) {
-      console.error('保存用户信息失败:', err);
+      logger.error('AUTH', 'SAVE', '保存用户信息失败', err);
       wx.showToast({ title: '保存失败', icon: 'none' });
     }
   },

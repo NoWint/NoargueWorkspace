@@ -278,7 +278,7 @@ Page({
         this.setData({ loading: false });
       }
     } catch (err) {
-      console.error('确认授权失败:', err);
+      logger.error('AUTH', 'CONFIRM', '确认授权失败', err);
       wx.showToast({ title: err.message || '授权失败', icon: 'none' });
       this.setData({ loading: false });
     }
@@ -320,7 +320,7 @@ Page({
             avatarUrl = uploadRes.avatarUrl;
           }
         } catch (uploadErr) {
-          console.error('头像上传失败:', uploadErr);
+          logger.error('UPLOAD', 'AVATAR', '头像上传失败', uploadErr);
         }
       }
 
@@ -356,7 +356,7 @@ Page({
 
       wx.showToast({ title: '设置成功', icon: 'success' });
     } catch (err) {
-      console.error('保存资料失败:', err);
+      logger.error('AUTH', 'SAVE', '保存资料失败', err);
       wx.showToast({ title: err.message || '保存失败', icon: 'none' });
       this.setData({ loading: false });
     }
@@ -492,7 +492,7 @@ Page({
         this.setData({ loading: false });
       }
     } catch (err) {
-      console.error('登录错误:', err);
+      logger.error('AUTH', 'LOGIN', '登录错误', err);
       wx.showToast({ title: err.message || '网络异常', icon: 'none' });
       this.setData({ loading: false });
     }

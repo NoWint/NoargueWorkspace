@@ -71,7 +71,7 @@ function request(options) {
         } else if (res.statusCode === 403) {
           reject(new Error('无管理员权限'));
         } else {
-          console.error('API请求失败:', url, res.statusCode, res.data);
+          logger.error('NETWORK', 'REQUEST', 'API请求失败', { url: url, status: res.statusCode, data: res.data });
           reject(new Error(res.data?.message || `请求失败(${res.statusCode})`));
         }
       },

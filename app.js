@@ -1,4 +1,5 @@
 // app.js
+require('./utils/logger');
 const { syncOnAppStart, loginWithCode, setToken, getToken } = require('./utils/sync.js');
 const { configApi } = require('./utils/api.js');
 
@@ -70,6 +71,8 @@ App({
    * 当小程序初始化完成时，会触发 onLaunch（全局只触发一次）
    */
   onLaunch: function(options){
+    logger.init({ reportUrl: 'https://api.yzjtiantian.cn/log/report' });
+    logger.info('APP', 'LAUNCH', '小程序启动', { scene: options ? options.scene : null });
     this.checkMiniProgramUpdate();
     this.loadAppConfig();
 
@@ -106,7 +109,7 @@ App({
       that.globalData.menuWidth = safeMenuButtonInfo.width;
       that.globalData.menuLeft = safeMenuButtonInfo.left;
     } catch (error) {
-      console.error('初始化导航栏信息失败:', error);
+      logger.error('APP', 'INIT', '初始化导航栏信息失败', error);
       // 设置默认值
       that.globalData.navBarHeight = 44;
       that.globalData.menuRight = 0;
@@ -130,7 +133,7 @@ App({
     try {
       scene = decodeURIComponent(scene);
     } catch (e) {
-      console.error('解码scene参数失败:', e);
+      logger.error('APP', 'SCENE', '解码scene参数失败', e);
       return;
     }
     
@@ -190,7 +193,7 @@ App({
         this.processNotices();
       }
     } catch (err) {
-      console.error('加载应用配置失败:', err);
+      logger.error('APP', 'CONFIG', '加载应用配置失败', err);
     }
   },
  
@@ -203,7 +206,7 @@ App({
         return result;
       }
     } catch (err) {
-      console.error('登录失败:', err);
+      logger.error('AUTH', 'LOGIN', '登录失败', err);
       throw err;
     }
   },
@@ -227,7 +230,7 @@ App({
       return result;
     } catch (err) {
       this.globalData.syncStatus = 'error';
-      console.error('同步失败:', err);
+      logger.error('SYNC', 'SYNC', '同步失败', err);
       return { status: 'error', error: err.message };
     }
   },
@@ -260,7 +263,7 @@ App({
       );
       
       if (!changelog) {
-        console.warn(`未找到版本 ${notice.version} 的更新日志`);
+        logger.warn('APP', 'VERSION', '未找到版本的更新日志', { version: notice.version });
         return null;
       }
 
@@ -388,10 +391,7 @@ App({
    * 当小程序发生脚本错误，或者 api 调用失败时，会触发 onError 并带上错误信息
    */
   onError: function (msg) {
-    console.error('全局错误捕获:', msg)
-    if (typeof msg === 'object' && msg.stack) {
-      console.error('错误栈:', msg.stack)
-    }
+    logger.error('APP', 'FATAL', '全局错误捕获', msg)
     wx.showToast({
       title: '程序开小差了，请尝试重启\n如问题持续存在，请联系客服',
       icon: 'none',

@@ -37,7 +37,7 @@ Page({
         app.globalData.changelogList = result.changelogList;
       }
     } catch (err) {
-      console.error('获取更新日志失败:', err);
+      logger.error('APP', 'CHANGELOG', '获取更新日志失败', err);
       if (app.globalData.changelogList) {
         this.setData({ changelogList: app.globalData.changelogList });
       }

@@ -295,7 +295,7 @@ Page({
               formattedTime: formatDateTime(req.createdAt || req.created_at)
             }));
           } catch (err) {
-            console.error('获取审批申请失败:', err);
+            logger.error('COLLAB', 'APPROVALS', '获取审批申请失败', err);
           }
         }
         
@@ -340,7 +340,7 @@ Page({
         setTimeout(() => this.updateFixedHeaderHeight(), 100);
       }
     } catch (err) {
-      console.error('加载组合失败:', err);
+      logger.error('COMBO', 'LOAD', '加载组合失败', err);
       wx.showToast({ title: '加载失败', icon: 'none' });
     }
   },
@@ -610,11 +610,9 @@ Page({
         }
       });
     } catch (err) {
-      console.error('发送审批通知失败:', err);
+      logger.error('NOTIFY', 'APPROVAL', '发送审批通知失败', err);
     }
   },
-
-  async toggleSharedTodo(e) {
     if (!this.checkMembership()) return;
     
     const todoId = e.currentTarget.dataset.id;
@@ -985,11 +983,9 @@ Page({
     try {
       await syncWithCloud('local');
     } catch (err) {
-      console.error('自动同步失败:', err);
+      logger.error('SYNC', 'AUTO', '自动同步失败', err);
     }
   },
-
-  navigateToCollaboration() {
     const { comboId, adminView } = this.data;
     wx.navigateTo({
       url: `/packageCombo/collaboration/collaboration?id=${comboId}${adminView ? '&adminView=1' : ''}`
@@ -1041,9 +1037,9 @@ Page({
     try {
       const result = await combosApi.getById(id);
       const combo = result.combo || result;
-      console.log('loadComboDataForAdmin - combo result:', JSON.stringify(combo).substring(0, 500));
-      console.log('loadComboDataForAdmin - combo.todos:', combo.todos);
-      console.log('loadComboDataForAdmin - combo.sharedTodos:', combo.sharedTodos);
+      logger.debug('ADMIN', 'DATA', 'loadComboDataForAdmin组合结果', combo);
+      logger.debug('ADMIN', 'DATA', 'loadComboDataForAdmin待办', { count: combo.todos?.length });
+      logger.debug('ADMIN', 'DATA', 'loadComboDataForAdmin共享待办', { count: combo.sharedTodos?.length });
       
       if (combo.isShared || combo.is_shared) {
         const sharedTodos = (combo.sharedTodos || []).map(todo => {
@@ -1095,12 +1091,12 @@ Page({
       } else {
         const userResult = await adminApi.getUserDetail(userId);
         const userTodos = userResult.todos || [];
-        console.log('Admin view - userTodos count:', userTodos.length);
-        console.log('Admin view - combo id:', id, 'type:', typeof id);
-        
+        logger.debug('ADMIN', 'DATA', '管理视图-用户待办数', { count: userTodos.length });
+        logger.debug('ADMIN', 'DATA', '管理视图-组合ID', { id, type: typeof id });
+
         if (userTodos.length > 0) {
-          console.log('Admin view - first todo keys:', Object.keys(userTodos[0]));
-          console.log('Admin view - first todo:', JSON.stringify(userTodos[0]));
+          logger.debug('ADMIN', 'DATA', '管理视图-首个待办字段', { keys: Object.keys(userTodos[0]) });
+          logger.debug('ADMIN', 'DATA', '管理视图-首个待办内容', userTodos[0]);
         }
         
         const comboTodos = userTodos.filter(todo => {
@@ -1125,8 +1121,8 @@ Page({
           };
         });
         
-        console.log('Admin view - comboTodos count:', comboTodos.length);
-        
+        logger.debug('ADMIN', 'DATA', '管理视图-组合待办数', { count: comboTodos.length });
+
         this.setData({
           combo,
           comboId: id,
@@ -1136,7 +1132,7 @@ Page({
         });
       }
     } catch (err) {
-      console.error('加载组合失败:', err);
+      logger.error('COMBO', 'LOAD', '加载组合失败', err);
       wx.showToast({ title: '加载失败', icon: 'none' });
     }
   },
@@ -1171,7 +1167,7 @@ Page({
 
     manager.onError = function (res) {
       wx.hideLoading();
-      console.error("error msg", res);
+      logger.error('UI', 'VOICE', '语音识别错误', res);
       wx.showModal({
         title: '识别服务异常',
         content: `未能识别到有效内容，您需要：

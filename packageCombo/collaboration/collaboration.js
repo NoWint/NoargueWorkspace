@@ -306,7 +306,7 @@ Page({
         }
       });
     } catch (err) {
-      console.error('发送审批通知失败:', err);
+      logger.error('NOTIFY', 'APPROVAL', '发送审批通知失败', err);
     }
   },
 

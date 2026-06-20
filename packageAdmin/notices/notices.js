@@ -18,15 +18,15 @@ Page({
     this.setData({ loading: true });
     try {
       const result = await adminApi.getNotices();
-      console.log('公告API返回:', result);
+      logger.debug('ADMIN', 'NOTICES', '公告API返回', result);
       if (result.success) {
         this.setData({ notices: result.notices || [] });
       } else {
-        console.error('加载公告失败:', result.message);
+        logger.error('ADMIN', 'NOTICES', '加载公告失败', { msg: result.message });
         wx.showToast({ title: result.message || '加载失败', icon: 'none' });
       }
     } catch (err) {
-      console.error('加载公告失败:', err);
+      logger.error('ADMIN', 'NOTICES', '加载公告失败', err);
       wx.showToast({ title: err.message || '加载失败', icon: 'none' });
     } finally {
       this.setData({ loading: false });

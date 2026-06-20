@@ -195,7 +195,7 @@ Page({
       this.applyTagFilter();
       app.updateCalendarCache(formattedTodos);
     } catch (err) {
-      console.error('同步失败:', err);
+      logger.error('TODO', 'SYNC', '同步失败', err);
     }
   },
 
@@ -203,7 +203,7 @@ Page({
     try {
       await syncWithCloud('local');
     } catch (err) {
-      console.error('自动同步失败:', err);
+      logger.error('SYNC', 'AUTO', '自动同步失败', err);
     }
   },
 
@@ -220,7 +220,7 @@ Page({
     try {
       await Promise.all(tasks);
     } catch (err) {
-      console.error('下拉刷新失败:', err);
+      logger.error('TODO', 'REFRESH', '下拉刷新失败', err);
     } finally {
       wx.stopPullDownRefresh();
     }
@@ -240,7 +240,7 @@ Page({
         }
       }
     } catch (err) {
-      console.error('获取公告失败:', err);
+      logger.error('NOTIFY', 'NOTICES', '获取公告失败', err);
     }
   },
 
@@ -286,7 +286,7 @@ Page({
       this.setData({ sharedCombos });
       app.setSharedCombos(sharedCombos);
     } catch (err) {
-      console.error('加载组合数据失败:', err);
+      logger.error('COMBO', 'LOAD', '加载组合数据失败', err);
     }
   },
 
@@ -1423,7 +1423,7 @@ Page({
               // 实际调用位置接口触发权限系统记录
               wx.getLocation({
                 type: 'wgs84',
-                success: () => console.log('location granted'),
+                success: () => logger.debug('UI', 'LOCATION', '位置权限已获取'),
                 fail: () => this.showLocationGuide()
               });
             },
@@ -1567,7 +1567,7 @@ Page({
     // 识别错误事件
     manager.onError = function (res) {
       wx.hideLoading();
-      console.error("error msg", res);
+      logger.error('UI', 'VOICE', '语音识别错误', res);
       wx.showModal({
         title: '识别服务异常',
         content: `未能识别到有效内容，您需要：
@@ -1875,7 +1875,7 @@ Page({
    * 广告加载失败
    */
   onAdError(err) {
-    console.error('原生模板广告加载失败', err);
+    logger.error('UI', 'AD', '原生模板广告加载失败', err);
   },
 
   /**
@@ -1922,7 +1922,7 @@ Page({
     try {
       scene = decodeURIComponent(scene);
     } catch (e) {
-      console.error('解码scene参数失败:', e);
+      logger.error('APP', 'SCENE', '解码scene参数失败', e);
       return;
     }
     
@@ -2162,7 +2162,7 @@ Page({
               wx.showToast({ title: '已取消订阅', icon: 'none' });
             }
           } catch (err) {
-            console.error('订阅失败:', err);
+            logger.error('NOTIFY', 'SUBSCRIBE', '订阅失败', err);
             wx.showToast({ title: '订阅失败', icon: 'none' });
           }
         }
@@ -2198,7 +2198,7 @@ Page({
           });
         }
       } catch (err) {
-        console.error('获取审批申请失败:', err);
+        logger.error('COLLAB', 'APPROVALS', '获取审批申请失败', err);
       }
     }
     
@@ -2364,7 +2364,7 @@ Page({
         }
       });
     } catch (err) {
-      console.error('发送审批通知失败:', err);
+      logger.error('NOTIFY', 'APPROVAL', '发送审批通知失败', err);
     }
   }
 });
