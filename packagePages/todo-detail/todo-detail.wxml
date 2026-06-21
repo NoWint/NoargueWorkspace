@@ -179,8 +179,8 @@
       </view>
     </view>
 
-    <!-- 子任务区块（只读预览模式：微信分享 / 共享组合） -->
-    <view wx:elif="{{!adminView && subtaskList.length > 0}}" class="subtask-section subtask-readonly">
+    <!-- 子任务区块（只读预览模式：微信分享 / 共享组合 / 管理员视图） -->
+    <view wx:elif="{{subtaskList.length > 0}}" class="subtask-section subtask-readonly">
       <view class="subtask-header">
         <text class="subtask-header-text">子任务 ({{subtaskList.length}})</text>
       </view>
@@ -246,7 +246,7 @@
     </view>
     
     <!-- 多人待办完成情况展示 -->
-    <view wx:if="{{isSharedTodo && (userRole === 'owner' || userRole === 'admin')}}" class="shared-todo-stats">
+    <view wx:if="{{(isSharedTodo && (userRole === 'owner' || userRole === 'admin')) || adminView}}" class="shared-todo-stats">
       <view class="date-info">
         <text class="label">完成模式</text>
         <text class="value" bindlongpress="copyAssignType">{{assignType === 'all' ? '全员完成' : assignType === 'any' ? '任一完成' : '指定成员'}}{{excludeType ? '（' + (excludeType === 'owner' ? '超管无需完成' : excludeType === 'self' ? '创建者无需完成' : '管理组无需完成') + '）' : ''}}</text>
@@ -320,6 +320,11 @@
 
 
 <!-- <t-fab wx:if="{{!isShare}}" icon="edit" text="" style="right: 32rpx; bottom: 386rpx;" bind:click="editTodo"/> -->
+<!-- 管理员查看模式：仅显示评论按钮（共享待办） -->
+<block wx:if="{{adminView && isSharedTodo}}">
+  <t-fab icon="chat" text="" style="right: 32rpx; bottom: 32rpx;" bind:click="openCommentPopup"/>
+</block>
+
 <!-- 管理员查看模式不显示FAB按钮 -->
 <block wx:if="{{!adminView}}">
   <t-fab wx:if="{{!isShare && !isSharedTodo}}" icon="edit" text="" style="right: 150rpx; bottom: 150rpx;" bind:click="editTodo"/>
@@ -361,7 +366,7 @@
     >
       <view wx:if="{{comments.length === 0 && !commentLoading}}" class="comment-empty">
         <t-icon name="chat" size="80rpx" color="#ddd" />
-        <text>暂无评论，来说点什么吧~</text>
+        <text>暂无评论{{adminView ? '' : '，来说点什么吧~'}}</text>
       </view>
       
       <block wx:for="{{comments}}" wx:key="id">
@@ -382,11 +387,11 @@
             </view>
             <text class="comment-content">{{item.content}}</text>
             <view class="comment-actions">
-              <view class="action-btn" bindtap="replyComment" data-comment="{{item}}">
+              <view wx:if="{{!adminView}}" class="action-btn" bindtap="replyComment" data-comment="{{item}}">
                 <t-icon name="chat" size="28rpx" color="#999" />
                 <text>回复</text>
               </view>
-              <view wx:if="{{item.canDelete}}" class="action-btn delete" bindtap="deleteComment" data-id="{{item.id}}">
+              <view wx:if="{{item.canDelete || adminView}}" class="action-btn delete" bindtap="deleteComment" data-id="{{item.id}}">
                 <t-icon name="delete" size="28rpx" color="#ff4d4f" />
                 <text>删除</text>
               </view>
@@ -411,11 +416,11 @@
                   </view>
                   <text class="reply-content">{{reply.content}}</text>
                   <view class="comment-actions">
-                    <view class="action-btn" bindtap="replyComment" data-comment="{{item}}" data-reply="{{reply}}">
+                    <view wx:if="{{!adminView}}" class="action-btn" bindtap="replyComment" data-comment="{{item}}" data-reply="{{reply}}">
                       <t-icon name="chat" size="24rpx" color="#999" />
                       <text>回复</text>
                     </view>
-                    <view wx:if="{{reply.canDelete}}" class="action-btn delete" bindtap="deleteComment" data-id="{{reply.id}}" data-parent-id="{{item.id}}">
+                    <view wx:if="{{reply.canDelete || adminView}}" class="action-btn delete" bindtap="deleteComment" data-id="{{reply.id}}" data-parent-id="{{item.id}}">
                       <t-icon name="delete" size="24rpx" color="#ff4d4f" />
                       <text>删除</text>
                     </view>
@@ -437,7 +442,7 @@
     </scroll-view>
     
     <!-- 评论输入框 -->
-    <view class="comment-input-bar">
+    <view wx:if="{{!adminView}}" class="comment-input-bar">
       <view wx:if="{{replyTarget}}" class="reply-target">
         <text>回复 <text class="reply-target-name">{{replyTarget.user.nickname}}</text></text>
         <t-icon name="close" size="32rpx" color="#999" bind:click="cancelReply" />

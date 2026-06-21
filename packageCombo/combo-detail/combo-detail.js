@@ -121,6 +121,14 @@ Page({
   },
 
   async onPullDownRefresh() {
+    if (this.data.adminView) {
+      if (this.data.comboId) {
+        await this.loadComboDataForAdmin(this.data.comboId, this.data.adminUserId);
+      }
+      wx.stopPullDownRefresh();
+      return;
+    }
+
     if (this.data.comboId) {
       await this.loadComboData(this.data.comboId);
       wx.stopPullDownRefresh();
@@ -753,11 +761,12 @@ Page({
   navigateToDetail(e) {
     const index = e.currentTarget.dataset.index;
     const todo = this.data.todos[index];
-    
+
     if (!todo || !todo.id) return;
-    
+
+    const { adminView, adminUserId } = this.data;
     wx.navigateTo({
-      url: `/packagePages/todo-detail/todo-detail?todoId=${encodeURIComponent(todo.id)}`
+      url: `/packagePages/todo-detail/todo-detail?todoId=${encodeURIComponent(todo.todo_id || todo.id)}${adminView ? `&adminView=1&userId=${adminUserId}` : ''}`
     });
   },
 
@@ -765,10 +774,10 @@ Page({
     const todoId = e.currentTarget.dataset.id;
     const todo = this.data.sharedTodos.find(t => t.id === todoId);
     if (!todo) return;
-    const { comboId } = this.data;
-    
+    const { comboId, adminView } = this.data;
+
     wx.navigateTo({
-      url: `/packagePages/todo-detail/todo-detail?sharedTodoId=${todo.id}&comboId=${comboId}`
+      url: `/packagePages/todo-detail/todo-detail?sharedTodoId=${todo.id}&comboId=${comboId}${adminView ? '&adminView=1' : ''}`
     });
   },
 
@@ -1092,6 +1101,12 @@ Page({
           sharedTodos,
           filteredSharedTodos: sharedTodos
         });
+
+        this.loadFilterPreference();
+        if (!this.data.filterModeText) {
+          this.setData({ filterModeText: '全部' });
+        }
+        this.applyFilter();
       } else {
         const userResult = await adminApi.getUserDetail(userId);
         const userTodos = userResult.todos || [];

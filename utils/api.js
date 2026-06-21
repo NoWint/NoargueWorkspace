@@ -602,6 +602,12 @@ const adminApi = {
   getNotificationEffectAnalysis: () => request({
     url: '/admin/stats/cross/notification-effect',
     method: 'GET'
+  }),
+
+  getTodoDetail: (todoId, userId) => request({
+    url: `/admin/todo/${todoId}`,
+    method: 'GET',
+    data: { userId }
   })
 };
 

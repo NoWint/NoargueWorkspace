@@ -1934,6 +1934,66 @@ const getNotificationEffectAnalysis = async (req, res) => {
     }
 };
 
+const getTodoDetail = async (req, res) => {
+    try {
+        const { todoId } = req.params;
+        const userId = req.query.userId || req.user.id;
+
+        const todos = await query(
+            'SELECT * FROM todos WHERE (todo_id = ? OR id = ?) AND user_id = ? AND is_deleted = 0',
+            [todoId, todoId, userId]
+        );
+
+        if (todos.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: '待办不存在'
+            });
+        }
+
+        const todo = todos[0];
+
+        // 获取子任务
+        const subtasks = await query(
+            'SELECT * FROM todos WHERE parent_id = ? AND user_id = ? AND is_deleted = 0 ORDER BY created_at ASC',
+            [todo.todo_id, userId]
+        );
+
+        // 获取组合信息
+        let combo = null;
+        if (todo.combo_id) {
+            const combos = await query(
+                'SELECT id, name, icon, color, is_shared FROM combos WHERE id = ?',
+                [todo.combo_id]
+            );
+            combo = combos.length > 0 ? combos[0] : null;
+        }
+
+        // 获取创建者信息
+        const users = await query(
+            'SELECT id, nickname, avatar_url FROM users WHERE id = ?',
+            [userId]
+        );
+        const creator = users.length > 0 ? users[0] : null;
+
+        res.json({
+            success: true,
+            data: formatItemTimes({
+                todo,
+                subtasks,
+                combo,
+                creator
+            })
+        });
+    } catch (err) {
+        logger.adminError('待办详情', '获取管理员待办详情失败', { todoId, userId, error: err.message });
+        res.status(500).json({
+            success: false,
+            message: '获取待办详情失败'
+        });
+    }
+};
+
 module.exports = {
     getStats,
     getStatDetail,
@@ -1967,5 +2027,6 @@ module.exports = {
     getSyncActionStats,
     getTagCompletionAnalysis,
     getNotificationEffectAnalysis,
-    updateUserNickname
+    updateUserNickname,
+    getTodoDetail
 };

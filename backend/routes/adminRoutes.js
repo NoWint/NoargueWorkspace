@@ -44,4 +44,6 @@ router.put('/config', authMiddleware, isAdmin, adminController.updateAdminConfig
 router.get('/comments', authMiddleware, isAdmin, adminController.getComments);
 router.delete('/comments/:id', authMiddleware, isAdmin, adminController.deleteComment);
 
+router.get('/todo/:todoId', authMiddleware, isAdmin, adminController.getTodoDetail);
+
 module.exports = router;

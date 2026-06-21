@@ -380,60 +380,10 @@ Page({
   navigateToTodoDetail(e) {
     const item = e.currentTarget.dataset.item;
     if (!item) return;
-    
-    let parsedLocation = null;
-    if (item.location) {
-      parsedLocation = item.location;
-    } else if (item.location_text) {
-      if (typeof item.location_text === 'string') {
-        try {
-          parsedLocation = JSON.parse(item.location_text);
-        } catch (err) {
-          logger.error('ADMIN', 'DATA', '解析位置信息失败', err);
-        }
-      } else if (typeof item.location_text === 'object') {
-        parsedLocation = item.location_text;
-      }
-    }
-    
-    let parsedImages = [];
-    if (item.images) {
-      if (typeof item.images === 'string') {
-        try {
-          parsedImages = JSON.parse(item.images);
-        } catch (err) {
-          parsedImages = [];
-        }
-      } else if (Array.isArray(item.images)) {
-        parsedImages = item.images;
-      }
-    }
-    
-    const todoData = {
-      id: item.id,
-      text: item.text,
-      set_date: item.set_date,
-      set_time: item.set_time,
-      remarks: item.remarks,
-      completed: item.completed,
-      is_star: item.is_star,
-      location: parsedLocation,
-      images: parsedImages,
-      created_at: item.created_at,
-      time: item.time
-    };
-    
-    const creatorInfo = {
-      nickname: item.user_name || '未知用户',
-      avatar: item.user_avatar || '/images/avatar.png'
-    };
-    
-    const todoStr = encodeURIComponent(JSON.stringify(todoData));
-    const creatorStr = encodeURIComponent(JSON.stringify(creatorInfo));
-    
+
     this.setData({ popupVisible: false });
     wx.navigateTo({
-      url: `/packagePages/todo-detail/todo-detail?adminView=1&todoData=${todoStr}&creator=${creatorStr}`
+      url: `/packagePages/todo-detail/todo-detail?adminView=1&todoId=${encodeURIComponent(item.todo_id || item.id)}&userId=${item.user_id}`
     });
   },
 
@@ -457,7 +407,7 @@ Page({
     if (todoId && comboId) {
       this.setData({ popupVisible: false });
       wx.navigateTo({
-        url: `/packagePages/todo-detail/todo-detail?sharedTodoId=${todoId}&comboId=${comboId}`
+        url: `/packagePages/todo-detail/todo-detail?sharedTodoId=${todoId}&comboId=${comboId}&adminView=1`
       });
     }
   },

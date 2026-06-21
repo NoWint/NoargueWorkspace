@@ -1,7 +1,7 @@
 import ActionSheet, { ActionSheetTheme } from 'tdesign-miniprogram/action-sheet';
 
 const app = getApp();
-const { combosApi, collabApi, notifyApi, commentsApi, shareApi, isLoggedIn } = require('../../utils/api.js');
+const { combosApi, collabApi, notifyApi, commentsApi, shareApi, adminApi, isLoggedIn } = require('../../utils/api.js');
 const { syncWithCloud, getLocalTodos, saveTodo, getTodoById, deleteTodoById } = require('../../utils/sync.js');
 
 const NOTIFY_TEMPLATE_ID = '1jvRWbLBNSasPzKtUnrQEiVrU6hj2lWwhKNq2u8jjWg';
@@ -44,6 +44,7 @@ Page({
     creator: null,
     imagesLayout: 'grid-3',
     adminView: false,
+    detailUserId: '',
     
     showCommentPopup: false,
     comments: [],
@@ -289,11 +290,9 @@ Page({
     const isFromShare = pages.length === 1;
     this.setData({ isFromShare });
 
-    // 管理员查看模式
     if (options.adminView === '1') {
       this._loadAdminView(options);
-      // 如果 adminView 解析成功则提前返回，否则 fall through 到后续条件（保留原始行为）
-      if (this.data.adminView) return;
+      return;
     }
 
     if (options.sharedTodoId) {
@@ -327,8 +326,91 @@ Page({
     }
   },
 
-  // 路径1: 管理员查看模式
+  // 路径1: 管理员查看模式（统一入口）
   _loadAdminView(options) {
+    this.setData({ adminView: true });
+
+    // 共享待办：走现有 sharedTodoId + comboId 路径（复用注释加载等能力）
+    if (options.sharedTodoId) {
+      this._loadBySharedTodoId(options);
+      return;
+    }
+
+    // 个人待办：走新 admin API 加载完整数据
+    if (options.todoId) {
+      this._loadAdminViewWithApi(options);
+      return;
+    }
+
+    // 兜底：旧 URL 编码方式
+    this._loadAdminViewLegacy(options);
+  },
+
+  // 路径1a: adminView 通过 API 加载个人待办
+  async _loadAdminViewWithApi(options) {
+    try {
+      const todoId = decodeURIComponent(options.todoId);
+      const userId = options.userId || '';
+
+      const res = await adminApi.getTodoDetail(todoId, userId);
+      if (!res.success || !res.data) {
+        logger.error('ADMIN', 'API', '获取待办详情失败', res);
+        return;
+      }
+
+      const { todo, subtasks, combo, creator } = res.data;
+
+      let parsedImages = this.parseImages(todo.images);
+      let dateObj = new Date();
+      if (todo.set_date || todo.setDate) {
+        const rawDate = todo.set_date || todo.setDate;
+        dateObj = new Date(rawDate);
+        if (isNaN(dateObj.getTime())) dateObj = new Date();
+      }
+      const setTime = todo.set_time || todo.setTime || '12:00';
+
+      this.setData({
+        todo: {
+          text: todo.text || '',
+          setDate: this.formatDate(dateObj),
+          setTime: setTime,
+          remarks: todo.remarks || '',
+          completed: todo.completed ? true : false,
+          isStar: todo.is_star || todo.isStar || false,
+          images: parsedImages,
+          location: todo.location_text ? this.parseLocation(todo.location_text) : (todo.location || null),
+          priority: todo.priority || 'p2'
+        },
+        creator: creator ? {
+          nickname: creator.nickname || '未知用户',
+          avatar: creator.avatar || '/images/avatar.png'
+        } : null,
+        subtaskList: Array.isArray(subtasks) ? subtasks.map(s => ({
+          ...s,
+          completed: s.completed > 0
+        })) : [],
+        comboInfo: combo ? {
+          id: combo.id,
+          name: combo.name,
+          icon: combo.icon || 'folder',
+          color: combo.color || '#4CAF50',
+          is_shared: combo.is_shared
+        } : null,
+        formattedDate: this.formatRichDate(dateObj, setTime),
+        formatDateTime: this.formatAdminDateTime(todo.created_at || todo.time || Date.now()),
+        formatCompletedTime: todo.completed ? this.formatAdminDateTime(todo.completed) : '',
+        imagesLayout: this.calculateImagesLayout(parsedImages),
+        todoId: todo.todo_id || todoId,
+        detailUserId: userId
+      });
+      wx.stopPullDownRefresh();
+    } catch (err) {
+      logger.error('ADMIN', 'API', '管理员API加载待办失败', err);
+    }
+  },
+
+  // 路径1b: 旧版 URL 编码管理员查看（兜底）
+  _loadAdminViewLegacy(options) {
     try {
       const todoData = JSON.parse(decodeURIComponent(options.todoData || '{}'));
       const creatorInfo = decodeURIComponent(options.creator || '{}');
@@ -838,6 +920,20 @@ Page({
   },
 
   onPullDownRefresh() {
+    if (this.data.adminView) {
+      if (this.data.isSharedTodo && this.data.sharedTodoId && this.data.comboId) {
+        this.loadSharedTodo(this.data.sharedTodoId, this.data.comboId);
+      } else if (this.data.todoId) {
+        this._loadAdminViewWithApi({
+          todoId: this.data.todoId,
+          userId: this.data.detailUserId
+        });
+      } else {
+        wx.stopPullDownRefresh();
+      }
+      return;
+    }
+
     if (this.data.isSharedTodo && this.data.sharedTodoId && this.data.comboId) {
       this.loadSharedTodo(this.data.sharedTodoId, this.data.comboId);
     } else {
@@ -1165,6 +1261,15 @@ Page({
       }
     }
     return Array.isArray(images) ? images : [];
+  },
+
+  parseLocation(loc) {
+    if (!loc) return null;
+    if (typeof loc === 'string') {
+      try { return JSON.parse(loc); } catch (e) { return null; }
+    }
+    if (loc.longitude && loc.latitude) return loc;
+    return null;
   },
 
   calculateImagesLayout(images) {
@@ -1844,7 +1949,11 @@ Page({
         if (res.confirm) {
           try {
             wx.showLoading({ title: '删除中...' });
-            await commentsApi.delete(id);
+            if (this.data.adminView) {
+              await adminApi.deleteComment(id);
+            } else {
+              await commentsApi.delete(id);
+            }
             wx.hideLoading();
             
             if (parentId) {

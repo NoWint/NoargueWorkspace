@@ -103,44 +103,9 @@ Page({
 
   viewTodo(e) {
     const todo = e.currentTarget.dataset.todo;
-    
-    let parsedImages = [];
-    if (todo.images) {
-      if (typeof todo.images === 'string') {
-        try {
-          parsedImages = JSON.parse(todo.images);
-        } catch (e) {}
-      } else if (Array.isArray(todo.images)) {
-        parsedImages = todo.images;
-      }
-    }
-    
-    let parsedLocation = null;
-    if (todo.location) {
-      if (typeof todo.location === 'string') {
-        try {
-          parsedLocation = JSON.parse(todo.location);
-        } catch (e) {}
-      } else if (typeof todo.location === 'object') {
-        parsedLocation = todo.location;
-      }
-    }
-    
-    const todoData = {
-      ...todo,
-      images: parsedImages,
-      location: parsedLocation
-    };
-    const creatorInfo = {
-      nickname: this.data.user.nickname || '未知用户',
-      avatar: this.data.user.avatar_url || '/images/avatar.png'
-    };
-    
-    const todoStr = encodeURIComponent(JSON.stringify(todoData));
-    const creatorStr = encodeURIComponent(JSON.stringify(creatorInfo));
-    
+
     wx.navigateTo({
-      url: `/packagePages/todo-detail/todo-detail?adminView=1&todoData=${todoStr}&creator=${creatorStr}`
+      url: `/packagePages/todo-detail/todo-detail?adminView=1&todoId=${encodeURIComponent(todo.todo_id || todo.id)}&userId=${this.data.userId}`
     });
   },
 
