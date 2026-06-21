@@ -198,6 +198,7 @@ const getById = async (req, res) => {
             id: todo.id,
             text: todo.text,
             parentId: todo.parent_id,
+            priority: todo.priority || 'p2',
             setDate: todo.set_date,
             setTime: todo.set_time,
             remarks: todo.remarks,

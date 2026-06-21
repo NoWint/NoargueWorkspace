@@ -685,7 +685,7 @@ const getUserDetail = async (req, res) => {
         const user = users[0];
 
         const todos = await query(`
-            SELECT id, todo_id, text, set_date, set_time, remarks, images, location_text as location, completed, is_star, is_deleted, combo_id, created_at, updated_at
+            SELECT id, todo_id, text, set_date, set_time, remarks, images, location_text as location, priority, completed, is_star, is_deleted, combo_id, created_at, updated_at
             FROM todos 
             WHERE user_id = ? 
             ORDER BY created_at DESC
