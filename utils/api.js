@@ -1,9 +1,11 @@
 const API_BASE_URL = 'https://api.yzjtiantian.cn';
 
 let token = '';
+let _loginRedirecting = false;
 
 function setToken(newToken) {
   token = newToken;
+  _loginRedirecting = false;
   wx.setStorageSync('authToken', newToken);
 }
 
@@ -27,7 +29,10 @@ function requireLogin(callback) {
   if (isLoggedIn()) {
     return callback();
   }
-  
+
+  if (_loginRedirecting) return null;
+  _loginRedirecting = true;
+
   wx.showModal({
     title: '需要登录',
     content: '该功能需要登录后才能使用，是否前往登录？',
@@ -37,7 +42,9 @@ function requireLogin(callback) {
       if (res.confirm) {
         wx.navigateTo({ url: '/packagePages/login/login' });
       }
-    }
+      _loginRedirecting = false;
+    },
+    fail: () => { _loginRedirecting = false; }
   });
   return null;
 }
@@ -66,7 +73,10 @@ function request(options) {
           resolve(res.data);
         } else if (res.statusCode === 401) {
           clearToken();
-          wx.navigateTo({ url: '/packagePages/login/login' });
+          if (!_loginRedirecting) {
+            _loginRedirecting = true;
+            wx.navigateTo({ url: '/packagePages/login/login' });
+          }
           reject(new Error('登录已过期，请重新登录'));
         } else if (res.statusCode === 403) {
           reject(new Error('无管理员权限'));
