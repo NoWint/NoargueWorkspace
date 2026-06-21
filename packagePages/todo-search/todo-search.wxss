@@ -67,10 +67,9 @@
   content: '';
   position: absolute;
   left: 0;
-  top: 12rpx;
-  width: 12rpx;
-  height: calc(100% - 24rpx);
+  top: 14rpx;
+  width: 8rpx;
+  height: calc(100% - 28rpx);
+  border-radius: 0 4rpx 4rpx 0;
   z-index: 1;
-  -webkit-mask: radial-gradient(circle at 8rpx center, transparent 5rpx, black 5rpx);
-  mask: radial-gradient(circle at 8rpx center, transparent 5rpx, black 5rpx);
 }
