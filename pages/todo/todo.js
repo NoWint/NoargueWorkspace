@@ -733,8 +733,74 @@ Page({
     }
   },
 
+  // ========== 子待办递归操作 ==========
+
+  upgradeSubtasksRecursive(parentId) {
+    const todos = getLocalTodos();
+    for (const t of todos) {
+      if (t.parent_id === parentId && !t.isDeleted) {
+        this.upgradeSubtasksRecursive(t.id);
+        t.parent_id = '';
+        t.updatedAt = Date.now();
+        t.version = (t.version || 1) + 1;
+        saveTodo(t);
+      }
+    }
+  },
+
+  deleteSubtasksRecursive(parentId) {
+    const todos = getLocalTodos();
+    for (const t of todos) {
+      if (t.parent_id === parentId) {
+        this.deleteSubtasksRecursive(t.id);
+        deleteTodoById(t.id, Date.now());
+      }
+    }
+  },
+
+  doDeleteTodo(index, allIndex) {
+    const that = this;
+    that.setData({
+      [`todos[${index}]._animate`]: 'remove-animation',
+      [`allTodos[${allIndex}]._animate`]: 'remove-animation'
+    }, () => {
+      setTimeout(() => {
+        const now = Date.now();
+        const deletedItem = that.data.todos[index];
+        const deletedTodo = {
+          ...deletedItem,
+          isDeleted: true,
+          deletedAt: now,
+          updatedAt: now,
+          version: (deletedItem.version || 1) + 1
+        };
+
+        addDeletedTodo(deletedTodo);
+        deleteTodoById(deletedTodo.id, now);
+
+        const storageTodos = getLocalTodos();
+        const updatedTodos = storageTodos.map(t =>
+          t.id === deletedTodo.id ? deletedTodo : t
+        );
+        if (!storageTodos.find(t => t.id === deletedTodo.id)) {
+          updatedTodos.push(deletedTodo);
+        }
+        getApp().updateCalendarCache(updatedTodos);
+
+        const newAllTodos = that.data.allTodos.filter((item, i) => i !== allIndex);
+        that.setData({ allTodos: newAllTodos });
+        that.applyTagFilter();
+        getApp().updateCalendarCache(newAllTodos);
+
+        if (isLoggedIn()) {
+          that.autoSyncToCloud();
+        }
+      }, 300);
+    });
+  },
+
   /**
-   * 删除待办事项
+   * 删除待办事项（含子待办处理）
    */
   deleteTodo(index) {
     const that = this;
@@ -742,53 +808,49 @@ Page({
     const allIndex = this.data.allTodos.findIndex(t => t.id === todo.id);
     const hasSubtasks = getLocalTodos().some(t => t.parent_id === todo.id && !t.isDeleted);
 
-    wx.showModal({
-      title: '删除确认',
-      content: hasSubtasks ? '该待办包含子待办，删除后子待办也将一同被删除，确定删除吗？' : '删除后保留 30 天，可在"更多-回收站"找回，确定删除吗？',
-      confirmText: '删除',
-      confirmColor: '#ff4d4f',
-      success(res) {
-        if (res.confirm) {
-          that.setData({
-            [`todos[${index}]._animate`]: 'remove-animation',
-            [`allTodos[${allIndex}]._animate`]: 'remove-animation'
-          }, () => {
-            setTimeout(() => {
-              const now = Date.now();
-              const deletedItem = that.data.todos[index];
-              const deletedTodo = {
-                ...deletedItem,
-                isDeleted: true,
-                deletedAt: now,
-                updatedAt: now,
-                version: (deletedItem.version || 1) + 1
-              };
-              
-              addDeletedTodo(deletedTodo);
-              deleteTodoById(deletedTodo.id, now);
+    if (hasSubtasks) {
+      wx.showActionSheet({
+        itemList: ['升级子待办为普通待办', '一并删除子待办', '取消'],
+        cancelIndex: 2,
+        success(res) {
+          if (res.tapIndex === 2) return;
 
-              const storageTodos = getLocalTodos();
-              const updatedTodos = storageTodos.map(t =>
-                t.id === deletedTodo.id ? deletedTodo : t
-              );
-              if (!storageTodos.find(t => t.id === deletedTodo.id)) {
-                updatedTodos.push(deletedTodo);
-              }
-              getApp().updateCalendarCache(updatedTodos);
+          const action = res.tapIndex === 0 ? 'upgrade' : 'delete';
+          const content = action === 'upgrade'
+            ? '子待办将变为普通待办，确定删除吗？'
+            : '子待办也将一同被删除，确定删除吗？';
 
-              const newAllTodos = that.data.allTodos.filter((item, i) => i !== allIndex);
-              that.setData({ allTodos: newAllTodos });
-              that.applyTagFilter();
-              getApp().updateCalendarCache(newAllTodos);
-              
-              if (isLoggedIn()) {
-                that.autoSyncToCloud();
+          wx.showModal({
+            title: '删除待办',
+            content,
+            confirmText: '删除',
+            confirmColor: '#ff4d4f',
+            success(modalRes) {
+              if (modalRes.confirm) {
+                if (action === 'upgrade') {
+                  that.upgradeSubtasksRecursive(todo.id);
+                } else {
+                  that.deleteSubtasksRecursive(todo.id);
+                }
+                that.doDeleteTodo(index, allIndex);
               }
-            }, 300);
+            }
           });
         }
-      }
-    });
+      });
+    } else {
+      wx.showModal({
+        title: '删除确认',
+        content: '删除后保留 30 天，可在"更多-回收站"找回，确定删除吗？',
+        confirmText: '删除',
+        confirmColor: '#ff4d4f',
+        success(res) {
+          if (res.confirm) {
+            that.doDeleteTodo(index, allIndex);
+          }
+        }
+      });
+    }
   },
 
   /**

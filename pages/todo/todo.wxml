@@ -477,8 +477,9 @@ wx:key="*this"
 
   <!-- 原地克隆 cell（t-cell，无 swipe/radio） -->
   <view
-    class="card-action-cell-clone"
+    class="card-action-cell-clone todo-item-wrapper"
     style="top:{{_actionCardTop}}px;left:{{_actionCardLeft}}px;width:{{_actionCardWidth}}px;"
+    data-priority="{{actionTodo.priority}}"
   >
     <t-swipe-cell
       class="todo-item {{actionTodo.completed ? 'completed' : ''}}"

@@ -1,6 +1,7 @@
 const app = getApp();
+require('../../utils/logger');
 const { isLoggedIn } = require('../../utils/api.js');
-const { syncWithCloud } = require('../../utils/sync.js');
+const { syncWithCloud, getLocalTodos, saveTodo, getTodoById } = require('../../utils/sync.js');
 
 Page({
   data: {
@@ -47,9 +48,8 @@ Page({
   },
 
   generateExport() {
-    const todos = wx.getStorageSync('todos') || []
-    const activeTodos = todos.filter(t => !t.isDeleted)
-    const compressed = activeTodos.map(t => [
+    const todos = getLocalTodos().filter(t => !t.isDeleted)
+    const compressed = todos.map(t => [
       t.id,
       t.text,
       t.setDate,
@@ -65,7 +65,9 @@ Page({
       t.updatedAt || null,
       t.isDeleted || false,
       t.deletedAt || null,
-      t.images || []
+      t.images || [],
+      t.priority || 'p2',
+      t.parent_id || null
     ])
     this.setData({ exportData: JSON.stringify(compressed) })
   },
@@ -84,7 +86,7 @@ Page({
       return;
     }
     const mode = e.currentTarget.dataset.mode;
-    
+
     wx.showModal({
       title: '操作确认',
       content: `确定要${mode === 'overwrite' ? '覆盖' : '合并'}数据吗？该操作不可撤销`,
@@ -96,64 +98,45 @@ Page({
             const compressedData = JSON.parse(this.data.importData)
             const now = Date.now();
             const newData = compressedData.map(arr => {
-              const hasFullFields = arr.length > 8;
-              
-              if (hasFullFields) {
-                const originalUpdatedAt = arr[12] || now;
-                return {
-                  id: arr[0] || `todo_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
-                  text: arr[1] || '',
-                  setDate: arr[2],
-                  setTime: arr[3] || '12:00',
-                  completed: arr[4],
-                  remarks: arr[5] || '',
-                  location: arr[6] || null,
-                  isStar: arr[7] || false,
-                  time: arr[8] || now,
-                  tags: arr[9] || [],
-                  comboId: arr[10] || null,
-                  version: (arr[11] || 1) + 1,
-                  updatedAt: originalUpdatedAt,
-                  isDeleted: arr[13] || false,
-                  deletedAt: arr[14] || null,
-                  images: arr[15] || []
-                };
-              } else {
-                return {
-                  id: `todo_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
-                  text: arr[0] || '',
-                  setDate: arr[1],
-                  setTime: arr[2] || '12:00',
-                  completed: arr[3],
-                  remarks: arr[4] || '',
-                  location: arr[5] || null,
-                  isStar: arr[6] || false,
-                  time: arr[7] || now,
-                  tags: [],
-                  comboId: null,
-                  version: 2,
-                  updatedAt: now,
-                  isDeleted: false,
-                  deletedAt: null,
-                  images: []
-                };
-              }
+              const hasPriority = arr.length > 15;
+              const hasParentId = arr.length > 16;
+
+              const originalUpdatedAt = (arr[12] || now);
+              return {
+                id: arr[0] || `todo_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+                text: arr[1] || '',
+                setDate: arr[2],
+                setTime: arr[3] || '12:00',
+                completed: arr[4],
+                remarks: arr[5] || '',
+                location: arr[6] || null,
+                isStar: arr[7] || false,
+                time: arr[8] || now,
+                tags: arr[9] || [],
+                comboId: arr[10] || null,
+                version: (arr[11] || 1) + 1,
+                updatedAt: originalUpdatedAt,
+                isDeleted: arr[13] || false,
+                deletedAt: arr[14] || null,
+                images: arr[15] || [],
+                priority: hasPriority ? (arr[16] || 'p2') : 'p2',
+                parent_id: hasParentId ? (arr[17] || null) : null
+              };
             })
-            
-            const oldData = wx.getStorageSync('todos') || []
-            
+            const oldTodos = getLocalTodos();
+
             let finalData;
             if (mode === 'overwrite') {
               finalData = newData;
             } else {
               const oldDataMap = new Map();
-              oldData.forEach(item => {
+              oldTodos.forEach(item => {
                 oldDataMap.set(item.id, item);
               });
-              
+
               newData.forEach(newItem => {
                 const existingItem = oldDataMap.get(newItem.id);
-                
+
                 if (!existingItem) {
                   oldDataMap.set(newItem.id, newItem);
                 } else {
@@ -161,18 +144,18 @@ Page({
                   const existingUpdatedAt = existingItem.updatedAt || existingItem.time || 0;
                   const newVersion = newItem.version || 1;
                   const newUpdatedAt = newItem.updatedAt || newItem.time || 0;
-                  
                   if (newVersion > existingVersion || newUpdatedAt > existingUpdatedAt) {
                     oldDataMap.set(newItem.id, newItem);
                   }
                 }
               });
-              
               finalData = Array.from(oldDataMap.values());
             }
 
-            wx.setStorageSync('todos', finalData);
+            finalData.forEach(t => saveTodo(t));
             app.updateCalendarCache(finalData.filter(t => !t.isDeleted));
+
+            if (isLoggedIn()) {
             
             if (isLoggedIn()) {
               wx.showLoading({ title: '同步中...', mask: true });
