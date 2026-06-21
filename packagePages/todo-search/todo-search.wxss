@@ -40,3 +40,36 @@
   color: #e64340;
   font-weight: 500;
 }
+
+/* ===========================
+   优先级左侧色条
+   =========================== */
+.todo-item-wrapper {
+  overflow: hidden;
+  position: relative;
+}
+.todo-item-wrapper[data-priority="p1"]::before {
+  background: #e34d4d;
+}
+.todo-item-wrapper[data-priority="p2"]::before {
+  background: #2196F3;
+}
+.todo-item-wrapper[data-priority="p3"]::before {
+  background: #FF9800;
+}
+.todo-item-wrapper[data-priority="p4"]::before {
+  background: #999;
+}
+.todo-item-wrapper:not([data-priority])::before {
+  background: transparent;
+}
+.todo-item-wrapper[data-priority]::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 6rpx;
+  height: 100%;
+  border-radius: 0 3rpx 3rpx 0;
+  z-index: 1;
+}
