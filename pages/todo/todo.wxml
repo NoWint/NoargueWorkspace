@@ -302,7 +302,7 @@ wx:key="*this"
       <text class="voice-hint {{voiceText ? '' : 'placeholder'}}">{{voiceText || '正在聆听...'}}</text>
     </view>
     <view class="voice-wave">
-      <view wx:for="{{32}}" wx:key="*this" class="voice-wave-bar" style="left:{{index * 3.125}}%;animation-delay:{{index * 0.06}}s;"></view>
+      <view wx:for="{{voiceWaveBars}}" wx:key="*this" class="voice-wave-bar" style="left:{{index / 32 * 100}}%;animation-delay:{{index * 0.06}}s;"></view>
     </view>
     <view class="voice-glow"></view>
   </view>
