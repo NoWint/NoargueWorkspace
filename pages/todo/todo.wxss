@@ -1187,7 +1187,7 @@
   color: #d90000;
 }
 /* ===========================
-   优先级左侧色条
+   优先级左上角弧面包裹
    =========================== */
 .todo-item-wrapper[data-priority="p1"] .todo-item::before {
   background: #e34d4d;
@@ -1207,11 +1207,11 @@
 .todo-item-wrapper[data-priority] .todo-item::before {
   content: '';
   position: absolute;
-  left: 0;
   top: 0;
-  width: 6rpx;
-  height: 100%;
-  border-radius: 0 3rpx 3rpx 0;
+  left: 0;
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 0 0 32rpx 0;
   z-index: 1;
 }
 

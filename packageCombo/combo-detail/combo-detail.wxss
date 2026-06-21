@@ -411,7 +411,7 @@
 }
 
 /* ===========================
-   优先级左侧色条（分包直写，不依赖 @import）
+   优先级左上角弧面包裹
    =========================== */
 .todo-item-wrapper[data-priority="p1"]::before {
   background: #e34d4d;
@@ -431,10 +431,10 @@
 .todo-item-wrapper[data-priority]::before {
   content: '';
   position: absolute;
-  left: 0;
   top: 0;
-  width: 6rpx;
-  height: 100%;
-  border-radius: 0 3rpx 3rpx 0;
+  left: 0;
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 0 0 32rpx 0;
   z-index: 1;
 }
