@@ -55,7 +55,12 @@ Page({
     showBackTop: false,
     recordState: false,
     content: '',
-    
+    // 语音遮罩相关
+    isRecording: false,
+    overlayPhase: '',
+    voiceText: '',
+    voiceWaveBars: [],
+
     navBarHeight: app.globalData.navBarHeight,
     menuRight: app.globalData.menuRight
   },
@@ -1165,23 +1170,9 @@ Page({
     manager.onRecognize = function (res) {
       const text = res.result;
       that.setData({
-        content: text
+        content: text,
+        voiceText: text
       });
-      
-      if (text === '') {
-        wx.showModal({
-          title: '语音识别未成功',
-          content: `未能识别到有效内容。可能是您在上一轮识别为完成时开启了第二轮识别。
-若不是以上情况，请尝试：
-1. 长按麦克风按钮保持1秒以上；
-2. 在安静环境下清晰说出待办内容；
-4. 确认手机麦克风权限已开启。
-
-您也可以直接使用文字输入创建待办`,
-          confirmText: '知道了',
-          showCancel: false
-        });
-      }
     };
 
     manager.onStart = function (res) {
@@ -1207,8 +1198,10 @@ Page({
     };
 
     manager.onStop = function (res) {
+      if (that._voiceDone) return;
+
       var text = res.result;
-  
+
       if (text && text.length > 0) {
         const lastChar = text[text.length - 1];
         if (['。', '.', '，', ','].includes(lastChar)) {
@@ -1217,29 +1210,36 @@ Page({
       }
 
       that.setData({ content: text });
-      wx.hideLoading();
 
-      if (text) {
-        const { comboId, isShared } = that.data;
-        wx.navigateTo({
-          url: `/packagePages/add-todo/add-todo?voiceText=${encodeURIComponent(text)}&comboId=${comboId}&isShared=${isShared ? 1 : 0}`
-        });
+      if (!that.data.isRecording) {
+        wx.hideLoading();
+        if (text) {
+          const { comboId, isShared } = that.data;
+          wx.showToast({ title: '识别完成', icon: 'none' });
+        }
       }
     };
   },
 
   startRecording() {
-    this.setData({ recordState: true });
-    manager.start({
-      lang: 'zh_CN',
+    this.setData({
+      isRecording: true,
+      overlayPhase: '',
+      recordState: true,
+      voiceText: '',
+      voiceWaveBars: new Array(32).fill(0)
     });
-    wx.showToast({
-      icon: 'none',
-      title: '识别已开始，松手结束录音',
-    });
+
+    setTimeout(() => {
+      this.setData({ overlayPhase: 'show' });
+    }, 50);
+
+    manager.start({ lang: 'zh_CN' });
   },
 
   touchStart(e) {
+    if (this.data.isRecording) return;
+
     wx.getSetting({
       success: (res) => {
         if (!res.authSetting['scope.record']) {
@@ -1271,14 +1271,30 @@ Page({
   },
 
   touchEnd(e) {
-    this.setData({
-      recordState: false
-    });
-    
+    if (!this.data.isRecording) return;
+
+    this._voiceDone = true;
     manager.stop();
-    wx.showLoading({
-      title: '正在识别...'
-    });
+
+    this.setData({ overlayPhase: '' });
+
+    this._collapseTimer = setTimeout(() => {
+      this._collapseTimer = null;
+      const text = this.data.voiceText;
+
+      this.setData({
+        isRecording: false,
+        recordState: false,
+        voiceWaveBars: []
+      });
+
+      if (text) {
+        const { comboId, isShared } = this.data;
+        wx.navigateTo({
+          url: `/packagePages/add-todo/add-todo?voiceText=${encodeURIComponent(text)}&comboId=${comboId}&isShared=${isShared ? 1 : 0}`
+        });
+      }
+    }, 280);
   },
 
   getRecordAuth() {
@@ -1303,6 +1319,15 @@ Page({
       }
     });
   },
+
+  onUnload() {
+    if (this._collapseTimer) {
+      clearTimeout(this._collapseTimer);
+      this._collapseTimer = null;
+    }
+  },
+
+  preventTouchMove() {},
 
   onPageScroll(e) {
     const show = e.scrollTop > 300;
