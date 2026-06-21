@@ -98,8 +98,8 @@ Page({
             const compressedData = JSON.parse(this.data.importData)
             const now = Date.now();
             const newData = compressedData.map(arr => {
-              const hasPriority = arr.length > 15;
-              const hasParentId = arr.length > 16;
+              const hasPriority = arr.length > 16;
+              const hasParentId = arr.length > 17;
 
               const originalUpdatedAt = (arr[12] || now);
               return {
