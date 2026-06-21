@@ -1,0 +1,97 @@
+<h2>🎤 语音识别遮罩效果预览</h2>
+<p class="subtitle">按下 mic → 黑色遮罩从 FAB 扩散 → 实时语音识别 → 松手收回</p>
+
+<div class="split">
+  <!-- 状态 A: 待机 -->
+  <div class="mockup">
+    <div class="mockup-header">① 待机状态</div>
+    <div class="mockup-body" style="position:relative;min-height:500px;background:#f0fdf4;overflow:hidden;">
+      <!-- Mock page content -->
+      <div style="padding:20px;">
+        <div style="height:30px;background:#fff;border-radius:16px;margin-bottom:16px;opacity:0.5;"></div>
+        <div style="height:16px;background:#e8f5e9;border-radius:8px;margin-bottom:40%;opacity:0.5;"></div>
+        <div style="height:60px;background:#fff;border-radius:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);"></div>
+        <div style="height:60px;background:#fff;border-radius:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);"></div>
+        <div style="height:60px;background:#fff;border-radius:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06);"></div>
+      </div>
+      <!-- FAB mock -->
+      <div style="position:absolute;right:16px;bottom:80px;width:56px;height:56px;border-radius:50%;background:#00b26a;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,178,106,0.4);">
+        <span style="color:#fff;font-size:28px;">🎤</span>
+      </div>
+      <!-- Spread arrow -->
+      <div style="position:absolute;right:16px;bottom:140px;font-size:12px;color:#00b26a;text-align:center;">
+        <span style="display:block;">⬆</span>
+        <span style="display:block;">扩散</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 状态 B: 录音中 -->
+  <div class="mockup">
+    <div class="mockup-header">② 按下 mic 录音中</div>
+    <div class="mockup-body" style="position:relative;min-height:500px;background:#000;overflow:hidden;">
+      <!-- Clip-path expand effect indicator -->
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;">
+
+        <!-- Center: recognized text -->
+        <div style="color:#fff;font-size:18px;padding:20px 40px;text-align:center;min-height:120px;display:flex;align-items:center;justify-content:center;">
+          <span style="opacity:0.7;">"明天下午三点开会"</span>
+        </div>
+
+        <!-- Bottom wave visualization -->
+        <div style="position:absolute;bottom:80px;left:0;right:0;display:flex;justify-content:center;align-items:flex-end;height:60px;gap:4px;">
+          <div style="width:6px;border-radius:3px;" class="wave-bar" style="height:20px;background:#00d68f;"></div>
+          <div style="width:6px;border-radius:3px;" class="wave-bar" style="height:45px;background:#00d68f;animation-delay:0.1s;"></div>
+          <div style="width:6px;border-radius:3px;" class="wave-bar" style="height:30px;background:#00d68f;animation-delay:0.2s;"></div>
+          <div style="width:6px;border-radius:3px;" class="wave-bar" style="height:55px;background:#00d68f;animation-delay:0.3s;"></div>
+          <div style="width:6px;border-radius:3px;" class="wave-bar" style="height:25px;background:#00d68f;animation-delay:0.4s;"></div>
+          <div style="width:6px;border-radius:3px;" class="wave-bar" style="height:40px;background:#00d68f;animation-delay:0.5s;"></div>
+          <div style="width:6px;border-radius:3px;" class="wave-bar" style="height:50px;background:#00d68f;animation-delay:0.6s;"></div>
+          <div style="width:6px;border-radius:3px;" class="wave-bar" style="height:35px;background:#00d68f;animation-delay:0.7s;"></div>
+          <div style="width:6px;border-radius:3px;" class="wave-bar" style="height:20px;background:#00d68f;animation-delay:0.8s;"></div>
+          <div style="width:6px;border-radius:3px;" class="wave-bar" style="height:48px;background:#00d68f;animation-delay:0.9s;"></div>
+        </div>
+
+        <!-- Glow effect at bottom -->
+        <div style="position:absolute;bottom:60px;left:10%;right:10%;height:80px;background:radial-gradient(ellipse at center, rgba(0,214,143,0.3) 0%, transparent 70%);pointer-events:none;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>动画时序设计</h3>
+  <div class="pros-cons">
+    <div class="pros">
+      <h4>扩散（按下）</h4>
+      <ol style="font-size:14px;line-height:1.8;">
+        <li>获取 FAB 按钮中心位置</li>
+        <li>clip-path 圆形从 0 → 200% 展开</li>
+        <li>cubic-bezier(0.34, 1.56, 0.64, 1) 弹性</li>
+        <li>同时开始麦克风录音</li>
+      </ol>
+    </div>
+    <div class="cons">
+      <h4>收缩（松手）</h4>
+      <ol style="font-size:14px;line-height:1.8;">
+        <li>clip-path 圆形从 200% → 0 收回</li>
+        <li>cubic-bezier(0.55, 0.085, 0.68, 0.53) 缓出</li>
+        <li>动画完成后跳转 add-todo</li>
+        <li>携带识别到的语音文本</li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes waveAnim {
+  0%, 100% { transform: scaleY(0.3); opacity: 0.6; }
+  25% { transform: scaleY(1.0); opacity: 1; }
+  50% { transform: scaleY(0.5); opacity: 0.8; }
+  75% { transform: scaleY(0.8); opacity: 0.9; }
+}
+.wave-bar {
+  animation: waveAnim 1.2s ease-in-out infinite;
+  transform-origin: bottom;
+}
+</style>
