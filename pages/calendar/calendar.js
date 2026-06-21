@@ -1,7 +1,7 @@
 const { WxCalendar } = require('@lspriv/wx-calendar/lib');
 const { LunarPlugin } = require('@lspriv/wc-plugin-lunar');
 const { isLoggedIn } = require('../../utils/api.js');
-const { getLocalTodos, saveTodo, getTodoById, deleteTodoById, syncWithCloud } = require('../../utils/sync.js');
+const { getLocalTodos, saveTodo, getTodoById, deleteTodoById, syncWithCloud, addDeletedTodo } = require('../../utils/sync.js');
 const { formatFriendlyDate } = require('../../utils/util.js');
 
 WxCalendar.use(LunarPlugin);
@@ -219,10 +219,11 @@ Page({
   deleteTodo(index) {
     const currentTodo = this.data.selectedTodos[index];
     const that = this;
+    const hasSubtasks = getLocalTodos().some(t => t.parent_id === currentTodo.id && !t.isDeleted);
 
     wx.showModal({
       title: '删除确认',
-      content: '删除后保留 30 天，可在“更多-回收站”找回，确定删除吗？',
+      content: hasSubtasks ? '该待办包含子待办，删除后子待办也将一同被删除，确定删除吗？' : '删除后保留 30 天，可在”更多-回收站”找回，确定删除吗？',
       confirmText: '删除',
       confirmColor: '#ff4d4f',
       success: (res) => {
@@ -234,11 +235,12 @@ Page({
             todo.deletedAt = now;
             todo.updatedAt = now;
             todo.version = (todo.version || 1) + 1;
-            saveTodo(todo);
+            addDeletedTodo(todo);
+            deleteTodoById(currentTodo.id, now);
           }
           that.searchTodos(that.data.selectedDate);
           getApp().updateCalendarCache(getLocalTodos());
-          
+
           if (isLoggedIn()) {
             that.autoSyncToCloud();
           }
@@ -263,7 +265,7 @@ Page({
     app.globalData.editTodoImages = currentTodo.images || [];
 
     wx.navigateTo({
-      url: `/packagePages/add-todo/add-todo?edit=1&index=${realIndex}&text=${encodeURIComponent(currentTodo.text)}&setDate=${currentTodo.setDate}&setTime=${currentTodo.setTime || '12:00'}&remarks=${encodeURIComponent(currentTodo.remarks || '')}&location=${locationStr}&time=${currentTodo.time || Date.now()}&isStar=${currentTodo.isStar || false}&comboId=${currentTodo.comboId || ''}&tags=${tagsStr}&hasImages=${(currentTodo.images && currentTodo.images.length > 0) ? '1' : '0'}`
+      url: `/packagePages/add-todo/add-todo?edit=1&index=${realIndex}&text=${encodeURIComponent(currentTodo.text)}&setDate=${currentTodo.setDate}&setTime=${currentTodo.setTime || '12:00'}&remarks=${encodeURIComponent(currentTodo.remarks || '')}&location=${locationStr}&time=${currentTodo.time || Date.now()}&isStar=${currentTodo.isStar || false}&priority=${currentTodo.priority || ''}&comboId=${currentTodo.comboId || ''}&tags=${tagsStr}&hasImages=${(currentTodo.images && currentTodo.images.length > 0) ? '1' : '0'}`
     });
   },
 

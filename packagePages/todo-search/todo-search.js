@@ -1,4 +1,4 @@
-const { getLocalTodos, saveTodo, getTodoById, deleteTodoById } = require('../../utils/sync.js');
+const { getLocalTodos, saveTodo, getTodoById, deleteTodoById, addDeletedTodo } = require('../../utils/sync.js');
 const app = getApp();
 const { formatFriendlyDate } = require('../../utils/util.js');
 
@@ -131,17 +131,23 @@ Page({
 
   deleteTodo(todoId) {
     const that = this;
+    const todo = getTodoById(todoId);
+    if (!todo) return;
+    const hasSubtasks = getLocalTodos().some(t => t.parent_id === todoId && !t.isDeleted);
+
     wx.showModal({
       title: '删除确认',
-      content: '删除后保留 30 天，可在"更多-回收站"找回，确定删除吗？',
+      content: hasSubtasks ? '该待办包含子待办，删除后子待办也将一同被删除，确定删除吗？' : '删除后保留 30 天，可在"更多-回收站"找回，确定删除吗？',
       confirmText: '删除',
       confirmColor: '#ff4d4f',
       success(res) {
         if (res.confirm) {
-          deleteTodoById(todoId, Date.now());
+          const now = Date.now();
+          addDeletedTodo({ ...todo, isDeleted: true, deletedAt: now, updatedAt: now, version: (todo.version || 1) + 1 });
+          deleteTodoById(todoId, now);
           app.updateCalendarCache(getLocalTodos());
           that.searchTodos();
-          wx.showToast({ title: "删除成功" });
+          wx.showToast({ title: '删除成功' });
         }
       }
     });
@@ -161,7 +167,7 @@ Page({
     app.globalData.editTodoImages = todo.images || [];
     
     wx.navigateTo({
-      url: `/packagePages/add-todo/add-todo?edit=1&index=${todoIndex}&text=${encodeURIComponent(todo.text)}&setDate=${todo.setDate}&setTime=${todo.setTime || '12:00'}&remarks=${encodeURIComponent(todo.remarks || '')}&location=${locationStr}&time=${todo.time}&isStar=${todo.isStar || false}&tags=${tagsStr}&comboId=${todo.comboId || ''}&hasImages=${(todo.images && todo.images.length > 0) ? '1' : '0'}`
+      url: `/packagePages/add-todo/add-todo?edit=1&index=${todoIndex}&text=${encodeURIComponent(todo.text)}&setDate=${todo.setDate}&setTime=${todo.setTime || '12:00'}&remarks=${encodeURIComponent(todo.remarks || '')}&location=${locationStr}&time=${todo.time}&isStar=${todo.isStar || false}&priority=${todo.priority || ''}&tags=${tagsStr}&comboId=${todo.comboId || ''}&hasImages=${(todo.images && todo.images.length > 0) ? '1' : '0'}`
     });
   },
 

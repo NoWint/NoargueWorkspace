@@ -703,20 +703,21 @@ Page({
 
   editTodo(indexOrE) {
     if (!this.checkMembership()) return;
-    
+
     const index = typeof indexOrE === 'number' ? indexOrE : parseInt(indexOrE.currentTarget.dataset.index);
     const todo = this.data.todos[index];
     if (!todo || !todo.id) return;
-    
+
     const allTodos = getLocalTodos();
     const globalIndex = allTodos.findIndex(t => t.id === todo.id);
     const { comboId } = this.data;
-    
+    const tagsStr = todo.tags ? encodeURIComponent(JSON.stringify(todo.tags)) : '';
+
     const app = getApp();
     app.globalData.editTodoImages = todo.images || [];
-    
+
     wx.navigateTo({
-      url: `/packagePages/add-todo/add-todo?edit=1&index=${globalIndex}&text=${encodeURIComponent(todo.text)}&setDate=${todo.setDate}&setTime=${todo.setTime || '12:00'}&remarks=${encodeURIComponent(todo.remarks || '')}&location=${encodeURIComponent(JSON.stringify(todo.location || false))}&time=${todo.time}&isStar=${todo.isStar || false}&comboId=${comboId || ''}&hasImages=${(todo.images && todo.images.length > 0) ? '1' : '0'}`
+      url: `/packagePages/add-todo/add-todo?edit=1&index=${globalIndex}&text=${encodeURIComponent(todo.text)}&setDate=${todo.setDate}&setTime=${todo.setTime || '12:00'}&remarks=${encodeURIComponent(todo.remarks || '')}&location=${encodeURIComponent(JSON.stringify(todo.location || false))}&time=${todo.time}&isStar=${todo.isStar || false}&priority=${todo.priority || ''}&tags=${tagsStr}&comboId=${comboId || ''}&hasImages=${(todo.images && todo.images.length > 0) ? '1' : '0'}`
     });
   },
 
@@ -724,13 +725,14 @@ Page({
     const index = typeof indexOrE === 'number' ? indexOrE : parseInt(indexOrE.currentTarget.dataset.index);
     const deletedTodo = this.data.todos[index];
     if (!deletedTodo || !deletedTodo.id) return;
-    
+
     const todoId = deletedTodo.id;
     const that = this;
-    
+    const hasSubtasks = getLocalTodos().some(t => t.parent_id === todoId && !t.isDeleted);
+
     wx.showModal({
       title: '删除确认',
-      content: '删除后保留 30 天，可在"更多-回收站"找回，确定删除吗？',
+      content: hasSubtasks ? '该待办包含子待办，删除后子待办也将一同被删除，确定删除吗？' : '删除后保留 30 天，可在"更多-回收站"找回，确定删除吗？',
       confirmColor: '#ff4d4f',
       success(res) {
         if (res.confirm) {
@@ -900,21 +902,22 @@ Page({
     app.globalData.editTodoImages = todo.images || [];
     
     wx.navigateTo({
-      url: `/packagePages/add-todo/add-todo?edit=1&sharedTodoId=${todo.id}&comboId=${comboId}&text=${encodeURIComponent(todo.text)}&setDate=${todo.setDate || todo.set_date}&setTime=${todo.setTime || todo.set_time || '12:00'}&remarks=${encodeURIComponent(todo.remarks || '')}&location=${locationStr}&tags=${tagsStr}&assignType=${todo.assignType || 'all'}&assigneeIds=${assigneeIdsStr}&excludeType=${excludeType}&hasImages=${(todo.images && todo.images.length > 0) ? '1' : '0'}`
+      url: `/packagePages/add-todo/add-todo?edit=1&sharedTodoId=${todo.id}&comboId=${comboId}&text=${encodeURIComponent(todo.text)}&setDate=${todo.setDate || todo.set_date}&setTime=${todo.setTime || todo.set_time || '12:00'}&remarks=${encodeURIComponent(todo.remarks || '')}&location=${locationStr}&tags=${tagsStr}&priority=${todo.priority || 'p2'}&assignType=${todo.assignType || 'all'}&assigneeIds=${assigneeIdsStr}&excludeType=${excludeType}&hasImages=${(todo.images && todo.images.length > 0) ? '1' : '0'}`
     });
   },
 
   deleteSharedTodo(todoId) {
     if (!this.checkMembership()) return;
-    
+
     const that = this;
     const todo = this.data.sharedTodos.find(t => t.id === todoId);
     if (!todo) return;
     const { comboId } = this.data;
-    
+    const hasSubtasks = this.data.sharedTodos.some(t => t.parentId == todoId && !t.isDeleted);
+
     wx.showModal({
       title: '删除确认',
-      content: '确定删除此共享待办吗？',
+      content: hasSubtasks ? '该共享待办包含子待办，删除后子待办也将一同被删除，确定删除吗？' : '确定删除此共享待办吗？',
       confirmColor: '#ff4d4f',
       success(res) {
         if (res.confirm) {

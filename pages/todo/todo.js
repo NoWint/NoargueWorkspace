@@ -725,10 +725,11 @@ Page({
     const that = this;
     const todo = this.data.todos[index];
     const allIndex = this.data.allTodos.findIndex(t => t.id === todo.id);
-    
+    const hasSubtasks = getLocalTodos().some(t => t.parent_id === todo.id && !t.isDeleted);
+
     wx.showModal({
       title: '删除确认',
-      content: '删除后保留 30 天，可在"更多-回收站"找回，确定删除吗？',
+      content: hasSubtasks ? '该待办包含子待办，删除后子待办也将一同被删除，确定删除吗？' : '删除后保留 30 天，可在"更多-回收站"找回，确定删除吗？',
       confirmText: '删除',
       confirmColor: '#ff4d4f',
       success(res) {
@@ -788,7 +789,7 @@ Page({
     app.globalData.editTodoImages = todo.images || [];
     
     wx.navigateTo({
-      url: `/packagePages/add-todo/add-todo?edit=1&index=${allIndex}&text=${encodeURIComponent(todo.text)}&setDate=${todo.setDate}&setTime=${todo.setTime || '12:00'}&remarks=${encodeURIComponent(todo.remarks || '')}&location=${locationStr}&time=${todo.time}&isStar=${todo.isStar || false}&tags=${tagsStr}&comboId=${todo.comboId || ''}&hasImages=${(todo.images && todo.images.length > 0) ? '1' : '0'}`
+      url: `/packagePages/add-todo/add-todo?edit=1&index=${allIndex}&text=${encodeURIComponent(todo.text)}&setDate=${todo.setDate}&setTime=${todo.setTime || '12:00'}&remarks=${encodeURIComponent(todo.remarks || '')}&location=${locationStr}&time=${todo.time}&isStar=${todo.isStar || false}&priority=${todo.priority || ''}&tags=${tagsStr}&comboId=${todo.comboId || ''}&hasImages=${(todo.images && todo.images.length > 0) ? '1' : '0'}`
     });
   },
 
