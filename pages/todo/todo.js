@@ -63,14 +63,13 @@ Page({
     // 语音相关
     recordState: false, // 录音状态
     content: '', // 识别的内容
-    // ↓↓↓ 新增 ↓↓↓
+    // 语音遮罩相关
     isRecording: false,   // 遮罩显隐控制
     overlayPhase: '',     // 动画阶段: '' / 'expand' / 'collapse'
     fabCx: 0,             // FAB 中心 X 坐标
     fabCy: 0,             // FAB 中心 Y 坐标
     voiceText: '',        // 实时识别文字
     voiceWaveBars: [],    // 波浪 bar 数组（32 个元素）
-    // ↑↑↑ 新增 ↑↑↑
 
     scrollTop: 0,
     showBackTop: false, // 返回顶部按钮显示控制
@@ -181,6 +180,16 @@ Page({
       this.checkPendingApprovals();
     } else {
       this.refreshLocalComboCounts();
+    }
+  },
+
+  /**
+   * 页面卸载 - 清理定时器
+   */
+  onUnload() {
+    if (this._collapseTimer) {
+      clearTimeout(this._collapseTimer);
+      this._collapseTimer = null;
     }
   },
 
@@ -1619,6 +1628,9 @@ Page({
 
     // 识别结束事件
     manager.onStop = function (res) {
+      // 遮罩模式已处理，不重复执行
+      if (that.data.isRecording && that._voiceDone) return;
+
       var text = res.result;
 
       // 过滤末尾标点
@@ -1721,7 +1733,8 @@ Page({
     this.setData({ overlayPhase: 'collapse' });
 
     // 等待收缩动画完成后再处理跳转
-    setTimeout(() => {
+    this._collapseTimer = setTimeout(() => {
+      this._collapseTimer = null;
       const text = this.data.voiceText;
 
       // 先隐藏遮罩
@@ -1734,6 +1747,7 @@ Page({
 
       // 有识别文本才跳转（快速松手无文本则不跳转）
       if (text) {
+        this._voiceDone = true;
         wx.navigateTo({
           url: `/packagePages/add-todo/add-todo?voiceText=${encodeURIComponent(text)}`
         });
