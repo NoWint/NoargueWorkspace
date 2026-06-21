@@ -1189,22 +1189,22 @@
 /* ===========================
    优先级左侧色条
    =========================== */
-.todo-item-wrapper[data-priority="p1"] .todo-item::before {
+.todo-item-wrapper[data-priority="p1"]::before {
   background: #e34d4d;
 }
-.todo-item-wrapper[data-priority="p2"] .todo-item::before {
+.todo-item-wrapper[data-priority="p2"]::before {
   background: #2196F3;
 }
-.todo-item-wrapper[data-priority="p3"] .todo-item::before {
+.todo-item-wrapper[data-priority="p3"]::before {
   background: #FF9800;
 }
-.todo-item-wrapper[data-priority="p4"] .todo-item::before {
+.todo-item-wrapper[data-priority="p4"]::before {
   background: #999;
 }
-.todo-item-wrapper:not([data-priority]) .todo-item::before {
+.todo-item-wrapper:not([data-priority])::before {
   background: transparent;
 }
-.todo-item-wrapper[data-priority] .todo-item::before {
+.todo-item-wrapper[data-priority]::before {
   content: '';
   position: absolute;
   left: 0;
