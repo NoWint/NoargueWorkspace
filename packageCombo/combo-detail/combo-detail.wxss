@@ -432,10 +432,9 @@
   content: '';
   position: absolute;
   left: 0;
-  top: 10rpx;
-  width: 16rpx;
-  height: calc(100% - 20rpx);
+  top: 14rpx;
+  width: 8rpx;
+  height: calc(100% - 28rpx);
+  border-radius: 0 4rpx 4rpx 0;
   z-index: 1;
-  -webkit-mask: radial-gradient(circle at 12rpx center, transparent 6rpx, black 6rpx);
-  mask: radial-gradient(circle at 12rpx center, transparent 6rpx, black 6rpx);
 }
