@@ -1,76 +1,98 @@
-<view class="container">
-  <view class="header-section">
-    <view class="header-icon">
-      <t-icon name="delete" size="64rpx" color="#fff" />
+<view class="page">
+
+  <!-- ==================== 顶部 ==================== -->
+  <view class="hero">
+    <view class="hero-bg-decor">
+      <view class="hero-blob hb-1"></view>
+      <view class="hero-blob hb-2"></view>
     </view>
-    <text class="header-title">回收站</text>
-    <text class="header-subtitle">已删除的待办将保留30天</text>
+    <view class="hero-icon-box">
+      <t-icon name="delete" size="48rpx" color="#fff" />
+    </view>
+    <text class="hero-title">回收站</text>
+    <text class="hero-desc">已删除的待办将保留 30 天</text>
   </view>
 
-  <view class="warning-card">
-    <view class="warning-icon">
-      <t-icon name="info-circle-filled" size="40rpx" color="#f59e0b" />
-    </view>
-    <view class="warning-content">
-      <text class="warning-title">自动清除提醒</text>
-      <text class="warning-text">超过30天的已删除待办将自动永久清除，无法恢复</text>
+  <!-- ==================== 状态条 ==================== -->
+  <view wx:if="{{deletedTodos.length > 0}}" class="status-bar">
+    <view class="status-left">
+      <t-icon name="info-circle" size="28rpx" color="#00b26a" />
+      <text class="status-text">共 {{deletedTodos.length}} 项，逾期自动清除</text>
     </view>
   </view>
 
-  <view wx:if="{{!isLoggedIn}}" class="login-card">
-    <view class="login-icon">
-      <t-icon name="user" size="48rpx" color="#10b981" />
-    </view>
-    <view class="login-content">
-      <text class="login-title">登录同步数据</text>
-      <text class="login-text">登录后可查看云端回收站数据</text>
+  <!-- ==================== 未登录引导 ==================== -->
+  <view wx:if="{{!isLoggedIn}}" class="login-banner">
+    <view class="login-banner-bg"></view>
+    <view class="login-body">
+      <view class="login-icon-area">
+        <t-icon name="logo-wechat-stroke" size="48rpx" color="#00b26a" />
+      </view>
+      <view class="login-text-group">
+        <text class="login-title">登录后同步数据</text>
+        <text class="login-desc">云端回收站与本地数据实时同步</text>
+      </view>
     </view>
     <button class="login-btn" bindtap="goLogin">立即登录</button>
   </view>
 
-  <view wx:if="{{deletedTodos.length === 0}}" class="empty-section">
-    <view class="empty-icon">
-      <t-icon name="check-circle-filled" size="120rpx" color="#d1d5db" />
+  <!-- ==================== 回收站列表 ==================== -->
+  <view wx:else class="list-area">
+    <view class="list-divider">
+      <view class="divider-line"></view>
+      <view class="divider-label">已删除待办</view>
+      <view class="divider-line"></view>
     </view>
-    <text class="empty-title">回收站是空的</text>
-    <text class="empty-text">没有已删除的待办事项</text>
+
+    <view class="todo-item" wx:for="{{deletedTodos}}" wx:key="id" data-index="{{index}}">
+      <view class="item-body">
+        <view class="item-top">
+          <text class="item-title">{{item.text}}</text>
+          <view class="item-chip
+            {{item.daysLeft <= 3 ? 'chip-danger' : ''}}
+            {{item.daysLeft > 3 && item.daysLeft <= 7 ? 'chip-warn' : ''}}
+            {{item.daysLeft > 7 ? 'chip-safe' : ''}}">
+            <text>{{item.daysLeft}} 天后清除</text>
+          </view>
+        </view>
+        <view class="item-meta">
+          <view class="meta-unit">
+            <t-icon name="calendar" size="22rpx" color="#aaa" />
+            <text>截止 {{item.setDate || '未设置'}}</text>
+          </view>
+          <view class="meta-dot"></view>
+          <view class="meta-unit">
+            <t-icon name="time" size="22rpx" color="#aaa" />
+            <text>删除 {{item.deletedAtStr}}</text>
+          </view>
+        </view>
+        <view class="item-actions">
+          <button class="act act-restore" data-index="{{index}}" bindtap="restoreTodo">
+            <t-icon name="undo" size="28rpx" color="#10b981" />
+            <text>恢复</text>
+          </button>
+          <button class="act act-delete" data-index="{{index}}" bindtap="permanentDelete">
+            <t-icon name="delete" size="28rpx" color="#ef4444" />
+            <text>永久删除</text>
+          </button>
+        </view>
+      </view>
+    </view>
+
+    <!-- ==================== 列表底部 ==================== -->
+    <view wx:if="{{deletedTodos.length > 0}}" class="list-footer">
+      <t-icon name="info-circle" size="24rpx" color="#bbb" />
+      <text>超过 30 天的待办将自动永久清除</text>
+    </view>
   </view>
 
-  <view wx:else class="todo-list">
-    <view class="list-header">
-      <text class="list-title">已删除待办</text>
-      <text class="list-count">{{deletedTodos.length}}项</text>
+  <!-- ==================== 空状态（在登录态下，无数据） ==================== -->
+  <view wx:if="{{isLoggedIn && deletedTodos.length === 0}}" class="empty">
+    <view class="empty-icon-box">
+      <t-icon name="check-circle-filled" size="100rpx" color="#d1d5db" />
     </view>
-    
-    <view class="todo-item" wx:for="{{deletedTodos}}" wx:key="id">
-      <view class="todo-header">
-        <text class="todo-title">{{item.text}}</text>
-        <view class="days-badge {{item.daysLeft <= 3 ? 'warning' : item.daysLeft <= 7 ? 'notice' : ''}}">
-          <text>{{item.daysLeft}}天后清除</text>
-        </view>
-      </view>
-      
-      <view class="todo-meta">
-        <view class="meta-item">
-          <t-icon name="calendar" size="28rpx" color="#9ca3af" />
-          <text>截止日期: {{item.setDate || '未设置'}}</text>
-        </view>
-        <view class="meta-item">
-          <t-icon name="time" size="28rpx" color="#9ca3af" />
-          <text>删除于: {{item.deletedAtStr}}</text>
-        </view>
-      </view>
-      
-      <view class="todo-actions">
-        <button class="action-btn restore" data-index="{{index}}" bindtap="restoreTodo">
-          <t-icon name="undo" size="32rpx" color="#10b981" />
-          <text>恢复</text>
-        </button>
-        <button class="action-btn delete" data-index="{{index}}" bindtap="permanentDelete">
-          <t-icon name="delete" size="32rpx" color="#ef4444" />
-          <text>永久删除</text>
-        </button>
-      </view>
-    </view>
+    <text class="empty-title">清清爽爽</text>
+    <text class="empty-text">回收站里还没有内容</text>
   </view>
+
 </view>
