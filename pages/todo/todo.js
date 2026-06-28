@@ -1,6 +1,6 @@
 const app = getApp();
 const weatherKey = 'SdnJZGqS_c7zVlCnj';
-const { isLoggedIn, combosApi, collabApi, todosApi, configApi, notifyApi, shareApi } = require('../../utils/api.js');
+const { isLoggedIn, combosApi, collabApi, todosApi, configApi, notifyApi, shareApi, confirmRevokeIfShared } = require('../../utils/api.js');
 const { addDeletedTodo, incrementalSync, getLocalTodos, setLocalTodos, checkSyncDiff, syncWithCloud, getTodoById, saveTodo, deleteTodoById } = require('../../utils/sync.js');
 const { formatFriendlyDate, formatDateTime } = require('../../utils/util.js');
 
@@ -828,10 +828,15 @@ Page({
   /**
    * 删除待办事项（含子待办处理）
    */
-  deleteTodo(index) {
+  async deleteTodo(index) {
     const that = this;
     const todo = this.data.todos[index];
     const allIndex = this.data.allTodos.findIndex(t => t.id === todo.id);
+
+    // 分享撤回检测
+    const revokeAction = await confirmRevokeIfShared(todo.id);
+    if (revokeAction === 'cancel') return;
+
     const hasSubtasks = getLocalTodos().some(t => t.parent_id === todo.id && !t.isDeleted);
 
     if (hasSubtasks) {

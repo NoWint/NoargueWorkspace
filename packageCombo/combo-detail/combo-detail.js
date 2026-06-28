@@ -1,5 +1,5 @@
 const app = getApp();
-const { combosApi, collabApi, isLoggedIn, notifyApi, adminApi } = require('../../utils/api.js');
+const { combosApi, collabApi, isLoggedIn, notifyApi, adminApi, confirmRevokeIfShared } = require('../../utils/api.js');
 const { getLocalTodos, saveTodo, getTodoById, deleteTodoById, syncWithCloud, addDeletedTodo } = require('../../utils/sync.js');
 const { formatDateTime } = require('../../utils/util.js');
 
@@ -726,13 +726,18 @@ Page({
     });
   },
 
-  deleteTodo(indexOrE) {
+  async deleteTodo(indexOrE) {
     const index = typeof indexOrE === 'number' ? indexOrE : parseInt(indexOrE.currentTarget.dataset.index);
     const deletedTodo = this.data.todos[index];
     if (!deletedTodo || !deletedTodo.id) return;
 
     const todoId = deletedTodo.id;
     const that = this;
+
+    // 分享撤回检测
+    const revokeAction = await confirmRevokeIfShared(todoId);
+    if (revokeAction === 'cancel') return;
+
     const hasSubtasks = getLocalTodos().some(t => t.parent_id === todoId && !t.isDeleted);
 
     wx.showModal({

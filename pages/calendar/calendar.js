@@ -1,6 +1,6 @@
 const { WxCalendar } = require('@lspriv/wx-calendar/lib');
 const { LunarPlugin } = require('@lspriv/wc-plugin-lunar');
-const { isLoggedIn } = require('../../utils/api.js');
+const { isLoggedIn, confirmRevokeIfShared } = require('../../utils/api.js');
 const { getLocalTodos, saveTodo, getTodoById, deleteTodoById, syncWithCloud, addDeletedTodo } = require('../../utils/sync.js');
 const { formatFriendlyDate } = require('../../utils/util.js');
 
@@ -216,9 +216,14 @@ Page({
     }
   },
 
-  deleteTodo(index) {
+  async deleteTodo(index) {
     const currentTodo = this.data.selectedTodos[index];
     const that = this;
+
+    // 分享撤回检测
+    const revokeAction = await confirmRevokeIfShared(currentTodo.id);
+    if (revokeAction === 'cancel') return;
+
     const hasSubtasks = getLocalTodos().some(t => t.parent_id === currentTodo.id && !t.isDeleted);
 
     wx.showModal({

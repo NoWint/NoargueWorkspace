@@ -1,4 +1,5 @@
 const { getLocalTodos, saveTodo, getTodoById, deleteTodoById, addDeletedTodo } = require('../../utils/sync.js');
+const { confirmRevokeIfShared } = require('../../utils/api.js');
 const app = getApp();
 const { formatFriendlyDate } = require('../../utils/util.js');
 
@@ -154,10 +155,15 @@ Page({
     }
   },
 
-  deleteTodo(todoId) {
+  async deleteTodo(todoId) {
     const that = this;
     const todo = getTodoById(todoId);
     if (!todo) return;
+
+    // 分享撤回检测
+    const revokeAction = await confirmRevokeIfShared(todoId);
+    if (revokeAction === 'cancel') return;
+
     const hasSubtasks = getLocalTodos().some(t => t.parent_id === todoId && !t.isDeleted);
 
     if (hasSubtasks) {

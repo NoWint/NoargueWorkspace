@@ -658,6 +658,75 @@ const shareApi = {
   })
 };
 
+// 分享撤回检测：删除前调用，如待办有活跃分享则询问用户
+function confirmRevokeIfShared(todoId) {
+  return new Promise((resolve) => {
+    let shareId;
+    try {
+      const storedIds = wx.getStorageSync('_sharedSnapshotIds') || {};
+      shareId = storedIds[todoId];
+    } catch (e) {}
+
+    if (!shareId) {
+      resolve('proceed');
+      return;
+    }
+
+    wx.showModal({
+      title: '待办已分享',
+      content: '该待办已分享给他人，是否撤回分享？',
+      cancelText: '取消',
+      confirmText: '撤回并删除',
+      confirmColor: '#ff4d4f',
+      success(res) {
+        if (res.confirm) {
+          // 撤回并删除
+          shareApi.revokeSnapshot(shareId)
+            .then(() => {
+              try {
+                const stored = wx.getStorageSync('_sharedSnapshotIds') || {};
+                delete stored[todoId];
+                wx.setStorageSync('_sharedSnapshotIds', stored);
+              } catch (e) {}
+              wx.showToast({ title: '已撤回分享', icon: 'success' });
+              resolve('revokeAndProceed');
+            })
+            .catch(() => {
+              // API 调用失败仍允许删除，仅清理本地
+              try {
+                const stored = wx.getStorageSync('_sharedSnapshotIds') || {};
+                delete stored[todoId];
+                wx.setStorageSync('_sharedSnapshotIds', stored);
+              } catch (e) {}
+              resolve('proceed');
+            });
+        } else if (res.cancel) {
+          wx.showModal({
+            title: '确认',
+            content: '仅删除待办，不撤回分享？',
+            cancelText: '取消删除',
+            confirmText: '仅删除',
+            confirmColor: '#ff4d4f',
+            success(res2) {
+              if (res2.confirm) {
+                // 仅删除，清理本地分享记录
+                try {
+                  const stored = wx.getStorageSync('_sharedSnapshotIds') || {};
+                  delete stored[todoId];
+                  wx.setStorageSync('_sharedSnapshotIds', stored);
+                } catch (e) {}
+                resolve('proceed');
+              } else {
+                resolve('cancel');
+              }
+            }
+          });
+        }
+      }
+    });
+  });
+}
+
 module.exports = {
   setToken,
   getToken,
@@ -674,5 +743,6 @@ module.exports = {
   configApi,
   adminApi,
   commentsApi,
-  shareApi
+  shareApi,
+  confirmRevokeIfShared
 };

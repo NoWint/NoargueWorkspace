@@ -625,6 +625,29 @@ async function syncOnAppStart() {
   }
 }
 
+// 获取待办对应的活跃分享ID（如有）
+function getActiveShareId(todoId) {
+  if (!todoId) return null;
+  try {
+    const storedIds = wx.getStorageSync('_sharedSnapshotIds') || {};
+    return storedIds[todoId] || null;
+  } catch (e) {
+    return null;
+  }
+}
+
+// 清理待办的分享记录
+function clearShareId(todoId) {
+  if (!todoId) return;
+  try {
+    const storedIds = wx.getStorageSync('_sharedSnapshotIds') || {};
+    if (storedIds[todoId]) {
+      delete storedIds[todoId];
+      wx.setStorageSync('_sharedSnapshotIds', storedIds);
+    }
+  } catch (e) {}
+}
+
 module.exports = {
   getLastSyncTime,
   setLastSyncTime,
@@ -649,5 +672,7 @@ module.exports = {
   migrateFromLegacyStorage,
   reindexTodos,
   getDeletedTodoList,
-  permanentDeleteTodoById
+  permanentDeleteTodoById,
+  getActiveShareId,
+  clearShareId
 };

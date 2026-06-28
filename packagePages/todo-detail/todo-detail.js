@@ -1,7 +1,7 @@
 import ActionSheet, { ActionSheetTheme } from 'tdesign-miniprogram/action-sheet';
 
 const app = getApp();
-const { combosApi, collabApi, notifyApi, commentsApi, shareApi, adminApi, isLoggedIn } = require('../../utils/api.js');
+const { combosApi, collabApi, notifyApi, commentsApi, shareApi, adminApi, isLoggedIn, confirmRevokeIfShared } = require('../../utils/api.js');
 const { syncWithCloud, getLocalTodos, saveTodo, getTodoById, deleteTodoById } = require('../../utils/sync.js');
 
 const NOTIFY_TEMPLATE_ID = '1jvRWbLBNSasPzKtUnrQEiVrU6hj2lWwhKNq2u8jjWg';
@@ -1211,10 +1211,10 @@ Page({
     }
   },
 
-  deleteTodo() {
+  async deleteTodo() {
     const that = this;
     const { isSharedTodo, sharedTodoId, comboId, currentIndex, todo } = this.data;
-    
+
     if (isSharedTodo) {
       wx.showModal({
         title: '删除确认',
@@ -1236,14 +1236,18 @@ Page({
       });
       return;
     }
-    
+
+    // 分享撤回检测
+    const revokeAction = await confirmRevokeIfShared(todo.id);
+    if (revokeAction === 'cancel') return;
+
     const allTodos = getLocalTodos();
     const subCount = this.countSubtasks(allTodos, todo.id);
-    
+
     const content = subCount > 0
       ? `该待办有 ${subCount} 个子任务，是否全部删除？`
       : '该操作不可撤销，确定继续吗？';
-    
+
     wx.showModal({
       title: '删除确认',
       content,
