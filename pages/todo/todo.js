@@ -831,67 +831,79 @@ Page({
   deleteTodo(index) {
     const that = this;
     const todo = this.data.todos[index];
+    if (!todo) return;
     const allIndex = this.data.allTodos.findIndex(t => t.id === todo.id);
 
-    // 分享撤回检测
-    confirmRevokeIfShared(todo.id).then(revokeAction => {
-      if (revokeAction === 'cancel') return;
+    // 分享撤回检测（同步读取，无分享时直接继续）
+    let shareId;
+    try {
+      const storedIds = wx.getStorageSync('_sharedSnapshotIds') || {};
+      shareId = storedIds[todo.id];
+    } catch (e) {}
 
+    const afterRevokeCheck = () => {
       const hasSubtasks = getLocalTodos().some(t => t.parent_id === todo.id && !t.isDeleted);
 
       if (hasSubtasks) {
-      wx.showActionSheet({
-        itemList: ['升级子待办为普通待办', '一并删除子待办', '取消'],
-        cancelIndex: 2,
-        success(res) {
-          if (res.tapIndex === 2) return;
+        wx.showActionSheet({
+          itemList: ['升级子待办为普通待办', '一并删除子待办', '取消'],
+          cancelIndex: 2,
+          success(res) {
+            if (res.tapIndex === 2) return;
 
-          const action = res.tapIndex === 0 ? 'upgrade' : 'delete';
-          const content = action === 'upgrade'
-            ? '子待办将变为普通待办，确定删除吗？'
-            : '子待办也将一同被删除，确定删除吗？';
+            const action = res.tapIndex === 0 ? 'upgrade' : 'delete';
+            const content = action === 'upgrade'
+              ? '子待办将变为普通待办，确定删除吗？'
+              : '子待办也将一同被删除，确定删除吗？';
 
-          wx.showModal({
-            title: '删除待办',
-            content,
-            confirmText: '删除',
-            confirmColor: '#ff4d4f',
-            success(modalRes) {
-              if (modalRes.confirm) {
-                if (action === 'upgrade') {
-                  that.upgradeSubtasksRecursive(todo.id);
-                  // 重新加载 allTodos，使提升后的子待办出现在 UI 中
-                  const storageTodos = getLocalTodos();
-                  const sortedRootTodos = storageTodos
-                    .filter(t => !t.isDeleted && !t.parent_id)
-                    .sort((a, b) => (b.time || 0) - (a.time || 0));
-                  const formattedTodos = that.formatAllTodos(sortedRootTodos);
-                  const newAllIndex = formattedTodos.findIndex(t => t.id === todo.id);
-                  that.setData({ allTodos: formattedTodos });
-                  that.doDeleteTodo(index, newAllIndex > -1 ? newAllIndex : allIndex);
-                } else {
-                  that.deleteSubtasksRecursive(todo.id);
-                  that.doDeleteTodo(index, allIndex);
+            wx.showModal({
+              title: '删除待办',
+              content,
+              confirmText: '删除',
+              confirmColor: '#ff4d4f',
+              success(modalRes) {
+                if (modalRes.confirm) {
+                  if (action === 'upgrade') {
+                    that.upgradeSubtasksRecursive(todo.id);
+                    const storageTodos = getLocalTodos();
+                    const sortedRootTodos = storageTodos
+                      .filter(t => !t.isDeleted && !t.parent_id)
+                      .sort((a, b) => (b.time || 0) - (a.time || 0));
+                    const formattedTodos = that.formatAllTodos(sortedRootTodos);
+                    const newAllIndex = formattedTodos.findIndex(t => t.id === todo.id);
+                    that.setData({ allTodos: formattedTodos });
+                    that.doDeleteTodo(index, newAllIndex > -1 ? newAllIndex : allIndex);
+                  } else {
+                    that.deleteSubtasksRecursive(todo.id);
+                    that.doDeleteTodo(index, allIndex);
+                  }
                 }
               }
+            });
+          }
+        });
+      } else {
+        wx.showModal({
+          title: '删除确认',
+          content: '删除后保留 30 天，可在"更多-回收站"找回，确定删除吗？',
+          confirmText: '删除',
+          confirmColor: '#ff4d4f',
+          success(res) {
+            if (res.confirm) {
+              that.doDeleteTodo(index, allIndex);
             }
-          });
-        }
+          }
+        });
+      }
+    };
+
+    if (shareId) {
+      confirmRevokeIfShared(todo.id).then(revokeAction => {
+        if (revokeAction !== 'cancel') afterRevokeCheck();
       });
     } else {
-      wx.showModal({
-        title: '删除确认',
-        content: '删除后保留 30 天，可在"更多-回收站"找回，确定删除吗？',
-        confirmText: '删除',
-        confirmColor: '#ff4d4f',
-        success(res) {
-          if (res.confirm) {
-            that.doDeleteTodo(index, allIndex);
-          }
-        }
-      });
+      afterRevokeCheck();
     }
-    });
   },
 
   /**

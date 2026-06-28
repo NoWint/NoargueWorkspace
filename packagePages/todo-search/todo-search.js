@@ -155,18 +155,22 @@ Page({
     }
   },
 
-  async deleteTodo(todoId) {
+  deleteTodo(todoId) {
     const that = this;
     const todo = getTodoById(todoId);
     if (!todo) return;
 
-    // 分享撤回检测
-    const revokeAction = await confirmRevokeIfShared(todoId);
-    if (revokeAction === 'cancel') return;
+    // 分享撤回检测（同步读取）
+    let shareId;
+    try {
+      const storedIds = wx.getStorageSync('_sharedSnapshotIds') || {};
+      shareId = storedIds[todoId];
+    } catch (e) {}
 
-    const hasSubtasks = getLocalTodos().some(t => t.parent_id === todoId && !t.isDeleted);
+    const afterRevokeCheck = () => {
+      const hasSubtasks = getLocalTodos().some(t => t.parent_id === todoId && !t.isDeleted);
 
-    if (hasSubtasks) {
+      if (hasSubtasks) {
       wx.showActionSheet({
         itemList: ['升级子待办为普通待办', '一并删除子待办', '取消'],
         cancelIndex: 2,
@@ -218,6 +222,15 @@ Page({
           }
         }
       });
+    }
+    };
+
+    if (shareId) {
+      confirmRevokeIfShared(todoId).then(revokeAction => {
+        if (revokeAction !== 'cancel') afterRevokeCheck();
+      });
+    } else {
+      afterRevokeCheck();
     }
   },
 

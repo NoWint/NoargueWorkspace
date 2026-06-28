@@ -1211,9 +1211,9 @@ Page({
     }
   },
 
-  async deleteTodo() {
+  deleteTodo() {
     const that = this;
-    const { isSharedTodo, sharedTodoId, comboId, currentIndex, todo } = this.data;
+    const { isSharedTodo, sharedTodoId, comboId, todo } = this.data;
 
     if (isSharedTodo) {
       wx.showModal({
@@ -1237,40 +1237,53 @@ Page({
       return;
     }
 
-    // 分享撤回检测
-    const revokeAction = await confirmRevokeIfShared(todo.id);
-    if (revokeAction === 'cancel') return;
+    // 分享撤回检测（同步读取）
+    let shareId;
+    try {
+      const storedIds = wx.getStorageSync('_sharedSnapshotIds') || {};
+      shareId = storedIds[todo.id];
+    } catch (e) {}
 
-    const allTodos = getLocalTodos();
-    const subCount = this.countSubtasks(allTodos, todo.id);
+    const afterRevokeCheck = () => {
+      const allTodos = getLocalTodos();
+      const subCount = that.countSubtasks(allTodos, todo.id);
 
-    const content = subCount > 0
-      ? `该待办有 ${subCount} 个子任务，是否全部删除？`
-      : '该操作不可撤销，确定继续吗？';
+      const content = subCount > 0
+        ? `该待办有 ${subCount} 个子任务，是否全部删除？`
+        : '该操作不可撤销，确定继续吗？';
 
-    wx.showModal({
-      title: '删除确认',
-      content,
-      confirmText: '删除',
-      confirmColor: '#ff4d4f',
-      success(res) {
-        if (res.confirm) {
-          if (subCount > 0) {
-            that.deleteSubtasks(todo.id);
+      wx.showModal({
+        title: '删除确认',
+        content,
+        confirmText: '删除',
+        confirmColor: '#ff4d4f',
+        success(res) {
+          if (res.confirm) {
+            if (subCount > 0) {
+              that.deleteSubtasks(todo.id);
+            }
+            deleteTodoById(todo.id, Date.now());
+            // 删除关联的分享记录
+            const storedIds = wx.getStorageSync('_sharedSnapshotIds') || {};
+            if (storedIds[todo.id]) {
+              delete storedIds[todo.id];
+              wx.setStorageSync('_sharedSnapshotIds', storedIds);
+            }
+            app.updateCalendarCache(getLocalTodos());
+            wx.navigateBack();
+            wx.showToast({ title: '删除成功' });
           }
-          deleteTodoById(todo.id, Date.now());
-          // 删除关联的分享记录
-          const storedIds = wx.getStorageSync('_sharedSnapshotIds') || {};
-          if (storedIds[todo.id]) {
-            delete storedIds[todo.id];
-            wx.setStorageSync('_sharedSnapshotIds', storedIds);
-          }
-          app.updateCalendarCache(getLocalTodos());
-          wx.navigateBack();
-          wx.showToast({ title: '删除成功' });
         }
-      }
-    });
+      });
+    };
+
+    if (shareId) {
+      confirmRevokeIfShared(todo.id).then(revokeAction => {
+        if (revokeAction !== 'cancel') afterRevokeCheck();
+      });
+    } else {
+      afterRevokeCheck();
+    }
   },
 
   // 新增编辑方法

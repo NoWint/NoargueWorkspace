@@ -726,7 +726,7 @@ Page({
     });
   },
 
-  async deleteTodo(indexOrE) {
+  deleteTodo(indexOrE) {
     const index = typeof indexOrE === 'number' ? indexOrE : parseInt(indexOrE.currentTarget.dataset.index);
     const deletedTodo = this.data.todos[index];
     if (!deletedTodo || !deletedTodo.id) return;
@@ -734,13 +734,17 @@ Page({
     const todoId = deletedTodo.id;
     const that = this;
 
-    // 分享撤回检测
-    const revokeAction = await confirmRevokeIfShared(todoId);
-    if (revokeAction === 'cancel') return;
+    // 分享撤回检测（同步读取）
+    let shareId;
+    try {
+      const storedIds = wx.getStorageSync('_sharedSnapshotIds') || {};
+      shareId = storedIds[todoId];
+    } catch (e) {}
 
-    const hasSubtasks = getLocalTodos().some(t => t.parent_id === todoId && !t.isDeleted);
+    const afterRevokeCheck = () => {
+      const hasSubtasks = getLocalTodos().some(t => t.parent_id === todoId && !t.isDeleted);
 
-    wx.showModal({
+      wx.showModal({
       title: '删除确认',
       content: hasSubtasks ? '该待办包含子待办，删除后子待办也将一同被删除，确定删除吗？' : '删除后保留 30 天，可在"更多-回收站"找回，确定删除吗？',
       confirmColor: '#ff4d4f',
@@ -768,6 +772,15 @@ Page({
         }
       }
     });
+    };
+
+    if (shareId) {
+      confirmRevokeIfShared(todoId).then(revokeAction => {
+        if (revokeAction !== 'cancel') afterRevokeCheck();
+      });
+    } else {
+      afterRevokeCheck();
+    }
   },
 
   navigateToDetail(e) {
