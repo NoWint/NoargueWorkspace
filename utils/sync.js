@@ -133,15 +133,7 @@ function setLocalTodos(todos) {
     wx.setStorageSync(TODO_PREFIX + todo.id, todo);
   }
 
-  // 清理已不在集合中的 stale keys
-  const oldIds = wx.getStorageSync(INDEX_KEY) || [];
-  const newIdSet = new Set(newIds);
-  for (const oldId of oldIds) {
-    if (!newIdSet.has(oldId)) {
-      wx.removeStorageSync(TODO_PREFIX + oldId);
-    }
-  }
-
+  // 更新 index（注：不清除 stale key，避免同步数据不完整时永久丢失）
   wx.setStorageSync(INDEX_KEY, newIds);
 
   const app = getApp();
@@ -263,9 +255,9 @@ function mergeChanges(cloudChanges, cloudDeletedIds, localWins = false) {
   const ts = todo => Math.max(todo.updatedAt || 0, todo.time || 0);
   const deletedTs = todo => Math.max(todo.deletedAt || 0, todo.updatedAt || 0);
 
-  /** 判断 cloud 版本是否比 local 新 */
+  /** 判断 cloud 版本是否比 local 新（严格大于，等值时保留本地） */
   const cloudIsNewer = (cloud, local) => {
-    return (cloud.updatedAt || cloud.time || 0) >= (local.updatedAt || local.time || 0);
+    return (cloud.updatedAt || cloud.time || 0) > (local.updatedAt || local.time || 0);
   };
 
   cloudChanges.forEach(cloudTodo => {

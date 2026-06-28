@@ -760,7 +760,12 @@ Page({
           };
           
           addDeletedTodo(updatedTodo);
-          
+
+          // 级联删除子待办
+          if (hasSubtasks) {
+            that.deleteSubtasksRecursive(todoId);
+          }
+
           const todos = that.data.todos.filter((_, i) => i !== index);
           that.setData({ todos });
           
@@ -780,6 +785,16 @@ Page({
       });
     } else {
       afterRevokeCheck();
+    }
+  },
+
+  deleteSubtasksRecursive(parentId) {
+    const todos = getLocalTodos();
+    for (const t of todos) {
+      if (t.parent_id === parentId) {
+        this.deleteSubtasksRecursive(t.id);
+        deleteTodoById(t.id, Date.now());
+      }
     }
   },
 
@@ -994,7 +1009,10 @@ Page({
                   getApp().updateCalendarCache(updatedTodos);
                 } else {
                   const updatedTodos = allTodos.filter(t => String(t.comboId) !== comboIdStr);
-                  allTodos.filter(t => String(t.comboId) === comboIdStr).forEach(t => deleteTodoById(t.id, Date.now()));
+                  allTodos.filter(t => String(t.comboId) === comboIdStr).forEach(t => {
+                    that.deleteSubtasksRecursive(t.id);
+                    deleteTodoById(t.id, Date.now());
+                  });
                   getApp().updateCalendarCache(updatedTodos);
                 }
                 
