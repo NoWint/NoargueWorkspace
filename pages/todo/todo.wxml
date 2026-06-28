@@ -135,16 +135,16 @@ wx:key="*this"
 
   <view wx:if="{{currentTab === 'all'}}" class="todo-list">
     <block wx:for="{{todos}}" wx:key="time" wx:for-item="todo">
-      <view 
-        class="todo-item-wrapper" 
+      <view
+        class="todo-item-wrapper"
         data-index="{{index}}"
-        data-priority="{{todo.priority}}"
       >
         <t-swipe-cell
           class="todo-item {{todo.completed ? 'completed' : ''}} {{todo._animate || ''}} {{isDragging && currentIndex === index ? 'dragging' : ''}}"
           data-index="{{index}}"
           bindlongpress="onCellLongPress"
         >
+          <view class="priority-bar" data-priority="{{todo.priority}}"></view>
           <view wx:if="{{todo.isStar}}" class="star-badge">
             <t-icon name="star-filled" size="26rpx" color="#ffffff" />
           </view>
@@ -527,11 +527,11 @@ wx:key="*this"
   <view
     class="card-action-cell-clone todo-item-wrapper"
     style="top:{{_actionCardTop}}px;left:{{_actionCardLeft}}px;width:{{_actionCardWidth}}px;"
-    data-priority="{{actionTodo.priority}}"
   >
     <t-swipe-cell
       class="todo-item {{actionTodo.completed ? 'completed' : ''}}"
     >
+      <view class="priority-bar" data-priority="{{actionTodo.priority}}"></view>
       <view wx:if="{{actionTodo.isStar}}" class="star-badge">
         <t-icon name="star-filled" size="26rpx" color="#ffffff" />
       </view>

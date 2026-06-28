@@ -1187,32 +1187,30 @@
   color: #d90000;
 }
 /* ===========================
-   优先级左侧弧度色条
+   优先级左侧弧度色条（圆角向右包裹）
    =========================== */
-.todo-item-wrapper[data-priority="p1"] .todo-item::before {
-  background: #e34d4d;
-}
-.todo-item-wrapper[data-priority="p2"] .todo-item::before {
-  background: #2196F3;
-}
-.todo-item-wrapper[data-priority="p3"] .todo-item::before {
-  background: #FF9800;
-}
-.todo-item-wrapper[data-priority="p4"] .todo-item::before {
-  background: #999;
-}
-.todo-item-wrapper:not([data-priority]) .todo-item::before {
-  background: transparent;
-}
-.todo-item-wrapper[data-priority] .todo-item::before {
-  content: '';
+.priority-bar {
   position: absolute;
   left: 0;
-  top: 14rpx;
+  top: 16rpx;
   width: 8rpx;
-  height: calc(100% - 28rpx);
-  border-radius: 0 4rpx 4rpx 0;
+  height: calc(100% - 32rpx);
+  border-radius: 0 40rpx 40rpx 0;
   z-index: 1;
+  pointer-events: none;
+}
+.priority-bar[data-priority="p1"] {
+  background: #e34d4d;
+}
+.priority-bar[data-priority="p2"] {
+  background: #2196F3;
+}
+.priority-bar[data-priority="p3"] {
+  background: #FF9800;
+}
+.priority-bar[data-priority="p4"],
+.priority-bar:not([data-priority]) {
+  background: transparent;
 }
 
 /* ===========================
