@@ -207,6 +207,7 @@ Page({
         isStar: options.isStar === 'true' || options.isStar === true,
         isEdit: true,
         editIndex: options.index,
+        editTodoId: options.todoId || null,
         selectedTags: parsedTags,
         comboId: options.comboId || '',
         todoTime: options.time,
@@ -844,15 +845,20 @@ Page({
   },
 
   updateTodo() {
-    const { sharedTodoId, comboId } = this.data;
-    
+    const { sharedTodoId, comboId, editTodoId } = this.data;
+
     if (sharedTodoId) {
       this.updateSharedTodo();
       return;
     }
-    
-    const todos = getLocalTodos();
-    const originalTodo = todos[this.data.editIndex] || {};
+
+    let originalTodo;
+    if (editTodoId) {
+      originalTodo = getTodoById(editTodoId) || {};
+    } else {
+      const todos = getLocalTodos();
+      originalTodo = todos[this.data.editIndex] || {};
+    }
     const now = Date.now();
     
     const updatedTodo = {

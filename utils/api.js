@@ -650,6 +650,11 @@ const shareApi = {
   getSnapshot: (shareId) => request({
     url: `/share/snapshot/${shareId}`,
     method: 'GET'
+  }),
+
+  revokeSnapshot: (shareId) => request({
+    url: `/share/snapshot/revoke/${shareId}`,
+    method: 'POST'
   })
 };
 

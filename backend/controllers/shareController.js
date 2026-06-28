@@ -45,7 +45,7 @@ const getSnapshot = async (req, res) => {
 
   try {
     const snapshots = await query(
-      'SELECT data FROM share_snapshots WHERE share_id = ? AND expires_at > NOW()',
+      'SELECT data, revoked FROM share_snapshots WHERE share_id = ? AND expires_at > NOW()',
       [shareId]
     );
 
@@ -56,7 +56,16 @@ const getSnapshot = async (req, res) => {
       });
     }
 
-    res.json({ success: true, data: JSON.parse(snapshots[0].data) });
+    const snapshot = snapshots[0];
+    if (snapshot.revoked) {
+      return res.status(410).json({
+        success: false,
+        revoked: true,
+        message: '该分享已被发布者撤回'
+      });
+    }
+
+    res.json({ success: true, data: JSON.parse(snapshot.data) });
   } catch (err) {
     logger.dbError('分享', '获取分享快照失败', { shareId, error: err.message });
     res.status(500).json({
@@ -66,7 +75,35 @@ const getSnapshot = async (req, res) => {
   }
 };
 
+const revokeSnapshot = async (req, res) => {
+  const userId = req.user.id;
+  const { shareId } = req.params;
+
+  try {
+    const result = await query(
+      'UPDATE share_snapshots SET revoked = TRUE WHERE share_id = ? AND user_id = ?',
+      [shareId, userId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: '分享不存在或无权撤回'
+      });
+    }
+
+    res.json({ success: true, message: '分享已撤回' });
+  } catch (err) {
+    logger.dbError('分享', '撤回分享失败', { shareId, userId, error: err.message });
+    res.status(500).json({
+      success: false,
+      message: '服务器错误'
+    });
+  }
+};
+
 module.exports = {
   createSnapshot,
-  getSnapshot
+  getSnapshot,
+  revokeSnapshot
 };

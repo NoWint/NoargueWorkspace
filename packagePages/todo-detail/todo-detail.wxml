@@ -334,7 +334,8 @@
   <!-- 评论按钮（仅共享待办显示） -->
   <t-fab wx:if="{{!isShare && isSharedTodo}}" icon="chat" text="" style="right: 32rpx; bottom: 32rpx;" bind:click="openCommentPopup"/>
   <t-fab wx:if="{{!isShare}}" icon="{{todo.isStar ? 'star-filled' : 'star'}}" style="right: 32rpx; bottom: 150rpx;" bind:click="toggleStar"/>
-  <t-fab wx:if="{{!isShare}}" icon="share" style="{{isSharedTodo ? 'right: 150rpx; bottom: 32rpx;' : 'right: 32rpx; bottom: 32rpx;'}}" button-props="{{shareButton}}" bind:click="onShareAppMessage" text="分享给朋友" />
+  <t-fab wx:if="{{!isShare && hasActiveShare && !isSharedTodo}}" icon="unfold-less" style="right: 150rpx; bottom: 32rpx;" bind:click="revokeShare" text="撤回分享" />
+  <t-fab wx:if="{{!isShare}}" icon="share" style="{{isSharedTodo ? 'right: 150rpx; bottom: 32rpx;' : (hasActiveShare ? 'right: 268rpx; bottom: 32rpx;' : 'right: 32rpx; bottom: 32rpx;')}}" button-props="{{shareButton}}" bind:click="onShareAppMessage" text="分享给朋友" />
   <t-fab wx:if="{{isShare && !isSharedTodo}}" icon="add" text="添加到我的待办" style="right: 32rpx; bottom: 32rpx;" bind:click="addToMyTodos"/>
   <t-fab wx:if="{{isFromShare}}" icon="home" text="返回首页" style="right: 32rpx; bottom: 150rpx;" bind:click="goHome"/>
 </block>

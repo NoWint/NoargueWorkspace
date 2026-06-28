@@ -855,10 +855,19 @@ Page({
               if (modalRes.confirm) {
                 if (action === 'upgrade') {
                   that.upgradeSubtasksRecursive(todo.id);
+                  // 重新加载 allTodos，使提升后的子待办出现在 UI 中
+                  const storageTodos = getLocalTodos();
+                  const sortedRootTodos = storageTodos
+                    .filter(t => !t.isDeleted && !t.parent_id)
+                    .sort((a, b) => (b.time || 0) - (a.time || 0));
+                  const formattedTodos = that.formatAllTodos(sortedRootTodos);
+                  const newAllIndex = formattedTodos.findIndex(t => t.id === todo.id);
+                  that.setData({ allTodos: formattedTodos });
+                  that.doDeleteTodo(index, newAllIndex > -1 ? newAllIndex : allIndex);
                 } else {
                   that.deleteSubtasksRecursive(todo.id);
+                  that.doDeleteTodo(index, allIndex);
                 }
-                that.doDeleteTodo(index, allIndex);
               }
             }
           });
@@ -892,7 +901,7 @@ Page({
     app.globalData.editTodoImages = todo.images || [];
     
     wx.navigateTo({
-      url: `/packagePages/add-todo/add-todo?edit=1&index=${allIndex}&text=${encodeURIComponent(todo.text)}&setDate=${todo.setDate}&setTime=${todo.setTime || '12:00'}&remarks=${encodeURIComponent(todo.remarks || '')}&location=${locationStr}&time=${todo.time}&isStar=${todo.isStar || false}&priority=${todo.priority || ''}&tags=${tagsStr}&comboId=${todo.comboId || ''}&hasImages=${(todo.images && todo.images.length > 0) ? '1' : '0'}`
+      url: `/packagePages/add-todo/add-todo?edit=1&index=${allIndex}&todoId=${todo.id}&text=${encodeURIComponent(todo.text)}&setDate=${todo.setDate}&setTime=${todo.setTime || '12:00'}&remarks=${encodeURIComponent(todo.remarks || '')}&location=${locationStr}&time=${todo.time}&isStar=${todo.isStar || false}&priority=${todo.priority || ''}&tags=${tagsStr}&comboId=${todo.comboId || ''}&hasImages=${(todo.images && todo.images.length > 0) ? '1' : '0'}`
     });
   },
 

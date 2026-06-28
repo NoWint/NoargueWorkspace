@@ -208,6 +208,8 @@ const initDatabase = () => {
         INDEX idx_share_id (share_id),
         INDEX idx_expires (expires_at)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='分享快照（24h TTL）';
+
+	      -- 016 撤回支持
     `;
     
     connection.query(createTables, (err, result) => {

@@ -129,28 +129,90 @@ Page({
     }
   },
 
+  // ========== 子待办递归操作 ==========
+
+  upgradeSubtasksRecursive(parentId) {
+    const todos = getLocalTodos();
+    for (const t of todos) {
+      if (t.parent_id === parentId && !t.isDeleted) {
+        this.upgradeSubtasksRecursive(t.id);
+        t.parent_id = '';
+        t.updatedAt = Date.now();
+        t.version = (t.version || 1) + 1;
+        saveTodo(t);
+      }
+    }
+  },
+
+  deleteSubtasksRecursive(parentId) {
+    const todos = getLocalTodos();
+    for (const t of todos) {
+      if (t.parent_id === parentId) {
+        this.deleteSubtasksRecursive(t.id);
+        deleteTodoById(t.id, Date.now());
+      }
+    }
+  },
+
   deleteTodo(todoId) {
     const that = this;
     const todo = getTodoById(todoId);
     if (!todo) return;
     const hasSubtasks = getLocalTodos().some(t => t.parent_id === todoId && !t.isDeleted);
 
-    wx.showModal({
-      title: '删除确认',
-      content: hasSubtasks ? '该待办包含子待办，删除后子待办也将一同被删除，确定删除吗？' : '删除后保留 30 天，可在"更多-回收站"找回，确定删除吗？',
-      confirmText: '删除',
-      confirmColor: '#ff4d4f',
-      success(res) {
-        if (res.confirm) {
-          const now = Date.now();
-          addDeletedTodo({ ...todo, isDeleted: true, deletedAt: now, updatedAt: now, version: (todo.version || 1) + 1 });
-          deleteTodoById(todoId, now);
-          app.updateCalendarCache(getLocalTodos());
-          that.searchTodos();
-          wx.showToast({ title: '删除成功' });
+    if (hasSubtasks) {
+      wx.showActionSheet({
+        itemList: ['升级子待办为普通待办', '一并删除子待办', '取消'],
+        cancelIndex: 2,
+        success(res) {
+          if (res.tapIndex === 2) return;
+
+          const action = res.tapIndex === 0 ? 'upgrade' : 'delete';
+          const content = action === 'upgrade'
+            ? '子待办将变为普通待办，确定删除吗？'
+            : '子待办也将一同被删除，确定删除吗？';
+
+          wx.showModal({
+            title: '删除待办',
+            content,
+            confirmText: '删除',
+            confirmColor: '#ff4d4f',
+            success(modalRes) {
+              if (modalRes.confirm) {
+                if (action === 'upgrade') {
+                  that.upgradeSubtasksRecursive(todoId);
+                } else {
+                  that.deleteSubtasksRecursive(todoId);
+                }
+                const now = Date.now();
+                addDeletedTodo({ ...todo, isDeleted: true, deletedAt: now, updatedAt: now, version: (todo.version || 1) + 1 });
+                deleteTodoById(todoId, now);
+                app.updateCalendarCache(getLocalTodos());
+                that.searchTodos();
+                wx.showToast({ title: '删除成功' });
+              }
+            }
+          });
         }
-      }
-    });
+      });
+    } else {
+      wx.showModal({
+        title: '删除确认',
+        content: '删除后保留 30 天，可在"更多-回收站"找回，确定删除吗？',
+        confirmText: '删除',
+        confirmColor: '#ff4d4f',
+        success(res) {
+          if (res.confirm) {
+            const now = Date.now();
+            addDeletedTodo({ ...todo, isDeleted: true, deletedAt: now, updatedAt: now, version: (todo.version || 1) + 1 });
+            deleteTodoById(todoId, now);
+            app.updateCalendarCache(getLocalTodos());
+            that.searchTodos();
+            wx.showToast({ title: '删除成功' });
+          }
+        }
+      });
+    }
   },
 
   editTodo(todoId) {
@@ -167,7 +229,7 @@ Page({
     app.globalData.editTodoImages = todo.images || [];
     
     wx.navigateTo({
-      url: `/packagePages/add-todo/add-todo?edit=1&index=${todoIndex}&text=${encodeURIComponent(todo.text)}&setDate=${todo.setDate}&setTime=${todo.setTime || '12:00'}&remarks=${encodeURIComponent(todo.remarks || '')}&location=${locationStr}&time=${todo.time}&isStar=${todo.isStar || false}&priority=${todo.priority || ''}&tags=${tagsStr}&comboId=${todo.comboId || ''}&hasImages=${(todo.images && todo.images.length > 0) ? '1' : '0'}`
+      url: `/packagePages/add-todo/add-todo?edit=1&index=${todoIndex}&todoId=${todoId}&text=${encodeURIComponent(todo.text)}&setDate=${todo.setDate}&setTime=${todo.setTime || '12:00'}&remarks=${encodeURIComponent(todo.remarks || '')}&location=${locationStr}&time=${todo.time}&isStar=${todo.isStar || false}&priority=${todo.priority || ''}&tags=${tagsStr}&comboId=${todo.comboId || ''}&hasImages=${(todo.images && todo.images.length > 0) ? '1' : '0'}`
     });
   },
 

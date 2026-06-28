@@ -56,6 +56,8 @@ Page({
     commentHasMore: true,
     replyTarget: null,
 
+    hasActiveShare: false,
+
     subtaskList: [],
     subtaskCollapsed: false,
     showSubtaskInput: false,
@@ -111,6 +113,10 @@ Page({
       const result = await shareApi.createSnapshot(todo, subtasks);
       if (result.success) {
         this.setData({ pendingShareId: result.shareId });
+        // 持久化存储 shareId，用于撤回
+        const storedIds = wx.getStorageSync('_sharedSnapshotIds') || {};
+        storedIds[todo.id] = result.shareId;
+        wx.setStorageSync('_sharedSnapshotIds', storedIds);
       }
     } catch (err) {
       logger.debug('PAGE', 'SNAPSHOT', '预加载分享快照失败', err);
@@ -679,6 +685,11 @@ Page({
       const result = await shareApi.getSnapshot(shareId);
       wx.hideLoading();
 
+      if (result.revoked) {
+        wx.showToast({ title: '该分享已被发布者撤回', icon: 'none' });
+        return;
+      }
+
       if (!result.success || !result.data) {
         wx.showToast({ title: '分享已过期', icon: 'none' });
         return;
@@ -717,6 +728,11 @@ Page({
       this.loadSubtasksFromSnapshot(subtasks || {}, sharedTodo.id);
     } catch (err) {
       wx.hideLoading();
+      const errMsg = (err && err.message) || '';
+      if (errMsg.includes('撤回')) {
+        wx.showToast({ title: errMsg, icon: 'none' });
+        return;
+      }
       logger.error('PAGE', 'SNAPSHOT', '加载分享快照失败', err);
       this._loadByShare(options);
     }
@@ -1131,6 +1147,7 @@ Page({
     
     this.loadSubtasks();
     this.prepareShareSnapshotIfNeeded();
+    this.checkActiveShare();
   },
 
   countSubtasks(todos, parentId) {
@@ -1141,6 +1158,47 @@ Page({
       }
     }
     return count;
+  },
+
+  // 检查当前待办是否有活跃的分享快照
+  checkActiveShare() {
+    const todo = this.data.todo;
+    if (!todo || !todo.id || this.data.isSharedTodo) return;
+    const storedIds = wx.getStorageSync('_sharedSnapshotIds') || {};
+    const hasShare = !!storedIds[todo.id];
+    this.setData({ hasActiveShare: hasShare });
+  },
+
+  // 撤回分享
+  async revokeShare() {
+    const todo = this.data.todo;
+    const storedIds = wx.getStorageSync('_sharedSnapshotIds') || {};
+    const shareId = storedIds[todo.id];
+    if (!shareId) return;
+
+    const that = this;
+    wx.showModal({
+      title: '撤回分享',
+      content: '撤回后，已分享的链接将无法查看，确定撤回吗？',
+      confirmText: '撤回',
+      confirmColor: '#ff4d4f',
+      async success(res) {
+        if (res.confirm) {
+          try {
+            wx.showLoading({ title: '撤回中...' });
+            await shareApi.revokeSnapshot(shareId);
+            wx.hideLoading();
+            delete storedIds[todo.id];
+            wx.setStorageSync('_sharedSnapshotIds', storedIds);
+            that.setData({ hasActiveShare: false });
+            wx.showToast({ title: '已撤回' });
+          } catch (err) {
+            wx.hideLoading();
+            wx.showToast({ title: err.message || '撤回失败', icon: 'none' });
+          }
+        }
+      }
+    });
   },
 
   deleteSubtasks(parentId) {
@@ -1197,6 +1255,12 @@ Page({
             that.deleteSubtasks(todo.id);
           }
           deleteTodoById(todo.id, Date.now());
+          // 删除关联的分享记录
+          const storedIds = wx.getStorageSync('_sharedSnapshotIds') || {};
+          if (storedIds[todo.id]) {
+            delete storedIds[todo.id];
+            wx.setStorageSync('_sharedSnapshotIds', storedIds);
+          }
           app.updateCalendarCache(getLocalTodos());
           wx.navigateBack();
           wx.showToast({ title: '删除成功' });
@@ -1224,7 +1288,7 @@ Page({
       });
     } else {
       wx.navigateTo({
-        url: `/packagePages/add-todo/add-todo?edit=1&text=${encodeURIComponent(todo.text)}&setDate=${todo.setDate}&setTime=${todo.setTime || '12:00'}&remarks=${encodeURIComponent(todo.remarks || '')}&index=${currentIndex}&location=${locationStr}&time=${todo.time}&isStar=${todo.isStar || false}&priority=${todo.priority || 'p2'}&comboId=${comboId || todo.comboId || ''}&tags=${tagsStr}&hasImages=${(todo.images && todo.images.length > 0) ? '1' : '0'}`
+        url: `/packagePages/add-todo/add-todo?edit=1&text=${encodeURIComponent(todo.text)}&setDate=${todo.setDate}&setTime=${todo.setTime || '12:00'}&remarks=${encodeURIComponent(todo.remarks || '')}&index=${currentIndex}&todoId=${todo.id}&location=${locationStr}&time=${todo.time}&isStar=${todo.isStar || false}&priority=${todo.priority || 'p2'}&comboId=${comboId || todo.comboId || ''}&tags=${tagsStr}&hasImages=${(todo.images && todo.images.length > 0) ? '1' : '0'}`
       });
     }
   },
