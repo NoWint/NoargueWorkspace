@@ -84,18 +84,11 @@ app.use((req, res) => {
   });
 });
 
-const migrate = require('./migrate');
-
-migrate.run().then(() => {
-  app.listen(PORT, () => {
-    logger.systemInfo('服务启动', '时光绿径待办后端服务已启动', { port: PORT });
-    startNotificationScheduler();
-    cleanupExpiredSnapshots();
-    setInterval(cleanupExpiredSnapshots, 60 * 60 * 1000);
-  });
-}).catch(err => {
-  logger.systemError('服务启动', '迁移执行失败，服务终止', { error: err.message });
-  process.exit(1);
+app.listen(PORT, () => {
+  logger.systemInfo('服务启动', '时光绿径待办后端服务已启动', { port: PORT });
+  startNotificationScheduler();
+  cleanupExpiredSnapshots();
+  setInterval(cleanupExpiredSnapshots, 60 * 60 * 1000);
 });
 
 async function cleanupExpiredSnapshots() {
