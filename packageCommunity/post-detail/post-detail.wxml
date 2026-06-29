@@ -13,7 +13,7 @@
 
     <view wx:else class="post-content">
       <view class="post-user-row">
-        <image class="post-avatar" src="{{post.user.avatar || '/images/default-avatar.png'}}" mode="aspectFill" />
+        <image class="post-avatar" src="{{post.user.avatar || '/images/avatar.png'}}" mode="aspectFill" binderror="onAvatarError" />
         <view class="post-user-info">
           <text class="post-nickname">{{post.user.nickname}}</text>
           <text class="post-time">{{post.createdAt}}</text>
@@ -42,7 +42,7 @@
       <view wx:for="{{comments}}" wx:key="id" class="comment-item">
         <view wx:if="{{item.isDeleted}}" class="comment-deleted"><text>该评论因违规已被删除</text></view>
         <view wx:else class="comment-normal">
-          <image class="comment-avatar" src="{{item.user.avatar || '/images/default-avatar.png'}}" mode="aspectFill" />
+          <image class="comment-avatar" src="{{item.user.avatar || '/images/avatar.png'}}" mode="aspectFill" binderror="onAvatarError" />
           <view class="comment-body">
             <view class="comment-header-row">
               <text class="comment-nickname">{{item.user.nickname}}</text>
@@ -109,7 +109,7 @@
     <view class="visitors-title">访客记录</view>
     <view wx:if="{{visitors.length === 0}}" class="no-visitors"><text>暂无访客记录</text></view>
     <view wx:for="{{visitors}}" wx:for-item="visitor" wx:key="userId" class="visitor-item">
-      <image class="visitor-avatar" src="{{visitor.avatar || '/images/default-avatar.png'}}" mode="aspectFill" />
+      <image class="visitor-avatar" src="{{visitor.avatar || '/images/avatar.png'}}" mode="aspectFill" binderror="onAvatarError" />
       <view class="visitor-info">
         <text class="visitor-nickname">{{visitor.nickname}}</text>
         <text class="visitor-time">{{visitor.viewedAt}}</text>

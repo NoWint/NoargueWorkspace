@@ -22,7 +22,7 @@
     <block wx:for="{{postList}}" wx:key="postId">
       <view class="post-card" data-post-id="{{item.postId}}" bind:tap="goToDetail">
         <view class="post-header">
-          <image class="post-avatar" src="{{item.user.avatar || '/images/default-avatar.png'}}" mode="aspectFill" />
+          <image class="post-avatar" src="{{item.user.avatar || '/images/avatar.png'}}" mode="aspectFill" binderror="onAvatarError" />
           <view class="post-user-info">
             <text class="post-nickname">{{item.user.nickname}}</text>
             <text class="post-time">{{formatTime(item.createdAt)}}</text>

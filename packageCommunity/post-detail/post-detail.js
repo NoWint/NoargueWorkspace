@@ -150,6 +150,12 @@ Page({
     wx.previewImage({ current: url, urls: allImages.length > 0 ? allImages : [url] });
   },
 
+  onAvatarError(e) {
+    const target = e.currentTarget;
+    if (!target) return;
+    target.src = '/images/avatar.png';
+  },
+
   goBack() { wx.navigateBack(); },
 
   formatTime(dateStr) {

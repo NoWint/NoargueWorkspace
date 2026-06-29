@@ -14,7 +14,7 @@
 
 <view class="edit-container">
   <view class="user-row">
-    <image class="user-avatar" src="{{userInfo.avatar || '/images/default-avatar.png'}}" mode="aspectFill" />
+    <image class="user-avatar" src="{{userInfo.avatar || '/images/avatar.png'}}" mode="aspectFill" binderror="onAvatarError" />
     <text class="user-nickname">{{userInfo.nickname || '用户'}}</text>
   </view>
 

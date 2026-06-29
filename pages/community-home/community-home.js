@@ -112,6 +112,10 @@ Page({
     this.setData({ scrollTop: this.data.scrollTop === 0 ? 1 : 0, showBackTop: false });
   },
 
+  onAvatarError(e) {
+    e.target.src = '/images/avatar.png';
+  },
+
   formatTime(dateStr) {
     if (!dateStr) return '';
     const now = Date.now();
