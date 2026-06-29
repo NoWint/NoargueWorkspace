@@ -19,6 +19,10 @@ const adminRoutes = require('./routes/adminRoutes');
 const commentRoutes = require('./routes/commentRoutes');
 const shareRoutes = require('./routes/shareRoutes');
 const logRoutes = require('./routes/logRoutes');
+const postsRoutes = require('./routes/postsRoutes');
+const likesRoutes = require('./routes/likesRoutes');
+const postCommentsRoutes = require('./routes/postCommentsRoutes');
+const reportsRoutes = require('./routes/reportsRoutes');
 const { startNotificationScheduler } = require('./services/wechatService');
 
 const app = express();
@@ -59,6 +63,10 @@ app.use('/admin', adminRoutes);
 app.use('/comments', commentRoutes);
 app.use('/share', shareRoutes);
 app.use('/log', logRoutes);
+app.use('/posts', postsRoutes);
+app.use('/likes', likesRoutes);
+app.use('/post-comments', postCommentsRoutes);
+app.use('/reports', reportsRoutes);
 
 app.use((err, req, res, next) => {
   logger.systemError('全局错误处理', err.message, { stack: err.stack });

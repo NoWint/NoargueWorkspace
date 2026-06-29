@@ -8,6 +8,7 @@ const SECRET = process.env.WECHAT_SECRET;
 const TEMPLATE_ID = '1jvRWbLBNSasPzKtUnrQEiVrU6hj2lWwhKNq2u8jjWg';
 const SHARED_TODO_TEMPLATE_ID = '1jvRWbLBNSasPzKtUnrQEviO7vwbWCChJJr0z24an-Y';
 const APPROVAL_RESULT_TEMPLATE_ID = 'LenG38LPKm6kK4ymXx4Ftoc9LoN2f7xXh7qJ-U-myxA';
+const REPORT_TEMPLATE_ID = 'yXtj85psFqKHQsAbcjxFo5wYX8SdU4acoYiENIRpiAE';
 
 let accessTokenCache = {
   token: null,
@@ -413,11 +414,40 @@ async function getUnlimitedQRCode(scene, page = 'pages/login/login', options = {
   }
 }
 
+async function sendReportResultMessage(openid, data) {
+  try {
+    const accessToken = await getAccessToken();
+    const url = `https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=${accessToken}`;
+
+    const body = {
+      touser: openid,
+      template_id: REPORT_TEMPLATE_ID,
+      data: {
+        thing1: { value: (data.title || '').substring(0, 20) },
+        thing2: { value: (data.reason || '').substring(0, 20) },
+        thing5: { value: (data.targetType || '帖子').substring(0, 20) },
+        thing3: { value: (data.result || '').substring(0, 20) },
+        time4: { value: data.processedAt ? new Date(data.processedAt).toLocaleString('zh-CN') : '' }
+      }
+    };
+
+    const response = await axios.post(url, body);
+    if (response.data.errcode && response.data.errcode !== 0) {
+      logger.warn('WECHAT', '发送举报结果通知失败', { errcode: response.data.errcode, errmsg: response.data.errmsg });
+    } else {
+      logger.info('WECHAT', '举报结果通知发送成功', { openid });
+    }
+  } catch (err) {
+    logger.wechatError('发送举报结果通知', err.message, { openid });
+  }
+}
+
 module.exports = {
   getAccessToken,
   sendSubscribeMessage,
   sendSharedTodoMessage,
   sendApprovalResultMessage,
+  sendReportResultMessage,
   processPendingNotifications,
   processPendingSharedNotifications,
   startNotificationScheduler,
