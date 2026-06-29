@@ -1,0 +1,63 @@
+<t-navbar title="{{editMode ? '编辑帖子' : '发帖'}}" bind:left-click="goBack">
+  <view slot="right">
+    <t-button theme="primary" size="small" disabled="{{!canPublish}}" loading="{{submitting}}" bind:tap="handleSubmit">
+      {{editMode ? '保存' : '发布'}}
+    </t-button>
+  </view>
+</t-navbar>
+
+<view class="edit-container">
+  <view class="user-row">
+    <image class="user-avatar" src="{{userInfo.avatar || '/images/default-avatar.png'}}" mode="aspectFill" />
+    <text class="user-nickname">{{userInfo.nickname || '用户'}}</text>
+  </view>
+
+  <textarea
+    class="content-textarea"
+    placeholder="分享你的想法..."
+    value="{{content}}"
+    bind:input="onContentInput"
+    maxlength="2000"
+    auto-height
+    show-confirm-bar="{{false}}"
+  />
+
+  <view class="upload-section">
+    <t-upload
+      mediaType="{{['image']}}"
+      source="{{imageSource}}"
+      max="{{9}}"
+      files="{{fileList}}"
+      gridConfig="{{gridConfig}}"
+      config="{{uploadConfig}}"
+      draggable="{{true}}"
+      bind:add="handleImageAdd"
+      bind:remove="handleImageRemove"
+      bind:click="handleImageClick"
+    />
+    <view class="source-toggle" bind:tap="toggleImageSource">
+      <text class="source-text">{{imageSource === 'media' ? '📷 相册/拍照' : '💬 聊天记录'}}</text>
+      <t-switch checked="{{imageSource === 'media'}}" size="24" />
+    </view>
+  </view>
+
+  <view class="word-count">
+    <text>{{content.length}}/2000</text>
+    <text wx:if="{{!title && content.length > 0}}" class="hint">首行将作为标题</text>
+  </view>
+</view>
+
+<view class="bottom-toolbar">
+  <view class="toolbar-item" bind:tap="pickImage">
+    <t-icon name="image" size="48rpx" /><text>图片</text>
+  </view>
+  <view class="toolbar-item" bind:tap="pickTodos">
+    <t-icon name="checklist" size="48rpx" /><text>待办</text>
+  </view>
+  <view class="toolbar-item" bind:tap="pickCombo">
+    <t-icon name="group" size="48rpx" /><text>组合</text>
+  </view>
+  <view class="toolbar-item" bind:tap="pickLocation">
+    <t-icon name="location" size="48rpx" /><text>位置</text>
+  </view>
+</view>
