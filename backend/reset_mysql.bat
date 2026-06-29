@@ -1,0 +1,6 @@
+@echo off
+echo Stopping MySQL80 service...
+net stop MySQL80
+echo Starting MySQL with skip-grant-tables...
+"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqld.exe" --defaults-file="C:\ProgramData\MySQL\MySQL Server 8.0\my.ini" --skip-grant-tables --skip-networking
+pause
