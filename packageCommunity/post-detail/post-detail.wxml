@@ -26,12 +26,12 @@
       </view>
       <view class="post-meta">
         <text wx:if="{{post.isEdited}}" class="edited-badge">已编辑</text>
-        <text wx:if="{{post.location}}">📍 {{post.location}}</text>
+        <text wx:if="{{post.location}}"><t-icon name="location" size="24rpx" /> {{post.location}}</text>
         <text wx:if="{{post.ipProvince}}">IP属地 · {{post.ipProvince}}</text>
       </view>
       <view class="post-stats">
-        <text>👁 {{post.viewsCount}}次浏览</text>
-        <text>❤ {{post.likesCount}}人赞过</text>
+        <text><t-icon name="browse" size="24rpx" /> {{post.viewsCount}}次浏览</text>
+        <text><t-icon name="heart" size="24rpx" /> {{post.likesCount}}人赞过</text>
         <text wx:if="{{isOwner}}" class="visitor-link" bind:tap="showVisitors">查看访客记录 →</text>
       </view>
     </view>

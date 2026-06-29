@@ -40,7 +40,7 @@
           </view>
         </view>
         <view class="post-meta-row">
-          <text wx:if="{{item.location}}" class="post-location">📍 {{item.location}}</text>
+          <text wx:if="{{item.location}}" class="post-location"><t-icon name="location" size="24rpx" /> {{item.location}}</text>
           <text wx:if="{{item.ipProvince}}" class="post-ip">IP属地 · {{item.ipProvince}}</text>
         </view>
         <view class="post-stats-row">
