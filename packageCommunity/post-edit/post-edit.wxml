@@ -58,10 +58,10 @@
     <t-icon name="image" size="48rpx" /><text>图片</text>
   </view>
   <view class="toolbar-item" bind:tap="pickTodos">
-    <t-icon name="checklist" size="48rpx" /><text>待办</text>
+    <t-icon name="check-circle" size="48rpx" /><text>待办</text>
   </view>
   <view class="toolbar-item" bind:tap="pickCombo">
-    <t-icon name="group" size="48rpx" /><text>组合</text>
+    <t-icon name="member" size="48rpx" /><text>共享组合</text>
   </view>
   <view class="toolbar-item" bind:tap="pickLocation">
     <t-icon name="location" size="48rpx" /><text>位置</text>
