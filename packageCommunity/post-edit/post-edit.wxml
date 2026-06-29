@@ -1,10 +1,16 @@
-<t-navbar title="{{editMode ? '编辑帖子' : '发帖'}}" bind:left-click="goBack">
-  <view slot="right">
-    <t-button theme="primary" size="small" disabled="{{!canPublish}}" loading="{{submitting}}" bind:tap="handleSubmit">
-      {{editMode ? '保存' : '发布'}}
-    </t-button>
+<view class="top">
+  <view class="header" style="padding-top:{{navBarHeight-44}}px;padding-left:{{menuRight+20}}rpx">
+    <view class="header-left" bindtap="goBack">
+      <t-icon name="chevron-left" size="40rpx" color="#2d3436" />
+    </view>
+    <text class="title">{{editMode ? '编辑帖子' : '发帖'}}</text>
+    <view class="header-right">
+      <t-button theme="primary" size="small" disabled="{{!canPublish}}" loading="{{submitting}}" bindtap="handleSubmit">
+        {{editMode ? '保存' : '发布'}}
+      </t-button>
+    </view>
   </view>
-</t-navbar>
+</view>
 
 <view class="edit-container">
   <view class="user-row">

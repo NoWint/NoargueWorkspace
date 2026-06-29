@@ -40,6 +40,7 @@ const uploadImage = (filePath, retryCount = 0) => {
 Page({
   data: {
     navBarHeight: app.globalData.navBarHeight || 44,
+    menuRight: app.globalData.menuRight || 0,
     content: '', title: '', body: '',
     fileList: [], imageUrls: [],
     imageSource: 'media',
@@ -53,7 +54,11 @@ Page({
 
   onLoad(options) {
     const userInfo = app.globalData.userInfo || wx.getStorageSync('user') || {};
-    this.setData({ userInfo });
+    this.setData({
+      userInfo,
+      navBarHeight: app.globalData.navBarHeight || 44,
+      menuRight: app.globalData.menuRight || 0
+    });
     if (options.postId) this.loadEditData(options.postId);
     const draft = wx.getStorageSync('communityDraft');
     if (draft && !options.postId) {
@@ -97,7 +102,7 @@ Page({
   },
 
   onContentInput(e) {
-    const content = e.detail.value || e.detail;
+    const content = e.detail.value ?? '';
     const lines = content.split('\n');
     const title = lines[0] || '';
     const body = lines.slice(1).join('\n').trim();

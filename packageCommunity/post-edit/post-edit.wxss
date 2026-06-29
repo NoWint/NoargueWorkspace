@@ -1,5 +1,7 @@
+@import "../../pages/todo/todo.wxss";
+
 page { background: #fff; }
-.edit-container { padding: 20rpx 30rpx; padding-bottom: 120rpx; }
+.edit-container { padding: 20rpx 30rpx; padding-top: 190rpx; padding-bottom: 120rpx; }
 .user-row { display: flex; align-items: center; margin-bottom: 20rpx; }
 .user-avatar { width: 60rpx; height: 60rpx; border-radius: 50%; margin-right: 12rpx; }
 .user-nickname { font-size: 28rpx; color: #333; font-weight: 500; }
