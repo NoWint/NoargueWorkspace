@@ -3,7 +3,7 @@
 .edit-container {
   padding: 20rpx 30rpx;
   padding-top: 190rpx;
-  padding-bottom: 120rpx;
+  padding-bottom: 40rpx;
 }
 .user-row {
   display: flex;
@@ -69,25 +69,23 @@
   color: #00b26a;
   margin-left: 12rpx;
 }
-.bottom-toolbar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+.location-section {
   display: flex;
-  justify-content: space-around;
   align-items: center;
-  padding: 16rpx 30rpx;
-  padding-bottom: env(safe-area-inset-bottom);
-  background: #fff;
+  gap: 8rpx;
+  padding: 24rpx 0;
   border-top: 1rpx solid #f0f0f0;
-  z-index: 100;
+  margin-top: 16rpx;
 }
-.toolbar-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4rpx;
-  font-size: 20rpx;
-  color: #666;
+.location-placeholder {
+  font-size: 28rpx;
+  color: #999;
+}
+.location-text {
+  font-size: 28rpx;
+  color: #00b26a;
+  flex: 1;
+}
+.location-clear {
+  padding: 8rpx;
 }

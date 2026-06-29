@@ -152,12 +152,14 @@ Page({
     });
   },
 
-  pickTodos() { wx.showToast({ title: '待办选择功能开发中', icon: 'none' }); },
-  pickCombo() { wx.showToast({ title: '组合功能开发中', icon: 'none' }); },
   pickLocation() {
     wx.chooseLocation({
       success: (res) => { this.setData({ location: { text: res.name || res.address } }); }
     });
+  },
+
+  clearLocation() {
+    this.setData({ location: null });
   },
 
   async handleSubmit() {

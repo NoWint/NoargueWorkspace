@@ -48,20 +48,20 @@
     </view>
   </view>
 
+  <view class="location-section" wx:if="{{!location}}" bind:tap="pickLocation">
+    <t-icon name="location" size="32rpx" color="#999" />
+    <text class="location-placeholder">添加位置</text>
+  </view>
+  <view wx:if="{{location}}" class="location-section location-selected">
+    <t-icon name="location" size="32rpx" color="#00b26a" />
+    <text class="location-text">{{location.text}}</text>
+    <view class="location-clear" catch:tap="clearLocation">
+      <t-icon name="close" size="28rpx" color="#999" />
+    </view>
+  </view>
+
   <view class="word-count">
     <text>{{content.length}}/2000</text>
     <text wx:if="{{!title && content.length > 0}}" class="hint">首行将作为标题</text>
-  </view>
-</view>
-
-<view class="bottom-toolbar">
-  <view class="toolbar-item" bind:tap="pickTodos">
-    <t-icon name="check-circle" size="48rpx" /><text>待办</text>
-  </view>
-  <view class="toolbar-item" bind:tap="pickCombo">
-    <t-icon name="member" size="48rpx" /><text>共享组合</text>
-  </view>
-  <view class="toolbar-item" bind:tap="pickLocation">
-    <t-icon name="location" size="48rpx" /><text>位置</text>
   </view>
 </view>
