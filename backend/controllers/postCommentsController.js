@@ -46,13 +46,14 @@ const getList = async (req, res) => {
     }
 
     const mainComments = await query(
-      `SELECT c.*, u.nickname, u.avatar_url, u.badge_titles, u.badge_colors
+      `SELECT c.*, u.nickname, u.avatar_url, u.badge_titles, u.badge_colors,
+              (SELECT id FROM post_comment_likes WHERE comment_id = c.id AND user_id = ?) as user_like_id
        FROM post_comments c
        LEFT JOIN users u ON c.user_id = u.id
        WHERE c.post_id = ? AND c.parent_id IS NULL AND c.is_deleted = 0 ${cursorWhere}
        ORDER BY c.created_at DESC
        LIMIT ?`,
-      [postDbId, ...params, pageSize + 1]
+      [userId, postDbId, ...params, pageSize + 1]
     );
 
     const hasMore = mainComments.length > pageSize;
@@ -61,13 +62,14 @@ const getList = async (req, res) => {
     let allReplies = [];
     const replies = await query(
       `SELECT c.*, u.nickname, u.avatar_url, u.badge_titles, u.badge_colors,
-              ru.nickname as reply_to_nickname
+              ru.nickname as reply_to_nickname,
+              (SELECT id FROM post_comment_likes WHERE comment_id = c.id AND user_id = ?) as user_like_id
        FROM post_comments c
        LEFT JOIN users u ON c.user_id = u.id
        LEFT JOIN users ru ON c.reply_to_user_id = ru.id
        WHERE c.post_id = ? AND c.parent_id IS NOT NULL AND c.is_deleted = 0
        ORDER BY c.created_at ASC`,
-      [postDbId]
+      [userId, postDbId]
     );
     // buildTree handles all nesting levels from flat reply list
     allReplies = replies;
@@ -89,6 +91,7 @@ const getList = async (req, res) => {
           } : null,
           replyToContent: c.reply_to_content,
           likesCount: c.likes_count,
+          isLiked: !!c.user_like_id,
           createdAt: c.created_at,
           isDeleted: !!c.is_deleted,
           user: {
@@ -111,6 +114,7 @@ const getList = async (req, res) => {
       replyToUser: null,
       replyToContent: null,
       likesCount: c.likes_count,
+      isLiked: !!c.user_like_id,
       createdAt: c.created_at,
       isDeleted: !!c.is_deleted,
       user: {
