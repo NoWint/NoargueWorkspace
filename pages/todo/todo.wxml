@@ -26,19 +26,21 @@
 
 <view class="container">
   <view
-    class="weather-card card-style"
+    class="weather-card weather-{{weather.bgClass || 'default'}}"
     bindtap="showWeather"
   >
+    <view class="weather-bg-glow"></view>
     <view class="weather-card-content">
-      <view class="weather-main">
-        <text class="temperature">{{weather.temperature || '--'}}℃</text>
-        <view class="weather-info">
-          <text class="weather-text">{{weather.text || ''}}</text>
-        </view>
+      <view class="weather-icon-area">
+        <t-icon name="{{weather.iconName || 'sunny'}}" size="64rpx" color="#ffffff" />
       </view>
-      <view class="weather-side">
+      <view class="weather-info-area">
+        <text class="temperature">{{weather.temperature || '--'}}<text class="temp-unit">℃</text></text>
+        <text class="weather-text">{{weather.text || ''}}</text>
+      </view>
+      <view class="weather-meta-area">
         <view class="location">
-          <image class="location-icon" src="/images/marker.png" mode="aspectFit"></image>
+          <t-icon name="location" size="28rpx" color="rgba(255,255,255,0.85)" />
           <text class="city">{{weather.city || '未知'}}</text>
         </view>
         <text class="update-time">更新于 {{weather.last_update || '未知'}}</text>

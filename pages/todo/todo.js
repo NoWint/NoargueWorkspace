@@ -1444,16 +1444,19 @@ Page({
                   dateObj.getHours().toString().padStart(2, '0')}:${
                   dateObj.getMinutes().toString().padStart(2, '0')}`;
     
+                const meta = that.getWeatherMeta(weatherData.now.code);
                 getApp().globalData.weather = {
                   city: weatherData.location.name,
                   code: weatherData.now.code,
                   text: weatherData.now.text,
                   temperature: weatherData.now.temperature,
                   last_update: formattedDate,
-                  source: weatherSource
+                  source: weatherSource,
+                  symbol: meta.symbol,
+                  bgClass: meta.bgClass
                 };
-                
-                that.setData({ 
+
+                that.setData({
                   weather: getApp().globalData.weather,
                   isLoading: false
                 });
@@ -1470,9 +1473,11 @@ Page({
                 text: "未知天气",
                 temperature: "--",
                 last_update: '',
-                source: weatherSource
+                source: weatherSource,
+                symbol: '🌤',
+                bgClass: 'default'
               };
-              that.setData({ 
+              that.setData({
                 weather: getApp().globalData.weather,
                 isLoading: false
               });
@@ -1494,19 +1499,22 @@ Page({
               if (res.data.results?.[0]?.now) {
                 const weatherData = res.data.results[0];
                 const dateObj = new Date(weatherData.last_update);
-                const formattedDate = `${dateObj.getFullYear()}年${ 
+                const formattedDate = `${dateObj.getFullYear()}年${
                   (dateObj.getMonth() + 1).toString().padStart(2, '0')}月${
                   dateObj.getDate().toString().padStart(2, '0')}日 ${
                   dateObj.getHours().toString().padStart(2, '0')}:${
                   dateObj.getMinutes().toString().padStart(2, '0')}`;
-    
+
+                const meta = that.getWeatherMeta(weatherData.now.code);
                 getApp().globalData.weather = {
                   city: weatherData.location.name,
                   code: weatherData.now.code,
                   text: weatherData.now.text,
                   temperature: weatherData.now.temperature,
                   last_update: formattedDate,
-                  source: weatherSource
+                  source: weatherSource,
+                  symbol: meta.symbol,
+                  bgClass: meta.bgClass
                 };
                 
                 that.setData({ 
@@ -1547,6 +1555,27 @@ Page({
       showCancel: false,
       confirmText: "知道了"
     });
+  },
+
+  /**
+   * 获取天气对应的图标和背景样式
+   */
+  getWeatherMeta(code) {
+    const codeNum = Number(code);
+    // 心知天气 code → TDesign icon 映射
+    if (codeNum === 0) return { iconName: 'sunny', bgClass: 'sunny' };
+    if (codeNum === 1) return { iconName: 'cloudy-night', bgClass: 'sunny' };
+    if (codeNum === 2) return { iconName: 'cloudy-sunny', bgClass: 'sunny' };
+    if (codeNum === 3) return { iconName: 'cloudy-day', bgClass: 'cloudy' };
+    if (codeNum === 4) return { iconName: 'cloud', bgClass: 'overcast' };
+    if (codeNum >= 5 && codeNum <= 7) return { iconName: 'fog', bgClass: 'foggy' };
+    if (codeNum === 8) return { iconName: 'windy', bgClass: 'windy' };
+    if (codeNum >= 9 && codeNum <= 12) return { iconName: 'rain-medium', bgClass: 'rainy' };
+    if (codeNum === 13 || codeNum === 14) return { iconName: 'thunderstorm', bgClass: 'rainy' };
+    if (codeNum === 15 || codeNum === 16) return { iconName: 'snowflake', bgClass: 'snowy' };
+    if (codeNum === 18) return { iconName: 'rain-medium', bgClass: 'rainy' };
+    if (codeNum === 19) return { iconName: 'snowflake', bgClass: 'snowy' };
+    return { iconName: 'sunny', bgClass: 'default' };
   },
 
   // ===========================
