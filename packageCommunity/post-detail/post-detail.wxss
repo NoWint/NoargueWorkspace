@@ -295,6 +295,28 @@
   margin-top: 4rpx;
   display: block;
 }
+.comment-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4rpx;
+}
+.comment-like {
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+  font-size: 20rpx;
+  color: #bbb;
+  padding: 4rpx;
+}
+.comment-like.liked {
+  color: #00b26a;
+}
+.like-count {
+  font-size: 20rpx;
+  color: inherit;
+  min-width: 16rpx;
+}
 .replies-list {
   margin-top: 12rpx;
   padding-left: 16rpx;

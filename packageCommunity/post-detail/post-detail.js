@@ -141,6 +141,26 @@ Page({
     });
   },
 
+  async toggleCommentLike(e) {
+    const commentId = e.currentTarget.dataset.id;
+    try {
+      const res = await communityApi.toggleCommentLike(commentId);
+      if (res.success) {
+        const updateItem = (items) => items.map(c => {
+          if (c.id === commentId) {
+            c.isLiked = res.data.liked;
+            c.likesCount = res.data.likesCount;
+          }
+          if (c.replies) c.replies = updateItem(c.replies);
+          return c;
+        });
+        this.setData({ comments: updateItem(this.data.comments) });
+      }
+    } catch (err) {
+      wx.showToast({ title: '操作失败', icon: 'none' });
+    }
+  },
+
   async toggleTodoExpand() {
     const post = this.data.post;
     if (!post || !post.todoIds || post.todoIds.length === 0) return;

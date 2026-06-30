@@ -89,7 +89,13 @@
             <view wx:if="{{item.images && item.images.length > 0}}" class="comment-images">
               <image wx:for="{{item.images}}" wx:key="*this" src="{{item}}" mode="aspectFill" class="comment-image" bind:tap="previewImage" data-url="{{item}}" />
             </view>
-            <text class="comment-time">{{item._createdDisplay}}</text>
+            <view class="comment-footer">
+              <text class="comment-time">{{item._createdDisplay}}</text>
+              <view class="comment-like {{item.isLiked ? 'liked' : ''}}" catch:tap="toggleCommentLike" data-id="{{item.id}}">
+                <t-icon name="{{item.isLiked ? 'heart-filled' : 'heart'}}" size="24rpx" />
+                <text wx:if="{{item.likesCount > 0}}" class="like-count">{{item.likesCount}}</text>
+              </view>
+            </view>
             <view wx:if="{{item.replies && item.replies.length > 0}}" class="replies-list">
               <block wx:for="{{item.replies}}" wx:for-item="reply" wx:key="id">
                 <view class="reply-item">
@@ -109,7 +115,13 @@
                       </view>
                     </view>
                     <text class="reply-content">{{reply.content}}</text>
-                    <text class="comment-time">{{reply._createdDisplay}}</text>
+                    <view class="comment-footer">
+                      <text class="comment-time">{{reply._createdDisplay}}</text>
+                      <view class="comment-like {{reply.isLiked ? 'liked' : ''}}" catch:tap="toggleCommentLike" data-id="{{reply.id}}">
+                        <t-icon name="{{reply.isLiked ? 'heart-filled' : 'heart'}}" size="24rpx" />
+                        <text wx:if="{{reply.likesCount > 0}}" class="like-count">{{reply.likesCount}}</text>
+                      </view>
+                    </view>
                   </view>
                 </view>
               </block>
