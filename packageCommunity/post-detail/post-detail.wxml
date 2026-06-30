@@ -10,8 +10,8 @@
       <view class="post-user-info">
         <view class="nickname-row">
           <text class="post-nickname">{{post.user.nickname}}</text>
-          <block wx:for="{{post.user.badgeTitles || []}}" wx:key="index">
-            <text class="user-badge" style="color: {{post.user.badgeColors[index]}}; border-color: {{post.user.badgeColors[index]}}">{{item}}</text>
+          <block wx:for="{{post.user.badgeTitles || []}}" wx:for-item="badge" wx:key="index">
+            <text class="user-badge" style="color: {{post.user.badgeColors[index]}}; border-color: {{post.user.badgeColors[index]}}">{{badge}}</text>
           </block>
         </view>
         <text class="post-time">{{formatTime(post.createdAt)}}</text>
@@ -59,8 +59,8 @@
             <view class="comment-header-row">
               <view class="nickname-row">
                 <text class="comment-nickname">{{item.user.nickname}}</text>
-                <block wx:for="{{item.user.badgeTitles || []}}" wx:key="index">
-                  <text class="user-badge" style="color: {{item.user.badgeColors[index]}}; border-color: {{item.user.badgeColors[index]}}">{{item}}</text>
+                <block wx:for="{{item.user.badgeTitles || []}}" wx:for-item="badge" wx:key="index">
+                  <text class="user-badge" style="color: {{item.user.badgeColors[index]}}; border-color: {{item.user.badgeColors[index]}}">{{badge}}</text>
                 </block>
               </view>
               <view class="comment-actions">
@@ -81,8 +81,8 @@
                     <view class="reply-header">
                       <view class="nickname-row">
                         <text class="reply-nickname">{{reply.user.nickname}}</text>
-                        <block wx:for="{{reply.user.badgeTitles || []}}" wx:key="index">
-                          <text class="user-badge" style="color: {{reply.user.badgeColors[index]}}; border-color: {{reply.user.badgeColors[index]}}">{{item}}</text>
+                        <block wx:for="{{reply.user.badgeTitles || []}}" wx:for-item="badge" wx:key="index">
+                          <text class="user-badge" style="color: {{reply.user.badgeColors[index]}}; border-color: {{reply.user.badgeColors[index]}}">{{badge}}</text>
                         </block>
                       </view>
                       <text wx:if="{{reply.replyToUser}}" class="reply-target">回复 @{{reply.replyToUser.nickname}}</text>
@@ -125,8 +125,8 @@
         <view class="visitor-info">
           <view class="nickname-row">
             <text class="visitor-nickname">{{visitor.nickname}}</text>
-            <block wx:for="{{visitor.badgeTitles || []}}" wx:key="index">
-              <text class="user-badge" style="color: {{visitor.badgeColors[index]}}; border-color: {{visitor.badgeColors[index]}}">{{item}}</text>
+            <block wx:for="{{visitor.badgeTitles || []}}" wx:for-item="badge" wx:key="index">
+              <text class="user-badge" style="color: {{visitor.badgeColors[index]}}; border-color: {{visitor.badgeColors[index]}}">{{badge}}</text>
             </block>
           </view>
           <text class="visitor-time">{{formatTime(visitor.viewedAt)}}</text>

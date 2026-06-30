@@ -26,8 +26,8 @@
           <view class="post-user-info">
             <view class="nickname-row">
               <text class="post-nickname">{{item.user.nickname}}</text>
-              <block wx:for="{{item.user.badgeTitles || []}}" wx:key="index">
-                <text class="user-badge" style="color: {{item.user.badgeColors[index]}}; border-color: {{item.user.badgeColors[index]}}">{{item}}</text>
+              <block wx:for="{{item.user.badgeTitles || []}}" wx:for-item="badge" wx:key="index">
+                <text class="user-badge" style="color: {{item.user.badgeColors[index]}}; border-color: {{item.user.badgeColors[index]}}">{{badge}}</text>
               </block>
             </view>
             <text class="post-time">{{formatTime(item.createdAt)}}</text>

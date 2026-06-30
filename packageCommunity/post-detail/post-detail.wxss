@@ -358,7 +358,7 @@
 .user-badge {
   font-size: 20rpx;
   padding: 2rpx 10rpx;
-  border-radius: 8rpx;
+  border-radius: 32rpx;
   border: 2rpx solid;
   white-space: nowrap;
   line-height: 1.4;

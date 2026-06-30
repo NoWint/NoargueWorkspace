@@ -48,12 +48,12 @@
   padding: 24rpx;
   margin-bottom: 20rpx;
   box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
-  display: flex;
   gap: 24rpx;
 }
 
 .stat-mini {
   flex: 1;
+  display: flex;
   flex-direction: column;
   align-items: center;
   padding: 12rpx 20rpx;
@@ -261,6 +261,10 @@
   align-items: center;
   justify-content: center;
   margin-right: 16rpx;
+}
+
+.item-icon.completed {
+  opacity: 0.6;
 }
 
 .item-icon.combo-icon {
@@ -529,7 +533,7 @@
 .badge-preview {
   font-size: 20rpx;
   padding: 4rpx 12rpx;
-  border-radius: 8rpx;
+  border-radius: 32rpx;
   border: 2rpx solid;
   white-space: nowrap;
   flex-shrink: 0;
