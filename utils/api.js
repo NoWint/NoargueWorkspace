@@ -762,6 +762,7 @@ const communityApi = {
   getComments: (postId, params) => request({ url: `/post-comments/${postId}`, method: 'GET', data: params }),
   createComment: (postId, data) => request({ url: `/post-comments/${postId}`, method: 'POST', data }),
   deleteComment: (commentId) => request({ url: `/post-comments/${commentId}`, method: 'DELETE' }),
+  toggleCommentLike: (commentId) => request({ url: `/post-comments/${commentId}/like`, method: 'POST' }),
 
   // Reports
   createReport: (data) => request({ url: '/reports/create', method: 'POST', data }),
