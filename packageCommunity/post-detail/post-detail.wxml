@@ -134,10 +134,25 @@
   </view>
 </scroll-view>
 
+<view wx:if="{{showImageUpload}}" class="comment-image-bar">
+  <t-upload
+    mediaType="{{['image']}}"
+    max="{{9}}"
+    files="{{commentFiles}}"
+    gridConfig="{{gridConfig}}"
+    config="{{uploadConfig}}"
+    draggable="{{false}}"
+    bind:add="handleCommentImageAdd"
+    bind:remove="handleCommentImageRemove"
+    bind:click="handleCommentImageClick"
+  />
+</view>
+
 <view class="bottom-input-bar">
+  <t-icon name="image" size="40rpx" color="#999" catch:tap="toggleImagePicker" />
   <input class="comment-input" placeholder="{{replyTarget ? '回复 @' + replyTarget : '输入评论...'}}" value="{{commentText}}" bind:input="onCommentInput" confirm-type="send" bind:confirm="submitComment" />
   <view wx:if="{{replyTarget}}" class="cancel-reply" catch:tap="cancelReply">取消回复</view>
-  <button class="send-btn" disabled="{{!commentText.trim()}}" bindtap="submitComment">发送</button>
+  <button class="send-btn" disabled="{{!commentText.trim() && commentImageUrls.length === 0}}" bindtap="submitComment">发送</button>
 </view>
 
 <t-popup

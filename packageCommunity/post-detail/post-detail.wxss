@@ -352,6 +352,12 @@
   padding: 30rpx;
 }
 
+.comment-image-bar {
+  background: #fff;
+  padding: 12rpx 20rpx 0;
+  border-top: 1rpx solid #f0f0f0;
+}
+
 /* 底部输入栏 */
 .bottom-input-bar {
   position: fixed;

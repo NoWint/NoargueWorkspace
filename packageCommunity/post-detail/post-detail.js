@@ -1,6 +1,42 @@
 const app = getApp();
 const { communityApi, todosApi } = require('../../utils/api');
 
+const compressImage = (filePath) => {
+  return new Promise((resolve) => {
+    wx.getFileInfo({
+      filePath,
+      success(info) {
+        if (info.size > 2 * 1024 * 1024) {
+          wx.compressImage({ src: filePath, quality: 80, success: (r) => resolve(r.tempFilePath) });
+        } else { resolve(filePath); }
+      },
+      fail: () => resolve(filePath)
+    });
+  });
+};
+
+const uploadImage = (filePath, retryCount = 0) => {
+  return new Promise((resolve, reject) => {
+    wx.uploadFile({
+      url: 'https://img.scdn.io/api/v1.php',
+      filePath, name: 'image',
+      success(res) {
+        try {
+          const data = JSON.parse(res.data);
+          const url = data && data.data && data.data.url ? data.data.url : (data && data.url ? data.url : null);
+          if (url) resolve(url);
+          else reject(new Error('上传返回URL异常'));
+        } catch { reject(new Error('上传返回格式异常')); }
+      },
+      fail(err) {
+        if (retryCount < 3) {
+          setTimeout(() => uploadImage(filePath, retryCount + 1).then(resolve).catch(reject), 1000 * (retryCount + 1));
+        } else { reject(err); }
+      }
+    });
+  });
+};
+
 Page({
   data: {
     postId: null, post: {}, isDeleted: false, isOwner: false,
@@ -11,7 +47,12 @@ Page({
     visitors: [],
     refreshing: false,
     todoExpanded: false, todoItems: [],
-    reportReasons: ['垃圾广告', '色情低俗', '人身攻击', '违法信息', '其他']
+    reportReasons: ['垃圾广告', '色情低俗', '人身攻击', '违法信息', '其他'],
+    commentFiles: [],
+    commentImageUrls: [],
+    showImageUpload: false,
+    gridConfig: { column: 5, width: 120, height: 120 },
+    uploadConfig: { count: 9, sizeType: ['compressed'], sourceType: ['album', 'camera'] }
   },
 
   onLoad(options) {
@@ -114,12 +155,18 @@ Page({
 
   async submitComment() {
     const text = this.data.commentText.trim();
-    if (!text) return;
+    if (!text && this.data.commentImageUrls.length === 0) return;
     try {
       await communityApi.createComment(this.data.postId, {
-        content: text, parentId: this.data.replyParentId || null, replyToUserId: this.data.replyToUserId || null
+        content: text,
+        images: this.data.commentImageUrls.length > 0 ? this.data.commentImageUrls : null,
+        parentId: this.data.replyParentId || null,
+        replyToUserId: this.data.replyToUserId || null
       });
-      this.setData({ commentText: '', replyTarget: null, replyParentId: null, replyToUserId: null });
+      this.setData({
+        commentText: '', replyTarget: null, replyParentId: null, replyToUserId: null,
+        commentFiles: [], commentImageUrls: [], showImageUpload: false
+      });
       wx.showToast({ title: '发送成功', icon: 'success' });
       this.loadComments(true);
     } catch (err) { wx.showToast({ title: err.message || '发送失败', icon: 'none' }); }
@@ -159,6 +206,48 @@ Page({
     } catch (err) {
       wx.showToast({ title: '操作失败', icon: 'none' });
     }
+  },
+
+  toggleImagePicker() {
+    this.setData({ showImageUpload: !this.data.showImageUpload });
+  },
+
+  async handleCommentImageAdd(e) {
+    const { files } = e.detail;
+    const currentCount = this.data.commentFiles.length;
+    if (currentCount >= 9) { wx.showToast({ title: '最多上传9张图片', icon: 'none' }); return; }
+    const filesToAdd = files.slice(0, 9 - currentCount);
+    if (filesToAdd.length === 0) return;
+    for (let i = 0; i < filesToAdd.length; i++) {
+      const file = filesToAdd[i];
+      wx.showLoading({ title: `上传中 ${i + 1}/${filesToAdd.length}`, mask: true });
+      try {
+        const compressed = await compressImage(file.url);
+        const url = await uploadImage(compressed);
+        const newItem = { url, name: `comment_img_${Date.now()}_${i}`, type: 'image', status: 'done' };
+        this.setData({
+          commentFiles: [...this.data.commentFiles, newItem],
+          commentImageUrls: [...this.data.commentImageUrls, url]
+        });
+      } catch (err) {
+        wx.showToast({ title: '图片上传失败', icon: 'none' });
+      }
+    }
+    wx.hideLoading();
+  },
+
+  handleCommentImageRemove(e) {
+    const { index } = e.detail;
+    const files = [...this.data.commentFiles];
+    const urls = [...this.data.commentImageUrls];
+    files.splice(index, 1);
+    urls.splice(index, 1);
+    this.setData({ commentFiles: files, commentImageUrls: urls });
+  },
+
+  handleCommentImageClick(e) {
+    const { index } = e.detail;
+    wx.previewImage({ current: this.data.commentImageUrls[index], urls: this.data.commentImageUrls });
   },
 
   async toggleTodoExpand() {
