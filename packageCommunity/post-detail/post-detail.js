@@ -3,11 +3,10 @@ const { communityApi } = require('../../utils/api');
 
 Page({
   data: {
-    navBarHeight: app.globalData.navBarHeight || 44,
     postId: null, post: {}, isDeleted: false, isOwner: false,
     comments: [], commentCursor: null, hasMoreComments: true, loadingComments: false,
     commentText: '', replyTarget: null, replyParentId: null, replyToUserId: null,
-    showMenuPopup: false, showReportPopup: false, showVisitorsPopup: false,
+    showVisitorsPopup: false,
     visitors: [],
     reportReasons: ['垃圾广告', '色情低俗', '人身攻击', '违法信息', '其他']
   },
@@ -15,7 +14,7 @@ Page({
   onLoad(options) {
     const postId = options.postId;
     if (!postId) { wx.showToast({ title: '参数错误', icon: 'none' }); return; }
-    this.setData({ postId, navBarHeight: app.globalData.navBarHeight || 44 });
+    this.setData({ postId });
     this.loadPost();
   },
 
@@ -91,18 +90,27 @@ Page({
     });
   },
 
-  showMenu() { this.setData({ showMenuPopup: true }); },
-  closeMenu() { this.setData({ showMenuPopup: false }); },
-  onMenuClose(e) { if (!e.detail.visible) this.setData({ showMenuPopup: false }); },
+  onMore() {
+    const itemList = this.data.isOwner ? ['编辑帖子', '删除帖子', '取消'] : ['举报', '取消'];
+    wx.showActionSheet({
+      itemList,
+      success: (res) => {
+        if (this.data.isOwner) {
+          if (res.tapIndex === 0) this.editPost();
+          else if (res.tapIndex === 1) this.deletePost();
+        } else {
+          if (res.tapIndex === 0) this.showReportSheet();
+        }
+      }
+    });
+  },
 
   editPost() {
-    this.setData({ showMenuPopup: false });
     app.globalData.editPostData = this.data.post;
     wx.navigateTo({ url: '/packageCommunity/post-edit/post-edit?postId=' + this.data.postId });
   },
 
   deletePost() {
-    this.setData({ showMenuPopup: false });
     wx.showModal({
       title: '确认删除', content: '确定要删除这篇帖子吗？',
       success: async (res) => {
@@ -117,25 +125,26 @@ Page({
     });
   },
 
-  reportPost() { this.setData({ showMenuPopup: false, showReportPopup: true }); },
-  closeReport() { this.setData({ showReportPopup: false }); },
-  onReportClose(e) { if (!e.detail.visible) this.setData({ showReportPopup: false }); },
-
-  async submitReport(e) {
-    const reason = e.currentTarget.dataset.reason;
-    this.setData({ showReportPopup: false });
-    try {
-      await new Promise((resolve, reject) => {
-        wx.requestSubscribeMessage({
-          tmplIds: ['yXtj85psFqKHQsAbcjxFo5wYX8SdU4acoYiENIRpiAE'],
-          success: resolve, fail: reject
-        });
-      });
-    } catch (err) { /* user declined, continue anyway */ }
-    try {
-      await communityApi.createReport({ targetType: 'post', targetId: this.data.postId, reason, detail: '' });
-      wx.showToast({ title: '举报已提交', icon: 'success' });
-    } catch (err) { wx.showToast({ title: err.message || '提交失败', icon: 'none' }); }
+  showReportSheet() {
+    wx.showActionSheet({
+      itemList: [...this.data.reportReasons, '取消'],
+      success: async (res) => {
+        if (res.tapIndex >= this.data.reportReasons.length) return;
+        const reason = this.data.reportReasons[res.tapIndex];
+        try {
+          await new Promise((resolve, reject) => {
+            wx.requestSubscribeMessage({
+              tmplIds: ['yXtj85psFqKHQsAbcjxFo5wYX8SdU4acoYiENIRpiAE'],
+              success: resolve, fail: reject
+            });
+          });
+        } catch (err) { /* user declined, continue anyway */ }
+        try {
+          await communityApi.createReport({ targetType: 'post', targetId: this.data.postId, reason, detail: '' });
+          wx.showToast({ title: '举报已提交', icon: 'success' });
+        } catch (err) { wx.showToast({ title: err.message || '提交失败', icon: 'none' }); }
+      }
+    });
   },
 
   async showVisitors() {
@@ -160,8 +169,6 @@ Page({
     if (!target) return;
     target.src = '/images/avatar.png';
   },
-
-  goBack() { wx.navigateBack(); },
 
   formatTime(dateStr) {
     if (!dateStr) return '';

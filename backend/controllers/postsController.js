@@ -244,6 +244,10 @@ const deletePost = async (req, res) => {
     }
 
     await query('UPDATE posts SET is_deleted = 1 WHERE post_id = ?', [postId]);
+
+    // Cascade soft-delete: mark all comments on this post as deleted
+    await query('UPDATE post_comments SET is_deleted = 1 WHERE post_id = ?', [posts[0].id]);
+
     res.json({ success: true, message: '删除成功' });
   } catch (err) {
     logger.error(POST_LOG, '删除', '删除帖子失败', { postId, userId, error: err.message });

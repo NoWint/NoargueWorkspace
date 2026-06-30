@@ -53,7 +53,7 @@ Page({
     selectedTodoIds: [], selectedComboCode: null, selectedComboName: '',
     location: null,
     // picker state
-    showTodoPicker: false, showComboPicker: false,
+    showPicker: false, pickerType: '',
     temporarySelectedIds: [], temporarySelectedComboId: null,
     filteredTodos: [], allTodos: [],
     todoSearchKeyword: '', comboSearchKeyword: '',
@@ -224,27 +224,45 @@ Page({
     this.setData({ location: null });
   },
 
-  // ===== 待办选择弹窗 =====
-  showTodoPicker() {
-    const selectedMap = {};
-    this.data.selectedTodoIds.forEach(id => { selectedMap[id] = true; });
-    this.setData({
-      showTodoPicker: true,
-      temporarySelectedIds: [...this.data.selectedTodoIds],
-      selectedMap,
-      todoSearchKeyword: '',
-      filteredTodos: this.data.allTodos
-    });
-  },
-
-  hideTodoPicker() {
-    this.setData({ showTodoPicker: false });
-  },
-
-  onTodoPickerVisibleChange(e) {
-    if (!e.detail.visible) {
-      this.setData({ showTodoPicker: false });
+  // ===== 统一选择弹窗（待办/组合共用） =====
+  showPicker(e) {
+    const type = e.currentTarget?.dataset?.type || e;
+    if (type === 'todo') {
+      const selectedMap = {};
+      this.data.selectedTodoIds.forEach(id => { selectedMap[id] = true; });
+      this.setData({
+        showPicker: true, pickerType: 'todo',
+        temporarySelectedIds: [...this.data.selectedTodoIds],
+        selectedMap,
+        todoSearchKeyword: '',
+        filteredTodos: this.data.allTodos
+      });
+    } else if (type === 'combo') {
+      const combos = app.globalData.combos || [];
+      const sharedCombos = app.globalData.sharedCombos || [];
+      const shareableCombos = combos.filter(c => c.share_code && (c.is_shared === 1 || c.isShared === 1));
+      const inviteableShared = sharedCombos.filter(c =>
+        c.role === 'owner' || c.role === 'admin' || c.userRole === 'owner' || c.userRole === 'admin'
+      );
+      this.setData({
+        showPicker: true, pickerType: 'combo',
+        temporarySelectedComboId: this.data.selectedComboCode
+          ? this.findComboIdByCode(this.data.selectedComboCode) : null,
+        pickerCombos: shareableCombos,
+        pickerSharedCombos: inviteableShared,
+        filteredPickerCombos: shareableCombos,
+        filteredPickerSharedCombos: inviteableShared,
+        comboSearchKeyword: ''
+      });
     }
+  },
+
+  hidePicker() {
+    this.setData({ showPicker: false });
+  },
+
+  onPickerVisibleChange(e) {
+    if (!e.detail.visible) this.setData({ showPicker: false });
   },
 
   onTodoSearch(e) {
@@ -273,34 +291,12 @@ Page({
   confirmTodoSelection() {
     this.setData({
       selectedTodoIds: [...this.data.temporarySelectedIds],
-      showTodoPicker: false
+      showPicker: false
     });
   },
 
   clearSelectedTodos() {
     this.setData({ selectedTodoIds: [], selectedMap: {} });
-  },
-
-  // ===== 组合选择弹窗 =====
-  showComboPicker() {
-    const combos = app.globalData.combos || [];
-    const sharedCombos = app.globalData.sharedCombos || [];
-    // 私有组合：有 share_code 且 is_shared=1 的
-    const shareableCombos = combos.filter(c => c.share_code && (c.is_shared === 1 || c.isShared === 1));
-    // 共享组合：有邀请权限的
-    const inviteableShared = sharedCombos.filter(c =>
-      c.role === 'owner' || c.role === 'admin' || c.userRole === 'owner' || c.userRole === 'admin'
-    );
-    this.setData({
-      showComboPicker: true,
-      temporarySelectedComboId: this.data.selectedComboCode
-        ? this.findComboIdByCode(this.data.selectedComboCode) : null,
-      pickerCombos: shareableCombos,
-      pickerSharedCombos: inviteableShared,
-      filteredPickerCombos: shareableCombos,
-      filteredPickerSharedCombos: inviteableShared,
-      comboSearchKeyword: ''
-    });
   },
 
   findComboIdByCode(code) {
@@ -313,16 +309,6 @@ Page({
   findComboById(id) {
     const all = [...(app.globalData.combos || []), ...(app.globalData.sharedCombos || [])];
     return all.find(c => String(c.id) === String(id)) || null;
-  },
-
-  hideComboPicker() {
-    this.setData({ showComboPicker: false });
-  },
-
-  onComboPickerVisibleChange(e) {
-    if (!e.detail.visible) {
-      this.setData({ showComboPicker: false });
-    }
   },
 
   onComboSearch(e) {
@@ -362,7 +348,7 @@ Page({
     } else {
       this.setData({ selectedComboCode: null, selectedComboName: '' });
     }
-    this.setData({ showComboPicker: false });
+    this.setData({ showPicker: false });
   },
 
   clearSelectedCombo() {

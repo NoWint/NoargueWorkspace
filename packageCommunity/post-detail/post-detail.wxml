@@ -1,16 +1,4 @@
-<view class="top">
-  <view class="header" style="padding-top:{{navBarHeight-44}}px;padding-left:{{menuRight+20}}rpx">
-    <view class="header-left" bindtap="goBack">
-      <t-icon name="chevron-left" size="40rpx" color="#2d3436" />
-    </view>
-    <text class="title">帖子</text>
-    <view class="action-group" style="right:{{menuRight + menuWidth + 10}}px">
-      <t-icon name="more" size="40rpx" color="#000" bindtap="showMenu" />
-    </view>
-  </view>
-</view>
-
-<scroll-view scroll-y class="scroll-view" style="height: calc(100vh - {{navBarHeight}}px - 100rpx);" bind:scrolltolower="onLoadMoreComments">
+<scroll-view scroll-y class="scroll-view" style="height: calc(100vh - 100rpx);" bind:scrolltolower="onLoadMoreComments">
   <view wx:if="{{isDeleted}}" class="deleted-notice">
     <t-icon name="error-circle" size="60rpx" color="#999" />
     <text>该内容因违规已被删除</text>
@@ -47,7 +35,7 @@
     <view class="post-stats">
       <view class="stat-item"><t-icon name="browse" size="28rpx" /><text>{{post.viewsCount}}次浏览</text></view>
       <view class="stat-item"><t-icon name="heart" size="28rpx" /><text>{{post.likesCount}}人赞过</text></view>
-      <view wx:if="{{isOwner}}" class="stat-item visitor-link" bind:tap="showVisitors"><t-icon name="visitors" size="28rpx" /><text>查看访客</text></view>
+      <view class="stat-item more-btn" bind:tap="onMore"><t-icon name="more" size="36rpx" color="#999" /></view>
     </view>
   </view>
 
@@ -106,37 +94,9 @@
 </view>
 
 <t-popup
-  visible="{{showMenuPopup}}"
-  placement="bottom"
-  bind:visible-change="onMenuClose"
-  usingCustomNavbar="{{true}}"
->
-  <view class="menu-items">
-    <view wx:if="{{isOwner}}" class="menu-item" bind:tap="editPost"><t-icon name="edit" size="40rpx" /><text>编辑帖子</text></view>
-    <view wx:if="{{isOwner}}" class="menu-item" bind:tap="deletePost"><t-icon name="delete" size="40rpx" /><text>删除帖子</text></view>
-    <view wx:if="{{!isOwner}}" class="menu-item" bind:tap="reportPost"><t-icon name="flag" size="40rpx" /><text>举报帖子</text></view>
-    <view class="menu-item menu-cancel" bind:tap="closeMenu"><text>取消</text></view>
-  </view>
-</t-popup>
-
-<t-popup
-  visible="{{showReportPopup}}"
-  placement="bottom"
-  bind:visible-change="onReportClose"
-  usingCustomNavbar="{{true}}"
->
-  <view class="report-panel">
-    <view class="report-title">选择举报原因</view>
-    <view wx:for="{{reportReasons}}" wx:key="*this" class="report-reason" bind:tap="submitReport" data-reason="{{item}}"><text>{{item}}</text></view>
-    <view class="report-cancel" bind:tap="closeReport">取消</view>
-  </view>
-</t-popup>
-
-<t-popup
   visible="{{showVisitorsPopup}}"
   placement="bottom"
   bind:visible-change="onVisitorsClose"
-  usingCustomNavbar="{{true}}"
 >
   <view class="visitors-panel">
     <view class="visitors-title">访客记录</view>
@@ -150,6 +110,6 @@
         </view>
       </view>
     </block>
-    <view class="report-cancel" bind:tap="closeVisitors">关闭</view>
+    <view class="close-btn" bind:tap="closeVisitors">关闭</view>
   </view>
 </t-popup>

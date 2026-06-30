@@ -1,20 +1,5 @@
 @import "../../pages/todo/todo.wxss";
 
-.top {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 999;
-  background: #e3f5eb99;
-  backdrop-filter: blur(20rpx) saturate(180%);
-  -webkit-backdrop-filter: blur(20rpx) saturate(180%);
-}
-
-.scroll-view {
-  margin-top: 170rpx;
-}
-
 .deleted-notice {
   display: flex;
   flex-direction: column;
@@ -107,6 +92,9 @@
   gap: 8rpx;
   font-size: 24rpx;
   color: #999;
+}
+.more-btn {
+  margin-left: auto;
 }
 .visitor-link {
   color: #00b26a;
@@ -301,51 +289,11 @@
   border: none;
 }
 
-/* 弹窗 */
-.menu-items {
-  padding: 20rpx 30rpx;
-  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
-}
-.menu-item {
-  display: flex;
-  align-items: center;
-  gap: 16rpx;
-  padding: 24rpx 0;
-  font-size: 28rpx;
-  color: #333;
-  border-bottom: 1rpx solid #f0f0f0;
-}
-.menu-cancel {
-  justify-content: center;
-  color: #999;
-  border-bottom: none;
-  margin-top: 12rpx;
-}
-
-.report-panel {
-  padding: 30rpx;
-  padding-bottom: calc(30rpx + env(safe-area-inset-bottom));
-}
-.report-title {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 20rpx;
+.close-btn {
   text-align: center;
-}
-.report-reason {
-  padding: 20rpx 0;
-  font-size: 28rpx;
-  color: #333;
-  text-align: center;
-  border-bottom: 1rpx solid #f0f0f0;
-}
-.report-cancel {
-  padding: 20rpx 0;
+  padding: 20rpx 0 10rpx;
   font-size: 28rpx;
   color: #999;
-  text-align: center;
-  margin-top: 12rpx;
 }
 
 .visitors-panel {

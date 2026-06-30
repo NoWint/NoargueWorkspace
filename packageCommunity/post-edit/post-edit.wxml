@@ -28,7 +28,7 @@
     auto-height
     show-confirm-bar="{{false}}"
   />
-  
+
   <view class="word-count">
     <text>{{body.length}}/2000</text>
   </view>
@@ -65,11 +65,11 @@
     </view>
   </view>
 
-  <view class="picker-row" wx:if="{{selectedTodoIds.length === 0}}" bind:tap="showTodoPicker">
+  <view class="picker-row" wx:if="{{selectedTodoIds.length === 0}}" bind:tap="showPicker" data-type="todo">
     <t-icon name="checklist" size="32rpx" color="#999" />
     <text class="picker-placeholder">关联待办</text>
   </view>
-  <view wx:if="{{selectedTodoIds.length > 0}}" class="picker-row picker-row-selected" bind:tap="showTodoPicker">
+  <view wx:if="{{selectedTodoIds.length > 0}}" class="picker-row picker-row-selected" bind:tap="showPicker" data-type="todo">
     <t-icon name="checklist" size="32rpx" color="#00b26a" />
     <text class="picker-value">已关联 {{selectedTodoIds.length}} 个待办</text>
     <view class="picker-clear" catch:tap="clearSelectedTodos">
@@ -77,11 +77,11 @@
     </view>
   </view>
 
-  <view class="picker-row" wx:if="{{!selectedComboCode}}" bind:tap="showComboPicker">
+  <view class="picker-row" wx:if="{{!selectedComboCode}}" bind:tap="showPicker" data-type="combo">
     <t-icon name="user-group" size="32rpx" color="#999" />
     <text class="picker-placeholder">邀请组合</text>
   </view>
-  <view wx:if="{{selectedComboCode}}" class="picker-row picker-row-selected" bind:tap="showComboPicker">
+  <view wx:if="{{selectedComboCode}}" class="picker-row picker-row-selected" bind:tap="showPicker" data-type="combo">
     <t-icon name="user-group" size="32rpx" color="#00b26a" />
     <text class="picker-value">邀请加入"{{selectedComboName}}"</text>
     <view class="picker-clear" catch:tap="clearSelectedCombo">
@@ -90,20 +90,18 @@
   </view>
 </view>
 
-<!-- 待办选择弹窗 -->
+<!-- 统一选择弹窗（待办/组合共用） -->
 <t-popup
-  visible="{{showTodoPicker}}"
-  bind:visible-change="onTodoPickerVisibleChange"
+  visible="{{showPicker}}"
+  bind:visible-change="onPickerVisibleChange"
   placement="bottom"
   close-on-overlay-click="{{true}}"
   usingCustomNavbar="{{true}}"
-  z-index="{{10000}}"
-  overlay-props="{{ { zIndex: 9999 } }}"
 >
-  <view class="picker-popup">
+  <view wx:if="{{pickerType === 'todo'}}" class="picker-popup">
     <view class="popup-header">
       <text class="popup-title">选择待办</text>
-      <view class="popup-close" catch:tap="hideTodoPicker">
+      <view class="popup-close" catch:tap="hidePicker">
         <t-icon name="close" size="40rpx" color="#999" />
       </view>
     </view>
@@ -144,22 +142,11 @@
       <button class="picker-confirm-btn" catch:tap="confirmTodoSelection">确定</button>
     </view>
   </view>
-</t-popup>
 
-<!-- 组合选择弹窗 -->
-<t-popup
-  visible="{{showComboPicker}}"
-  bind:visible-change="onComboPickerVisibleChange"
-  placement="bottom"
-  close-on-overlay-click="{{true}}"
-  usingCustomNavbar="{{true}}"
-  z-index="{{10000}}"
-  overlay-props="{{ { zIndex: 9999 } }}"
->
-  <view class="picker-popup">
+  <view wx:if="{{pickerType === 'combo'}}" class="picker-popup">
     <view class="popup-header">
       <text class="popup-title">邀请加入组合</text>
-      <view class="popup-close" catch:tap="hideComboPicker">
+      <view class="popup-close" catch:tap="hidePicker">
         <t-icon name="close" size="40rpx" color="#999" />
       </view>
     </view>
