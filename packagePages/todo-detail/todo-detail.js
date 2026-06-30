@@ -169,7 +169,7 @@ Page({
   // FAB 点击统一分发
   onFabAction(e) {
     const id = e.currentTarget.dataset.id;
-    if (id === 'share' && this.data.isSharedTodo) return;
+    if (id === 'share' && this.data.isSharedTodo) return; // openType share 由微信原生处理，click 无需触发
     const map = {
       star: 'toggleStar', edit: 'editTodo', delete: 'deleteTodo',
       comment: 'openCommentPopup', revoke: 'revokeShare',
@@ -191,33 +191,23 @@ Page({
       this.setData({ overlayError: '请输入密码' });
       return;
     }
-    const shareId = this.data.shareId;
-    const that = this;
-    this._attemptVerifyPassword(shareId, password, 1);
+    this._attemptVerifyPassword(this.data.shareId, password);
   },
 
-  _attemptVerifyPassword(shareId, password, attempt) {
-    const MAX_RETRIES = 5;
-    if (attempt > MAX_RETRIES) {
-      this.setData({ overlayError: '密码错误次数过多' });
-      setTimeout(() => this.onOverlayGoHome(), 1500);
-      return;
-    }
+  _attemptVerifyPassword(shareId, password) {
     wx.showLoading({ title: '验证中...' });
     shareApi.verifySharePassword(shareId, password)
       .then(result => {
         wx.hideLoading();
         if (result.success && result.data) {
           this.setData({ overlayPassword: '', overlayError: '' });
-          // 渐隐遮罩后加载数据
           this.setData({ shareOverlay: 'fadeout' });
           setTimeout(() => {
             this.setData({ shareOverlay: null });
             this.processSnapshotData(result.data, shareId, result.allowCopy);
           }, 300);
         } else {
-          this.setData({ overlayError: '密码错误' });
-          setTimeout(() => this._attemptVerifyPassword(shareId, password, attempt + 1), 500);
+          this.setData({ overlayError: '密码错误，请重新输入' });
         }
       })
       .catch(err => {
@@ -824,7 +814,7 @@ Page({
         return;
       }
       logger.error('PAGE', 'SNAPSHOT', '加载分享快照失败', err);
-      this.setData({ shareOverlay: 'exhausted' });
+      wx.showToast({ title: '加载失败，请稍后重试', icon: 'none' });
     }
   },
 
