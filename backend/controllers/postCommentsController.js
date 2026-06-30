@@ -222,4 +222,39 @@ const deleteComment = async (req, res) => {
   }
 };
 
-module.exports = { getList, create, deleteComment };
+const toggleLike = async (req, res) => {
+  const userId = req.user.id;
+  const { commentId } = req.params;
+
+  try {
+    const comments = await query(
+      'SELECT id, post_id FROM post_comments WHERE id = ? AND is_deleted = 0',
+      [commentId]
+    );
+    if (comments.length === 0) {
+      return res.status(404).json({ success: false, message: '评论不存在' });
+    }
+
+    const existing = await query(
+      'SELECT id FROM post_comment_likes WHERE comment_id = ? AND user_id = ?',
+      [commentId, userId]
+    );
+
+    if (existing.length > 0) {
+      await query('DELETE FROM post_comment_likes WHERE id = ?', [existing[0].id]);
+      await query('UPDATE post_comments SET likes_count = GREATEST(likes_count - 1, 0) WHERE id = ?', [commentId]);
+      const updated = await query('SELECT likes_count FROM post_comments WHERE id = ?', [commentId]);
+      res.json({ success: true, data: { liked: false, likesCount: updated[0].likes_count } });
+    } else {
+      await query('INSERT INTO post_comment_likes (comment_id, user_id) VALUES (?, ?)', [commentId, userId]);
+      await query('UPDATE post_comments SET likes_count = likes_count + 1 WHERE id = ?', [commentId]);
+      const updated = await query('SELECT likes_count FROM post_comments WHERE id = ?', [commentId]);
+      res.json({ success: true, data: { liked: true, likesCount: updated[0].likes_count } });
+    }
+  } catch (err) {
+    logger.commentError('点赞', '切换评论点赞失败', { commentId, userId, error: err.message });
+    res.status(500).json({ success: false, message: '操作失败' });
+  }
+};
+
+module.exports = { getList, create, deleteComment, toggleLike };
