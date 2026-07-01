@@ -133,7 +133,7 @@ Page({
       if (!reset && this.data.commentCursor) params.cursor = this.data.commentCursor;
       const res = await communityApi.getComments(this.data.postId, params);
       if (res.success) {
-        const mapItem = c => { c._createdDisplay = this.formatTime(c.createdAt); if (c.replies) c.replies.forEach(r => { r._createdDisplay = this.formatTime(r.createdAt); }); return c; };
+        const mapItem = c => { c._createdDisplay = this.formatTime(c.createdAt); if (c.replies) c.replies.forEach(r => mapItem(r)); return c; };
         const list = (res.data.list || []).map(mapItem);
         this.setData({
           comments: reset ? list : [...this.data.comments, ...list],
