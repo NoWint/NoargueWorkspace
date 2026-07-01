@@ -98,7 +98,7 @@
             </view>
             <view wx:if="{{item.replies && item.replies.length > 0}}" class="replies-list">
               <view wx:for="{{item.replies}}" wx:for-item="reply" wx:key="id">
-                <template is="replyItem" data="{{reply}}" />
+                <template is="replyItem" data="{{...reply}}" />
               </view>
             </view>
           </view>
@@ -194,7 +194,7 @@
           </view>
           <view wx:if="{{replies && replies.length > 0}}" class="replies-list">
             <view wx:for="{{replies}}" wx:for-item="r" wx:key="id">
-              <template is="replyItem" data="{{r}}" />
+              <template is="replyItem" data="{{...r}}" />
             </view>
           </view>
         </view>
