@@ -323,3 +323,7 @@
   font-size: 28rpx;
   gap: 20rpx;
 }
+
+.tap-active {
+  opacity: 0.6;
+}

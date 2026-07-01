@@ -61,7 +61,7 @@
             <view wx:if="{{expandedPostId === item.postId}}" class="tag-card-body">
               <block wx:if="{{postTodoMap[item.postId] && postTodoMap[item.postId].length > 0}}">
                 <block wx:for="{{postTodoMap[item.postId]}}" wx:for-item="todoItem" wx:key="id">
-                  <view class="todo-mini-item">
+                  <view class="todo-mini-item" catch:tap="goToTodoDetail" data-todo-id="{{todoItem.id}}" data-creator-name="{{item.user.nickname}}" data-creator-avatar="{{item.user.avatar}}" data-post-id="{{item.postId}}" hover-class="tap-active">
                     <view class="todo-mini-dot" data-priority="{{todoItem.priority}}"></view>
                     <text class="todo-mini-text">{{todoItem.text}}</text>
                   </view>

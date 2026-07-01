@@ -148,7 +148,6 @@ Page({
 
   onInputFocus() { this.setData({ inputFocused: true }); },
   onInputBlur() { this.setData({ inputFocused: false }); },
-  focusInput() { this.setData({ inputFocused: true }); },
 
   replyComment(e) {
     const { id, user, userid } = e.currentTarget.dataset;
@@ -248,6 +247,14 @@ Page({
   handleCommentImageClick(e) {
     const { index } = e.detail;
     wx.previewImage({ current: this.data.commentImageUrls[index], urls: this.data.commentImageUrls });
+  },
+
+  goToTodoDetail(e) {
+    const { todoId, creatorName, creatorAvatar, postId } = e.currentTarget.dataset;
+    if (!todoId) return;
+    wx.navigateTo({
+      url: `/packagePages/todo-detail/todo-detail?communityTodoId=${todoId}&creatorName=${encodeURIComponent(creatorName || '')}&creatorAvatar=${encodeURIComponent(creatorAvatar || '')}&postId=${postId || ''}`
+    });
   },
 
   async toggleTodoExpand() {

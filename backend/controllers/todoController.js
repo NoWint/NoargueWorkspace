@@ -906,11 +906,58 @@ const restoreTodo = async (req, res) => {
 };
 
 const getTodosBatch = async (req, res) => {
-  const { ids } = req.body;
+  const { ids, detail } = req.body;
   if (!ids || !Array.isArray(ids) || ids.length === 0) {
     return res.json({ success: true, data: [] });
   }
   try {
+    if (detail) {
+      const numericIds = ids.map(id => { const n = Number(id); return isNaN(n) ? -1 : n; });
+      const placeholders = ids.map(() => '?').join(',');
+      const numPlaceholders = numericIds.map(() => '?').join(',');
+      const todos = await query(
+        `SELECT todo_id, id, text, priority, completed, set_date, set_time, remarks, images, location_text, tags FROM todos
+         WHERE (todo_id IN (${placeholders}) OR id IN (${numPlaceholders})) AND is_deleted = 0`,
+        [...ids, ...numericIds]
+      );
+      const result = [];
+      for (const t of todos) {
+        const subtasks = await query(
+          `SELECT id, text, completed, parent_id FROM todos WHERE parent_id = ? AND is_deleted = 0`,
+          [t.todo_id || String(t.id)]
+        );
+        let parsedImages = null;
+        if (t.images) {
+          try { parsedImages = JSON.parse(t.images); } catch (e) { parsedImages = []; }
+        }
+        let parsedLocation = null;
+        if (t.location_text) {
+          try { parsedLocation = JSON.parse(t.location_text); } catch (e) { parsedLocation = t.location_text; }
+        }
+        let parsedTags = null;
+        if (t.tags) {
+          try { parsedTags = JSON.parse(t.tags); } catch (e) { parsedTags = []; }
+        }
+        result.push({
+          id: t.todo_id || String(t.id),
+          text: t.text,
+          priority: t.priority,
+          completed: !!t.completed,
+          setDate: t.set_date || null,
+          setTime: t.set_time || null,
+          remarks: t.remarks || null,
+          images: parsedImages,
+          location: parsedLocation,
+          tags: parsedTags,
+          subtasks: subtasks.map(s => ({
+            id: String(s.id),
+            text: s.text,
+            completed: !!s.completed
+          }))
+        });
+      }
+      return res.json({ success: true, data: result });
+    }
     const placeholders = ids.map(() => '?').join(',');
     const numericIds = ids.map(id => { const n = Number(id); return isNaN(n) ? -1 : n; });
     const todos = await query(

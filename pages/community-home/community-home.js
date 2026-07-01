@@ -141,6 +141,14 @@ Page({
     wx.previewImage({ current: url, urls: post && post.images ? post.images : [url] });
   },
 
+  goToTodoDetail(e) {
+    const { todoId, creatorName, creatorAvatar, postId } = e.currentTarget.dataset;
+    if (!todoId) return;
+    wx.navigateTo({
+      url: `/packagePages/todo-detail/todo-detail?communityTodoId=${todoId}&creatorName=${encodeURIComponent(creatorName || '')}&creatorAvatar=${encodeURIComponent(creatorAvatar || '')}&postId=${postId || ''}`
+    });
+  },
+
   onSearch() { wx.showToast({ title: '搜索功能开发中', icon: 'none' }); },
 
   onScroll(e) {

@@ -391,6 +391,12 @@ Page({
       return;
     }
 
+    if (options.communityTodoId) {
+      this.setData({ isShare: true, allowAdd: true });
+      this._loadByCommunityTodo(options);
+      return;
+    }
+
     if (options.sharedTodoId) {
       this._loadBySharedTodoId(options);
       return;
@@ -1193,7 +1199,11 @@ Page({
       }
       return;
     }
-    
+
+    if (this.data.isShare) {
+      return;
+    }
+
     const todos = getLocalTodos()
 
     if (!todos[this.data.currentIndex]) {
@@ -2489,5 +2499,92 @@ Page({
     wx.navigateTo({
       url: '/packagePages/share-config/share-config?todoId=' + todo.id
     });
+  },
+
+  // 路径: 社区帖子待办预览
+  async _loadByCommunityTodo(options) {
+    const { communityTodoId, creatorName, creatorAvatar, postId } = options;
+
+    if (!communityTodoId) {
+      wx.showToast({ title: '参数错误', icon: 'none' });
+      setTimeout(() => wx.navigateBack(), 1500);
+      return;
+    }
+
+    try {
+      wx.showLoading({ title: '加载中...' });
+
+      const { todosApi } = require('../../utils/api');
+      const res = await todosApi.getTodosBatch([communityTodoId], true);
+
+      if (!res.success || !res.data || res.data.length === 0) {
+        wx.hideLoading();
+        wx.showToast({ title: '该待办已被删除', icon: 'none' });
+        setTimeout(() => wx.navigateBack(), 1500);
+        return;
+      }
+
+      const todoData = res.data[0];
+
+      // Format the data like todo-detail expects
+      let setDateObj = new Date();
+      if (todoData.setDate) {
+        setDateObj = new Date(todoData.setDate);
+        if (isNaN(setDateObj.getTime())) setDateObj = new Date();
+      }
+      const formattedDate = this.formatRichDate(setDateObj);
+
+      let parsedImages = this.parseImages(todoData.images);
+      let parsedTags = todoData.tags || [];
+
+      // Build subtasks snapshot for addToMyTodos
+      const subtasks = {};
+      if (todoData.subtasks && todoData.subtasks.length > 0) {
+        subtasks[todoData.id] = todoData.subtasks.map(st => ({
+          id: st.id, text: st.text, completed: st.completed
+        }));
+      }
+
+      // Load subtasks into view
+      this.loadSubtasksFromSnapshot(subtasks, todoData.id);
+
+      const creator = creatorName ? {
+        nickname: decodeURIComponent(creatorName),
+        avatar: creatorAvatar ? decodeURIComponent(creatorAvatar) : null
+      } : null;
+
+      wx.hideLoading();
+
+      this.setData({
+        todo: {
+          id: todoData.id,
+          text: todoData.text,
+          setDate: this.formatDate(setDateObj),
+          setTime: this.formatTime(todoData.setTime),
+          remarks: todoData.remarks,
+          images: parsedImages,
+          location: todoData.location,
+          tags: parsedTags,
+          priority: todoData.priority || 'p2',
+          completed: false
+        },
+        todoTags: this.getTagsByIds(parsedTags),
+        formattedDate,
+        formatDateTime: this.formatDateTime(Date.now()),
+        imagesLayout: this.calculateImagesLayout(parsedImages),
+        isShare: true,
+        allowAdd: true,
+        creator,
+        shareSnapshotSubtasks: subtasks
+      });
+
+      this._computeFabActions();
+
+    } catch (err) {
+      wx.hideLoading();
+      console.error('[loadByCommunityTodo] error:', err);
+      wx.showToast({ title: '加载失败', icon: 'none' });
+      setTimeout(() => wx.navigateBack(), 1500);
+    }
   },
 })

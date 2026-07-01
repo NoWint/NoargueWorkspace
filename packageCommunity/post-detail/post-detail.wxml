@@ -43,7 +43,7 @@
         <view wx:if="{{todoExpanded}}" class="tag-card-body">
           <block wx:if="{{todoItems.length > 0}}">
             <block wx:for="{{todoItems}}" wx:for-item="todoItem" wx:key="id">
-              <view class="todo-mini-item">
+              <view class="todo-mini-item" catch:tap="goToTodoDetail" data-todo-id="{{todoItem.id}}" data-creator-name="{{post.user.nickname}}" data-creator-avatar="{{post.user.avatar}}" data-post-id="{{postId}}" hover-class="tap-active">
                 <view class="todo-mini-dot" data-priority="{{todoItem.priority}}"></view>
                 <text class="todo-mini-text">{{todoItem.text}}</text>
               </view>
@@ -97,37 +97,9 @@
               </view>
             </view>
             <view wx:if="{{item.replies && item.replies.length > 0}}" class="replies-list">
-              <block wx:for="{{item.replies}}" wx:for-item="reply" wx:key="id">
-                <view class="reply-item">
-                  <view wx:if="{{reply.isDeleted}}" class="comment-deleted"><text>该评论因违规已被删除</text></view>
-                  <view wx:else>
-                    <view class="reply-header">
-                      <view class="nickname-row">
-                        <text class="reply-nickname">{{reply.user.nickname}}</text>
-                        <block wx:for="{{reply.user.badgeTitles || []}}" wx:for-item="badge" wx:key="index">
-                          <text class="user-badge" style="color: {{reply.user.badgeColors[index]}}; border-color: {{reply.user.badgeColors[index]}}">{{badge}}</text>
-                        </block>
-                      </view>
-                      <text wx:if="{{reply.replyToUser}}" class="reply-target">回复 @{{reply.replyToUser.nickname}}</text>
-                      <view class="comment-actions">
-                        <text wx:if="{{reply.canDelete}}" class="action-btn" bind:tap="deleteComment" data-id="{{reply.id}}">删除</text>
-                        <text class="action-btn" bind:tap="replyComment" data-id="{{reply.id}}" data-user="{{reply.user.nickname}}" data-userid="{{reply.user.id}}">回复</text>
-                      </view>
-                    </view>
-                    <text class="reply-content">{{reply.content}}</text>
-                    <view wx:if="{{reply.images && reply.images.length > 0}}" class="comment-images">
-                      <image wx:for="{{reply.images}}" wx:for-item="rimg" wx:key="*this" src="{{rimg}}" mode="aspectFill" class="comment-image" bind:tap="previewImage" data-url="{{rimg}}" />
-                    </view>
-                    <view class="comment-footer">
-                      <text class="comment-time">{{reply._createdDisplay}}</text>
-                      <view class="comment-like {{reply.isLiked ? 'liked' : ''}}" catch:tap="toggleCommentLike" data-id="{{reply.id}}">
-                        <t-icon name="{{reply.isLiked ? 'heart-filled' : 'heart'}}" size="24rpx" />
-                        <text wx:if="{{reply.likesCount > 0}}" class="like-count">{{reply.likesCount}}</text>
-                      </view>
-                    </view>
-                  </view>
-                </view>
-              </block>
+              <view wx:for="{{item.replies}}" wx:for-item="reply" wx:key="id">
+                <template is="replyItem" data="{{reply}}" />
+              </view>
             </view>
           </view>
         </view>
@@ -151,11 +123,15 @@
       bind:click="handleCommentImageClick"
     />
   </view>
-  <view class="input-row">
-    <view catch:tap="focusInput"><t-icon name="image" size="40rpx" color="#999" /></view>
-    <input class="comment-input" placeholder="{{replyTarget ? '回复 @' + replyTarget : '输入评论...'}}" value="{{commentText}}" bind:input="onCommentInput" confirm-type="send" bind:confirm="submitComment" bindfocus="onInputFocus" bindblur="onInputBlur" focus="{{inputFocused}}" />
-    <view wx:if="{{replyTarget}}" class="cancel-reply" catch:tap="cancelReply">取消回复</view>
-    <button class="send-btn" disabled="{{!commentText.trim() && commentImageUrls.length === 0}}" bindtap="submitComment">发送</button>
+  <view wx:if="{{replyTarget}}" class="reply-target">
+    <text>回复 <text class="reply-target-name">{{replyTarget}}</text></text>
+    <t-icon name="close" size="32rpx" color="#999" catch:tap="cancelReply" />
+  </view>
+  <view class="input-wrapper">
+    <input class="comment-input" placeholder="{{replyTarget ? '回复 ' + replyTarget + '...' : '发表评论...'}}" value="{{commentText}}" bindinput="onCommentInput" confirm-type="send" bindconfirm="submitComment" bindfocus="onInputFocus" bindblur="onInputBlur" focus="{{inputFocused}}" />
+    <button class="send-btn {{commentText.trim() || commentImageUrls.length > 0 ? 'active' : ''}}" bindtap="submitComment" disabled="{{!commentText.trim() && commentImageUrls.length === 0}}">
+      <t-icon name="arrow-up" size="48rpx" color="#fff" />
+    </button>
   </view>
 </view>
 
@@ -181,6 +157,48 @@
         </view>
       </view>
     </block>
-    <view class="close-btn" bind:tap="closeVisitors">关闭</view>
   </view>
 </t-popup>
+
+<template name="replyItem">
+  <view class="reply-item">
+    <block wx:if="{{isDeleted}}">
+      <view class="comment-deleted"><text>该评论因违规已被删除</text></view>
+    </block>
+    <block wx:else>
+      <view class="reply-normal">
+        <image class="reply-avatar" src="{{user.avatar || '/images/avatar.png'}}" mode="aspectFill" />
+        <view class="reply-body">
+          <view class="reply-meta">
+            <view class="nickname-row">
+              <text class="reply-nickname">{{user.nickname}}</text>
+              <block wx:for="{{user.badgeTitles || []}}" wx:for-item="badge" wx:key="index">
+                <text class="user-badge" style="color: {{user.badgeColors[index]}}; border-color: {{user.badgeColors[index]}}">{{badge}}</text>
+              </block>
+            </view>
+            <text class="reply-time">{{_createdDisplay}}</text>
+          </view>
+          <text class="reply-content">{{content}}</text>
+          <view wx:if="{{images && images.length > 0}}" class="comment-images">
+            <image wx:for="{{images}}" wx:for-item="rimg" wx:key="*this" src="{{rimg}}" mode="aspectFill" class="comment-image" bind:tap="previewImage" data-url="{{rimg}}" />
+          </view>
+          <view class="reply-footer">
+            <view class="comment-like {{isLiked ? 'liked' : ''}}" catch:tap="toggleCommentLike" data-id="{{id}}">
+              <t-icon name="{{isLiked ? 'heart-filled' : 'heart'}}" size="24rpx" />
+              <text wx:if="{{likesCount > 0}}" class="like-count">{{likesCount}}</text>
+            </view>
+            <view class="reply-actions">
+              <text wx:if="{{canDelete}}" class="action-btn" bind:tap="deleteComment" data-id="{{id}}">删除</text>
+              <text class="action-btn" catch:tap="replyComment" data-id="{{id}}" data-user="{{user.nickname}}" data-userid="{{user.id}}">回复</text>
+            </view>
+          </view>
+          <view wx:if="{{replies && replies.length > 0}}" class="replies-list">
+            <view wx:for="{{replies}}" wx:for-item="r" wx:key="id">
+              <template is="replyItem" data="{{r}}" />
+            </view>
+          </view>
+        </view>
+      </view>
+    </block>
+  </view>
+</template>
