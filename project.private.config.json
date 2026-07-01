@@ -24,11 +24,18 @@
     "miniprogram": {
       "list": [
         {
-          "name": "pages/trash/trash",
-          "pathName": "pages/trash/trash",
+          "name": "packageCommunity/post-detail/post-detail",
+          "pathName": "packageCommunity/post-detail/post-detail",
           "query": "",
           "scene": null,
           "launchMode": "default"
+        },
+        {
+          "name": "pages/trash/trash",
+          "pathName": "pages/trash/trash",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
         },
         {
           "name": "pages/login/login",

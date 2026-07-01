@@ -7,7 +7,7 @@
 
   <view wx:else class="post-card">
     <view class="post-user-row">
-      <image class="post-avatar" src="{{post.user.avatar || '/images/avatar.png'}}" mode="aspectFill" binderror="onAvatarError" />
+      <image class="post-avatar" src="{{post.user.avatar || '/images/avatar.png'}}" mode="aspectFill" />
       <view class="post-user-info">
         <view class="nickname-row">
           <text class="post-nickname">{{post.user.nickname}}</text>
@@ -71,7 +71,7 @@
       <view class="comment-item">
         <view wx:if="{{item.isDeleted}}" class="comment-deleted"><text>该评论因违规已被删除</text></view>
         <view wx:else class="comment-normal">
-          <image class="comment-avatar" src="{{item.user.avatar || '/images/avatar.png'}}" mode="aspectFill" binderror="onAvatarError" />
+          <image class="comment-avatar" src="{{item.user.avatar || '/images/avatar.png'}}" mode="aspectFill" />
           <view class="comment-body">
             <view class="comment-header-row">
               <view class="nickname-row">
@@ -87,7 +87,7 @@
             </view>
             <text class="comment-content">{{item.content}}</text>
             <view wx:if="{{item.images && item.images.length > 0}}" class="comment-images">
-              <image wx:for="{{item.images}}" wx:key="*this" src="{{item}}" mode="aspectFill" class="comment-image" bind:tap="previewImage" data-url="{{item}}" />
+              <image wx:for="{{item.images}}" wx:for-item="img" wx:key="*this" src="{{img}}" mode="aspectFill" class="comment-image" bind:tap="previewImage" data-url="{{img}}" />
             </view>
             <view class="comment-footer">
               <text class="comment-time">{{item._createdDisplay}}</text>
@@ -116,7 +116,7 @@
                     </view>
                     <text class="reply-content">{{reply.content}}</text>
                     <view wx:if="{{reply.images && reply.images.length > 0}}" class="comment-images">
-                      <image wx:for="{{reply.images}}" wx:key="*this" src="{{item}}" mode="aspectFill" class="comment-image" bind:tap="previewImage" data-url="{{item}}" />
+                      <image wx:for="{{reply.images}}" wx:for-item="rimg" wx:key="*this" src="{{rimg}}" mode="aspectFill" class="comment-image" bind:tap="previewImage" data-url="{{rimg}}" />
                     </view>
                     <view class="comment-footer">
                       <text class="comment-time">{{reply._createdDisplay}}</text>
@@ -137,25 +137,26 @@
   </view>
 </scroll-view>
 
-<view wx:if="{{showImageUpload}}" class="comment-image-bar">
-  <t-upload
-    mediaType="{{['image']}}"
-    max="{{9}}"
-    files="{{commentFiles}}"
-    gridConfig="{{gridConfig}}"
-    config="{{uploadConfig}}"
-    draggable="{{false}}"
-    bind:add="handleCommentImageAdd"
-    bind:remove="handleCommentImageRemove"
-    bind:click="handleCommentImageClick"
-  />
-</view>
-
 <view class="bottom-input-bar">
-  <view catch:tap="toggleImagePicker"><t-icon name="image" size="40rpx" color="#999" /></view>
-  <input class="comment-input" placeholder="{{replyTarget ? '回复 @' + replyTarget : '输入评论...'}}" value="{{commentText}}" bind:input="onCommentInput" confirm-type="send" bind:confirm="submitComment" />
-  <view wx:if="{{replyTarget}}" class="cancel-reply" catch:tap="cancelReply">取消回复</view>
-  <button class="send-btn" disabled="{{!commentText.trim() && commentImageUrls.length === 0}}" bindtap="submitComment">发送</button>
+  <view hidden="{{!inputFocused}}" class="bottom-image-bar">
+    <t-upload
+      mediaType="{{['image']}}"
+      max="{{9}}"
+      files="{{commentFiles}}"
+      gridConfig="{{gridConfig}}"
+      config="{{uploadConfig}}"
+      draggable="{{false}}"
+      bind:add="handleCommentImageAdd"
+      bind:remove="handleCommentImageRemove"
+      bind:click="handleCommentImageClick"
+    />
+  </view>
+  <view class="input-row">
+    <view catch:tap="focusInput"><t-icon name="image" size="40rpx" color="#999" /></view>
+    <input class="comment-input" placeholder="{{replyTarget ? '回复 @' + replyTarget : '输入评论...'}}" value="{{commentText}}" bind:input="onCommentInput" confirm-type="send" bind:confirm="submitComment" bindfocus="onInputFocus" bindblur="onInputBlur" focus="{{inputFocused}}" />
+    <view wx:if="{{replyTarget}}" class="cancel-reply" catch:tap="cancelReply">取消回复</view>
+    <button class="send-btn" disabled="{{!commentText.trim() && commentImageUrls.length === 0}}" bindtap="submitComment">发送</button>
+  </view>
 </view>
 
 <t-popup
@@ -168,7 +169,7 @@
     <view wx:if="{{visitors.length === 0}}" class="no-visitors"><text>暂无访客记录</text></view>
     <block wx:for="{{visitors}}" wx:for-item="visitor" wx:key="userId">
       <view class="visitor-item">
-        <image class="visitor-avatar" src="{{visitor.avatar || '/images/avatar.png'}}" mode="aspectFill" binderror="onAvatarError" />
+        <image class="visitor-avatar" src="{{visitor.avatar || '/images/avatar.png'}}" mode="aspectFill" />
         <view class="visitor-info">
           <view class="nickname-row">
             <text class="visitor-nickname">{{visitor.nickname}}</text>

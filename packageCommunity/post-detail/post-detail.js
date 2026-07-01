@@ -50,7 +50,7 @@ Page({
     reportReasons: ['垃圾广告', '色情低俗', '人身攻击', '违法信息', '其他'],
     commentFiles: [],
     commentImageUrls: [],
-    showImageUpload: false,
+    inputFocused: false,
     gridConfig: { column: 5, width: 120, height: 120 },
     uploadConfig: { count: 9, sizeType: ['compressed'], sourceType: ['album', 'camera'] }
   },
@@ -146,9 +146,13 @@ Page({
   onLoadMoreComments() { this.loadComments(false); },
   onCommentInput(e) { this.setData({ commentText: e.detail.value }); },
 
+  onInputFocus() { this.setData({ inputFocused: true }); },
+  onInputBlur() { this.setData({ inputFocused: false }); },
+  focusInput() { this.setData({ inputFocused: true }); },
+
   replyComment(e) {
     const { id, user, userid } = e.currentTarget.dataset;
-    this.setData({ replyTarget: user, replyParentId: id, replyToUserId: userid || null });
+    this.setData({ replyTarget: user, replyParentId: id, replyToUserId: userid || null, inputFocused: true });
   },
 
   cancelReply() { this.setData({ replyTarget: null, replyParentId: null, replyToUserId: null }); },
@@ -165,7 +169,7 @@ Page({
       });
       this.setData({
         commentText: '', replyTarget: null, replyParentId: null, replyToUserId: null,
-        commentFiles: [], commentImageUrls: [], showImageUpload: false
+        commentFiles: [], commentImageUrls: [], inputFocused: false
       });
       wx.showToast({ title: '发送成功', icon: 'success' });
       this.loadComments(true);
@@ -206,10 +210,6 @@ Page({
     } catch (err) {
       wx.showToast({ title: '操作失败', icon: 'none' });
     }
-  },
-
-  toggleImagePicker() {
-    this.setData({ showImageUpload: !this.data.showImageUpload });
   },
 
   async handleCommentImageAdd(e) {
@@ -351,13 +351,14 @@ Page({
   previewImage(e) {
     const url = e.currentTarget.dataset.url;
     const allImages = [...(this.data.post.images || [])];
+    const collectImages = (items) => {
+      (items || []).forEach(c => {
+        (c.images || []).forEach(img => { if (!allImages.includes(img)) allImages.push(img); });
+        collectImages(c.replies);
+      });
+    };
+    collectImages(this.data.comments);
     wx.previewImage({ current: url, urls: allImages.length > 0 ? allImages : [url] });
-  },
-
-  onAvatarError(e) {
-    const target = e.currentTarget;
-    if (!target) return;
-    target.src = '/images/avatar.png';
   },
 
   formatTime(dateStr) {

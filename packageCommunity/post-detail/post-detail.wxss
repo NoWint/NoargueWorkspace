@@ -355,10 +355,19 @@
   padding: 30rpx;
 }
 
-.comment-image-bar {
+.bottom-image-bar {
   background: #fff;
-  padding: 12rpx 20rpx 0;
-  border-top: 1rpx solid #f0f0f0;
+  padding: 8rpx 20rpx 10rpx;
+  max-height: 300rpx;
+  overflow-y: auto;
+}
+
+.input-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 12rpx 20rpx;
+  padding-bottom: calc(12rpx + env(safe-area-inset-bottom));
 }
 
 /* 底部输入栏 */
@@ -367,11 +376,6 @@
   bottom: 0;
   left: 0;
   right: 0;
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-  padding: 12rpx 20rpx;
-  padding-bottom: calc(12rpx + env(safe-area-inset-bottom));
   background: #fff;
   border-top: 1rpx solid #f0f0f0;
   z-index: 100;
