@@ -70,6 +70,12 @@ Page({
     
     if (options.adminView === '1') {
       this.setData({ adminView: true, comboId: options.id, adminUserId: options.userId });
+      // 持久化 adminView 参数，防止页面重建时丢失
+      wx.setStorageSync('_adminView_combo_' + options.id, {
+        adminView: true,
+        userId: options.userId,
+        timestamp: Date.now()
+      });
       this.loadComboDataForAdmin(options.id, options.userId);
       return;
     }
@@ -105,7 +111,16 @@ Page({
     if (this.data.adminView) {
       return;
     }
+
+    // 检查是否有持久化的 adminView 参数（防止页面重建时参数丢失）
     if (this.data.comboId) {
+      const cached = wx.getStorageSync('_adminView_combo_' + this.data.comboId);
+      if (cached && cached.adminView && (Date.now() - cached.timestamp < 300000)) {
+        // 5分钟内有效，恢复 adminView
+        this.setData({ adminView: true, adminUserId: cached.userId });
+        this.loadComboDataForAdmin(this.data.comboId, cached.userId);
+        return;
+      }
       this.loadComboData(this.data.comboId);
     }
   },
@@ -1358,6 +1373,10 @@ Page({
     if (this._collapseTimer) {
       clearTimeout(this._collapseTimer);
       this._collapseTimer = null;
+    }
+    // 清除持久化的 adminView 参数
+    if (this.data.comboId) {
+      wx.removeStorageSync('_adminView_combo_' + this.data.comboId);
     }
   },
 

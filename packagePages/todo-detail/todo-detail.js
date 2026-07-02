@@ -483,6 +483,7 @@ Page({
           location: todo.location_text ? this.parseLocation(todo.location_text) : (todo.location || null),
           priority: todo.priority || 'p2'
         },
+        todoTags: this.getTagsByIds(todo.tags || []),
         creator: creator ? {
           nickname: creator.nickname || '未知用户',
           avatar: creator.avatar || '/images/avatar.png'

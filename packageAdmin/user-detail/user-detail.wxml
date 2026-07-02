@@ -149,8 +149,19 @@
             <t-icon name="{{item.completed ? 'check-circle-filled' : 'circle'}}" size="36rpx" color="{{item.completed ? '#00B26A' : '#ccc'}}" />
           </view>
           <view class="item-content">
-            <text class="item-text {{item.completed ? 'completed-text' : ''}}">{{item.text}}</text>
-            <text class="item-meta">{{item.set_date}}</text>
+            <view class="item-title-row">
+              <text class="item-text {{item.completed ? 'completed-text' : ''}}">{{item.text}}</text>
+              <view wx:if="{{item.priority && item.priority !== 'p2'}}" class="priority-mini-dot priority-{{item.priority}}"></view>
+              <t-icon wx:if="{{item.is_star}}" name="star-filled" size="24rpx" color="#FFD700" />
+            </view>
+            <text class="item-meta">{{item.set_date}}<text wx:if="{{item.set_time}}"> {{item.set_time}}</text></text>
+            <view wx:if="{{item.tags && item.tags.length > 0}}" class="mini-tags">
+              <text wx:for="{{item.tags}}" wx:key="*this" class="mini-tag">{{item}}</text>
+            </view>
+            <view wx:if="{{item.images && item.images.length > 0}}" class="img-indicator">
+              <t-icon name="image" size="24rpx" color="#999" />
+              <text class="item-meta">{{item.images.length}}张图片</text>
+            </view>
           </view>
         </view>
         <t-icon name="chevron-right" size="32rpx" color="#ccc" />
@@ -175,9 +186,15 @@
           </view>
           <view class="item-content">
             <text class="item-text">{{item.name}}</text>
+            <text wx:if="{{item.description}}" class="item-desc">{{item.description}}</text>
             <view class="item-tags">
               <text class="tag" wx:if="{{item.is_shared}}">共享</text>
               <text class="item-meta">{{item.todo_count || 0}} 待办</text>
+              <text class="item-meta" wx:if="{{item.member_limit}}">上限{{item.member_limit}}人</text>
+            </view>
+            <view class="item-sub-row">
+              <text class="item-meta">{{item.created_at || ''}}</text>
+              <text wx:if="{{item.share_code}}" class="share-code" bindtap="copyShareCode" data-code="{{item.share_code}}">邀请码: {{item.share_code}}</text>
             </view>
           </view>
         </view>
@@ -189,7 +206,7 @@
       <text>暂无组合</text>
     </view>
   </view>
-  
+
   <view class="section">
     <view class="section-header">
       <text class="section-title">加入的共享组合</text>
@@ -203,9 +220,15 @@
           </view>
           <view class="item-content">
             <text class="item-text">{{item.name}}</text>
+            <text wx:if="{{item.description}}" class="item-desc">{{item.description}}</text>
             <view class="item-tags">
               <text class="tag role">{{item.role === 'owner' ? '超管' : item.role === 'admin' ? '管理' : '成员'}}</text>
               <text class="item-meta">{{item.todo_count || 0}} 待办</text>
+              <text class="item-meta" wx:if="{{item.member_limit}}">上限{{item.member_limit}}人</text>
+            </view>
+            <view class="item-sub-row">
+              <text class="item-meta">{{item.created_at || ''}}</text>
+              <text wx:if="{{item.share_code}}" class="share-code" bindtap="copyShareCode" data-code="{{item.share_code}}">邀请码: {{item.share_code}}</text>
             </view>
           </view>
         </view>
@@ -245,8 +268,19 @@
                 <t-icon name="{{todo.is_completed ? 'check-circle-filled' : 'circle'}}" size="36rpx" color="{{todo.is_completed ? '#00B26A' : '#ccc'}}" />
               </view>
               <view class="item-content">
-                <text class="item-text {{todo.is_completed ? 'completed-text' : ''}}">{{todo.text}}</text>
-                <text class="item-meta">{{todo.creator_name ? '创建者: ' + todo.creator_name : ''}} {{todo.set_date || ''}}</text>
+                <view class="item-title-row">
+                  <text class="item-text {{todo.is_completed ? 'completed-text' : ''}}">{{todo.text}}</text>
+                  <view wx:if="{{todo.priority && todo.priority !== 'p2'}}" class="priority-mini-dot priority-{{todo.priority}}"></view>
+                </view>
+                <text class="item-meta">{{todo.creator_name ? '创建者: ' + todo.creator_name : ''}} {{todo.set_date || ''}}<text wx:if="{{todo.set_time}}"> {{todo.set_time}}</text></text>
+                <view wx:if="{{todo.is_completed && todo.completed_at}}" class="item-meta-row">
+                  <text class="item-meta completed-at">完成于 {{todo.completed_at}}</text>
+                </view>
+                <view wx:if="{{todo.assign_type}}" class="mini-tags">
+                  <text wx:if="{{todo.assign_type === 'all'}}" class="mini-tag assign-tag">全员完成</text>
+                  <text wx:if="{{todo.assign_type === 'any'}}" class="mini-tag assign-tag">任一完成</text>
+                  <text wx:if="{{todo.exclude_type}}" class="mini-tag exclude-tag">排除{{todo.exclude_type}}</text>
+                </view>
               </view>
             </view>
           </view>
@@ -262,10 +296,21 @@
               <t-icon name="{{item.is_completed ? 'check-circle-filled' : 'circle'}}" size="36rpx" color="{{item.is_completed ? '#00B26A' : '#ccc'}}" />
             </view>
             <view class="item-content">
-              <text class="item-text {{item.is_completed ? 'completed-text' : ''}}">{{item.text}}</text>
+              <view class="item-title-row">
+                <text class="item-text {{item.is_completed ? 'completed-text' : ''}}">{{item.text}}</text>
+                <view wx:if="{{item.priority && item.priority !== 'p2'}}" class="priority-mini-dot priority-{{item.priority}}"></view>
+              </view>
               <view class="item-tags">
                 <text class="tag combo-tag" style="background: {{item.combo_color || '#4facfe'}}20; color: {{item.combo_color || '#4facfe'}}">{{item.combo_name}}</text>
-                <text class="item-meta">{{item.set_date || ''}}</text>
+                <text class="item-meta">{{item.set_date || ''}}<text wx:if="{{item.set_time}}"> {{item.set_time}}</text></text>
+              </view>
+              <view wx:if="{{item.is_completed && item.completed_at}}" class="item-meta-row">
+                <text class="item-meta completed-at">完成于 {{item.completed_at}}</text>
+              </view>
+              <view wx:if="{{item.assign_type}}" class="mini-tags">
+                <text wx:if="{{item.assign_type === 'all'}}" class="mini-tag assign-tag">全员完成</text>
+                <text wx:if="{{item.assign_type === 'any'}}" class="mini-tag assign-tag">任一完成</text>
+                <text wx:if="{{item.exclude_type}}" class="mini-tag exclude-tag">排除{{item.exclude_type}}</text>
               </view>
             </view>
           </view>

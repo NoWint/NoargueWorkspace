@@ -1,4 +1,5 @@
 const { query, transaction } = require('../config/database');
+const { getAdminIds } = require('./adminController');
 const logger = require('../utils/logger');
 
 const generateShareCode = () => {
@@ -81,7 +82,11 @@ const getList = async (req, res) => {
 const getById = async (req, res) => {
   const userId = req.user.id;
   const { id } = req.params;
-  
+
+  // 检测当前用户是否为管理员
+  const adminIds = getAdminIds();
+  const isAdminUser = adminIds.includes(Number(userId));
+
   try {
     const combos = await query(
       `SELECT c.*,
@@ -145,7 +150,8 @@ const getById = async (req, res) => {
         
         if (todo.assign_type === 'specific') {
           const isAssigned = assignments.some(a => a.user_id === userId);
-          if (!isAssigned && userRole !== 'owner' && userRole !== 'admin') {
+          // 管理员可以查看所有待办（包括未分配给自己的 specific 待办）
+          if (!isAssigned && userRole !== 'owner' && userRole !== 'admin' && !isAdminUser) {
             sharedTodos.splice(i, 1);
             continue;
           }

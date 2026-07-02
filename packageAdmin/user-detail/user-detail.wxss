@@ -606,3 +606,101 @@
 .badge-add-btn::after {
   border: none;
 }
+
+/* ========== 新增字段样式 ========== */
+
+.item-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.item-title-row .item-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.priority-mini-dot {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.priority-mini-dot.priority-p1 {
+  background: #f44336;
+}
+
+.priority-mini-dot.priority-p2 {
+  background: #FF9800;
+}
+
+.priority-mini-dot.priority-p3 {
+  background: #4CAF50;
+}
+
+.priority-mini-dot.priority-p4 {
+  background: #999;
+}
+
+.mini-tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6rpx;
+}
+
+.mini-tag {
+  padding: 2rpx 10rpx;
+  background: #f0f0f0;
+  border-radius: 6rpx;
+  font-size: 20rpx;
+  color: #666;
+}
+
+.mini-tag.assign-tag {
+  background: rgba(0, 178, 106, 0.1);
+  color: #00B26A;
+}
+
+.mini-tag.exclude-tag {
+  background: rgba(245, 87, 108, 0.1);
+  color: #f5576c;
+}
+
+.img-indicator {
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+}
+
+.item-desc {
+  font-size: 22rpx;
+  color: #999;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item-sub-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8rpx;
+}
+
+.share-code {
+  font-size: 20rpx;
+  color: #667eea;
+  text-decoration: underline;
+}
+
+.item-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.completed-at {
+  color: #00B26A;
+}

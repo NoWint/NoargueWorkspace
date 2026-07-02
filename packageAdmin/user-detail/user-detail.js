@@ -184,6 +184,18 @@ Page({
     }
   },
 
+  copyShareCode(e) {
+    const code = e.currentTarget.dataset.code;
+    if (code) {
+      wx.setClipboardData({
+        data: code,
+        success: () => {
+          wx.showToast({ title: '邀请码已复制', icon: 'success' });
+        }
+      });
+    }
+  },
+
   addBadge() {
     const titles = [...this.data.badgeTitles, '新称号'];
     const colors = [...this.data.badgeColors, '#00b26a'];
