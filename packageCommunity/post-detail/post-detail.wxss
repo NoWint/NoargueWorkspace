@@ -273,9 +273,12 @@
 .action-btn {
   font-size: 22rpx;
   color: #00b26a;
+  padding: 0;
+  border-radius: 0;
 }
 .delete-btn {
   color: #ff4d4f;
+  background: none;
 }
 .comment-content {
   font-size: 26rpx;
