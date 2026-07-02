@@ -54,7 +54,7 @@
         <view wx:if="{{item.todoIds && item.todoIds.length > 0 || item.shareCode}}" class="post-tags">
           <view wx:if="{{item.todoIds && item.todoIds.length > 0}}" class="tag-card" catch:tap="toggleTodoExpand" data-post-id="{{item.postId}}">
             <view class="tag-card-header">
-              <t-icon name="checklist" size="22rpx" color="#00b26a" />
+              <t-icon name="check-circle" size="28rpx" color="#00b26a" />
               <text class="tag-card-title">{{item.todoIds.length}}个待办</text>
               <t-icon name="{{expandedPostId === item.postId ? 'chevron-up' : 'chevron-down'}}" size="28rpx" color="#999" />
             </view>
@@ -71,7 +71,7 @@
             </view>
           </view>
           <view wx:if="{{item.shareCode}}" class="tag-item tag-combo" catch:tap="handleComboTap" data-code="{{item.shareCode}}">
-            <t-icon name="user-group" size="22rpx" color="#00b26a" />
+            <t-icon name="user-add" size="28rpx" color="#00b26a" />
             <text wx:if="{{item.shareComboName}}">分享了组合：{{item.shareComboName}}</text>
             <text wx:else>加入组合</text>
           </view>

@@ -18,9 +18,6 @@
           </view>
         </view>
         <view class="version-actions" catchtap="stopPropagation">
-          <button class="action-btn edit" catchtap="editItem" data-index="{{index}}">
-            <t-icon name="edit" size="28rpx" color="#00B26A" />
-          </button>
           <button class="action-btn delete" catchtap="deleteItem" data-index="{{index}}">
             <t-icon name="delete" size="28rpx" color="#f5576c" />
           </button>

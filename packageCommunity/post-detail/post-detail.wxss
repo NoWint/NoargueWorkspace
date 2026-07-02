@@ -136,8 +136,11 @@
   display: flex;
   align-items: center;
   gap: 8rpx;
-  font-size: 24rpx;
+  font-size: 28rpx;
   color: #999;
+}
+.stat-item.liked {
+  color: #ff4757;
 }
 .more-btn {
   margin-left: auto;
@@ -197,7 +200,10 @@
   display: flex;
   align-items: center;
   gap: 14rpx;
-  padding: 16rpx 0;
+  padding: 4rpx 16rpx;
+  margin-bottom: 12rpx;
+  border-radius: 32rpx;
+  background: #ccebda;
   border-top: 1rpx solid rgba(0, 178, 106, 0.1);
   min-height: 60rpx;
 }
@@ -422,13 +428,22 @@
 }
 
 .bottom-image-bar {
-  padding: 8rpx 0 8rpx;
-  max-height: 300rpx;
-  overflow-y: auto;
+  overflow-y: hidden;
+  transition: all 0.3s ease;
   --td-upload-radius: 32rpx;
   --td-upload-add-bg-color: #f8f8f8;
   --td-grid-bg-color: #e3f5eb99;
   --td-grid-item-bg-color: #e3f5eb99;
+}
+.bar-collapse {
+  max-height: 0;
+  opacity: 0;
+  padding: 0;
+}
+.bar-expand {
+  max-height: 300rpx;
+  opacity: 1;
+  padding: 8rpx 0;
 }
 
 /* 底部输入栏 */
@@ -513,13 +528,13 @@
 }
 
 .visitors-panel {
-  padding: 30rpx;
+  padding: 24rpx;
   padding-bottom: calc(30rpx + env(safe-area-inset-bottom));
   max-height: 600rpx;
   overflow-y: auto;
 }
 .visitors-title {
-  font-size: 30rpx;
+  font-size: 32rpx;
   font-weight: 600;
   color: #333;
   margin-bottom: 20rpx;
@@ -539,8 +554,8 @@
   border-bottom: 1rpx solid #f0f0f0;
 }
 .visitor-avatar {
-  width: 56rpx;
-  height: 56rpx;
+  width: 64rpx;
+  height: 64rpx;
   border-radius: 50%;
 }
 .visitor-info {
@@ -549,7 +564,7 @@
   flex-direction: column;
 }
 .visitor-nickname {
-  font-size: 26rpx;
+  font-size: 28rpx;
   color: #333;
 }
 
@@ -561,7 +576,7 @@
 }
 
 .user-badge {
-  font-size: 20rpx;
+  font-size: 22rpx;
   padding: 2rpx 10rpx;
   border-radius: 32rpx;
   border: 2rpx solid;

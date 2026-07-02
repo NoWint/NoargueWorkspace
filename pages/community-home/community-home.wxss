@@ -241,7 +241,10 @@
   display: flex;
   align-items: center;
   gap: 14rpx;
-  padding: 16rpx 0;
+  padding: 4rpx 16rpx;
+  margin-bottom: 12rpx;
+  border-radius: 32rpx;
+  background: #ccebda;
   border-top: 1rpx solid rgba(0, 178, 106, 0.1);
   min-height: 60rpx;
 }

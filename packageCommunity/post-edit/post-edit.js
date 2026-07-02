@@ -50,15 +50,16 @@ Page({
     uploadConfig: { count: 9, sizeType: ['compressed'], sourceType: ['album', 'camera'] },
     submitting: false, editMode: false, editPostId: null,
     canPublish: false,
-    selectedTodoIds: [], selectedComboCode: null, selectedComboName: '',
+    selectedTodoIds: [], selectedTodoTexts: {}, selectedTodoPriorities: {},
+    selectedTodosExpanded: false,
+    selectedComboCode: null, selectedComboName: '',
     location: null,
     // picker state
     showPicker: false, pickerType: '',
     temporarySelectedIds: [], temporarySelectedComboId: null,
     filteredTodos: [], allTodos: [],
     todoSearchKeyword: '', comboSearchKeyword: '',
-    pickerCombos: [], pickerSharedCombos: [],
-    filteredPickerCombos: [], filteredPickerSharedCombos: [],
+    allPickerCombos: [], filteredAllPickerCombos: [],
     selectedMap: {},
     userInfo: app.globalData.userInfo || {}
   },
@@ -79,10 +80,16 @@ Page({
     if (options.todoId) {
       const quickTodo = app.globalData.quickShareTodo || {};
       if (quickTodo.id == options.todoId) {
+        const selectedTodoTexts = {};
+        const selectedTodoPriorities = {};
+        selectedTodoTexts[options.todoId] = quickTodo.text || '';
+        selectedTodoPriorities[options.todoId] = quickTodo.priority || 'p4';
         this.setData({
           title: quickTodo.text || '',
           canPublish: true,
-          selectedTodoIds: [options.todoId]
+          selectedTodoIds: [options.todoId],
+          selectedTodoTexts, selectedTodoPriorities,
+          selectedTodosExpanded: false
         });
         app.globalData.quickShareTodo = null;
       }
@@ -91,11 +98,19 @@ Page({
 
     const draft = wx.getStorageSync('communityDraft');
     if (draft && !options.postId) {
+      const todos = getLocalTodos().filter(t => !t.isDeleted && !t.parentId && !t.parent_id);
+      const selectedTodoTexts = {};
+      const selectedTodoPriorities = {};
+      (draft.selectedTodoIds || []).forEach(id => {
+        const t = todos.find(todo => String(todo.id) === String(id));
+        if (t) { selectedTodoTexts[id] = t.text; selectedTodoPriorities[id] = t.priority; }
+      });
       this.setData({
         title: draft.title || '', body: draft.body || '',
         canPublish: (draft.title || '').trim().length > 0,
         fileList: draft.fileList || [], imageUrls: draft.imageUrls || [],
-        selectedTodoIds: draft.selectedTodoIds || [], selectedComboCode: draft.selectedComboCode || null,
+        selectedTodoIds: draft.selectedTodoIds || [], selectedTodoTexts, selectedTodoPriorities,
+        selectedComboCode: draft.selectedComboCode || null,
         selectedComboName: draft.selectedComboName || '',
         location: draft.location || null
       });
@@ -110,13 +125,12 @@ Page({
   loadPickerCombos() {
     const combos = app.globalData.combos || [];
     const sharedCombos = app.globalData.sharedCombos || [];
-    // 私有组合：仅显示有 share_code 且 is_shared=1 的
     const shareableCombos = combos.filter(c => c.shareCode && c.isShared);
-    // 共享组合：仅显示有邀请权限的
     const inviteableShared = sharedCombos.filter(c =>
       c.role === 'owner' || c.role === 'admin' || c.userRole === 'owner' || c.userRole === 'admin'
     );
-    this.setData({ pickerCombos: shareableCombos, pickerSharedCombos: inviteableShared });
+    const allPickerCombos = [...shareableCombos, ...inviteableShared];
+    this.setData({ allPickerCombos, filteredAllPickerCombos: allPickerCombos });
   },
 
   onUnload() {
@@ -141,11 +155,18 @@ Page({
         const found = allCombos.find(c => c.shareCode === cached.shareCode);
         if (found) comboName = found.name;
       }
+      const selectedTodoTexts = {};
+      const selectedTodoPriorities = {};
+      (cached.todoIds || []).forEach(id => {
+        const t = this.data.allTodos.find(todo => String(todo.id) === String(id));
+        if (t) { selectedTodoTexts[id] = t.text; selectedTodoPriorities[id] = t.priority; }
+      });
       this.setData({
         editMode: true, editPostId: postId,
         title: cached.title || '', body: cached.body || '',
         fileList, imageUrls: cached.images || [],
-        selectedTodoIds: cached.todoIds || [], selectedComboCode: cached.shareCode || null,
+        selectedTodoIds: cached.todoIds || [], selectedTodoTexts, selectedTodoPriorities,
+        selectedComboCode: cached.shareCode || null,
         selectedComboName: comboName,
         location: cached.location ? { text: cached.location } : null,
         canPublish: true
@@ -163,13 +184,20 @@ Page({
           const found = allCombos.find(c => c.shareCode === post.shareCode);
           if (found) comboName = found.name;
         }
+        const selectedTodoTexts = {};
+        const selectedTodoPriorities = {};
+        (post.todoIds || []).forEach(id => {
+          const t = this.data.allTodos.find(todo => String(todo.id) === String(id));
+          if (t) { selectedTodoTexts[id] = t.text; selectedTodoPriorities[id] = t.priority; }
+        });
         this.setData({
           editMode: true, editPostId: postId,
           title: post.title || '', body: post.body || '',
           fileList, imageUrls: post.images || [],
-          selectedTodoIds: post.todoIds || [], selectedComboCode: post.shareCode || null,
+          selectedTodoIds: post.todoIds || [], selectedTodoTexts, selectedTodoPriorities,
+          selectedComboCode: post.shareCode || null,
           selectedComboName: comboName,
-          location: post.location ? { text: post.location } : null,
+          location: post.location ? (typeof post.location === 'string' ? { text: post.location } : post.location) : null,
           canPublish: true
         });
       }
@@ -257,29 +285,20 @@ Page({
     const type = e.currentTarget?.dataset?.type || e;
     if (type === 'todo') {
       const selectedMap = {};
-      this.data.selectedTodoIds.forEach(id => { selectedMap[id] = true; });
+      this.data.selectedTodoIds.forEach(id => { selectedMap[String(id)] = true; });
       this.setData({
         showPicker: true, pickerType: 'todo',
-        temporarySelectedIds: [...this.data.selectedTodoIds],
+        temporarySelectedIds: this.data.selectedTodoIds.map(String),
         selectedMap,
         todoSearchKeyword: '',
         filteredTodos: this.data.allTodos
       });
     } else if (type === 'combo') {
-      const combos = app.globalData.combos || [];
-      const sharedCombos = app.globalData.sharedCombos || [];
-      const shareableCombos = combos.filter(c => c.shareCode && c.isShared);
-      const inviteableShared = sharedCombos.filter(c =>
-        c.role === 'owner' || c.role === 'admin' || c.userRole === 'owner' || c.userRole === 'admin'
-      );
       this.setData({
         showPicker: true, pickerType: 'combo',
         temporarySelectedComboId: this.data.selectedComboCode
           ? this.findComboIdByCode(this.data.selectedComboCode) : null,
-        pickerCombos: shareableCombos,
-        pickerSharedCombos: inviteableShared,
-        filteredPickerCombos: shareableCombos,
-        filteredPickerSharedCombos: inviteableShared,
+        filteredAllPickerCombos: this.data.allPickerCombos,
         comboSearchKeyword: ''
       });
     }
@@ -302,7 +321,7 @@ Page({
   },
 
   toggleTodoSelect(e) {
-    const todoId = e.currentTarget.dataset.id;
+    const todoId = String(e.currentTarget.dataset.id);
     const tempIds = [...this.data.temporarySelectedIds];
     const idx = tempIds.indexOf(todoId);
     const selectedMap = { ...this.data.selectedMap };
@@ -317,21 +336,37 @@ Page({
   },
 
   confirmTodoSelection() {
+    const selectedIds = [...this.data.temporarySelectedIds];
+    const allTodos = this.data.allTodos;
+    const selectedTodoTexts = {};
+    const selectedTodoPriorities = {};
+    allTodos.forEach(t => {
+      if (selectedIds.some(id => String(id) === String(t.id))) {
+        selectedTodoTexts[t.id] = t.text;
+        selectedTodoPriorities[t.id] = t.priority || 'p4';
+      }
+    });
     this.setData({
-      selectedTodoIds: [...this.data.temporarySelectedIds],
+      selectedTodoIds: selectedIds,
+      selectedTodoTexts, selectedTodoPriorities,
+      selectedTodosExpanded: true,
       showPicker: false
     });
   },
 
   clearSelectedTodos() {
-    this.setData({ selectedTodoIds: [], selectedMap: {} });
+    this.setData({
+      selectedTodoIds: [], selectedMap: {},
+      selectedTodoTexts: {}, selectedTodoPriorities: {},
+      temporarySelectedIds: []
+    });
   },
 
   findComboIdByCode(code) {
     if (!code) return null;
     const all = [...(app.globalData.combos || []), ...(app.globalData.sharedCombos || [])];
     const found = all.find(c => c.shareCode === code);
-    return found ? String(found.id) : null;
+    return found ? found.id : null;
   },
 
   findComboById(id) {
@@ -342,17 +377,12 @@ Page({
   onComboSearch(e) {
     const keyword = (e.detail.value || '').trim();
     if (!keyword) {
-      this.setData({
-        comboSearchKeyword: '',
-        filteredPickerCombos: this.data.pickerCombos,
-        filteredPickerSharedCombos: this.data.pickerSharedCombos
-      });
+      this.setData({ comboSearchKeyword: '', filteredAllPickerCombos: this.data.allPickerCombos });
       return;
     }
     this.setData({
       comboSearchKeyword: keyword,
-      filteredPickerCombos: this.data.pickerCombos.filter(c => c.name.indexOf(keyword) > -1),
-      filteredPickerSharedCombos: this.data.pickerSharedCombos.filter(c => c.name.indexOf(keyword) > -1)
+      filteredAllPickerCombos: this.data.allPickerCombos.filter(c => c.name.indexOf(keyword) > -1)
     });
   },
 
@@ -381,6 +411,22 @@ Page({
 
   clearSelectedCombo() {
     this.setData({ selectedComboCode: null, selectedComboName: '' });
+  },
+
+  toggleSelectedTodosExpand() {
+    this.setData({ selectedTodosExpanded: !this.data.selectedTodosExpanded });
+  },
+
+  removeSelectedTodo(e) {
+    const id = e.currentTarget.dataset.id;
+    const ids = this.data.selectedTodoIds.filter(i => String(i) !== String(id));
+    const texts = { ...this.data.selectedTodoTexts };
+    const priorities = { ...this.data.selectedTodoPriorities };
+    delete texts[id];
+    delete priorities[id];
+    this.setData({
+      selectedTodoIds: ids, selectedTodoTexts: texts, selectedTodoPriorities: priorities
+    });
   },
 
   async handleSubmit() {

@@ -19,7 +19,13 @@ Page({
     try {
       const res = await communityApi.getReportDetail(this.data.reportId);
       if (res.success) {
-        this.setData({ report: res.data });
+        this.setData({
+          report: {
+            ...res.data,
+            _createdAtDisplay: this.formatTime(res.data.createdAt),
+            _processedAtDisplay: this.formatTime(res.data.processedAt)
+          }
+        });
       }
     } catch (err) {
       wx.showToast({ title: '加载失败', icon: 'none' });
@@ -54,6 +60,26 @@ Page({
         }
       }
     });
+  },
+
+  formatTime(dateStr) {
+    if (!dateStr) return '';
+    try {
+      let date;
+      if (typeof dateStr === 'string') {
+        const s = dateStr.replace('T', ' ').replace(/\.\d+Z$/, '');
+        const p = s.split(/[- :]/);
+        date = new Date(+p[0], +p[1] - 1, +p[2], +(p[3]||0), +(p[4]||0), +(p[5]||0));
+      } else {
+        date = new Date(dateStr);
+      }
+      if (isNaN(date.getTime())) return dateStr;
+      const m = date.getMonth() + 1;
+      const d = date.getDate();
+      const h = String(date.getHours()).padStart(2, '0');
+      const min = String(date.getMinutes()).padStart(2, '0');
+      return date.getFullYear() + '年' + m + '月' + d + '日 ' + h + ':' + min;
+    } catch (e) { return dateStr; }
   },
 
   goBack() {

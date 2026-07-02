@@ -69,12 +69,26 @@
     <t-icon name="checklist" size="32rpx" color="#999" />
     <text class="picker-placeholder">关联待办</text>
   </view>
-  <view wx:if="{{selectedTodoIds.length > 0}}" class="picker-row picker-row-selected" bind:tap="showPicker" data-type="todo">
-    <t-icon name="checklist" size="32rpx" color="#00b26a" />
-    <text class="picker-value">已关联 {{selectedTodoIds.length}} 个待办</text>
+  <view wx:if="{{selectedTodoIds.length > 0}}" class="picker-row picker-row-selected">
+    <view class="selected-todos-header" catch:tap="toggleSelectedTodosExpand">
+      <t-icon name="checklist" size="32rpx" color="#00b26a" />
+      <text class="picker-value">已关联 {{selectedTodoIds.length}} 个待办</text>
+      <t-icon name="{{selectedTodosExpanded ? 'chevron-up' : 'chevron-down'}}" size="28rpx" color="#999" />
+    </view>
     <view class="picker-clear" catch:tap="clearSelectedTodos">
       <t-icon name="close" size="28rpx" color="#999" />
     </view>
+  </view>
+  <view wx:if="{{selectedTodoIds.length > 0 && selectedTodosExpanded}}" class="selected-todos-body">
+    <block wx:for="{{selectedTodoIds}}" wx:for-item="todoId" wx:key="*this">
+      <view class="selected-todo-mini-item">
+        <view class="selected-todo-mini-dot" data-priority="{{selectedTodoPriorities[todoId]}}"></view>
+        <text class="selected-todo-mini-text">{{selectedTodoTexts[todoId] || '待办'}}</text>
+        <view class="selected-todo-remove" catch:tap="removeSelectedTodo" data-id="{{todoId}}">
+          <t-icon name="close" size="24rpx" color="#999" />
+        </view>
+      </view>
+    </block>
   </view>
 
   <view class="picker-row" wx:if="{{!selectedComboCode}}" bind:tap="showPicker" data-type="combo">
@@ -155,10 +169,8 @@
       <input class="picker-search-input" placeholder="搜索组合..." value="{{comboSearchKeyword}}" bind:input="onComboSearch" />
     </view>
     <scroll-view class="picker-scroll" scroll-y>
-      <view wx:if="{{filteredPickerCombos.length > 0}}" class="combo-section">
-        <text class="section-label">我的组合</text>
+      <block wx:for="{{filteredAllPickerCombos}}" wx:key="id">
         <view
-          wx:for="{{filteredPickerCombos}}" wx:key="id"
           class="combo-option {{temporarySelectedComboId === item.id ? 'selected' : ''}}"
           catch:tap="selectTemporaryCombo"
           data-id="{{item.id}}"
@@ -172,26 +184,8 @@
           </view>
           <t-icon wx:if="{{temporarySelectedComboId === item.id}}" name="check" size="36rpx" color="#00b26a" />
         </view>
-      </view>
-      <view wx:if="{{filteredPickerSharedCombos.length > 0}}" class="combo-section">
-        <text class="section-label">共享组合</text>
-        <view
-          wx:for="{{filteredPickerSharedCombos}}" wx:key="id"
-          class="combo-option {{temporarySelectedComboId === item.id ? 'selected' : ''}}"
-          catch:tap="selectTemporaryCombo"
-          data-id="{{item.id}}"
-        >
-          <view class="combo-icon-small" style="background: {{item.color || '#2196F3'}}">
-            <t-icon name="{{item.icon || 'user-group'}}" size="36rpx" color="#fff" />
-          </view>
-          <view class="combo-info-text">
-            <text class="combo-name-text">{{item.name}}</text>
-            <text class="combo-count-text">{{item.todoCount || 0}}个待办</text>
-          </view>
-          <t-icon wx:if="{{temporarySelectedComboId === item.id}}" name="check" size="36rpx" color="#00b26a" />
-        </view>
-      </view>
-      <view wx:if="{{filteredPickerCombos.length === 0 && filteredPickerSharedCombos.length === 0}}" class="picker-empty">
+      </block>
+      <view wx:if="{{filteredAllPickerCombos.length === 0}}" class="picker-empty">
         <text>{{comboSearchKeyword ? '没有找到匹配的组合' : '暂无可邀请的组合'}}</text>
       </view>
     </scroll-view>

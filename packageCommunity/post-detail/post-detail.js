@@ -191,6 +191,30 @@ Page({
     });
   },
 
+  reportComment(e) {
+    const commentId = e.currentTarget.dataset.id;
+    wx.showActionSheet({
+      itemList: [...this.data.reportReasons, '取消'],
+      success: async (res) => {
+        if (res.tapIndex >= this.data.reportReasons.length) return;
+        const reason = this.data.reportReasons[res.tapIndex];
+        if (!reason) return;
+        try {
+          await new Promise((resolve, reject) => {
+            wx.requestSubscribeMessage({
+              tmplIds: ['yXtj85psFqKHQsAbcjxFo5wYX8SdU4acoYiENIRpiAE'],
+              success: resolve, fail: reject
+            });
+          });
+        } catch (err) { /* user declined, continue anyway */ }
+        try {
+          await communityApi.createReport({ targetType: 'comment', targetId: commentId, reason, detail: '' });
+          wx.showToast({ title: '举报已提交', icon: 'success' });
+        } catch (err) { wx.showToast({ title: err.message || '提交失败', icon: 'none' }); }
+      }
+    });
+  },
+
   async toggleCommentLike(e) {
     const commentId = e.currentTarget.dataset.id;
     try {
@@ -366,6 +390,20 @@ Page({
   closeVisitors() { this.setData({ showVisitorsPopup: false, visitors: [] }); },
   onVisitorsClose(e) { if (!e.detail.visible) this.setData({ showVisitorsPopup: false, visitors: [] }); },
 
+  async toggleLike() {
+    try {
+      const res = await communityApi.toggleLike({ postId: this.data.postId });
+      if (res.success) {
+        const post = { ...this.data.post };
+        post.isLiked = res.data.liked;
+        post.likesCount += res.data.liked ? 1 : -1;
+        this.setData({ post });
+      }
+    } catch (err) {
+      wx.showToast({ title: '操作失败', icon: 'none' });
+    }
+  },
+
   previewImage(e) {
     const url = e.currentTarget.dataset.url;
     const allImages = [...(this.data.post.images || [])];
@@ -395,7 +433,7 @@ Page({
       const d = date.getDate();
       const h = String(date.getHours()).padStart(2, '0');
       const min = String(date.getMinutes()).padStart(2, '0');
-      return m + '月' + d + '日 ' + h + ':' + min;
+      return date.getFullYear() + '年' + m + '月' + d + '日 ' + h + ':' + min;
     } catch (e) { console.warn('[post-detail formatTime] error:', e, dateStr); return ''; }
   }
 });

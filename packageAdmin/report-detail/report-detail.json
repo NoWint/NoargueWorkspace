@@ -4,5 +4,5 @@
     "t-button": "tdesign-miniprogram/button/button",
     "t-textarea": "tdesign-miniprogram/textarea/textarea"
   },
-  "navigationStyle": "custom"
+  "navigationBarTitleText": "举报详情"
 }

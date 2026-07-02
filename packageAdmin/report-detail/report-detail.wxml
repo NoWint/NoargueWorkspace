@@ -1,5 +1,3 @@
-<t-navbar title="举报详情" bind:left-click="goBack" />
-
 <view class="detail-container">
   <view class="info-row">
     <text class="label">举报者</text>
@@ -15,7 +13,11 @@
   </view>
   <view class="info-row">
     <text class="label">举报时间</text>
-    <text class="value">{{report.createdAt}}</text>
+    <text class="value">{{report._createdAtDisplay}}</text>
+  </view>
+  <view wx:if="{{report.processedAt}}" class="info-row">
+    <text class="label">处理时间</text>
+    <text class="value">{{report._processedAtDisplay}}</text>
   </view>
   <view class="info-row">
     <text class="label">状态</text>
@@ -35,16 +37,17 @@
   <!-- Processing area (only for pending) -->
   <view wx:if="{{report.status === 0}}" class="process-area">
     <view class="section-title">处理操作</view>
-    <view class="process-buttons">
-      <t-button theme="danger" bind:tap="processReport" data-action="delete">删除内容</t-button>
-      <t-button theme="default" bind:tap="processReport" data-action="reject">驳回举报</t-button>
-    </view>
+    
     <textarea
       class="note-input"
       placeholder="处理备注（可选）"
       value="{{resultNote}}"
       bind:input="onNoteInput"
     />
+    <view class="process-buttons">
+      <view class="delete-btn" bind:tap="processReport" data-action="delete">删除内容</view>
+      <view class="reject-btn" bind:tap="processReport" data-action="reject">驳回举报</view>
+    </view>
   </view>
 
   <view wx:if="{{report.resultNote}}" class="section-title">处理备注</view>

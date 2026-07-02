@@ -1,12 +1,10 @@
-<t-navbar title="举报管理" bind:left-click="goBack" />
-
 <view class="tabs">
   <view class="tab {{currentTab === 0 ? 'active' : ''}}" bind:tap="switchTab" data-tab="0">待处理</view>
   <view class="tab {{currentTab === 1 ? 'active' : ''}}" bind:tap="switchTab" data-tab="1">已处理</view>
   <view class="tab {{currentTab === 2 ? 'active' : ''}}" bind:tap="switchTab" data-tab="2">已驳回</view>
 </view>
 
-<scroll-view scroll-y style="height: calc(100vh - 180rpx);" bind:scrolltolower="loadMore">
+<scroll-view scroll-y style="height: calc(100vh - 180rpx);" bind:scrolltolower="loadMore" refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bind:refresherrefresh="onRefresh">
   <view wx:if="{{list.length === 0 && !loading}}" class="empty">
     <text>暂无举报记录</text>
   </view>
@@ -19,7 +17,7 @@
     <text class="report-content">{{item.targetContent}}</text>
     <view class="report-meta">
       <text>举报者：{{item.reporterNickname}}</text>
-      <text>{{item.createdAt}}</text>
+      <text>{{item._createdAtDisplay}}</text>
     </view>
   </view>
 

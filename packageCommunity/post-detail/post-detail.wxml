@@ -38,7 +38,7 @@
     <view wx:if="{{post.todoIds && post.todoIds.length > 0 || post.shareCode}}" class="post-tags">
       <view wx:if="{{post.todoIds && post.todoIds.length > 0}}" class="tag-card" catch:tap="toggleTodoExpand">
         <view class="tag-card-header">
-          <t-icon name="checklist" size="22rpx" color="#00b26a" />
+          <t-icon name="check-circle" size="28rpx" color="#00b26a" />
           <text class="tag-card-title">{{post.todoIds.length}}个待办</text>
           <t-icon name="{{todoExpanded ? 'chevron-up' : 'chevron-down'}}" size="28rpx" color="#999" />
         </view>
@@ -55,14 +55,14 @@
         </view>
       </view>
       <view wx:if="{{post.shareCode}}" class="tag-item tag-combo" catch:tap="handleComboTap" data-code="{{post.shareCode}}">
-        <t-icon name="user-group" size="24rpx" color="#00b26a" />
+        <t-icon name="user-add" size="28rpx" color="#00b26a" />
         <text wx:if="{{post.shareComboName}}">分享了组合：{{post.shareComboName}}</text>
         <text wx:else>加入组合</text>
       </view>
     </view>
     <view class="post-stats">
-      <view class="stat-item visitor-link" bind:tap="showVisitors"><t-icon name="browse" size="28rpx" /><text>{{post.viewsCount}}次浏览</text></view>
-      <view class="stat-item"><t-icon name="heart" size="28rpx" /><text>{{post.likesCount}}人赞过</text></view>
+      <view class="stat-item {{isOwner ? 'visitor-link' : ''}}" bind:tap="{{isOwner ? 'showVisitors' : ''}}"><t-icon name="browse" size="28rpx" /><text>{{post.viewsCount}}次浏览{{isOwner ? ' · 查看访客记录' : ''}}</text></view>
+      <view class="stat-item {{post.isLiked ? 'liked' : ''}}" catch:tap="toggleLike"><t-icon name="{{post.isLiked ? 'heart-filled' : 'heart'}}" size="28rpx" /><text>{{post.likesCount || 0}}</text></view>
       <view class="stat-item more-btn" bind:tap="onMore"><t-icon name="more" size="36rpx" color="#999" /></view>
     </view>
   </view>
@@ -85,6 +85,7 @@
               </view>
               <view class="comment-actions">
                 <text wx:if="{{item.canDelete}}" class="action-btn" bind:tap="deleteComment" data-id="{{item.id}}">删除</text>
+                <text wx:else class="action-btn" bind:tap="reportComment" data-id="{{item.id}}">举报</text>
                 <text class="action-btn" bind:tap="replyComment" data-id="{{item.id}}" data-user="{{item.user.nickname}}" data-userid="{{item.user.id}}">回复</text>
               </view>
             </view>
@@ -129,6 +130,7 @@
                           <text class="reply-time">{{reply._createdDisplay}}</text>
                           <view class="reply-actions">
                             <text wx:if="{{reply.canDelete}}" class="action-btn delete-btn" bind:tap="deleteComment" data-id="{{reply.id}}">删除</text>
+                            <text wx:else class="action-btn delete-btn" bind:tap="reportComment" data-id="{{reply.id}}">举报</text>
                             <text class="action-btn" catch:tap="replyComment" data-id="{{reply.id}}" data-user="{{reply.user.nickname}}" data-userid="{{reply.user.id}}">回复</text>
                             <view class="comment-like {{reply.isLiked ? 'liked' : ''}}" catch:tap="toggleCommentLike" data-id="{{reply.id}}">
                               <t-icon name="{{reply.isLiked ? 'heart-filled' : 'heart'}}" size="24rpx" />
@@ -160,6 +162,7 @@
                                     <text class="reply-time">{{r2._createdDisplay}}</text>
                                     <view class="reply-actions">
                                       <text wx:if="{{r2.canDelete}}" class="action-btn delete-btn" bind:tap="deleteComment" data-id="{{r2.id}}">删除</text>
+                                      <text wx:else class="action-btn delete-btn" bind:tap="reportComment" data-id="{{r2.id}}">举报</text>
                                       <text class="action-btn" catch:tap="replyComment" data-id="{{r2.id}}" data-user="{{r2.user.nickname}}" data-userid="{{r2.user.id}}">回复</text>
                                       <view class="comment-like {{r2.isLiked ? 'liked' : ''}}" catch:tap="toggleCommentLike" data-id="{{r2.id}}">
                                         <t-icon name="{{r2.isLiked ? 'heart-filled' : 'heart'}}" size="24rpx" />
@@ -187,7 +190,7 @@
 </scroll-view>
 
 <view class="bottom-input-bar">
-  <view hidden="{{!inputFocused}}" class="bottom-image-bar">
+  <view class="bottom-image-bar {{inputFocused ? 'bar-expand' : 'bar-collapse'}}">
     <t-upload
       mediaType="{{['image']}}"
       max="{{9}}"

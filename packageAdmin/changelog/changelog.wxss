@@ -106,10 +106,6 @@
   border: none;
 }
 
-.action-btn.edit {
-  background: rgba(0, 178, 106, 0.1);
-}
-
 .action-btn.delete {
   background: rgba(245, 87, 108, 0.1);
 }

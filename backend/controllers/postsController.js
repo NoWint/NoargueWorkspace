@@ -28,7 +28,7 @@ function parseBadges(row) {
 function formatPost(row, userId) {
   const images = row.images ? JSON.parse(row.images) : [];
   const todoIds = row.todo_ids ? JSON.parse(row.todo_ids) : [];
-  const locationText = row.location ? (JSON.parse(row.location).text || null) : null;
+  const locationObj = row.location ? JSON.parse(row.location) : null;
   const viewerIds = row.viewer_ids ? JSON.parse(row.viewer_ids) : [];
 
   // 若 ip_province 为空但有 ip_address，实时查询补上
@@ -47,7 +47,7 @@ function formatPost(row, userId) {
     shareCode: row.share_code,
     shareComboName: row.share_combo_name || null,
     ipProvince,
-    location: locationText,
+    location: locationObj,
     likesCount: row.likes_count,
     commentsCount: row.comments_count,
     viewsCount: row.views_count,

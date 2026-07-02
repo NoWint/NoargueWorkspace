@@ -25,9 +25,6 @@
       </view>
       <view class="notice-footer">
         <view class="notice-actions" catchtap="stopPropagation">
-          <button class="action-btn edit" catchtap="editNotice" data-index="{{index}}">
-            <t-icon name="edit" size="28rpx" color="#00B26A" />
-          </button>
           <button class="action-btn delete" catchtap="deleteNotice" data-index="{{index}}">
             <t-icon name="delete" size="28rpx" color="#f5576c" />
           </button>
