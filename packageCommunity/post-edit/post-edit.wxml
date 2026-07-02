@@ -69,26 +69,28 @@
     <t-icon name="checklist" size="32rpx" color="#999" />
     <text class="picker-placeholder">关联待办</text>
   </view>
-  <view wx:if="{{selectedTodoIds.length > 0}}" class="picker-row picker-row-selected">
-    <view class="selected-todos-header" catch:tap="toggleSelectedTodosExpand">
-      <t-icon name="checklist" size="32rpx" color="#00b26a" />
-      <text class="picker-value">已关联 {{selectedTodoIds.length}} 个待办</text>
-      <t-icon name="{{selectedTodosExpanded ? 'chevron-up' : 'chevron-down'}}" size="28rpx" color="#999" />
-    </view>
-    <view class="picker-clear" catch:tap="clearSelectedTodos">
-      <t-icon name="close" size="28rpx" color="#999" />
-    </view>
-  </view>
-  <view wx:if="{{selectedTodoIds.length > 0 && selectedTodosExpanded}}" class="selected-todos-body">
-    <block wx:for="{{selectedTodoIds}}" wx:for-item="todoId" wx:key="*this">
-      <view class="selected-todo-mini-item">
-        <view class="selected-todo-mini-dot" data-priority="{{selectedTodoPriorities[todoId]}}"></view>
-        <text class="selected-todo-mini-text">{{selectedTodoTexts[todoId] || '待办'}}</text>
-        <view class="selected-todo-remove" catch:tap="removeSelectedTodo" data-id="{{todoId}}">
-          <t-icon name="close" size="24rpx" color="#999" />
-        </view>
+  <view class="picker">
+    <view wx:if="{{selectedTodoIds.length > 0}}" class="picker-row picker-row-selected">
+      <view class="selected-todos-header" catch:tap="toggleSelectedTodosExpand">
+        <t-icon name="checklist" size="32rpx" color="#00b26a" />
+        <text class="picker-value">已关联 {{selectedTodoIds.length}} 个待办</text>
+        <t-icon name="{{selectedTodosExpanded ? 'chevron-up' : 'chevron-down'}}" size="28rpx" color="#999" />
       </view>
-    </block>
+      <view class="picker-clear" catch:tap="clearSelectedTodos">
+        <t-icon name="close" size="28rpx" color="#999" />
+      </view>
+    </view>
+    <view wx:if="{{selectedTodoIds.length > 0 && selectedTodosExpanded}}" class="selected-todos-body">
+      <block wx:for="{{selectedTodoIds}}" wx:for-item="todoId" wx:key="*this">
+        <view class="selected-todo-mini-item">
+          <view class="selected-todo-mini-dot" data-priority="{{selectedTodoPriorities[todoId]}}"></view>
+          <text class="selected-todo-mini-text">{{selectedTodoTexts[todoId] || '待办'}}</text>
+          <view class="selected-todo-remove" catch:tap="removeSelectedTodo" data-id="{{todoId}}">
+            <t-icon name="close" size="24rpx" color="#999" />
+          </view>
+        </view>
+      </block>
+    </view>
   </view>
 
   <view class="picker-row" wx:if="{{!selectedComboCode}}" bind:tap="showPicker" data-type="combo">
@@ -159,7 +161,7 @@
 
   <view wx:if="{{pickerType === 'combo'}}" class="picker-popup">
     <view class="popup-header">
-      <text class="popup-title">邀请加入组合</text>
+      <text class="popup-title">分享共享组合（仅显示有权分享）</text>
       <view class="popup-close" catch:tap="hidePicker">
         <t-icon name="close" size="40rpx" color="#999" />
       </view>
@@ -189,7 +191,7 @@
         <text>{{comboSearchKeyword ? '没有找到匹配的组合' : '暂无可邀请的组合'}}</text>
       </view>
     </scroll-view>
-    <view class="picker-footer">
+    <view class="picker-footer" style="justify-content:flex-end">
       <button class="picker-confirm-btn" catch:tap="confirmComboSelection">确定</button>
     </view>
   </view>
