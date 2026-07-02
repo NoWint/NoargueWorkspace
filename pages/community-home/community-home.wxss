@@ -69,6 +69,7 @@
   font-size: 38rpx;
   font-weight: 600;
   color: #333;
+  margin-right: 8rpx;
 }
 
 .nickname-row {
@@ -239,28 +240,30 @@
 .todo-mini-item {
   display: flex;
   align-items: center;
-  gap: 10rpx;
-  padding: 8rpx 0;
+  gap: 14rpx;
+  padding: 16rpx 0;
   border-top: 1rpx solid rgba(0, 178, 106, 0.1);
+  min-height: 60rpx;
 }
 
 .todo-mini-dot {
-  width: 10rpx;
-  height: 10rpx;
+  width: 20rpx;
+  height: 20rpx;
   border-radius: 50%;
   background: #bbb;
   flex-shrink: 0;
 }
 
-.todo-mini-dot[data-priority="p1"] { background: #f44336; }
-.todo-mini-dot[data-priority="p2"] { background: #FF9800; }
-.todo-mini-dot[data-priority="p3"] { background: #4CAF50; }
+.todo-mini-dot[data-priority="p1"] { background: #e34d59; }
+.todo-mini-dot[data-priority="p2"] { background: #2196F3; }
+.todo-mini-dot[data-priority="p3"] { background: #ff9800; }
+.todo-mini-dot[data-priority="p4"] { background: #999; }
 
 .todo-mini-text {
   flex: 1;
-  font-size: 24rpx;
+  font-size: 28rpx;
   color: #555;
-  line-height: 1.4;
+  line-height: 1.5;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

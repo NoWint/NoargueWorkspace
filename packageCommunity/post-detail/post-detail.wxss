@@ -39,6 +39,7 @@
   font-size: 28rpx;
   font-weight: 600;
   color: #333;
+  margin-right: 8rpx;
 }
 .post-time {
   font-size: 22rpx;
@@ -70,20 +71,44 @@
 }
 .post-images {
   margin-bottom: 16rpx;
+  margin-top: 8rpx;
 }
-.detail-image {
+.grid-single .post-image {
   width: 100%;
-  border-radius: 16rpx;
+  max-height: 400rpx;
+  border-radius: 32rpx;
   margin-bottom: 8rpx;
+}
+
+.grid-double {
+  display: flex;
+  gap: 12rpx;
+}
+
+.grid-double .post-image {
+  width: 50%;
+  height: 300rpx;
+  border-radius: 32rpx;
+}
+
+.grid-triple {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12rpx;
+}
+
+.grid-triple .post-image {
+  width: 100%;
+  height: 200rpx;
+  border-radius: 32rpx;
 }
 .post-meta {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 16rpx;
-  font-size: 22rpx;
+  font-size: 24rpx;
   color: #999;
-  margin-bottom: 16rpx;
 }
 .edited-badge {
   color: #00b26a;
@@ -171,28 +196,30 @@
 .todo-mini-item {
   display: flex;
   align-items: center;
-  gap: 10rpx;
-  padding: 8rpx 0;
+  gap: 14rpx;
+  padding: 16rpx 0;
   border-top: 1rpx solid rgba(0, 178, 106, 0.1);
+  min-height: 60rpx;
 }
 
 .todo-mini-dot {
-  width: 10rpx;
-  height: 10rpx;
+  width: 20rpx;
+  height: 20rpx;
   border-radius: 50%;
   background: #bbb;
   flex-shrink: 0;
 }
 
-.todo-mini-dot[data-priority="p1"] { background: #f44336; }
-.todo-mini-dot[data-priority="p2"] { background: #FF9800; }
-.todo-mini-dot[data-priority="p3"] { background: #4CAF50; }
+.todo-mini-dot[data-priority="p1"] { background: #e34d59; }
+.todo-mini-dot[data-priority="p2"] { background: #2196F3; }
+.todo-mini-dot[data-priority="p3"] { background: #ff9800; }
+.todo-mini-dot[data-priority="p4"] { background: #999; }
 
 .todo-mini-text {
   flex: 1;
-  font-size: 24rpx;
+  font-size: 28rpx;
   color: #555;
-  line-height: 1.4;
+  line-height: 1.5;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -212,10 +239,10 @@
 
 /* 评论区 */
 .comment-section {
-  padding: 0 20rpx 20rpx;
+  padding: 0 20rpx 64rpx 20rpx;
 }
 .comment-header {
-  font-size: 28rpx;
+  font-size: 32rpx;
   font-weight: 600;
   color: #333;
   padding: 16rpx 0;
@@ -265,6 +292,7 @@
   font-size: 24rpx;
   font-weight: 600;
   color: #333;
+  margin-right: 8rpx;
 }
 .comment-actions {
   display: flex;
@@ -285,16 +313,6 @@
   font-size: 26rpx;
   color: #444;
   line-height: 1.6;
-}
-.comment-images {
-  display: flex;
-  gap: 8rpx;
-  margin-top: 8rpx;
-}
-.comment-image {
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 12rpx;
 }
 .comment-time {
   font-size: 20rpx;
@@ -369,6 +387,7 @@
   font-size: 24rpx;
   font-weight: 600;
   color: #333;
+  margin-right: 8rpx;
 }
 
 .reply-time {
@@ -403,10 +422,13 @@
 }
 
 .bottom-image-bar {
-  background: #fff;
-  padding: 8rpx 20rpx 10rpx;
+  padding: 8rpx 0 8rpx;
   max-height: 300rpx;
   overflow-y: auto;
+  --td-upload-radius: 32rpx;
+  --td-upload-add-bg-color: #f8f8f8;
+  --td-grid-bg-color: #e3f5eb99;
+  --td-grid-item-bg-color: #e3f5eb99;
 }
 
 /* 底部输入栏 */
@@ -415,9 +437,9 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(255, 255, 255, 0.78);
-  backdrop-filter: blur(24rpx) saturate(180%);
-  -webkit-backdrop-filter: blur(24rpx) saturate(180%);
+  background: #e3f5eb99;
+  backdrop-filter: blur(20rpx) saturate(180%);
+  -webkit-backdrop-filter: blur(20rpx) saturate(180%);
   border-top: 1rpx solid rgba(0,0,0,0.05);
   z-index: 100;
   padding: 0rpx 18rpx;
@@ -442,6 +464,7 @@
 }
 
 .input-wrapper {
+  margin-top: 8rpx;
   display: flex;
   align-items: center;
   gap: 16rpx;
@@ -461,7 +484,6 @@
   height: 72rpx;
   padding: 0;
   background: #ddd;
-  color: #fff;
   font-size: 28rpx;
   border-radius: 50%;
   display: flex;

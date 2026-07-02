@@ -257,6 +257,17 @@ Page({
     });
   },
 
+  openLocation(e) {
+    const { lat, lng, name } = e.currentTarget.dataset;
+    if (!lat || !lng) return;
+    wx.openLocation({
+      latitude: parseFloat(lat),
+      longitude: parseFloat(lng),
+      name: name || '目标位置',
+      scale: 18
+    });
+  },
+
   async toggleTodoExpand() {
     const post = this.data.post;
     if (!post || !post.todoIds || post.todoIds.length === 0) return;

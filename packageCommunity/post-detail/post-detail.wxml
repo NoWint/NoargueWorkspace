@@ -24,7 +24,9 @@
     <view class="post-title">{{post.title}}</view>
     <view wx:if="{{post.body}}" class="post-body">{{post.body}}</view>
     <view wx:if="{{post.images && post.images.length > 0}}" class="post-images">
-      <image wx:for="{{post.images}}" wx:key="*this" src="{{item}}" mode="widthFix" class="detail-image" bind:tap="previewImage" data-url="{{item}}" />
+      <view class="grid-{{post.images.length === 1 ? 'single' : (post.images.length === 2 ? 'double' : 'triple')}}">
+        <image wx:for="{{post.images}}" wx:key="*this" src="{{item}}" mode="{{post.images.length === 1 ? 'widthFix' : 'aspectFill'}}" class="post-image" catch:tap="previewImage" data-url="{{item}}" />
+      </view>
     </view>
     <view wx:if="{{post.isEdited}}" class="post-meta">
       <text wx:if="{{post.isEdited}}" class="edited-badge">已编辑</text>
@@ -87,8 +89,10 @@
               </view>
             </view>
             <text class="comment-content">{{item.content}}</text>
-            <view wx:if="{{item.images && item.images.length > 0}}" class="comment-images">
-              <image wx:for="{{item.images}}" wx:for-item="img" wx:key="*this" src="{{img}}" mode="aspectFill" class="comment-image" bind:tap="previewImage" data-url="{{img}}" />
+            <view wx:if="{{item.images && item.images.length > 0}}" class="post-images">
+              <view class="grid-{{item.images.length === 1 ? 'single' : (item.images.length === 2 ? 'double' : 'triple')}}">
+                <image wx:for="{{item.images}}" wx:for-item="img" wx:key="*this" src="{{img}}" mode="{{item.images.length === 1 ? 'widthFix' : 'aspectFill'}}" class="post-image" catch:tap="previewImage" data-url="{{img}}" />
+              </view>
             </view>
             <view class="comment-footer">
               <text class="comment-time">{{item._createdDisplay}}</text>
@@ -116,8 +120,10 @@
                           </view>
                         </view>
                         <text class="reply-content">{{reply.content}}</text>
-                        <view wx:if="{{reply.images && reply.images.length > 0}}" class="comment-images">
-                          <image wx:for="{{reply.images}}" wx:for-item="rimg" wx:key="*this" src="{{rimg}}" mode="aspectFill" class="comment-image" bind:tap="previewImage" data-url="{{rimg}}" />
+                        <view wx:if="{{reply.images && reply.images.length > 0}}" class="post-images">
+                          <view class="grid-{{reply.images.length === 1 ? 'single' : (reply.images.length === 2 ? 'double' : 'triple')}}">
+                            <image wx:for="{{reply.images}}" wx:for-item="rimg" wx:key="*this" src="{{rimg}}" mode="{{reply.images.length === 1 ? 'widthFix' : 'aspectFill'}}" class="post-image" catch:tap="previewImage" data-url="{{rimg}}" />
+                          </view>
                         </view>
                         <view class="reply-footer">
                           <text class="reply-time">{{reply._createdDisplay}}</text>
@@ -145,8 +151,10 @@
                                     </view>
                                   </view>
                                   <text class="reply-content">{{r2.content}}</text>
-                                  <view wx:if="{{r2.images && r2.images.length > 0}}" class="comment-images">
-                                    <image wx:for="{{r2.images}}" wx:for-item="rimg" wx:key="*this" src="{{rimg}}" mode="aspectFill" class="comment-image" bind:tap="previewImage" data-url="{{rimg}}" />
+                                  <view wx:if="{{r2.images && r2.images.length > 0}}" class="post-images">
+                                    <view class="grid-{{r2.images.length === 1 ? 'single' : (r2.images.length === 2 ? 'double' : 'triple')}}">
+                                      <image wx:for="{{r2.images}}" wx:for-item="rimg" wx:key="*this" src="{{rimg}}" mode="{{r2.images.length === 1 ? 'widthFix' : 'aspectFill'}}" class="post-image" catch:tap="previewImage" data-url="{{rimg}}" />
+                                    </view>
                                   </view>
                                   <view class="reply-footer">
                                     <text class="reply-time">{{r2._createdDisplay}}</text>
@@ -199,7 +207,7 @@
   <view class="input-wrapper">
     <input class="comment-input" placeholder="{{replyTarget ? '回复 ' + replyTarget + '...' : '发表评论...'}}" value="{{commentText}}" bindinput="onCommentInput" confirm-type="send" bindconfirm="submitComment" bindfocus="onInputFocus" bindblur="onInputBlur" focus="{{inputFocused}}" />
     <button class="send-btn {{commentText.trim() || commentImageUrls.length > 0 ? 'active' : ''}}" bindtap="submitComment" disabled="{{!commentText.trim() && commentImageUrls.length === 0}}">
-      <t-icon name="arrow-up" size="48rpx" color="#fff" />
+      <t-icon name="arrow-up" size="48rpx" color="{{commentText.trim() || commentImageUrls.length > 0 ? '#fff' : '#666'}}" />
     </button>
   </view>
 </view>

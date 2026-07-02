@@ -149,6 +149,17 @@ Page({
     });
   },
 
+  openLocation(e) {
+    const { lat, lng, name } = e.currentTarget.dataset;
+    if (!lat || !lng) return;
+    wx.openLocation({
+      latitude: parseFloat(lat),
+      longitude: parseFloat(lng),
+      name: name || '目标位置',
+      scale: 18
+    });
+  },
+
   onSearch() { wx.showToast({ title: '搜索功能开发中', icon: 'none' }); },
 
   onScroll(e) {
