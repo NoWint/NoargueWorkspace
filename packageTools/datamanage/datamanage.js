@@ -1,5 +1,4 @@
 const app = getApp();
-require('../../utils/logger');
 const { isLoggedIn } = require('../../utils/api.js');
 const { syncWithCloud, getLocalTodos, saveTodo, getTodoById } = require('../../utils/sync.js');
 

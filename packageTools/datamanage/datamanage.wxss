@@ -4,13 +4,6 @@
   overflow-y: auto;
 }
 
-.section-title {
-  font-size: 32rpx;
-  font-weight: 600;
-  display: block; 
-  margin: 20px 0;
-}
-
 /* 统一卡片样式 */
 .data-card {
   margin: 24rpx;
@@ -52,18 +45,6 @@
   border-bottom: 2rpx solid #f0f2f5;
 }
 
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-}
-
-.preview-title {
-  font-size: 30rpx;
-  color: #2d3436;
-  font-weight: 500;
-}
-
 .header-actions {
   display: flex;
   justify-content: space-between;
@@ -98,7 +79,6 @@
 
 .btn {
   flex: 1;
-  border-radius: 10rpx;
   font-size: 32rpx;
   transition: all 0.2s;
 }
@@ -138,38 +118,6 @@
 }
 
 
-.scan-btn {
-  background: var(--secondary-color);
-  color: var(--primary-color);
-  border: 2rpx solid var(--primary-color);
-  border-radius: 8rpx;
-  padding: 20rpx 30rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 15rpx;
-}
-
-.scan-icon {
-  width: 36rpx;
-  height: 36rpx;
-}
-
-.merge-btn {
-  background: var(--primary-color);
-  color: var(--secondary-color);
-  border: 2rpx solid var(--primary-color);
-  margin: 10rpx; 
-}
-
-.overwrite-btn {
-  background: var(--secondary-color);
-  color: var(--primary-color);
-  border: 2rpx solid var(--primary-color); 
-  margin: 10rpx;
-}
-
-
 /* 导入输入框 */
 .import-input {
   background: #f8f8f8;
@@ -204,11 +152,4 @@
 
 .btn-text:active {
   opacity: 0.7;
-}
-
-.btn-qr{
-  background: var(--secondary-color);
-  color: var(--primary-color);
-  border: 1rpx solid var(--primary-color);
-  border-radius: 32rpx;
 }
