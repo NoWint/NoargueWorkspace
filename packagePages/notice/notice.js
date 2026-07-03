@@ -54,7 +54,7 @@ Page({
   },
 
   onContentTap(e) {
-    const href = e.detail.node.href;
+    const href = e.detail.node?.href;
     if (!href) return;
     
     if (href.startsWith('/') || href.startsWith('pages/') ||
@@ -86,7 +86,7 @@ Page({
     const { index } = e.detail;
     const href = this._currentCopyLink;
     
-    if (index === 0) {
+    if (index === 0 && href) {
       wx.setClipboardData({
         data: href,
         success: () => {

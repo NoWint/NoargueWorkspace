@@ -152,7 +152,7 @@ Page({
         if (createDateStr === dateStr) return true;
       }
       
-      if (todo.completed && todo.completed !== true) {
+      if (typeof todo.completed === 'number') {
         const completeDate = new Date(todo.completed);
         const completeDateStr = this.formatDate(completeDate);
         if (completeDateStr === dateStr) return true;
@@ -171,7 +171,7 @@ Page({
     });
 
     const completedTodos = dayTodos.filter(todo => {
-      if (todo.completed && todo.completed !== true) {
+      if (typeof todo.completed === 'number') {
         const completeDate = new Date(todo.completed);
         const completeDateStr = this.formatDate(completeDate);
         return completeDateStr === dateStr;
@@ -185,7 +185,7 @@ Page({
 
     let avgTime = '0h';
     const validCompletedTodos = completedTodos.filter(todo => {
-      if (!todo.time || !todo.completed || todo.completed === true) return false;
+      if (!todo.time || typeof todo.completed !== 'number') return false;
       const createTime = new Date(todo.time).getTime();
       const completeTime = new Date(todo.completed).getTime();
       return completeTime > createTime;
