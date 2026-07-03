@@ -316,11 +316,8 @@ const getVisitors = async (req, res) => {
 const getUserPosts = async (req, res) => {
   const currentUserId = req.user.id;
   const { userId } = req.params;
-  const { cursor, limit: pageSize = 10 } = req.query;
-
-  if (!userId) {
-    return res.status(400).json({ success: false, message: '缺少userId参数' });
-  }
+  const { cursor, limit = 20 } = req.query;
+  const pageSize = Math.min(parseInt(limit) || 20, 50);
 
   try {
     let cursorWhere = '';
