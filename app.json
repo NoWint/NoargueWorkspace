@@ -72,16 +72,23 @@
         "post-detail/post-detail",
         "post-edit/post-edit"
       ]
+    },
+    {
+      "root": "packageProfile",
+      "name": "profile",
+      "pages": [
+        "pages/user-home/user-home"
+      ]
     }
   ],
   "preloadRule": {
     "pages/todo/todo": {
       "network": "all",
-      "packages": ["combo", "pages"]
+      "packages": ["combo", "pages", "profile"]
     },
     "pages/community-home/community-home": {
       "network": "all",
-      "packages": ["community"]
+      "packages": ["community", "profile"]
     },
     "pages/more/more": {
       "network": "all",
