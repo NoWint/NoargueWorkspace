@@ -313,4 +313,55 @@ const getVisitors = async (req, res) => {
   }
 };
 
-module.exports = { create, getList, getById, update, deletePost, getVisitors };
+const getUserPosts = async (req, res) => {
+  const currentUserId = req.user.id;
+  const { userId } = req.params;
+  const { cursor, limit: pageSize = 10 } = req.query;
+
+  if (!userId) {
+    return res.status(400).json({ success: false, message: '缺少userId参数' });
+  }
+
+  try {
+    let cursorWhere = '';
+    let params = [currentUserId];
+    if (cursor) {
+      const parts = cursor.split('_');
+      if (parts.length === 2) {
+        cursorWhere = 'AND (p.created_at < ? OR (p.created_at = ? AND p.id < ?))';
+        params.push(parts[0], parts[0], parts[1]);
+      }
+    }
+
+    params.push(userId);
+
+    const rows = await query(
+      `SELECT p.*, u.nickname, u.avatar_url, u.badge_titles, u.badge_colors,
+              c.name as share_combo_name,
+              (SELECT id FROM post_likes WHERE post_id = p.id AND user_id = ?) as user_like_id
+       FROM posts p
+       LEFT JOIN users u ON p.user_id = u.id
+       LEFT JOIN combos c ON p.share_code = c.share_code
+       WHERE p.is_deleted = 0 AND p.user_id = ? ${cursorWhere}
+       ORDER BY p.created_at DESC, p.id DESC
+       LIMIT ?`,
+      [...params, pageSize + 1]
+    );
+
+    const hasMore = rows.length > pageSize;
+    if (hasMore) rows.pop();
+
+    const list = rows.map(row => formatPost(row, currentUserId));
+
+    const nextCursor = hasMore && rows.length > 0
+      ? `${rows[rows.length - 1].created_at}_${rows[rows.length - 1].id}`
+      : null;
+
+    res.json({ success: true, data: { list, nextCursor, hasMore } });
+  } catch (err) {
+    logger.error(POST_LOG, '用户帖子列表', '获取用户帖子列表失败', { userId, currentUserId, error: err.message });
+    res.status(500).json({ success: false, message: '获取用户帖子列表失败' });
+  }
+};
+
+module.exports = { create, getList, getById, update, deletePost, getVisitors, getUserPosts };
