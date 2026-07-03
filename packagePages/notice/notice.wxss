@@ -8,9 +8,10 @@
   border-radius: 32rpx;
   margin: 24rpx;
   padding: 32rpx;
-  box-shadow: 0 8rpx 40rpx rgba(76, 175, 80, 0.08);
+  box-shadow: 0 8rpx 40rpx rgba(var(--primary-color-rgb), 0.08);
   position: relative;
   overflow: hidden;
+  transition: transform 0.2s ease;
 }
 
 .notice-card::before {
@@ -20,7 +21,7 @@
   top: 0;
   width: 8rpx;
   height: 100%;
-  background: #31ca80;
+  background: var(--primary-color);
 }
 
 .notice-header {
@@ -28,7 +29,7 @@
   align-items: baseline;
   margin-bottom: 24rpx;
   padding-bottom: 16rpx;
-  border-bottom: 2rpx solid rgba(0, 178, 106, 0.1);
+  border-bottom: 2rpx solid rgba(var(--primary-color-rgb), 0.1);
 }
 
 .notice-title {
@@ -36,22 +37,12 @@
   font-weight: 600;
   color: #2d3436;
   flex: 1;
-  position: relative;
-  padding-left: 40rpx;
-}
-
-.notice-title::before {
-  content: '📢';
-  position: absolute;
-  left: 0;
-  top: 2rpx;
-  font-size: 28rpx;
 }
 
 .notice-date {
   font-size: 26rpx;
   color: #95a5a6;
-  background: rgba(0, 178, 106, 0.08);
+  background: rgba(var(--primary-color-rgb), 0.08);
   padding: 4rpx 16rpx;
   border-radius: 8rpx;
 }
@@ -60,7 +51,6 @@
   color: #576366;
   font-size: 30rpx;
   line-height: 1.5;
-  text-align: start;
 }
 
 .notice-content .t-chat-md__p {
@@ -68,13 +58,8 @@
 }
 
 .notice-content .t-chat-md__a {
-  color: #00b26a;
+  color: var(--primary-color);
   text-decoration: underline;
-}
-
-/* 添加动态效果 */
-.notice-card {
-  transition: transform 0.2s ease;
 }
 
 .notice-card:active {

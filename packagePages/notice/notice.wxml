@@ -7,7 +7,7 @@
     data-index="{{index}}" 
   >
     <view class="notice-header">
-      <text class="notice-title">{{item.title}}</text>
+      <text class="notice-title">📢 {{item.title}}</text>
       <text class="notice-date">{{item.date}}</text>
     </view>
     <t-chat-markdown class="notice-content" content="{{item.content}}" bind:click="onContentTap" />
