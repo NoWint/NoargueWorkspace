@@ -36,7 +36,8 @@ Page({
 
     if (cache) {
         day.prefix = cache.count;
-        day.suffix = cache.sampleText.substring(0,3) + (cache.sampleText.length >3 ? '..' : '');
+        const text = cache.sampleText || '';
+        day.suffix = text.substring(0,3) + (text.length >3 ? '..' : '');
         day.className = 't-calendar__day--top';
     }
     return day;
@@ -218,7 +219,6 @@ Page({
 
   deleteTodo(index) {
     const currentTodo = this.data.selectedTodos[index];
-    const that = this;
 
     // 分享撤回检测（同步读取）
     let shareId;
@@ -233,29 +233,29 @@ Page({
       wx.showModal({
         title: '删除确认',
         content: hasSubtasks ? '该待办包含子待办，删除后子待办也将一同被删除，确定删除吗？' : '删除后保留 30 天，可在”更多-回收站”找回，确定删除吗？',
-      confirmText: '删除',
-      confirmColor: '#ff4d4f',
-      success: (res) => {
-        if (res.confirm) {
-          const now = Date.now();
-          const todo = getTodoById(currentTodo.id);
-          if (todo) {
-            todo.isDeleted = true;
-            todo.deletedAt = now;
-            todo.updatedAt = now;
-            todo.version = (todo.version || 1) + 1;
-            addDeletedTodo(todo);
-            deleteTodoById(currentTodo.id, now);
-          }
-          that.searchTodos(that.data.selectedDate);
-          getApp().updateCalendarCache(getLocalTodos());
+        confirmText: '删除',
+        confirmColor: '#ff4d4f',
+        success: (res) => {
+          if (res.confirm) {
+            const now = Date.now();
+            const todo = getTodoById(currentTodo.id);
+            if (todo) {
+              todo.isDeleted = true;
+              todo.deletedAt = now;
+              todo.updatedAt = now;
+              todo.version = (todo.version || 1) + 1;
+              addDeletedTodo(todo);
+              deleteTodoById(currentTodo.id, now);
+            }
+            this.searchTodos(this.data.selectedDate);
+            getApp().updateCalendarCache(getLocalTodos());
 
-          if (isLoggedIn()) {
-            that.autoSyncToCloud();
+            if (isLoggedIn()) {
+              this.autoSyncToCloud();
+            }
           }
         }
-      }
-    });
+      });
     };
 
     if (shareId) {
@@ -276,8 +276,7 @@ Page({
     
     const locationStr = currentTodo.location ? encodeURIComponent(JSON.stringify(currentTodo.location)) : '';
     const tagsStr = currentTodo.tags ? encodeURIComponent(JSON.stringify(currentTodo.tags)) : '';
-    
-    const app = getApp();
+
     app.globalData.editTodoImages = currentTodo.images || [];
 
     wx.navigateTo({
@@ -301,32 +300,7 @@ Page({
     });
   },
 
-  // ===========================
-  // 广告事件处理
-  // ===========================
-
-  /**
-   * 广告加载成功
-   */
-  onAdLoad() {
-  },
-
-  /**
-   * 广告加载失败
-   */
   onAdError(err) {
     logger.error('UI', 'AD', '原生模板广告加载失败', err);
   },
-
-  /**
-   * 广告关闭
-   */
-  onAdClose() {
-  },
-
-  /**
-   * 广告隐藏
-   */
-  onAdHide() {
-  }
 });

@@ -1,6 +1,5 @@
 {
   "usingComponents": {
-    "t-calendar": "tdesign-miniprogram/calendar/calendar",
     "t-swipe-cell": "tdesign-miniprogram/swipe-cell/swipe-cell",
     "t-radio": "tdesign-miniprogram/radio/radio",
     "t-cell": "tdesign-miniprogram/cell/cell",
