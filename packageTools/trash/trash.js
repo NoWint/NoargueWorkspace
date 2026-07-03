@@ -35,6 +35,7 @@ Page({
     
     return todos.map(todo => {
       const deletedAt = todo.deletedAt;
+      if (!deletedAt) return null;
       const daysLeft = Math.max(0, Math.ceil((thirtyDaysMs - (now - deletedAt)) / (24 * 60 * 60 * 1000)));
       
       const deletedAtDate = new Date(deletedAt);
@@ -45,7 +46,7 @@ Page({
         deletedAtStr,
         daysLeft
       };
-    }).filter(todo => todo.daysLeft > 0)
+    }).filter(Boolean).filter(todo => todo.daysLeft > 0)
       .sort((a, b) => b.deletedAt - a.deletedAt);
   },
 
@@ -62,7 +63,7 @@ Page({
     try {
       const result = await todosApi.getDeleted();
       if (result.success && result.todos) {
-        const deletedTodos = this.formatDeletedTodos(result.todos);
+        const deletedTodos = this.formatDeletedTodos(result.todos || []);
         this.setData({ deletedTodos, loading: false });
         return;
       }
@@ -83,13 +84,14 @@ Page({
       try {
         const result = await todosApi.restore(todo.id);
         if (result.success) {
-          this.updateLocalTodo(todo.id, {
+          const updates = {
             isDeleted: false,
             deletedAt: null,
             updatedAt: Date.now(),
             version: (todo.version || 1) + 1
-          }, result.todo);
-          
+          };
+          this.updateLocalTodo(todo.id, updates, result.todo || {});
+
           wx.showToast({ title: '已恢复', icon: 'success' });
           this.loadDeletedTodos();
           return;
@@ -100,13 +102,14 @@ Page({
         return;
       }
     }
-    
-    this.updateLocalTodo(todo.id, {
+
+    const updates = {
       isDeleted: false,
       deletedAt: null,
       updatedAt: Date.now(),
       version: (todo.version || 1) + 1
-    });
+    };
+    this.updateLocalTodo(todo.id, updates);
     
     wx.showToast({ title: '已恢复', icon: 'success' });
     this.loadDeletedTodos();
