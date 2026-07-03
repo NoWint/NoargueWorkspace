@@ -745,10 +745,22 @@ function confirmRevokeIfShared(todoId, onProceed) {
   });
 }
 
+const userApi = {
+  getProfile: (userId) => request({
+    url: `/users/${userId}/profile`,
+    method: 'GET'
+  })
+};
+
 const communityApi = {
   // Posts
   createPost: (data) => request({ url: '/posts/create', method: 'POST', data }),
   getPostList: (params) => request({ url: '/posts/list', method: 'GET', data: params }),
+  getUserPosts: (userId, params) => request({
+    url: `/posts/user/${userId}`,
+    method: 'GET',
+    data: params
+  }),
   getPostById: (postId) => request({ url: `/posts/${postId}`, method: 'GET' }),
   updatePost: (postId, data) => request({ url: `/posts/${postId}`, method: 'PUT', data }),
   deletePost: (postId) => request({ url: `/posts/${postId}`, method: 'DELETE' }),
@@ -790,5 +802,6 @@ module.exports = {
   commentsApi,
   communityApi,
   shareApi,
+  userApi,
   confirmRevokeIfShared
 };
