@@ -6,7 +6,7 @@
     <!-- 创建人员卡片（共享待办或管理员查看时显示） -->
     <view wx:if="{{(isSharedTodo || adminView || (isShare && creator)) && creator}}" class="date-info creator-info">
       <text class="label">创建人员</text>
-      <view class="creator-content" bindlongpress="copyCreator">
+      <view class="creator-content" catch:tap="goToUserHome" data-user-id="{{creator.id}}" bindlongpress="copyCreator">
         <image class="creator-avatar" src="{{creator.avatar || '/images/avatar.png'}}" mode="aspectFill" />
         <text class="creator-name">{{creator.nickname || '未知用户'}}</text>
       </view>

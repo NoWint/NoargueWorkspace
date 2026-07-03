@@ -489,6 +489,7 @@ Page({
         },
         todoTags: this.getTagsByIds(todo.tags || []),
         creator: creator ? {
+          id: creator.id || null,
           nickname: creator.nickname || '未知用户',
           avatar: creator.avatar || '/images/avatar.png'
         } : null,
@@ -526,8 +527,9 @@ Page({
       let creator;
       try {
         creator = JSON.parse(creatorInfo);
+        if (creator && !creator.id) creator.id = null;
       } catch (e) {
-        creator = { nickname: creatorInfo || '未知用户', avatar: '/images/avatar.png' };
+        creator = { id: null, nickname: creatorInfo || '未知用户', avatar: '/images/avatar.png' };
       }
 
       let parsedImages = this.parseImages(todoData.images);
@@ -960,7 +962,11 @@ Page({
       const assignType = sharedTodo.assignType || sharedTodo.assign_type || 'all';
       const excludeType = sharedTodo.excludeType || sharedTodo.exclude_type || '';
       const userRole = combo.userRole || 'member';
-      const creator = sharedTodo.creator || null;
+      const creator = sharedTodo.creator ? {
+        id: sharedTodo.creator.id || null,
+        nickname: sharedTodo.creator.nickname || '未知用户',
+        avatar: sharedTodo.creator.avatar || '/images/avatar.png'
+      } : null;
       const tags = sharedTodo.tags || [];
       
       const starredSharedTodos = wx.getStorageSync('starredSharedTodos') || {};
@@ -1530,6 +1536,12 @@ Page({
       data: this.data.todo.location.name,
       success: () => wx.showToast({ title: '位置名称已复制' })
     });
+  },
+
+  goToUserHome(e) {
+    const userId = e.currentTarget.dataset.userId;
+    if (!userId) return;
+    wx.navigateTo({ url: `/packageProfile/pages/user-home/user-home?userId=${userId}` });
   },
 
   copyCreator() {
@@ -2462,7 +2474,7 @@ Page({
 
   // 路径: 社区帖子待办预览
   async _loadByCommunityTodo(options) {
-    const { communityTodoId, creatorName, creatorAvatar, postId } = options;
+    const { communityTodoId, creatorName, creatorAvatar, creatorId, postId } = options;
 
     if (!communityTodoId) {
       wx.showToast({ title: '参数错误', icon: 'none' });
@@ -2508,6 +2520,7 @@ Page({
       this.loadSubtasksFromSnapshot(subtasks, todoData.id);
 
       const creator = creatorName ? {
+        id: creatorId ? Number(creatorId) : null,
         nickname: decodeURIComponent(creatorName),
         avatar: creatorAvatar ? decodeURIComponent(creatorAvatar) : null
       } : null;
