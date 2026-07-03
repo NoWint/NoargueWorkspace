@@ -1,7 +1,7 @@
 const app = getApp();
 const weatherKey = 'SdnJZGqS_c7zVlCnj';
 const { isLoggedIn, combosApi, collabApi, todosApi, configApi, notifyApi, shareApi, confirmRevokeIfShared } = require('../../utils/api.js');
-const { addDeletedTodo, incrementalSync, getLocalTodos, setLocalTodos, checkSyncDiff, syncWithCloud, getTodoById, saveTodo, deleteTodoById } = require('../../utils/sync.js');
+const { addDeletedTodo, getLocalTodos, setLocalTodos, checkSyncDiff, syncWithCloud, getTodoById, saveTodo, deleteTodoById } = require('../../utils/sync.js');
 const { formatFriendlyDate, formatDateTime } = require('../../utils/util.js');
 
 const plugin = requirePlugin('WechatSI');
@@ -1115,30 +1115,6 @@ Page({
   },
 
   /**
-   * scroll-view 的 touchmove 处理 - 拖拽时阻止滚动
-   */
-  onScrollTouchMove(e) {
-    if (this.data.isDragging) {
-      // 阻止滚动
-      return;
-    }
-  },
-
-  /**
-   * 阻止遮罩层上的滚动
-   */
-  preventScroll(e) {
-    // 什么都不做，只是阻止事件传递
-  },
-
-  /**
-   * 阻止遮罩层上的点击
-   */
-  preventTap(e) {
-    // 什么都不做，只是阻止事件传递
-  },
-
-  /**
    * 浮动项上的 touchmove - 处理拖拽移动
    */
   onFloatTouchMove(e) {
@@ -1747,10 +1723,6 @@ Page({
       }
     };
 
-    // 正常开始录音识别
-    manager.onStart = function (res) {
-    };
-
     // 识别错误事件
     manager.onError = function (res) {
       wx.hideLoading();
@@ -2291,28 +2263,10 @@ Page({
   // ===========================
 
   /**
-   * 广告加载成功
-   */
-  onAdLoad() {
-  },
-
-  /**
    * 广告加载失败
    */
   onAdError(err) {
     logger.error('UI', 'AD', '原生模板广告加载失败', err);
-  },
-
-  /**
-   * 广告关闭
-   */
-  onAdClose() {
-  },
-
-  /**
-   * 广告隐藏
-   */
-  onAdHide() {
   },
 
   // ===========================

@@ -203,10 +203,7 @@ wx:key="*this"
       <view wx:if="{{index === 3}}" class="ad-container">
         <ad-custom
           unit-id="adunit-5ab4dec0a604c6c4"
-          bindload="onAdLoad"
           binderror="onAdError"
-          bindclose="onAdClose"
-          bindhide="onAdHide"
         ></ad-custom>
       </view>
     </block>
