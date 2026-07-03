@@ -5,7 +5,7 @@
     <text>该内容因违规已被删除</text>
   </view>
 
-  <view wx:else>
+  <view wx:else class="post-card-wrapper">
     <post-card
       post="{{post}}"
       showStats="{{false}}"
@@ -16,7 +16,6 @@
       bind:tapTodo="goToTodoDetail"
       bind:tapCombo="handleComboTap"
       bind:tapLocation="openLocation"
-      bind:toggleLike="toggleLike"
       bind:tapAuthor="onPostTapAuthor"
     />
     <!-- "已编辑" badge -->

@@ -324,13 +324,13 @@ Page({
   onPostTapAuthor(e) {
     const { userId } = e.detail;
     if (!userId) return;
-    wx.navigateTo({ url: `/packageProfile/pages/user-home/user-home?userId=${userId}` });
+    wx.navigateTo({ url: `/packageProfile/user-home/user-home?userId=${userId}` });
   },
 
   onCommentTapAuthor(e) {
     const userId = e.currentTarget.dataset.userId;
     if (!userId) return;
-    wx.navigateTo({ url: `/packageProfile/pages/user-home/user-home?userId=${userId}` });
+    wx.navigateTo({ url: `/packageProfile/user-home/user-home?userId=${userId}` });
   },
 
   onMore() {
@@ -404,13 +404,13 @@ Page({
   closeVisitors() { this.setData({ showVisitorsPopup: false, visitors: [] }); },
   onVisitorsClose(e) { if (!e.detail.visible) this.setData({ showVisitorsPopup: false, visitors: [] }); },
 
-  async toggleLike() {
+  async toggleLike(e) {
     try {
       const res = await communityApi.toggleLike({ postId: this.data.postId });
       if (res.success) {
         const post = { ...this.data.post };
         post.isLiked = res.data.liked;
-        post.likesCount = res.data.likesCount;
+        post.likesCount += res.data.liked ? 1 : -1;
         this.setData({ post });
       }
     } catch (err) {

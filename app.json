@@ -77,7 +77,7 @@
       "root": "packageProfile",
       "name": "profile",
       "pages": [
-        "pages/user-home/user-home"
+        "user-home/user-home"
       ]
     }
   ],

@@ -167,7 +167,10 @@
 
 /* ========== 帖子区域 ========== */
 .posts-section {
-  padding: 0 0 100rpx 0;
+  padding: 0 20rpx 100rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
 }
 
 .section-title {

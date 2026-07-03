@@ -33,7 +33,10 @@
 }
 
 .feed-list {
-  padding: 0 0 250rpx 0;
+  padding: 20rpx 20rpx 250rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
 }
 
 /* ========== 状态提示 ========== */

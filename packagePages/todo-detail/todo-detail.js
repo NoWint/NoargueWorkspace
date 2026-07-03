@@ -1541,7 +1541,7 @@ Page({
   goToUserHome(e) {
     const userId = e.currentTarget.dataset.userId;
     if (!userId) return;
-    wx.navigateTo({ url: `/packageProfile/pages/user-home/user-home?userId=${userId}` });
+    wx.navigateTo({ url: `/packageProfile/user-home/user-home?userId=${userId}` });
   },
 
   copyCreator() {
