@@ -44,9 +44,7 @@ Page({
     this.setData({ length: len })
   },
 
-  generatePassword() {
-    wx.vibrateShort({ type: 'medium' })
-    
+  buildCharSet() {
     const chars = {
       numbers: '0123456789',
       lowercase: 'abcdefghijklmnopqrstuvwxyz',
@@ -54,24 +52,31 @@ Page({
       symbols: '!@#$%^&*()-+=',
       underscore: '_'
     }
-
     let charSet = ''
     this.data.options.forEach(opt => {
       if (opt.checked) charSet += chars[opt.name]
     })
+    return charSet
+  },
 
+  generatePassword() {
+    wx.vibrateShort({ type: 'medium' })
+
+    const charSet = this.buildCharSet()
     if (!charSet) {
       wx.showToast({ title: '请至少选择一种字符', icon: 'none' })
       return
     }
 
+    const length = this.data.length
+    const randomValues = new Uint8Array(length)
+    wx.getRandomValues({ values: randomValues })
     let password = ''
-    for (let i = 0; i < this.data.length; i++) {
-      const randomIndex = Math.floor(Math.random() * charSet.length)
-      password += charSet[randomIndex]
+    for (let i = 0; i < length; i++) {
+      password += charSet[randomValues[i] % charSet.length]
     }
 
-    this.setData({ 
+    this.setData({
       password,
       strength: this.calculateStrength(password)
     })
