@@ -4,7 +4,7 @@ const { authApi, isLoggedIn, setToken } = require('../../utils/api.js');
 
 // 每日一言列表
 const MOTTOS = [
-  '每一步都算数，每一刻都珍贵 🌱',
+  '每一步都算数，每一刻都珍贵',
   '日积跬步，终至千里',
   '今天的努力是明天的序章',
   '种一棵树最好的时间是十年前，其次是现在',
@@ -22,27 +22,25 @@ Page({
   data: {
     isLoggedIn: false,
     userInfo: null,
-
     nickname: '',
     avatarUrl: '',
     userId: '',
     openid: '',
-    todoCount: 0,
-    todoLimit: 100,
-
-    // 新增数据
-    todayDoneCount: 0,
-    streakDays: 0,
     timeGreeting: '',
     greetingIcon: 'sunny',
     dailyMotto: '',
-
     isEditing: false,
     tempNickname: '',
     showInfo: false,
 
-    navBarHeight: app.globalData.navBarHeight,
-    menuRight: app.globalData.menuRight
+    todoCount: 0,
+    todoLimit: 100,
+    comboCount: 0,
+    comboLimit: 0,
+    collabCount: 0,
+    collabLimit: 0,
+    streakDays: 0,
+    regDays: 0,
   },
 
   onLoad() {
@@ -69,112 +67,27 @@ Page({
     const hour = new Date().getHours();
     let greeting, icon;
 
-    if (hour >= 5 && hour < 9) {
-      greeting = '早上好';
-      icon = 'sunny';
-    } else if (hour >= 9 && hour < 12) {
-      greeting = '上午好';
-      icon = 'sunny';
-    } else if (hour >= 12 && hour < 14) {
-      greeting = '中午好';
-      icon = 'sunny';
-    } else if (hour >= 14 && hour < 18) {
-      greeting = '下午好';
-      icon = 'sunny';
-    } else if (hour >= 18 && hour < 22) {
-      greeting = '晚上好';
-      icon = 'moon';
-    } else {
-      greeting = '夜深了';
-      icon = 'moon';
-    }
+    if (hour >= 5 && hour < 9) { greeting = '早上好'; icon = 'sunny'; }
+    else if (hour >= 9 && hour < 12) { greeting = '上午好'; icon = 'sunny'; }
+    else if (hour >= 12 && hour < 14) { greeting = '中午好'; icon = 'sunny'; }
+    else if (hour >= 14 && hour < 18) { greeting = '下午好'; icon = 'sunny'; }
+    else if (hour >= 18 && hour < 22) { greeting = '晚上好'; icon = 'moon'; }
+    else { greeting = '夜深了'; icon = 'moon'; }
 
-    this.setData({
-      timeGreeting: greeting,
-      greetingIcon: icon
-    });
+    this.setData({ timeGreeting: greeting, greetingIcon: icon });
   },
 
   // ========== 每日一言 ==========
   initMotto() {
-    // 根据日期取模，每天不同
     const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
-    const index = dayOfYear % MOTTOS.length;
-    this.setData({ dailyMotto: MOTTOS[index] });
+    this.setData({ dailyMotto: MOTTOS[dayOfYear % MOTTOS.length] });
   },
 
   // ========== 登录状态 ==========
   checkLoginStatus() {
     const loggedIn = isLoggedIn();
     this.setData({ isLoggedIn: loggedIn });
-
-    if (loggedIn) {
-      this.loadUserInfo();
-    }
-  },
-
-  // ========== 加载本地数据 ==========
-  loadLocalData() {
-    const todos = getLocalTodos();
-    const activeTodos = todos.filter(t => !t.isDeleted);
-    const combos = app.globalData.combos || [];
-    const sharedCombos = app.globalData.sharedCombos || [];
-    const ownerSharedCombos = sharedCombos.filter(c => c.role === 'owner' || c.userRole === 'owner');
-
-    // 今日完成数
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const todayEnd = new Date();
-    todayEnd.setHours(23, 59, 59, 999);
-
-    const todayDone = activeTodos.filter(t => {
-      // completed 字段为时间戳时表示已完成
-      return t.completed && typeof t.completed === 'number' &&
-        t.completed >= todayStart.getTime() &&
-        t.completed <= todayEnd.getTime();
-    });
-
-    // 连续使用天数（依据 todo 的 time 字段）
-    const activeDays = new Set();
-    activeTodos.forEach(t => {
-      if (t.time) {
-        const d = new Date(t.time);
-        const key = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
-        activeDays.add(key);
-      }
-    });
-    const sortedDays = Array.from(activeDays).sort().reverse();
-
-    // 计算连续天数
-    let streak = 0;
-    if (sortedDays.length > 0) {
-      const today = new Date();
-      const todayKey = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
-      const yesterday = new Date(Date.now() - 86400000);
-      const yesterdayKey = `${yesterday.getFullYear()}-${yesterday.getMonth() + 1}-${yesterday.getDate()}`;
-
-      // 从最近活跃日开始（今天或昨天）
-      const startIdx = sortedDays[0] === todayKey || sortedDays[0] === yesterdayKey ? 0 : -1;
-      if (startIdx === 0) {
-        streak = 1;
-        for (let i = 1; i < sortedDays.length; i++) {
-          const prev = new Date(sortedDays[i - 1]);
-          const curr = new Date(sortedDays[i]);
-          const diffDays = (prev.getTime() - curr.getTime()) / 86400000;
-          if (Math.round(diffDays) === 1) {
-            streak++;
-          } else {
-            break;
-          }
-        }
-      }
-    }
-
-    this.setData({
-      todoCount: activeTodos.length,
-      todayDoneCount: todayDone.length,
-      streakDays: streak
-    });
+    if (loggedIn) this.loadUserInfo();
   },
 
   // ========== 加载用户信息 ==========
@@ -182,19 +95,72 @@ Page({
     try {
       const result = await authApi.getUserInfo();
       if (result.success && result.user) {
+        const user = result.user;
+        let regDays = this.data.regDays;
+        if (user.createdAt) {
+          regDays = Math.floor((Date.now() - new Date(user.createdAt).getTime()) / 86400000) + 1;
+        }
         this.setData({
-          userInfo: result.user,
-          nickname: result.user.nickname || '',
-          avatarUrl: result.user.avatarUrl || '',
-          userId: result.user.id || '',
-          openid: result.user.openid || '',
-          todoLimit: result.user.todoLimit || 100
+          userInfo: user,
+          nickname: user.nickname || '',
+          avatarUrl: user.avatarUrl || '',
+          userId: user.id || '',
+          openid: user.openid || '',
+          todoLimit: user.todoLimit || 100,
+          comboLimit: user.comboLimit || 0,
+          collabLimit: user.collabLimit || 0,
+          regDays,
         });
-        app.setUserInfo(result.user);
+        app.setUserInfo(user);
+        this.loadLocalData();
       }
     } catch (err) {
       logger.error('AUTH', 'USERINFO', '加载用户信息失败', err);
     }
+  },
+
+  // ========== 加载本地统计数据 ==========
+  loadLocalData() {
+    if (!this.data.isLoggedIn) return;
+
+    const todos = getLocalTodos();
+    const activeTodos = todos.filter(t => !t.isDeleted);
+    const combos = app.globalData.combos || [];
+    const sharedCombos = app.globalData.sharedCombos || [];
+
+    // 连续使用天数
+    const activeDays = new Set();
+    activeTodos.forEach(t => {
+      if (t.time) {
+        const d = new Date(t.time);
+        activeDays.add(`${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`);
+      }
+    });
+    const sortedDays = Array.from(activeDays).sort().reverse();
+    let streak = 0;
+    if (sortedDays.length > 0) {
+      const today = new Date();
+      const todayKey = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+      const yesterday = new Date(Date.now() - 86400000);
+      const yesterdayKey = `${yesterday.getFullYear()}-${yesterday.getMonth() + 1}-${yesterday.getDate()}`;
+      if (sortedDays[0] === todayKey || sortedDays[0] === yesterdayKey) {
+        streak = 1;
+        for (let i = 1; i < sortedDays.length; i++) {
+          const prev = new Date(sortedDays[i - 1]);
+          const curr = new Date(sortedDays[i]);
+          if (Math.round((prev.getTime() - curr.getTime()) / 86400000) === 1) {
+            streak++;
+          } else { break; }
+        }
+      }
+    }
+
+    this.setData({
+      todoCount: activeTodos.length,
+      comboCount: combos.length,
+      collabCount: sharedCombos.filter(c => c.role === 'owner' || c.userRole === 'owner').length,
+      streakDays: streak,
+    });
   },
 
   // ========== 登录 ==========
@@ -203,19 +169,22 @@ Page({
 
     try {
       const loginRes = await wx.login();
-
       const result = await authApi.login(loginRes.code);
 
       if (result.success) {
         setToken(result.token);
+        const user = result.user;
         this.setData({
           isLoggedIn: true,
-          userInfo: result.user,
-          nickname: result.user.nickname || '',
-          avatarUrl: result.user.avatarUrl || '',
-          todoLimit: result.user.todoLimit || 500
+          userInfo: user,
+          nickname: user.nickname || '',
+          avatarUrl: user.avatarUrl || '',
+          todoLimit: user.todoLimit || 100,
+          comboLimit: user.comboLimit || 0,
+          collabLimit: user.collabLimit || 0,
         });
-
+        app.setUserInfo(user);
+        this.loadLocalData();
         wx.showToast({ title: '登录成功', icon: 'success' });
       } else {
         throw new Error(result.message || '登录失败');
@@ -242,32 +211,23 @@ Page({
           app.globalData.isLoggedIn = false;
 
           wx.showToast({ title: '已退出登录', icon: 'success' });
-
-          setTimeout(() => {
-            wx.navigateBack();
-          }, 500);
+          setTimeout(() => wx.navigateBack(), 500);
         }
-      }
+      },
     });
   },
 
   // ========== 头像 ==========
   chooseAvatar(e) {
-    if (!this.data.isLoggedIn) {
-      this.handleLogin();
-      return;
-    }
-
+    if (!this.data.isLoggedIn) { this.handleLogin(); return; }
     const { avatarUrl } = e.detail;
     this.uploadAvatar(avatarUrl);
   },
 
   async uploadAvatar(tempFilePath) {
     wx.showLoading({ title: '上传中...' });
-
     try {
       const result = await authApi.uploadAvatar(tempFilePath);
-
       if (result.success && result.avatarUrl) {
         this.setData({ avatarUrl: result.avatarUrl });
         const updatedUserInfo = { ...(this.data.userInfo || {}), avatarUrl: result.avatarUrl };
@@ -288,16 +248,10 @@ Page({
   // ========== 昵称编辑 ==========
   startEditNickname() {
     if (!this.data.isLoggedIn) return;
-
-    this.setData({
-      isEditing: true,
-      tempNickname: this.data.nickname
-    });
+    this.setData({ isEditing: true, tempNickname: this.data.nickname });
   },
 
-  onNicknameInput(e) {
-    this.setData({ tempNickname: e.detail.value });
-  },
+  onNicknameInput(e) { this.setData({ tempNickname: e.detail.value }); },
 
   onNicknameBlur(e) {
     const value = e.detail.value;
@@ -306,12 +260,7 @@ Page({
     }
   },
 
-  cancelEdit() {
-    this.setData({
-      isEditing: false,
-      tempNickname: ''
-    });
-  },
+  cancelEdit() { this.setData({ isEditing: false, tempNickname: '' }); },
 
   confirmEdit() {
     const nickname = this.data.tempNickname.trim();
@@ -319,27 +268,16 @@ Page({
       wx.showToast({ title: '昵称不能为空', icon: 'none' });
       return;
     }
-
     if (nickname.length > 20) {
-      const exceed = nickname.length - 20;
-      wx.showToast({
-        title: `用户名已超过20字上限，当前${nickname.length}字，需删除${exceed}字`,
-        icon: 'none',
-        duration: 3000
-      });
+      wx.showToast({ title: `昵称不能超过20个字`, icon: 'none' });
       return;
     }
-
-    this.setData({
-      nickname,
-      isEditing: false
-    });
+    this.setData({ nickname, isEditing: false });
     this.saveUserInfo();
   },
 
   async saveUserInfo() {
     const { nickname, avatarUrl } = this.data;
-
     try {
       await authApi.updateUserInfo({ nickname, avatarUrl });
       wx.showToast({ title: '保存成功', icon: 'success' });
@@ -350,40 +288,20 @@ Page({
   },
 
   // ========== 折叠账号信息 ==========
-  toggleInfo() {
-    this.setData({ showInfo: !this.data.showInfo });
-  },
-
-  // ========== 页面跳转 ==========
-  navigateTo(e) {
-    const url = e.currentTarget.dataset.url;
-    if (url) {
-      wx.navigateTo({ url });
-    }
-  },
+  toggleInfo() { this.setData({ showInfo: !this.data.showInfo }); },
 
   // ========== 复制 ==========
   copyUserId(e) {
     const value = e.currentTarget.dataset.value;
     if (value) {
-      wx.setClipboardData({
-        data: value,
-        success: () => {
-          wx.showToast({ title: '已复制用户ID', icon: 'success' });
-        }
-      });
+      wx.setClipboardData({ data: value, success: () => wx.showToast({ title: '已复制用户ID', icon: 'success' }) });
     }
   },
 
   copyOpenid(e) {
     const value = e.currentTarget.dataset.value;
     if (value) {
-      wx.setClipboardData({
-        data: value,
-        success: () => {
-          wx.showToast({ title: '已复制OPENID', icon: 'success' });
-        }
-      });
+      wx.setClipboardData({ data: value, success: () => wx.showToast({ title: '已复制OPENID', icon: 'success' }) });
     }
   },
 
@@ -392,7 +310,7 @@ Page({
     return {
       title: '时光绿径待办-您的每日任务足迹管家',
       path: '/pages/todo/todo',
-      imageUrl: 'https://api.yzjtiantian.cn/uploads/logo/logo.png'
+      imageUrl: 'https://api.yzjtiantian.cn/uploads/logo/logo.png',
     };
-  }
+  },
 });
