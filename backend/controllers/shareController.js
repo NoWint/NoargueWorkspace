@@ -53,28 +53,36 @@ const getSnapshot = async (req, res) => {
   const { shareId } = req.params;
 
   try {
-    const snapshots = await query(
-      `SELECT data, revoked, password, max_views, current_views,
-              track_visitors, remark, allow_copy, user_id AS owner_id
-       FROM share_snapshots WHERE share_id = ? AND expires_at > NOW() AND revoked = FALSE`,
+    // 先查分享是否存在，独立于过期/撤回状态
+    const existing = await query(
+      'SELECT revoked, expires_at FROM share_snapshots WHERE share_id = ?',
       [shareId]
     );
 
-    if (snapshots.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: '分享已过期或不存在'
-      });
+    if (existing.length === 0) {
+      return res.status(404).json({ success: false, message: '分享不存在' });
     }
 
-    const snapshot = snapshots[0];
-    if (snapshot.revoked) {
+    if (existing[0].revoked) {
       return res.status(410).json({
-        success: false,
-        revoked: true,
+        success: false, revoked: true,
         message: '该分享已被发布者撤回'
       });
     }
+
+    if (new Date(existing[0].expires_at) < new Date()) {
+      return res.status(404).json({ success: false, message: '分享已过期' });
+    }
+
+    // 分享有效，拉取完整数据
+    const snapshots = await query(
+      `SELECT data, password, max_views, current_views,
+              track_visitors, remark, allow_copy, user_id AS owner_id
+       FROM share_snapshots WHERE share_id = ?`,
+      [shareId]
+    );
+
+    const snapshot = snapshots[0];
 
     // 设置了密码，返回 needPassword（不计数查看次数）
     if (snapshot.password) {
@@ -154,14 +162,26 @@ const verifyPassword = async (req, res) => {
   }
 
   try {
-    const snapshots = await query(
-      `SELECT password, data, max_views, current_views, track_visitors
-       FROM share_snapshots WHERE share_id = ? AND expires_at > NOW() AND revoked = FALSE`,
+    // 先检查分享状态
+    const existing = await query(
+      'SELECT revoked, expires_at FROM share_snapshots WHERE share_id = ?',
       [shareId]
     );
-    if (snapshots.length === 0) {
-      return res.status(404).json({ success: false, message: '分享已过期或不存在' });
+    if (existing.length === 0) {
+      return res.status(404).json({ success: false, message: '分享不存在' });
     }
+    if (existing[0].revoked) {
+      return res.status(410).json({ success: false, revoked: true, message: '该分享已被发布者撤回' });
+    }
+    if (new Date(existing[0].expires_at) < new Date()) {
+      return res.status(404).json({ success: false, message: '分享已过期' });
+    }
+
+    const snapshots = await query(
+      `SELECT password, data, max_views, current_views, track_visitors
+       FROM share_snapshots WHERE share_id = ?`,
+      [shareId]
+    );
     const hashed = crypto.createHash('sha256').update(password).digest('hex');
     if (snapshots[0].password !== hashed) {
       return res.status(403).json({ success: false, message: '密码错误' });

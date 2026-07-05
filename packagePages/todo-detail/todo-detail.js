@@ -152,7 +152,8 @@ Page({
     // 补空位：将非空行连续排列，避免行号跳跃导致空白
     const compactRows = Object.keys(rows).sort((a, b) => a - b);
     const rowBottoms = [32, 148, 264];
-    const gap = 20;
+    const gap = 36;
+    const iconGap = 20;
     const iconBtnW = 88;
     const textBtnW = 172;
     compactRows.forEach((origRow, idx) => {
@@ -160,7 +161,7 @@ Page({
       rows[origRow].forEach(b => {
         b.right = right;
         b.bottom = rowBottoms[idx] || 32;
-        right += (b.text ? textBtnW : iconBtnW) + gap;
+        right += (b.text ? textBtnW : iconBtnW) + (b.text ? gap : iconGap);
         if (b.openType) {
           b.buttonProps = { openType: 'share' };
           delete b.openType;
@@ -246,7 +247,8 @@ Page({
     const now = Date.now();
 
     // 记录"添加"操作到访客记录
-    const shareId = wx.getStorageSync('_sharedSnapshotIds')?.[todo.id];
+    // 优先使用当前分享快照的 shareId，兜底查本地存储（自己的待办）
+    const shareId = this.data.shareSnapshotId || (wx.getStorageSync('_sharedSnapshotIds') || {})[todo.id];
     if (shareId) {
       shareApi.recordShareAdd(shareId).catch(() => {});
     }
@@ -2465,6 +2467,7 @@ Page({
       isShare: true,
       imagesLayout: this.calculateImagesLayout(parsedImages),
       shareSnapshotSubtasks: subtasks || {},
+      shareSnapshotId: shareId,
       allowAdd: allowCopy !== false
     });
 
@@ -2558,5 +2561,13 @@ Page({
       wx.showToast({ title: '加载失败', icon: 'none' });
       setTimeout(() => wx.navigateBack(), 1500);
     }
+  },
+
+  goToShareConfig() {
+    const todo = this.data.todo;
+    if (!todo || !todo.id) return;
+    wx.navigateTo({
+      url: '/packagePages/share-config/share-config?todoId=' + todo.id
+    });
   },
 })
