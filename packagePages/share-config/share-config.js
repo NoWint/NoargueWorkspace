@@ -12,6 +12,7 @@ Page({
   data: {
     todo: null,
     subtaskSummary: '',
+    tagList: [],
     tagText: '',
     priorityText: '',
     dateText: '',
@@ -79,24 +80,28 @@ Page({
         .join('\n') +
       (children.length > 3 ? '\n...' : '');
 
-    // Priority text
+    // Priority text (match todo-detail priority scheme)
     const priorityMap = {
-      0: '无优先级',
-      1: '低优先级',
-      2: '中优先级',
-      3: '高优先级',
+      p1: '紧急重要',
+      p2: '重要不紧急',
+      p3: '紧急不重要',
+      p4: '不紧急不重要',
     };
+
+    // Tags: convert tag IDs to tag objects with name + color
+    const app = getApp();
+    const allTags = app.getAllTags ? app.getAllTags() : app.globalData.systemTags || [];
+    const tagIds = Array.isArray(todo.tags) ? todo.tags : [];
+    const tagList = allTags.filter(t => tagIds.some(id => String(id) == String(t.id)));
+    const tagText = tagList.map(t => t.name).join(', ');
 
     this.setData({
       todo,
       subtaskSummary,
-      tagText: todo.tags
-        ? Array.isArray(todo.tags)
-          ? todo.tags.join(', ')
-          : todo.tags
-        : '',
+      tagList,
+      tagText,
       priorityText: priorityMap[todo.priority] || '',
-      dateText: todo.dueDate || '',
+      dateText: todo.setDate || '',
     });
   },
 

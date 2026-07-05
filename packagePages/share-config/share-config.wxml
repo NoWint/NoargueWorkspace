@@ -17,12 +17,68 @@
   <view wx:if="{{activeTab === 'share'}}" class="tab-content">
     <!-- Preview card -->
     <view class="preview-card" wx:if="{{todo}}">
-      <view class="preview-title">{{todo.text}}</view>
-      <view wx:if="{{subtaskSummary}}" class="preview-subtasks">{{subtaskSummary}}</view>
+      <text class="todo-title">{{todo.text}}</text>
+
+      <!-- 子任务 -->
+      <view wx:if="{{subtaskSummary}}" class="subtask-section">
+        <view class="section-header">
+          <t-icon name="tree-list" size="32rpx" color="#999" />
+          <text class="label">子任务</text>
+        </view>
+        <text class="preview-subtasks">{{subtaskSummary}}</text>
+      </view>
+
+      <!-- 标签 -->
+      <view wx:if="{{tagList.length > 0}}" class="tags-info">
+        <view class="section-header">
+          <t-icon name="tag" size="32rpx" color="#999" />
+          <text class="label">标签</text>
+        </view>
+        <view class="tags-list">
+          <view class="tag-badge" wx:for="{{tagList}}" wx:key="id" style="background: {{item.color}}20; border-color: {{item.color}}">
+            <view class="tag-dot" style="background: {{item.color}}"></view>
+            <text class="tag-text" style="color: {{item.color}}">{{item.name}}</text>
+          </view>
+        </view>
+      </view>
+
       <view class="preview-meta">
-        <text wx:if="{{tagText}}">#{{tagText}}</text>
-        <text wx:if="{{dateText}}">{{dateText}}</text>
-        <text wx:if="{{priorityText}}">{{priorityText}}</text>
+        <view wx:if="{{dateText}}" class="date-info date-info-priority">
+          <view class="section-header">
+            <t-icon name="time" size="32rpx" color="#999" />
+            <text class="label">截止时间</text>
+          </view>
+          <text class="value">{{dateText}}</text>
+        </view>
+        <view wx:if="{{priorityText}}" class="date-info date-info-priority">
+          <view class="section-header">
+            <t-icon name="flag" size="32rpx" color="#999" />
+            <text class="label">优先等级</text>
+          </view>
+          <view class="pd priority-detail-{{todo.priority}}"></view>
+          <text class="value">{{priorityText}}</text>
+        </view>
+      </view>
+
+      <!-- 备注 -->
+      <view wx:if="{{todo.remarks}}" class="remarks-section">
+        <view class="section-header">
+          <t-icon name="edit-2" size="32rpx" color="#999" />
+          <text class="label">备注</text>
+        </view>
+        <text class="value">{{todo.remarks}}</text>
+      </view>
+
+      <!-- 位置信息 -->
+      <view wx:if="{{todo.location && todo.location.name}}" class="location-section">
+        <view class="section-header">
+          <t-icon name="pin" size="32rpx" color="#999" />
+          <text class="label">位置信息</text>
+        </view>
+        <view class="location-content">
+          <text class="loc-name">{{todo.location.name}}</text>
+          <text wx:if="{{todo.location.address}}" class="loc-address">{{todo.location.address}}</text>
+        </view>
       </view>
     </view>
 
@@ -111,12 +167,64 @@
   <view wx:if="{{activeTab === 'community'}}" class="tab-content">
     <!-- Preview card (reuse same layout) -->
     <view class="preview-card" wx:if="{{todo}}">
-      <view class="preview-title">{{todo.text}}</view>
-      <view wx:if="{{subtaskSummary}}" class="preview-subtasks">{{subtaskSummary}}</view>
+      <text class="todo-title">{{todo.text}}</text>
+
+      <view wx:if="{{subtaskSummary}}" class="subtask-section">
+        <view class="section-header">
+          <t-icon name="tree-list" size="32rpx" color="#999" />
+          <text class="label">子任务</text>
+        </view>
+        <text class="preview-subtasks">{{subtaskSummary}}</text>
+      </view>
+
+      <view wx:if="{{tagList.length > 0}}" class="tags-info">
+        <view class="section-header">
+          <t-icon name="tag" size="32rpx" color="#999" />
+          <text class="label">标签</text>
+        </view>
+        <view class="tags-list">
+          <view class="tag-badge" wx:for="{{tagList}}" wx:key="id" style="background: {{item.color}}20; border-color: {{item.color}}">
+            <view class="tag-dot" style="background: {{item.color}}"></view>
+            <text class="tag-text" style="color: {{item.color}}">{{item.name}}</text>
+          </view>
+        </view>
+      </view>
+
       <view class="preview-meta">
-        <text wx:if="{{tagText}}">#{{tagText}}</text>
-        <text wx:if="{{dateText}}">{{dateText}}</text>
-        <text wx:if="{{priorityText}}">{{priorityText}}</text>
+        <view wx:if="{{dateText}}" class="date-info date-info-priority">
+          <view class="section-header">
+            <t-icon name="time" size="32rpx" color="#999" />
+            <text class="label">截止时间</text>
+          </view>
+          <text class="value">{{dateText}}</text>
+        </view>
+        <view wx:if="{{priorityText}}" class="date-info date-info-priority">
+          <view class="section-header">
+            <t-icon name="flag" size="32rpx" color="#999" />
+            <text class="label">优先等级</text>
+          </view>
+          <view class="pd priority-detail-{{todo.priority}}"></view>
+          <text class="value">{{priorityText}}</text>
+        </view>
+      </view>
+
+      <view wx:if="{{todo.remarks}}" class="remarks-section">
+        <view class="section-header">
+          <t-icon name="edit-2" size="32rpx" color="#999" />
+          <text class="label">备注</text>
+        </view>
+        <text class="value">{{todo.remarks}}</text>
+      </view>
+
+      <view wx:if="{{todo.location && todo.location.name}}" class="location-section">
+        <view class="section-header">
+          <t-icon name="pin" size="32rpx" color="#999" />
+          <text class="label">位置信息</text>
+        </view>
+        <view class="location-content">
+          <text class="loc-name">{{todo.location.name}}</text>
+          <text wx:if="{{todo.location.address}}" class="loc-address">{{todo.location.address}}</text>
+        </view>
       </view>
     </view>
 
