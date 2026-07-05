@@ -1,19 +1,15 @@
 <view class="page">
   <!-- Tab bar -->
   <view class="tab-bar" wx:if="{{!shareGenerated}}">
-    <view
-      class="tab-item active"
-      data-tab="share"
-      bind:tap="onTabChange"
-    >分享好友</view>
+    <view class="tab-item active">分享好友</view>
     <view
       class="tab-item"
       catch:tap="onPublishToCommunity"
     >分享到社区</view>
   </view>
 
-  <!-- ============ Tab 1: 分享好友 ============ -->
-  <view wx:if="{{activeTab === 'share'}}" class="tab-content">
+  <!-- ============ 分享好友 ============ -->
+  <view class="tab-content">
     <!-- Preview card -->
     <view class="preview-card" wx:if="{{todo}}">
       <text class="todo-title">{{todo.text}}</text>

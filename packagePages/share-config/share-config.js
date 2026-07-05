@@ -16,7 +16,6 @@ Page({
     tagText: '',
     priorityText: '',
     dateText: '',
-    activeTab: 'share',
 
     // Tab 1: share settings
     settings: {
@@ -158,13 +157,6 @@ Page({
     return `已选 ${visible}/${opts.length} 项`;
   },
 
-  // === Tab switching ===
-
-  onTabChange(e) {
-    const tab = e.currentTarget.dataset.tab;
-    this.setData({ activeTab: tab });
-  },
-
   // === Field visibility control ===
 
   onFieldPickerTap() {
@@ -294,7 +286,6 @@ Page({
     const todo = this.data.todo;
 
     if (
-      this.data.activeTab === 'share' &&
       this.data.shareGenerated &&
       this.data.shareId
     ) {
