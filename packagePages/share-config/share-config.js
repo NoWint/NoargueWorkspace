@@ -314,6 +314,8 @@ Page({
       return;
     }
 
+    // Store todo data for post-edit to read (without text to avoid pre-filling title)
+    app.globalData.quickShareTodo = { ...todo, text: '' };
     wx.navigateTo({
       url: '/packageCommunity/post-edit/post-edit?todoId=' + todo.id,
     });
