@@ -1461,8 +1461,8 @@ Page({
   },
 
   calculateImagesLayout(images) {
-    if (!images || images.length === 0) return 'grid-3';
-    
+    if (!images || images.length === 0) return 'triple';
+
     let imageCount = 0;
     if (typeof images === 'string') {
       try {
@@ -1474,11 +1474,10 @@ Page({
     } else if (Array.isArray(images)) {
       imageCount = images.length;
     }
-    
-    if (imageCount === 1) return 'grid-1';
-    if (imageCount === 2) return 'grid-2';
-    if (imageCount === 3) return 'grid-3';
-    if (imageCount === 4) return 'grid-2x2';
+
+    if (imageCount === 1) return 'single';
+    if (imageCount === 2) return 'double';
+    if (imageCount === 3) return 'triple';
     if (imageCount <= 6) return 'grid-3x2';
     return 'grid-3x3';
   },

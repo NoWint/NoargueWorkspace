@@ -204,9 +204,14 @@
         <t-icon name="image" size="32rpx" color="#999" />
         <text class="label">附加图片</text>
       </view>
-      <view class="images-grid images-grid-{{imagesLayout}}">
-        <view class="image-item" wx:for="{{todo.images}}" wx:key="index" data-index="{{index}}" data-url="{{item}}" bindtap="previewImage" bindlongpress="copyImageUrl">
-          <image class="preview-image" src="{{item}}" mode="aspectFit" />
+      <view class="todo-images">
+        <view class="images-grid-{{imagesLayout}}">
+          <image
+            wx:for="{{todo.images}}" wx:key="index"
+            src="{{item}}" mode="{{imagesLayout === 'single' ? 'widthFix' : 'aspectFill'}}"
+            class="todo-image" data-index="{{index}}" data-url="{{item}}"
+            bindtap="previewImage" bindlongpress="copyImageUrl"
+          />
         </view>
       </view>
     </view>
