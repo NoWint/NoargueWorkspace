@@ -5,7 +5,22 @@ Component({
     compact: { type: Boolean, value: false },
     showStats: { type: Boolean, value: true },
     expanded: { type: Boolean, value: false },
-    todoItems: { type: Array, value: [] }
+    todoItems: { type: Array, value: [] },
+    renderMarkdown: { type: Boolean, value: false }
+  },
+  data: {
+    displayBody: ''
+  },
+  observers: {
+    'post.body'(body) {
+      if (body) {
+        this.setData({
+          displayBody: body.replace(/\[([^\]]+)\]\(\d+\)/g, '$1'),
+        });
+      } else {
+        this.setData({ displayBody: '' });
+      }
+    },
   },
   methods: {
     onTapAuthor(e) {
@@ -42,6 +57,16 @@ Component({
     },
     onAvatarError() {
       this.triggerEvent('avatarError');
+    },
+    onBodyMarkdownClick(e) {
+      const { node } = e.detail || {};
+      if (!node) return;
+      const href = node.href || '';
+      if (/^\d+$/.test(href)) {
+        wx.navigateTo({
+          url: `/packagePages/user-center/user-center?userId=${href}`,
+        });
+      }
     }
   }
 });

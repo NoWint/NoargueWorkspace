@@ -15,7 +15,14 @@
     </view>
   </view>
   <view class="post-title">{{post.title}}</view>
-  <view wx:if="{{post.body}}" class="post-body">{{post.body}}</view>
+  <view wx:if="{{post.body}}" class="{{renderMarkdown ? 'post-body-full' : 'post-body'}}">
+    <t-chat-markdown
+      wx:if="{{renderMarkdown}}"
+      content="{{post.body}}"
+      bind:click="onBodyMarkdownClick"
+    />
+    <text wx:else>{{displayBody}}</text>
+  </view>
   <view wx:if="{{post.images && post.images.length > 0}}" class="post-images">
     <view class="grid-{{post.images.length === 1 ? 'single' : (post.images.length === 2 ? 'double' : 'triple')}}">
       <image

@@ -1,6 +1,7 @@
 {
   "component": true,
   "usingComponents": {
-    "t-icon": "tdesign-miniprogram/icon/icon"
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-chat-markdown": "tdesign-miniprogram/chat-markdown/chat-markdown"
   }
 }

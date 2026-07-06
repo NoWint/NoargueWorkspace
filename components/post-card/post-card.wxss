@@ -247,3 +247,14 @@
 .tap-active {
   opacity: 0.6;
 }
+
+.post-body-full {
+  font-size: 30rpx;
+  color: #666;
+  line-height: 1.2;
+  margin-bottom: 16rpx;
+  word-break: break-word;
+}
+.post-body-full .t-chat-markdown-link {
+  color: var(--primary-color, #00b26a);
+}
