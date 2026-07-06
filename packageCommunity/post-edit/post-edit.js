@@ -63,7 +63,17 @@ Page({
     todoSearchKeyword: '', comboSearchKeyword: '',
     allPickerCombos: [], filteredAllPickerCombos: [],
     selectedMap: {},
-    userInfo: app.globalData.userInfo || {}
+    userInfo: app.globalData.userInfo || {},
+    // @提及相关
+    showAtPopup: false,
+    atSearchResults: [],
+    atKeyword: '',
+    mentionsList: [],
+    mentionCount: 0,
+    showMentionCard: false,
+    currentMentions: [],
+    showMentionListPopup: false,
+    mentionIdCounter: 0,
   },
 
   onLoad(options) {
@@ -121,6 +131,7 @@ Page({
               selectedComboName: draft.selectedComboName || '',
               location: draft.location || null
             });
+            this.updateMentionCard(draft.body || '');
           } else {
             wx.removeStorageSync('communityDraft');
           }
@@ -229,6 +240,89 @@ Page({
   onBodyInput(e) {
     const body = e.detail.value ?? '';
     this.setData({ body });
+    this.detectAtMention(body);
+    this.updateMentionCard(body);
+  },
+
+  // 检测输入末尾是否输入了 @关键词
+  detectAtMention(text) {
+    const atRegex = /(?:^|\s)@(\S*)$/;
+    const match = text.match(atRegex);
+    if (match) {
+      const keyword = match[1];
+      this.setData({ atKeyword: keyword });
+      this.searchUsers(keyword);
+    } else {
+      this.closeAtPopup();
+    }
+  },
+
+  // 搜索用户
+  async searchUsers(keyword) {
+    if (!keyword.trim()) { this.closeAtPopup(); return; }
+    try {
+      const res = await communityApi.searchUsers(keyword);
+      if (res.success) {
+        this.setData({ atSearchResults: res.data, showAtPopup: true });
+      }
+    } catch {
+      this.closeAtPopup();
+    }
+  },
+
+  // 关闭@弹窗
+  closeAtPopup() {
+    this.setData({ showAtPopup: false, atSearchResults: [], atKeyword: '' });
+  },
+
+  // 在搜索弹窗里选了一个用户
+  selectMentionUser(e) {
+    const userId = parseInt(e.currentTarget.dataset.id);
+    const nickname = e.currentTarget.dataset.nickname;
+    const { body, mentionsList, mentionIdCounter } = this.data;
+
+    const atMatch = body.match(/(?:^|\s)@(\S*)$/);
+    if (!atMatch) { this.closeAtPopup(); return; }
+
+    const atIndex = atMatch.index + (atMatch[0].startsWith('@') ? 0 : atMatch[0].indexOf('@'));
+    const beforeAt = body.substring(0, atIndex);
+    const afterAt = body.substring(atIndex + 1 + atMatch[1].length);
+    const newBody = `${beforeAt}@${nickname} ${afterAt}`;
+
+    const counter = (mentionIdCounter || 0) + 1;
+    const newEntry = {
+      id: `mention_${counter}_${Date.now()}`,
+      nickname,
+      userId,
+    };
+    const newList = [...mentionsList, newEntry];
+
+    this.setData({
+      body: newBody,
+      mentionsList: newList,
+      mentionIdCounter: counter,
+    });
+    this.closeAtPopup();
+    this.updateMentionCard(newBody);
+  },
+
+  // 遍历 mentionsList，在原文中找到 @昵称 → 替换成 @[昵称](userId)
+  convertMentionsInText(text) {
+    const { mentionsList } = this.data;
+    if (!text || !mentionsList.length) return text;
+    let result = text;
+    const seen = new Set();
+    for (const entry of mentionsList) {
+      if (seen.has(entry.userId)) continue;
+      seen.add(entry.userId);
+      const escaped = entry.nickname.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`(?<=^|\\s)@${escaped}(?=\\s|$|[\\p{P}])`, 'u');
+      const newResult = result.replace(regex, `@[${entry.nickname}](${entry.userId})`);
+      if (newResult !== result) {
+        result = newResult;
+      }
+    }
+    return result;
   },
 
   async handleImageAdd(e) {
@@ -450,9 +544,10 @@ Page({
     if (!this.data.title.trim()) { wx.showToast({ title: '请输入标题', icon: 'none' }); return; }
     this.setData({ submitting: true });
     try {
+      const body = this.convertMentionsInText(this.data.body || '');
       const payload = {
         postId: `post_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
-        title: this.data.title, body: this.data.body || null,
+        title: this.data.title, body: body || null,
         images: this.data.imageUrls.length > 0 ? this.data.imageUrls : null,
         todoIds: this.data.selectedTodoIds.length > 0 ? this.data.selectedTodoIds : null,
         shareCode: this.data.selectedComboCode || null, location: this.data.location || null

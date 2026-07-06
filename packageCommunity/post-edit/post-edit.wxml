@@ -33,6 +33,39 @@
     <text>{{body.length}}/2000</text>
   </view>
 
+  <!-- @用户选择弹窗 -->
+  <t-popup
+    visible="{{showAtPopup}}"
+    placement="bottom"
+    close-on-overlay-click="{{false}}"
+    overlay-style="background:none"
+  >
+    <view class="at-popup">
+      <view class="at-popup-header">
+        <text class="at-popup-title">提及用户</text>
+        <view class="at-popup-close" catch:tap="closeAtPopup">
+          <t-icon name="close" size="32rpx" color="#999" />
+        </view>
+      </view>
+      <scroll-view class="at-popup-scroll" scroll-y wx:if="{{atSearchResults.length > 0}}">
+        <view
+          class="at-user-item"
+          wx:for="{{atSearchResults}}" wx:key="id"
+          catch:tap="selectMentionUser"
+          data-id="{{item.id}}"
+          data-nickname="{{item.nickname}}"
+        >
+          <image class="at-user-avatar" src="{{item.avatar || '/images/avatar.png'}}" mode="aspectFill" />
+          <text class="at-user-name">{{item.nickname}}</text>
+        </view>
+      </scroll-view>
+      <view wx:else class="at-popup-empty">
+        <text wx:if="{{!atKeyword}}">输入昵称搜索用户</text>
+        <text wx:else>未找到匹配的用户</text>
+      </view>
+    </view>
+  </t-popup>
+
   <view class="upload-section">
     <t-upload
       mediaType="{{['image']}}"
