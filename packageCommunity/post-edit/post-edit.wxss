@@ -406,6 +406,19 @@
 .at-suggestions-scroll { max-height: 36vh; overflow-y: auto; padding: 8rpx 0; }
 .at-suggestions-empty { padding: 36rpx; text-align: center; font-size: 28rpx; color: #999; }
 
+/* @用户信息（含ID） */
+.at-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+  min-width: 0;
+  flex: 1;
+}
+.at-user-id {
+  font-size: 22rpx;
+  color: #aaa;
+}
+
 /* 共享的@用户项样式 */
 .at-user-item {
   display: flex; align-items: center; gap: 16rpx;
@@ -450,5 +463,23 @@
 .mention-list-avatar {
   width: 56rpx; height: 56rpx; border-radius: 50%; background: #eee; flex-shrink: 0;
 }
-.mention-list-name { flex: 1; font-size: 28rpx; color: #1a1a1a; }
+.mention-list-avatar-placeholder {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.mention-list-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+  min-width: 0;
+}
+.mention-list-name { font-size: 28rpx; color: #1a1a1a; }
+.mention-list-id { font-size: 22rpx; color: #aaa; }
 .mention-list-empty { padding: 60rpx; text-align: center; font-size: 28rpx; color: #999; }

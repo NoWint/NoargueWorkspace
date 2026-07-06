@@ -192,6 +192,7 @@ Page({
   selectCommentMention(e) {
     const userId = parseInt(e.currentTarget.dataset.id);
     const nickname = e.currentTarget.dataset.nickname;
+    const avatar = e.currentTarget.dataset.avatar || '';
     const { commentText, commentMentionsList, commentMentionIdCounter } = this.data;
 
     const atMatch = commentText.match(/@(\S*)$/);
@@ -207,6 +208,7 @@ Page({
       id: `comment_mention_${counter}_${Date.now()}`,
       nickname,
       userId,
+      avatar,
     };
 
     this.setData({

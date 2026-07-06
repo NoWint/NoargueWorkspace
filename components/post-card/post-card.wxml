@@ -1,5 +1,5 @@
 <view class="post-card" data-post-id="{{post.postId}}" bind:tap="onTapCard">
-  <view class="post-header" bind:tap="onTapAuthor" data-user-id="{{post.user.id}}">
+  <view class="post-header" catch:tap="onTapAuthor" data-user-id="{{post.user.id}}">
     <image class="post-avatar" src="{{post.user.avatar || '/images/avatar.png'}}" mode="aspectFill" binderror="onAvatarError" />
     <view class="post-user-info">
       <view class="nickname-row">
@@ -15,7 +15,7 @@
     </view>
   </view>
   <view class="post-title">{{post.title}}</view>
-  <view wx:if="{{post.body}}" class="{{renderMarkdown ? 'post-body-full' : 'post-body'}}">
+  <view wx:if="{{post.body}}" class="{{renderMarkdown ? 'post-body-full' : 'post-body'}}" catch:tap="noop">
     <t-chat-markdown
       wx:if="{{renderMarkdown}}"
       content="{{post.body}}"

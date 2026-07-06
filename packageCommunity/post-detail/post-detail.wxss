@@ -442,6 +442,17 @@
   width: 48rpx; height: 48rpx; border-radius: 50%; flex-shrink: 0;
 }
 .comment-at-suggestions .at-user-name { font-size: 26rpx; color: #1a1a1a; }
+.comment-at-suggestions .at-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+  min-width: 0;
+  flex: 1;
+}
+.comment-at-suggestions .at-user-id {
+  font-size: 20rpx;
+  color: #aaa;
+}
 
 /* @提及链接绿色 */
 .comment-content-md .t-chat-markdown-link,

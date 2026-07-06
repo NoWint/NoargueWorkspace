@@ -57,6 +57,7 @@ Component({
       const postId = e.currentTarget.dataset.postId;
       this.triggerEvent('toggleLike', { postId });
     },
+    noop() {},
     onAvatarError() {
       this.triggerEvent('avatarError');
     },

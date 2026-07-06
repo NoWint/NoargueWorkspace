@@ -168,9 +168,13 @@
       catch:tap="selectCommentMention"
       data-id="{{item.id}}"
       data-nickname="{{item.nickname}}"
+      data-avatar="{{item.avatar}}"
     >
       <image class="at-user-avatar" src="{{item.avatar || '/images/avatar.png'}}" mode="aspectFill" />
-      <text class="at-user-name">{{item.nickname}}</text>
+      <view class="at-user-info">
+        <text class="at-user-name">{{item.nickname}}</text>
+        <text class="at-user-id">ID: {{item.id}}</text>
+      </view>
     </view>
   </scroll-view>
   <view wx:else class="at-suggestions-empty">

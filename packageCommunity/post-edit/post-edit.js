@@ -286,6 +286,7 @@ Page({
   selectMentionUser(e) {
     const userId = parseInt(e.currentTarget.dataset.id);
     const nickname = e.currentTarget.dataset.nickname;
+    const avatar = e.currentTarget.dataset.avatar || '';
     const { body, mentionsList, mentionIdCounter } = this.data;
 
     const atMatch = body.match(/@(\S*)$/);
@@ -301,6 +302,7 @@ Page({
       id: `mention_${counter}_${Date.now()}`,
       nickname,
       userId,
+      avatar,
     };
     const newList = [...mentionsList, newEntry];
 

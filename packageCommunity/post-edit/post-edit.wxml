@@ -55,9 +55,13 @@
         catch:tap="selectMentionUser"
         data-id="{{item.id}}"
         data-nickname="{{item.nickname}}"
+        data-avatar="{{item.avatar}}"
       >
         <image class="at-user-avatar" src="{{item.avatar || '/images/avatar.png'}}" mode="aspectFill" />
-        <text class="at-user-name">{{item.nickname}}</text>
+        <view class="at-user-info">
+          <text class="at-user-name">{{item.nickname}}</text>
+          <text class="at-user-id">ID: {{item.id}}</text>
+        </view>
       </view>
     </scroll-view>
     <view wx:else class="at-suggestions-empty">
@@ -251,8 +255,13 @@
         catch:tap="goToMentionUser"
         data-userid="{{item.userId}}"
       >
-        <image class="mention-list-avatar" src="/images/avatar.png" mode="aspectFill" />
-        <text class="mention-list-name">{{item.nickname}}</text>
+        <view class="mention-list-avatar-placeholder">
+          <t-icon name="user" size="28rpx" color="#999" />
+        </view>
+        <view class="mention-list-info">
+          <text class="mention-list-name">{{item.nickname}}</text>
+          <text class="mention-list-id">ID: {{item.userId}}</text>
+        </view>
         <t-icon name="chevron-right" size="28rpx" color="#ccc" />
       </view>
     </scroll-view>
