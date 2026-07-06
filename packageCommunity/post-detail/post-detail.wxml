@@ -153,6 +153,39 @@
   </view>
 </scroll-view>
 
+<!-- 评论 @用户搜索弹窗 -->
+<t-popup
+  visible="{{commentAtPopup}}"
+  placement="bottom"
+  close-on-overlay-click="{{true}}"
+  overlay-style="background:none"
+>
+  <view class="at-popup">
+    <view class="at-popup-header">
+      <text class="at-popup-title">提及用户</text>
+      <view class="at-popup-close" catch:tap="closeCommentAtPopup">
+        <t-icon name="close" size="32rpx" color="#999" />
+      </view>
+    </view>
+    <scroll-view class="at-popup-scroll" scroll-y wx:if="{{commentAtResults.length > 0}}">
+      <view
+        class="at-user-item"
+        wx:for="{{commentAtResults}}" wx:key="id"
+        catch:tap="selectCommentMention"
+        data-id="{{item.id}}"
+        data-nickname="{{item.nickname}}"
+      >
+        <image class="at-user-avatar" src="{{item.avatar || '/images/avatar.png'}}" mode="aspectFill" />
+        <text class="at-user-name">{{item.nickname}}</text>
+      </view>
+    </scroll-view>
+    <view wx:else class="at-popup-empty">
+      <text wx:if="{{!commentAtKeyword}}">输入昵称搜索用户</text>
+      <text wx:else>未找到匹配的用户</text>
+    </view>
+  </view>
+</t-popup>
+
 <view class="bottom-input-bar">
   <view class="bottom-image-bar {{inputFocused ? 'bar-expand' : 'bar-collapse'}}">
     <t-upload

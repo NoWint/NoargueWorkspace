@@ -52,7 +52,13 @@ Page({
     commentImageUrls: [],
     inputFocused: false,
     gridConfig: { column: 5, width: 120, height: 120 },
-    uploadConfig: { count: 9, sizeType: ['compressed'], sourceType: ['album', 'camera'] }
+    uploadConfig: { count: 9, sizeType: ['compressed'], sourceType: ['album', 'camera'] },
+    // @提及相关
+    commentAtPopup: false,
+    commentAtResults: [],
+    commentAtKeyword: '',
+    commentMentionsList: [],
+    commentMentionIdCounter: 0
   },
 
   onLoad(options) {
@@ -146,7 +152,83 @@ Page({
   },
 
   onLoadMoreComments() { this.loadComments(false); },
-  onCommentInput(e) { this.setData({ commentText: e.detail.value }); },
+  onCommentInput(e) {
+    const commentText = e.detail.value ?? '';
+    this.setData({ commentText });
+    this.detectCommentAt(commentText);
+  },
+
+  detectCommentAt(text) {
+    const atRegex = /(?:^|\s)@(\S*)$/;
+    const match = text.match(atRegex);
+    if (match) {
+      const keyword = match[1];
+      this.setData({ commentAtKeyword: keyword });
+      this.searchCommentUsers(keyword);
+    } else {
+      this.closeCommentAtPopup();
+    }
+  },
+
+  async searchCommentUsers(keyword) {
+    if (!keyword.trim()) { this.closeCommentAtPopup(); return; }
+    try {
+      const res = await communityApi.searchUsers(keyword);
+      if (res.success) {
+        this.setData({ commentAtResults: res.data, commentAtPopup: true });
+      }
+    } catch {
+      this.closeCommentAtPopup();
+    }
+  },
+
+  closeCommentAtPopup() {
+    this.setData({ commentAtPopup: false, commentAtResults: [], commentAtKeyword: '' });
+  },
+
+  selectCommentMention(e) {
+    const userId = parseInt(e.currentTarget.dataset.id);
+    const nickname = e.currentTarget.dataset.nickname;
+    const { commentText, commentMentionsList, commentMentionIdCounter } = this.data;
+
+    const atMatch = commentText.match(/(?:^|\s)@(\S*)$/);
+    if (!atMatch) { this.closeCommentAtPopup(); return; }
+
+    const atIndex = atMatch.index + (atMatch[0].startsWith('@') ? 0 : atMatch[0].indexOf('@'));
+    const beforeAt = commentText.substring(0, atIndex);
+    const afterAt = commentText.substring(atIndex + 1 + atMatch[1].length);
+    const newText = `${beforeAt}@${nickname} ${afterAt}`;
+
+    const counter = (commentMentionIdCounter || 0) + 1;
+    const newEntry = {
+      id: `comment_mention_${counter}_${Date.now()}`,
+      nickname,
+      userId,
+    };
+
+    this.setData({
+      commentText: newText,
+      commentMentionsList: [...commentMentionsList, newEntry],
+      commentMentionIdCounter: counter,
+    });
+    this.closeCommentAtPopup();
+  },
+
+  convertCommentMentions(text) {
+    const { commentMentionsList } = this.data;
+    if (!text || !commentMentionsList.length) return text;
+    let result = text;
+    const seen = new Set();
+    for (const entry of commentMentionsList) {
+      if (seen.has(entry.userId)) continue;
+      seen.add(entry.userId);
+      const escaped = entry.nickname.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`(?<=^|\\s)@${escaped}(?=\\s|$|[\\p{P}])`, 'u');
+      const newResult = result.replace(regex, `@[${entry.nickname}](${entry.userId})`);
+      if (newResult !== result) result = newResult;
+    }
+    return result;
+  },
 
   onInputFocus() { this.setData({ inputFocused: true }); },
   onInputBlur() { this.setData({ inputFocused: false }); },
@@ -159,7 +241,8 @@ Page({
   cancelReply() { this.setData({ replyTarget: null, replyParentId: null, replyToUserId: null }); },
 
   async submitComment() {
-    const text = this.data.commentText.trim();
+    const rawText = this.data.commentText.trim();
+    const text = this.convertCommentMentions(rawText);
     if (!text && this.data.commentImageUrls.length === 0) return;
     try {
       await communityApi.createComment(this.data.postId, {
@@ -170,7 +253,8 @@ Page({
       });
       this.setData({
         commentText: '', replyTarget: null, replyParentId: null, replyToUserId: null,
-        commentFiles: [], commentImageUrls: [], inputFocused: false
+        commentFiles: [], commentImageUrls: [], inputFocused: false,
+        commentMentionsList: []
       });
       wx.showToast({ title: '发送成功', icon: 'success' });
       this.loadComments(true);
