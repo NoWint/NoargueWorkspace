@@ -199,6 +199,8 @@ Page({
         location: cached.location ? { text: cached.location } : null,
         canPublish: true
       });
+      // 解析 markdown body 中的 @提及，转换成 mentionsList
+      this.restoreMentionsFromBody(cached.body || '');
       return;
     }
     try {
@@ -228,6 +230,8 @@ Page({
           location: post.location ? (typeof post.location === 'string' ? { text: post.location } : post.location) : null,
           canPublish: true
         });
+        // 解析 markdown body 中的 @提及，转换成 mentionsList
+        this.restoreMentionsFromBody(post.body || '');
       }
     } catch (err) { wx.showToast({ title: '加载失败', icon: 'none' }); }
   },
@@ -323,6 +327,114 @@ Page({
       }
     }
     return result;
+  },
+
+  // 遍历 mentionsList，检测哪些 @昵称 在原文中确实存在
+  detectMentionsInText(text) {
+    const { mentionsList } = this.data;
+    if (!text || !mentionsList.length) return [];
+    const found = [];
+    const seenIds = new Set();
+    for (const entry of mentionsList) {
+      if (seenIds.has(entry.userId)) continue;
+      const escaped = entry.nickname.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`(?<=^|\\s)@${escaped}(?=\\s|$|[\\p{P}])`, 'u');
+      if (regex.test(text)) {
+        found.push({ nickname: entry.nickname, userId: entry.userId });
+        seenIds.add(entry.userId);
+      }
+    }
+    return found;
+  },
+
+  // 根据文本更新「提及卡片」状态
+  updateMentionCard(text) {
+    const mentions = this.detectMentionsInText(text);
+    this.setData({
+      mentionCount: mentions.length,
+      showMentionCard: mentions.length > 0,
+      currentMentions: mentions,
+    });
+  },
+
+  // 从 body 中提取所有 @[昵称](id) 格式的提及
+  parseMarkdownBody(text) {
+    if (!text) return { displayBody: '', mentionsList: [] };
+    const mentionsList = [];
+    const seen = new Set();
+    const displayBody = text.replace(/\[([^\]]+)\]\((\d+)\)/g, (m, nickname, userId) => {
+      const uid = parseInt(userId);
+      if (!seen.has(uid)) {
+        seen.add(uid);
+        mentionsList.push({
+          id: `mention_restore_${uid}`,
+          nickname,
+          userId: uid,
+        });
+      }
+      return `@${nickname}`;
+    });
+    return { displayBody, mentionsList };
+  },
+
+  // 编辑加载时从 markdown body 恢复 mentionsList 并刷新昵称
+  async restoreMentionsFromBody(text) {
+    const parsed = this.parseMarkdownBody(text || '');
+    if (parsed.mentionsList.length === 0) {
+      this.setData({ body: parsed.displayBody });
+      return;
+    }
+    const userIds = parsed.mentionsList.map(e => e.userId);
+    try {
+      const res = await communityApi.getUsersBatch(userIds);
+      if (!res.success || !res.data) {
+        this.setData({ mentionsList: parsed.mentionsList });
+        this.updateMentionCard(parsed.displayBody);
+        return;
+      }
+      const userMap = {};
+      res.data.forEach(u => { userMap[u.id] = u.nickname; });
+      const newList = parsed.mentionsList.map(e => ({
+        ...e,
+        nickname: userMap[e.userId] || e.nickname,
+      }));
+      let updatedBody = parsed.displayBody;
+      for (const e of parsed.mentionsList) {
+        const newNick = userMap[e.userId];
+        if (newNick && newNick !== e.nickname) {
+          const oldEscaped = e.nickname.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          updatedBody = updatedBody.replace(
+            new RegExp(`(?<=^|\\s)@${oldEscaped}(?=\\s|$|[\\p{P}])`, 'u'),
+            `@${newNick}`
+          );
+        }
+      }
+      this.setData({ body: updatedBody, mentionsList: newList });
+      this.updateMentionCard(updatedBody);
+    } catch {
+      this.setData({ mentionsList: parsed.mentionsList });
+      this.updateMentionCard(parsed.displayBody);
+    }
+  },
+
+  // 点「提及卡片」→ 弹出用户列表
+  openMentionListPopup() {
+    const mentions = this.detectMentionsInText(this.data.body);
+    this.setData({ currentMentions: mentions, showMentionListPopup: true });
+  },
+
+  closeMentionListPopup() {
+    this.setData({ showMentionListPopup: false });
+  },
+
+  onMentionListClose(e) {
+    if (!e.detail.visible) this.setData({ showMentionListPopup: false });
+  },
+
+  // 在提及列表 popup 中点用户 → 跳转主页
+  goToMentionUser(e) {
+    const userId = e.currentTarget.dataset.userid;
+    wx.navigateTo({ url: `/packagePages/user-center/user-center?userId=${userId}` });
   },
 
   async handleImageAdd(e) {
