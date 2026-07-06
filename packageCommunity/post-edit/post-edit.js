@@ -263,7 +263,10 @@ Page({
 
   // 搜索用户
   async searchUsers(keyword) {
-    if (!keyword.trim()) { this.closeAtPopup(); return; }
+    if (!keyword.trim()) {
+      this.setData({ atSearchResults: [], showAtPopup: true });
+      return;
+    }
     try {
       const res = await communityApi.searchUsers(keyword);
       if (res.success) {

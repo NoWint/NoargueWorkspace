@@ -171,7 +171,10 @@ Page({
   },
 
   async searchCommentUsers(keyword) {
-    if (!keyword.trim()) { this.closeCommentAtPopup(); return; }
+    if (!keyword.trim()) {
+      this.setData({ commentAtResults: [], commentAtPopup: true });
+      return;
+    }
     try {
       const res = await communityApi.searchUsers(keyword);
       if (res.success) {
