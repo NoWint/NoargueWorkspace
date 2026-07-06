@@ -250,7 +250,7 @@ Page({
 
   // 检测输入末尾是否输入了 @关键词
   detectAtMention(text) {
-    const atRegex = /(?:^|\s)@(\S*)$/;
+    const atRegex = /@(\S*)$/;
     const match = text.match(atRegex);
     if (match) {
       const keyword = match[1];
@@ -285,10 +285,10 @@ Page({
     const nickname = e.currentTarget.dataset.nickname;
     const { body, mentionsList, mentionIdCounter } = this.data;
 
-    const atMatch = body.match(/(?:^|\s)@(\S*)$/);
+    const atMatch = body.match(/@(\S*)$/);
     if (!atMatch) { this.closeAtPopup(); return; }
 
-    const atIndex = atMatch.index + (atMatch[0].startsWith('@') ? 0 : atMatch[0].indexOf('@'));
+    const atIndex = atMatch.index;
     const beforeAt = body.substring(0, atIndex);
     const afterAt = body.substring(atIndex + 1 + atMatch[1].length);
     const newBody = `${beforeAt}@${nickname} ${afterAt}`;

@@ -159,7 +159,7 @@ Page({
   },
 
   detectCommentAt(text) {
-    const atRegex = /(?:^|\s)@(\S*)$/;
+    const atRegex = /@(\S*)$/;
     const match = text.match(atRegex);
     if (match) {
       const keyword = match[1];
@@ -191,10 +191,10 @@ Page({
     const nickname = e.currentTarget.dataset.nickname;
     const { commentText, commentMentionsList, commentMentionIdCounter } = this.data;
 
-    const atMatch = commentText.match(/(?:^|\s)@(\S*)$/);
+    const atMatch = commentText.match(/@(\S*)$/);
     if (!atMatch) { this.closeCommentAtPopup(); return; }
 
-    const atIndex = atMatch.index + (atMatch[0].startsWith('@') ? 0 : atMatch[0].indexOf('@'));
+    const atIndex = atMatch.index;
     const beforeAt = commentText.substring(0, atIndex);
     const afterAt = commentText.substring(atIndex + 1 + atMatch[1].length);
     const newText = `${beforeAt}@${nickname} ${afterAt}`;
