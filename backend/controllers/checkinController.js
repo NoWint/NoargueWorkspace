@@ -280,7 +280,7 @@ exports.getLeaderboard = async (req, res) => {
   const type = req.query.type || 'streak';
 
   try {
-    let list, myRank;
+    let list, myRank, totalUsers;
 
     if (type === 'total') {
       list = await query(
@@ -293,10 +293,14 @@ exports.getLeaderboard = async (req, res) => {
          FROM users WHERE total_points > (SELECT total_points FROM users WHERE id = ?)`,
         [userId]
       );
+      const countRows = await query(
+        'SELECT COUNT(*) as total FROM users WHERE total_points > 0'
+      );
+      totalUsers = countRows[0]?.total || 0;
     } else {
       // 实时从 check_ins 表计算连签天数（不依赖 current_streak 列）
       const rawList = await query(
-        `SELECT id, nickname, avatar_url FROM users`
+        'SELECT id, nickname, avatar_url FROM users'
       );
       const userStreaks = await Promise.all(rawList.map(async (u) => {
         const rows = await query(
@@ -309,6 +313,7 @@ exports.getLeaderboard = async (req, res) => {
       list = sorted.slice(0, 100);
       const myRow = userStreaks.find(u => u.id === userId);
       myRank = [{ rank: (userStreaks.filter(u => u.value > (myRow?.value || 0)).length) + 1, value: myRow?.value || 0 }];
+      totalUsers = userStreaks.filter(u => u.value > 0).length;
     }
 
     const enrichedList = list.map((u, i) => ({
@@ -319,17 +324,6 @@ exports.getLeaderboard = async (req, res) => {
       value: u.value,
       title: type === 'streak' ? getTitleByStreak(u.value) : '',
     }));
-
-    const countField = type === 'total' ? 'total_points' : 'current_streak';
-    let totalUsers;
-    if (type === 'total') {
-      const countRows = await query(
-        `SELECT COUNT(*) as total FROM users WHERE ${countField} > 0`
-      );
-      totalUsers = countRows[0]?.total || 0;
-    } else {
-      totalUsers = userStreaks.filter(u => u.value > 0).length;
-    }
 
     res.json({
       success: true,
