@@ -1,16 +1,57 @@
 const { query, transaction } = require('../config/database');
 const {
-  computeStreakFromRows,
   calcStreakDays,
   calcRegisteredDays,
   getTitleByStreak,
   clearStreakCache,
-  todayBeijingStr,
-  toBeijingDateStr,
 } = require('../utils/checkinBadgeHelper');
 
 const MILESTONE_POINTS = { 7: 20, 15: 50, 30: 100, 60: 200 };
 const MILESTONE_DAYS = [7, 15, 30, 60];
+
+/**
+ * 将 Date 对象转为 Beijing 时区 YYYY-MM-DD 字符串，兼容 mysql 返回的 Date 对象
+ */
+function toBeijingDateStr(d) {
+  if (typeof d === 'string') return d;
+  const ms = d.getTime() + 8 * 3600000;
+  const date = new Date(ms);
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
+}
+
+/**
+ * 当前 Beijing 时间 YYYY-MM-DD
+ */
+function getBeijingToday() {
+  const ms = Date.now() + 8 * 3600000;
+  const date = new Date(ms);
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
+}
+
+/**
+ * streak 天前对应的 Beijing 日期字符串（streak=0 表示今天）
+ */
+function expectedDateStr(streak) {
+  const ms = Date.now() + 8 * 3600000;
+  const date = new Date(ms);
+  date.setUTCDate(date.getUTCDate() - streak);
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
+}
+
+/**
+ * 从签到行数组计算连签天数，兼容 Date 对象和字符串
+ */
+function computeStreakFromRows(rows) {
+  let streak = 0;
+  for (let i = 0; i < rows.length; i++) {
+    if (toBeijingDateStr(rows[i].check_in_date) === expectedDateStr(streak)) {
+      streak++;
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
 
 /**
  * POST /checkin — 今日签到
@@ -198,10 +239,10 @@ exports.checkin = async (req, res) => {
  */
 exports.getStatus = async (req, res) => {
   const userId = req.user.id;
-  const dateStr = req.query.date || todayBeijingStr();
+  const dateStr = req.query.date || getBeijingToday();
 
-  const todayStr = todayBeijingStr();
-  if (dateStr > todayStr) {
+  const todayBeijing = getBeijingToday();
+  if (dateStr > todayBeijing) {
     return res.status(400).json({ success: false, message: '不能查询未来日期' });
   }
 
