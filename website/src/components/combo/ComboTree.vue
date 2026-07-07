@@ -1,8 +1,14 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useCombosStore } from '@/stores/combos'
+import { MessagePlugin } from 'tdesign-vue-next'
+import ComboForm from '@/components/combo/ComboForm.vue'
+import type { Combo } from '@/types'
 
 const combosStore = useCombosStore()
+
+const showForm = ref(false)
+const editingCombo = ref<Combo | null>(null)
 
 onMounted(() => {
   if (combosStore.items.length === 0) {
@@ -13,12 +19,40 @@ onMounted(() => {
 function selectCombo(id: number | null) {
   combosStore.selectCombo(id)
 }
+
+function openCreate() {
+  editingCombo.value = null
+  showForm.value = true
+}
+
+function openEdit(combo: Combo) {
+  editingCombo.value = combo
+  showForm.value = true
+}
+
+async function deleteCombo(combo: Combo) {
+  try {
+    await combosStore.deleteCombo(combo.id)
+    MessagePlugin.success('组合已删除')
+  } catch {
+    MessagePlugin.error('删除失败')
+  }
+}
 </script>
 
 <template>
   <div class="combo-tree">
     <div class="panel-header">
       <span class="panel-title">组合</span>
+      <t-button
+        variant="text"
+        shape="square"
+        class="header-add-btn"
+        title="新建组合"
+        @click="openCreate"
+      >
+        <t-icon name="add" size="18px" />
+      </t-button>
     </div>
 
     <t-loading v-if="combosStore.loading" :loading="true" size="small" />
@@ -44,12 +78,38 @@ function selectCombo(id: number | null) {
       >
         <t-icon :name="combo.icon || 'folder'" size="18px" :style="{ color: combo.color }" />
         <span class="combo-name">{{ combo.name }}</span>
+        <div class="combo-actions">
+          <t-button
+            variant="text"
+            shape="square"
+            size="small"
+            class="combo-action-btn"
+            title="编辑"
+            @click.stop="openEdit(combo)"
+          >
+            <t-icon name="edit" size="14px" />
+          </t-button>
+          <t-popconfirm content="确定删除此组合？" @confirm.stop="deleteCombo(combo)">
+            <t-button
+              variant="text"
+              shape="square"
+              size="small"
+              class="combo-action-btn"
+              title="删除"
+              @click.stop
+            >
+              <t-icon name="delete" size="14px" />
+            </t-button>
+          </t-popconfirm>
+        </div>
       </div>
     </div>
 
     <div v-if="!combosStore.loading && combosStore.items.length === 0" class="empty-hint">
       暂无组合
     </div>
+
+    <ComboForm v-model:visible="showForm" :combo="editingCombo" @saved="combosStore.fetchCombos()" />
   </div>
 </template>
 
@@ -72,6 +132,15 @@ function selectCombo(id: number | null) {
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.header-add-btn {
+  color: var(--text-secondary);
+  transition: color 0.15s;
+}
+
+.header-add-btn:hover {
+  color: var(--color-primary);
 }
 
 .combo-list {
@@ -106,6 +175,27 @@ function selectCombo(id: number | null) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1;
+}
+
+.combo-actions {
+  display: none;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.combo-item:hover .combo-actions {
+  display: flex;
+}
+
+.combo-action-btn {
+  color: var(--text-disabled);
+  transition: color 0.15s;
+}
+
+.combo-action-btn:hover {
+  color: var(--text-primary);
 }
 
 .empty-hint {

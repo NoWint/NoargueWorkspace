@@ -227,7 +227,7 @@ const generateQrCode = async (req, res) => {
     const session = qrcodeSession.createSession();
     const sceneId = session.sceneId;
 
-    const qrBuffer = await getUnlimitedQRCode(sceneId, 'pages/login/login');
+    const qrBuffer = await getUnlimitedQRCode(sceneId, 'packagePages/login/login');
 
     const base64Image = Buffer.from(qrBuffer).toString('base64');
     const dataUrl = `data:image/png;base64,${base64Image}`;

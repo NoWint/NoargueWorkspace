@@ -107,6 +107,15 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  async function updateProfile(data: { nickname?: string; avatarUrl?: string }) {
+    const res = await authApi.updateUserInfo(data)
+    if (res.success && user.value) {
+      if (data.nickname) user.value.nickname = data.nickname
+      if (data.avatarUrl) user.value.avatarUrl = data.avatarUrl
+    }
+    return res
+  }
+
   return {
     token,
     user,
@@ -118,5 +127,6 @@ export const useAuthStore = defineStore('auth', () => {
     pollQrCodeStatus,
     logout,
     fetchUserInfo,
+    updateProfile,
   }
 })
