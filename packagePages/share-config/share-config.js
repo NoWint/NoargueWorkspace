@@ -76,8 +76,8 @@ Page({
       try {
         const { todosApi } = require('../../utils/api');
         const res = await todosApi.getById(todoId);
-        if (res.success && res.data) {
-          this.renderTodo(res.data, []);
+        if (res.success && res.todo) {
+          this.renderTodo(res.todo, []);
         } else {
           wx.showToast({ title: '加载待办失败', icon: 'none' });
         }

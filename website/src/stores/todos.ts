@@ -26,8 +26,8 @@ export const useTodosStore = defineStore('todos', () => {
       if (filter.search) params.search = filter.search
       params.showCompleted = filter.showCompleted
       const res = await todosApi.getList(params)
-      if (res.success && res.data) {
-        items.value = res.data.list
+      if (res.success && res.todos) {
+        items.value = res.todos
       }
     } catch (e) {
       error.value = e instanceof Error ? e.message : '加载待办失败'
@@ -38,8 +38,8 @@ export const useTodosStore = defineStore('todos', () => {
 
   async function createTodo(data: Partial<Todo>) {
     const res = await todosApi.create(data)
-    if (res.success && res.data) {
-      items.value.unshift(res.data)
+    if (res.success && res.todo) {
+      items.value.unshift(res.todo)
     }
     return res
   }
@@ -48,8 +48,8 @@ export const useTodosStore = defineStore('todos', () => {
     const res = await todosApi.update(id, data)
     if (res.success) {
       const idx = items.value.findIndex((t) => t.id === id)
-      if (idx !== -1 && res.data) {
-        items.value[idx] = res.data
+      if (idx !== -1 && res.todo) {
+        items.value[idx] = res.todo
       }
     }
     return res
@@ -90,7 +90,7 @@ export const useTodosStore = defineStore('todos', () => {
   async function fetchTodoById(id: number): Promise<Todo | null> {
     try {
       const res = await todosApi.getById(id)
-      if (res.success && res.data) return res.data
+      if (res.success && res.todo) return res.todo
       return null
     } catch {
       return null
@@ -99,8 +99,8 @@ export const useTodosStore = defineStore('todos', () => {
 
   async function fetchDeletedTodos() {
     const res = await todosApi.getDeleted()
-    if (res.success && res.data) {
-      deletedItems.value = res.data.list
+    if (res.success && res.todos) {
+      deletedItems.value = res.todos
     }
     return res
   }
