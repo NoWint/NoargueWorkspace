@@ -1,68 +1,41 @@
-@import './tokens.css';
-@import './reset.css';
+@import './variables.css';
 
-/* ===== Reduced Motion ===== */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-/* ===== Focus States (Accessibility Priority 1) ===== */
-:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-  border-radius: var(--radius-sm);
-}
-
-:focus:not(:focus-visible) {
-  outline: none;
-}
-
-/* ===== Interactive Element States (Touch & Interaction Priority 2) ===== */
-button, a, [role="button"], .ant-btn, .ant-card[hoverable] {
-  cursor: pointer;
-}
-
-/* Smooth transitions for all interactive elements */
-button, a, [role="button"],
-.ant-btn, .ant-card, .ant-tag, .ant-menu-item,
-.ant-select-selector, .ant-input, .ant-checkbox,
-.ant-switch, .ant-upload {
-  transition: all var(--duration-fast) var(--easing);
-}
-
-/* Press feedback for clickable cards */
-.ant-card[hoverable]:active {
-  transform: scale(0.98);
-  transition: transform 80ms var(--easing);
-}
-
-/* Touch target minimum 44px (Accessibility) */
-.ant-btn:not(.ant-btn-icon-only) {
-  min-height: 40px;
-}
-
-.ant-btn-icon-only {
-  min-width: 40px;
-  min-height: 40px;
-}
-
-/* ===== Typography (Priority 6) ===== */
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--color-text-primary);
+html {
+  font-size: var(--font-size-base);
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
 }
 
-/* ===== Scrollbar Styling ===== */
+body {
+  font-family: var(--font-family);
+  color: var(--text-primary);
+  background-color: var(--bg-page);
+  min-height: 100vh;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-primary-hover);
+}
+
+/* 滚动条样式 */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -73,77 +46,10 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.12);
+  background: var(--text-disabled);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.2);
-}
-
-[data-theme='dark'] ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
-}
-
-[data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-/* ===== Selection ===== */
-::selection {
-  background: var(--color-primary);
-  color: #fff;
-}
-
-/* ===== Ant Design Dark Mode Overrides ===== */
-[data-theme='dark'] .ant-layout {
-  background: var(--color-bg-page);
-}
-
-[data-theme='dark'] .ant-card {
-  background: var(--color-bg-card);
-  border-color: var(--color-border);
-}
-
-[data-theme='dark'] .ant-menu {
-  background: transparent;
-}
-
-[data-theme='dark'] .ant-modal-content {
-  background: var(--color-bg-card);
-}
-
-[data-theme='dark'] .ant-dropdown-menu {
-  background: var(--color-bg-card);
-}
-
-[data-theme='dark'] .ant-popover-inner {
-  background: var(--color-bg-card);
-}
-
-[data-theme='dark'] .ant-select-dropdown {
-  background: var(--color-bg-card);
-}
-
-[data-theme='dark'] .ant-input,
-[data-theme='dark'] .ant-input-affix-wrapper,
-[data-theme='dark'] .ant-select-selector,
-[data-theme='dark'] .ant-picker {
-  background: var(--color-bg-elevated);
-  border-color: var(--color-border);
-  color: var(--color-text-primary);
-}
-
-/* ===== Utility Classes ===== */
-.touch-target {
-  min-width: 44px;
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Safe area for mobile bottom bar */
-.safe-bottom {
-  padding-bottom: env(safe-area-inset-bottom, 0);
+  background: var(--text-secondary);
 }

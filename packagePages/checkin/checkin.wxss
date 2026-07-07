@@ -23,6 +23,11 @@
 .cal-day { font-size: 26rpx; padding: 12rpx 0; }
 
 .lower-section { margin: 0 20rpx 20rpx; }
+
+.leaderboard-bar { display: flex; align-items: center; justify-content: space-between; background: #fff; border-radius: 32rpx; padding: 24rpx 30rpx; margin-bottom: 16rpx; box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.04); }
+.lb-left { display: flex; align-items: center; gap: 12rpx; }
+.lb-text { font-size: 28rpx; color: #00b26a; font-weight: 500; }
+
 .stats-row { display: flex; gap: 16rpx; margin-bottom: 20rpx; }
 .stat-card { flex: 1; background: #f0fdf4; border-radius: 24rpx; padding: 20rpx; text-align: center; }
 .stat-num { font-size: 40rpx; font-weight: 700; color: #00b26a; display: block; }

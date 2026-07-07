@@ -1,33 +1,14 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react-swc';
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import path from 'path'
 
 export default defineConfig({
-  plugins: [react()],
-  css: {
-    modules: {
-      localsConvention: 'camelCaseOnly',
-    },
+  plugins: [vue()],
+  resolve: {
+    alias: { '@': path.resolve(__dirname, 'src') },
   },
   server: {
     port: 5173,
-    proxy: {
-      '/api': {
-        target: 'https://api.yzjtiantian.cn',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-      },
-    },
+    strictPort: false,
   },
-  build: {
-    target: 'es2020',
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          antd: ['antd', '@ant-design/icons'],
-          echarts: ['echarts', 'echarts-for-react'],
-        },
-      },
-    },
-  },
-});
+})

@@ -197,14 +197,19 @@ Page({
     if (!this.data.isLoggedIn) return;
     try {
       const { checkinApi } = require('../../utils/api');
-      const res = await checkinApi.getStatus();
-      if (res.success) {
-        const d = res.data;
+      const now = new Date();
+      const [statusRes, monthRes] = await Promise.all([
+        checkinApi.getStatus(),
+        checkinApi.getMonth(now.getFullYear(), now.getMonth() + 1),
+      ]);
+      if (statusRes.success) {
+        const d = statusRes.data;
+        const checkedDates = monthRes.success ? monthRes.data.dates : [];
         this.setData({
           checkinData: d,
           badgeList: this._buildBadgeList(d.streakDays, d.registeredDays),
           yearWeek: this._computeYearWeek(),
-          weekDays: this._buildWeekDays(d.checkedIn),
+          weekDays: this._buildWeekDays(d.checkedIn, checkedDates),
           checkinError: false,
         });
       }
@@ -247,7 +252,7 @@ Page({
     return '#00b26a';
   },
 
-  _buildWeekDays(isCheckedIn) {
+  _buildWeekDays(isCheckedIn, checkedDates = []) {
     const days = ['一', '二', '三', '四', '五', '六', '日'];
     const today = new Date();
     const todayBeijing = today.toLocaleDateString('en-CA', { timeZone: 'Asia/Shanghai' });
@@ -263,6 +268,7 @@ Page({
 
       if (isToday && isCheckedIn) return { label, status: 'checked', display: '✓' };
       if (isToday) return { label, status: 'today', display: '今' };
+      if (checkedDates.includes(dateStr)) return { label, status: 'checked', display: '✓' };
       return { label, status: 'future', display: '-' };
     });
   },
@@ -274,10 +280,14 @@ Page({
       const res = await checkinApi.checkin();
       if (res.success) {
         const d = res.data;
+        // Re-fetch month data to update week display
+        const now = new Date();
+        const monthRes = await checkinApi.getMonth(now.getFullYear(), now.getMonth() + 1);
+        const checkedDates = monthRes.success ? monthRes.data.dates : [];
         this.setData({
           checkinData: d,
           badgeList: this._buildBadgeList(d.streakDays, d.registeredDays),
-          weekDays: this._buildWeekDays(true),
+          weekDays: this._buildWeekDays(true, checkedDates),
         });
         wx.showToast({ title: `签到成功 +${d.todayPoints}分`, icon: 'success' });
       }

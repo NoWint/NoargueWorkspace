@@ -52,6 +52,15 @@
 
     <!-- 下半区：统计 + 里程碑 -->
     <view class="lower-section">
+      <!-- 排行榜入口 -->
+      <view class="leaderboard-bar" bindtap="goToLeaderboard">
+        <view class="lb-left">
+          <t-icon name="rank" size="28rpx" color="#00b26a" />
+          <text class="lb-text">签到排行榜</text>
+        </view>
+        <t-icon name="chevron-right" size="28rpx" color="#ccc" />
+      </view>
+
       <!-- 统计卡片 -->
       <view class="stats-row">
         <view class="stat-card">

@@ -16,7 +16,7 @@
 - 通过微信扫码登录实现跨端认证
 - 品牌一致但设计语言独立于小程序
 
-**Logo：** https://api.yzjtiantian.cn/uploads/logo/logo.png（白底，非镂空）
+**Logo：** 开发环境从 `public/logo.png` 引用；生产环境使用 `https://api.yzjtiantian.cn/uploads/logo/logo.png`
 
 ---
 
@@ -32,7 +32,7 @@
 | 状态管理 | Pinia | Vue 3 官方推荐，TS 友好 |
 | HTTP 客户端 | Axios | 拦截器机制成熟 |
 | 登录 | 微信扫码登录 | 后端已完整实现，零改动 |
-| 部署 | 纯静态 SPA + Nginx 反向代理 | 2C2G ECS 无额外负担 |
+| 部署 | 纯静态 SPA（Nginx 托管，直连 API） | 2C2G ECS 无额外负担，后端已有 CORS |
 
 ### 2.1 为什么不选其他方案
 
@@ -57,11 +57,10 @@
 │  │         TDesign Vue 组件库                  │  │
 │  └─────────────────────────────────────────────┘  │
 └──────────────────────┬────────────────────────────┘
-                       │ HTTPS
+                       │ HTTPS (直连 API，CORS)
 ┌──────────────────────┴────────────────────────────┐
-│              Nginx (反向代理)                       │
-│  /api/* → http://localhost:3000/*                  │
-│  /*     → /usr/share/nginx/html/dist/*             │
+│              Nginx (静态托管)                       │
+│  /* → /usr/share/nginx/html/dist/*                │
 └──────────────────────┬────────────────────────────┘
                        │
 ┌──────────────────────┴────────────────────────────┐
@@ -84,7 +83,7 @@
 
 | # | 路由组 | 前缀 | 核心端点 |
 |---|--------|------|---------|
-| 1 | Auth | `/auth` | `POST /login`, `POST /qrcode/generate`, `GET /qrcode/status`, `POST /qrcode/scanned`, `POST /qrcode/confirm` |
+| 1 | Auth | `/auth` | `POST /login`, `GET /userInfo`, `POST /updateUserInfo`, `POST /increaseTodoLimit`, `POST /qrcode/generate`, `GET /qrcode/status`, `POST /qrcode/scanned`, `POST /qrcode/confirm` |
 | 2 | Todos | `/todos` | `GET /list`, `GET /:id`, `POST /create`, `PUT /:id`, `DELETE /:id`, `POST /sync`, `GET /full-sync` |
 | 3 | Tags | `/tags` | `GET /list`, `POST /create`, `PUT /:id`, `DELETE /:id` |
 | 4 | Combos | `/combos` | `GET /list`, `GET /:id`, `POST /create`, `PUT /:id`, `DELETE /:id`, `GET /:id/members`, `PUT /members/:userId/role` |
@@ -104,35 +103,41 @@
 
 ### 4.2 V1 涉及 API（核心子集）
 
-| 模块 | 方法 | 路径 | 说明 |
-|------|------|------|------|
+| 模块 | 方法 | 完整路径 | 说明 |
+|------|------|---------|------|
 | 登录 | POST | `/auth/qrcode/generate` | 生成二维码 |
 | 登录 | GET | `/auth/qrcode/status?sceneId=` | 轮询扫码状态 |
-| 待办 | GET | `/todos/list` | 获取待办列表 |
+| 登录 | POST | `/auth/qrcode/scanned` | 标记已扫码（Web 端不直接调用） |
+| 登录 | POST | `/auth/qrcode/confirm` | 确认扫码登录（Web 端不直接调用） |
+| 待办 | GET | `/todos/list` | 列表（`?page=&size=&comboId=&tagIds=&search=&showCompleted=&date=`） |
 | 待办 | GET | `/todos/:id` | 获取待办详情 |
 | 待办 | POST | `/todos/create` | 创建待办 |
 | 待办 | PUT | `/todos/:id` | 更新待办 |
 | 待办 | DELETE | `/todos/:id` | 删除待办 |
+| 回收站 | GET | `/todos/deleted` | 获取已删除待办列表 |
+| 回收站 | POST | `/todos/restore/:todoId` | 恢复已删除待办 |
+| 回收站 | DELETE | `/todos/permanent/:todoId` | 永久删除待办 |
 | 组合 | GET | `/combos/list` | 获取组合列表 |
 | 组合 | POST | `/combos/create` | 创建组合 |
 | 组合 | PUT | `/combos/:id` | 更新组合 |
 | 组合 | DELETE | `/combos/:id` | 删除组合 |
 | 标签 | GET | `/tags/list` | 获取标签列表 |
 | 标签 | POST | `/tags/create` | 创建标签 |
+| 标签 | PUT | `/tags/:id` | 更新标签 |
 | 标签 | DELETE | `/tags/:id` | 删除标签 |
 | 用户 | GET | `/auth/userInfo` | 获取用户信息 |
 | 用户 | POST | `/auth/updateUserInfo` | 更新用户信息 |
 
 ### 4.3 API 响应格式
 
-所有接口统一返回格式：
+所有接口统一返回外层结构：
 
 ```typescript
-// 成功
+// 成功（单对象）
 { "success": true, "data": { ... } }
 
-// 成功（带列表）
-{ "success": true, "data": [...], "total": 42, "page": 1 }
+// 成功（列表——后端统一用嵌套对象）
+{ "success": true, "data": { "list": [...], "total": 42, "page": 1, "size": 20 } }
 
 // 错误
 { "success": false, "message": "错误描述" }
@@ -141,6 +146,11 @@
 // HTTP 401 → token 过期/无效
 // HTTP 403 → 无管理员权限
 ```
+
+> ⚠️ **特殊格式——扫码状态查询：** `GET /auth/qrcode/status` 不遵循上述格式，返回值直接挂载在顶层：
+> ```typescript
+> { "success": true, "status": "waiting" | "scanned" | "confirmed" | "expired", "message": "...", "token"?: string, "user"?: User }
+> ```
 
 ### 4.4 认证方式
 
@@ -229,8 +239,9 @@ website/
 ├── .env.development              # VITE_API_BASE_URL=http://localhost:3000
 ├── .env.production               # VITE_API_BASE_URL=https://api.yzjtiantian.cn
 ├── public/
-│   └── favicon.svg
-│
+│   ├── favicon.svg
+│   └── logo.png               # 应用 Logo（开发环境用）
+
 └── src/
     ├── main.ts                    # 入口：创建 app、注册 router/pinia
     ├── App.vue                    # 根组件（响应式布局外壳）
@@ -242,14 +253,16 @@ website/
     │   ├── auth.ts                # 登录状态、token 管理、用户信息
     │   ├── todos.ts               # 待办列表、筛选、排序
     │   ├── combos.ts              # 组合列表
-    │   └── tags.ts                # 标签列表
+    │   ├── tags.ts                # 标签列表
+    │   └── config.ts              # 公告、更新日志
     │
     ├── api/
     │   ├── request.ts             # Axios 实例（baseURL、JWT 拦截器、401 处理）
     │   ├── auth.ts                # 扫码登录 API
     │   ├── todos.ts               # 待办 CRUD
     │   ├── combos.ts              # 组合 CRUD
-    │   └── tags.ts                # 标签 CRUD
+    │   ├── tags.ts                # 标签 CRUD
+    │   └── config.ts              # 公告、更新日志 API
     │
     ├── types/
     │   └── index.ts               # TS 类型定义
@@ -324,15 +337,10 @@ website/
 ### 7.3 导航守卫
 
 ```typescript
-router.beforeEach((to, from, next) => {
+router.beforeEach((to) => {
   const authStore = useAuthStore();
-  if (to.meta.requiresAuth && !authStore.isLoggedIn) {
-    next('/login');
-  } else if (to.path === '/login' && authStore.isLoggedIn) {
-    next('/');
-  } else {
-    next();
-  }
+  if (to.meta.requiresAuth && !authStore.isLoggedIn) return '/login';
+  if (to.path === '/login' && authStore.isLoggedIn) return '/';
 });
 ```
 
@@ -483,6 +491,23 @@ interface ApiError {
   success: false;
   message: string;
 }
+
+// ====== 公告 ======
+interface Notice {
+  id: number | string;
+  title: string;
+  content: string;
+  createdAt: string;
+}
+
+// ====== 更新日志 ======
+interface Changelog {
+  id: number | string;
+  version: string;
+  title: string;
+  content: string;
+  createdAt: string;
+}
 ```
 
 ---
@@ -574,8 +599,15 @@ interface ApiError {
 | 断点 | 宽度 | 布局 |
 |------|------|------|
 | 桌面 | >= 1024px | 三栏 + 顶部栏 |
-| 平板 | 768px ~ 1023px | 两栏（组合树折叠为图标） |
+| 平板 | 768px ~ 1024px | 两栏（组合树折叠为图标） |
 | 移动 | < 768px | 单栏全屏 + 底部 Tab 导航 |
+
+CSS 媒体查询写法：
+```css
+/* 移动 (< 768px) */    @media (max-width: 767px) { ... }
+/* 平板 (768~1024) */   @media (min-width: 768px) and (max-width: 1023px) { ... }
+/* 桌面 (≥ 1024px) */   @media (min-width: 1024px) { ... }
+```
 
 ---
 
@@ -593,7 +625,7 @@ interface AuthState {
 }
 
 // Actions:
-// loginByQrCode(sceneId) → 完成轮询后保存 token
+// loginByQrCode() → 内部调用 generateQrCode + 轮询，拿到 token 后保存
 // logout() → 清除 token + 用户信息 → 跳转 /login
 // fetchUserInfo() → GET /auth/userInfo
 // updateProfile(data) → POST /auth/updateUserInfo
@@ -620,8 +652,12 @@ interface TodosState {
 // createTodo(data) → POST /todos/create
 // updateTodo(id, data) → PUT /todos/:id
 // deleteTodo(id) → DELETE /todos/:id
-// toggleComplete(id) → 乐观更新
-// toggleStar(id) → 乐观更新
+// toggleComplete(id) → 乐观更新（见 13.4 快照回滚机制）
+// toggleStar(id) → 乐观更新（见 13.4 快照回滚机制）
+// batchMove(todoIds, comboId) → POST /todos/batch-move （预留）
+// fetchDeletedTodos() → GET /todos/deleted（回收站）
+// restoreTodo(id) → POST /todos/restore/:todoId（回收站）
+// permanentDeleteTodo(id) → DELETE /todos/permanent/:todoId（回收站）
 ```
 
 ### 11.3 combosStore
@@ -655,8 +691,24 @@ interface TagsState {
 // Actions:
 // fetchTags() → GET /tags/list
 // createTag(data) → POST /tags/create
-// deleteTag(id) → DELETE /tags/:id
+// updateTag(id, data) → PUT /tags/:id
+// deleteTag(id) → DELETE /tags/:id（操作前应使用 Popconfirm 确认）
 // toggleTag(id) → 多选切换
+```
+
+### 11.5 configStore
+
+```typescript
+// stores/config.ts
+interface ConfigState {
+  notices: Notice[];
+  changelog: Changelog[];
+  loading: boolean;
+}
+
+// Actions:
+// fetchNotices() → GET /config/notices
+// fetchChangelog() → GET /config/updates
 ```
 
 ---
@@ -675,6 +727,46 @@ interface TagsState {
 | `wx.authorize` | 浏览器权限 API | 地理/通知等 |
 | `navigateTo` / `switchTab` | `router.push` | Vue Router |
 | WechatSI (语音) | Web Speech API | V1 不实现 |
+
+### 12.1 Axios 实例配置
+
+```typescript
+// api/request.ts
+import axios from 'axios';
+import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+
+const http = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+  timeout: 20000,               // 20 秒超时
+  headers: { 'Content-Type': 'application/json' },
+});
+
+// 请求拦截器：注入 JWT
+http.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+  const token = localStorage.getItem('authToken');
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
+// 响应拦截器：解包 + 401 处理
+http.interceptors.response.use(
+  (response: AxiosResponse) => {
+    // 后端统一返回 { success, data/data[]/message }
+    return response.data;
+  },
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('authToken');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  },
+);
+
+export default http;
+```
+
+> ⚠️ **注意：** 响应拦截器中跳转 `/login` 使用 `window.location.href` 而非 `router.push`，以避免 Pinia store 与 Vue Router 初始化顺序的循环依赖问题。
 
 ---
 
@@ -726,13 +818,29 @@ async function fetchData() {
 
 ### 13.4 乐观更新
 
-对于高频操作（切换完成状态、星标），采用乐观更新：
+对于高频操作（切换完成状态、星标），采用乐观更新。由于 Pinia 没有内建快照机制，需手动保存回滚快照：
 
-```
-1. 立即更新 UI 状态
-2. 异步请求 API
-3. 成功 → 无操作
-4. 失败 → 回滚 UI + 提示错误
+```typescript
+async function toggleComplete(id: number) {
+  const index = this.items.findIndex((t) => t.id === id);
+  if (index === -1) return;
+
+  // 1. 保存快照（深拷贝）
+  const snapshot = JSON.parse(JSON.stringify(this.items[index]));
+  const originalCompleted = this.items[index].completed;
+
+  // 2. 立即更新 UI
+  this.items[index].completed = originalCompleted ? 0 : 1;
+
+  try {
+    // 3. 异步请求
+    await todosApi.update(id, { completed: this.items[index].completed });
+  } catch {
+    // 4. 失败 → 回滚
+    this.items[index].completed = originalCompleted;
+    // MessagePlugin.warning('操作失败，请重试');
+  }
+}
 ```
 
 ---
@@ -864,14 +972,7 @@ server {
     root /usr/share/nginx/html/dist;
     index index.html;
 
-    # API 反向代理
-    location /api/ {
-        proxy_pass http://127.0.0.1:3000/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-
-    # SPA 路由
+    # SPA 路由（API 由前端直连 https://api.yzjtiantian.cn，后端已有 CORS）
     location / {
         try_files $uri $uri/ /index.html;
     }
