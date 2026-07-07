@@ -80,7 +80,7 @@
 }
 
 .btn-sub-text {
-  font-size: 22rpx;
+  font-size: 28rpx;
   color: #00b26a;
   margin-top: 8rpx;
 }

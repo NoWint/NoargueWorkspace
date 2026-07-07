@@ -1,4 +1,4 @@
-<view class="page">
+<view>
   <!-- 自己的排名卡片 -->
   <view class="my-rank-card" wx:if="{{myRank.rank}}">
     <view class="rank-left">
@@ -11,7 +11,7 @@
     </view>
   </view>
 
-  <t-tabs value="{{tabType}}" bind:change="onTabChange">
+  <t-tabs class="tabs" value="{{tabType}}" bind:change="onTabChange">
     <t-tab-panel label="连签排行" value="streak">
       <view wx:for="{{leaderList}}" wx:key="rank" class="rank-item {{item.isMe ? 'me' : ''}}">
         <text class="rank-num {{item.rank <= 3 ? 'top' : ''}}">{{item.rank}}</text>

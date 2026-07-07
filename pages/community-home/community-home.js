@@ -253,14 +253,14 @@ Page({
   },
 
   _buildWeekDays(isCheckedIn, checkedDates = []) {
-    const days = ['一', '二', '三', '四', '五', '六', '日'];
+    const days = ['日', '一', '二', '三', '四', '五', '六'];
     const today = new Date();
     const todayBeijing = today.toLocaleDateString('en-CA', { timeZone: 'Asia/Shanghai' });
     const todayDate = new Date(todayBeijing);
 
     return days.map((label, i) => {
-      const dayOfWeek = todayDate.getDay() || 7;
-      const diff = i + 1 - dayOfWeek;
+      const dayOfWeek = todayDate.getDay();
+      const diff = i - dayOfWeek;
       const date = new Date(todayDate);
       date.setDate(date.getDate() + diff);
       const dateStr = date.toISOString().slice(0, 10);

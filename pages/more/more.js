@@ -23,7 +23,8 @@ Page({
     openid: '',
     deletedCount: 0,
     latestVersion: '',
-    isAdmin: false
+    isAdmin: false,
+    totalPoints: -1
   },
 
   onShareAppMessage() {
@@ -49,6 +50,20 @@ Page({
     this.checkLoginStatus();
     this.loadDeletedCount();
     this.loadLatestVersion();
+    this.loadCheckinPoints();
+  },
+
+  async loadCheckinPoints() {
+    if (!isLoggedIn()) return;
+    try {
+      const { checkinApi } = require('../../utils/api');
+      const res = await checkinApi.getStatus();
+      if (res.success && res.data) {
+        this.setData({ totalPoints: res.data.totalPoints });
+      }
+    } catch (err) {
+      // 静默失败，不阻塞页面
+    }
   },
 
   loadLatestVersion() {

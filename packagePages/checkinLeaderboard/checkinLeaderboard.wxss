@@ -1,4 +1,3 @@
-.page { min-height: 100vh; background: #e3f5eb; }
 .my-rank-card {
   display: flex;
   justify-content: space-between;
@@ -9,11 +8,36 @@
   border-radius: 32rpx;
   color: white;
 }
-.my-label { font-size: 24rpx; opacity: 0.9; }
-.my-rank-num { font-size: 48rpx; font-weight: 700; }
-.rank-right { text-align: right; }
-.my-value { font-size: 36rpx; font-weight: 600; }
-.my-title { font-size: 22rpx; opacity: 0.9; }
+
+.tabs {
+  --td-tab-nav-bg-color: #e3f5eb;
+}
+
+.my-label {
+  font-size: 28rpx;
+  opacity: 0.9;
+  margin-right: 12rpx;
+}
+
+.my-rank-num {
+  font-size: 48rpx;
+  font-weight: 700;
+}
+
+.rank-right {
+  text-align: right;
+}
+
+.my-value {
+  font-size: 36rpx;
+  font-weight: 600;
+  margin-right: 12rpx;
+}
+
+.my-title {
+  font-size: 28rpx;
+  opacity: 0.9;
+}
 
 .rank-item {
   display: flex;
@@ -23,10 +47,12 @@
   padding: 24rpx 20rpx;
   border-radius: 32rpx;
 }
+
 .rank-item.me {
   background: #e8f8f0;
   border: 2rpx solid #00b26a;
 }
+
 .rank-num {
   width: 48rpx;
   font-size: 32rpx;
@@ -34,24 +60,39 @@
   color: #999;
   text-align: center;
 }
+
 .rank-num.top {
   color: #00b26a;
   font-weight: 600;
 }
+
 .rank-avatar {
   width: 64rpx;
   height: 64rpx;
   border-radius: 50%;
   margin: 0 16rpx;
 }
-.rank-info { flex: 1; }
-.rank-name { font-size: 28rpx; font-weight: 500; }
-.rank-title { font-size: 20rpx; color: #999; }
+
+.rank-info {
+  flex: 1;
+}
+
+.rank-name {
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.rank-title {
+  font-size: 20rpx;
+  color: #999;
+}
+
 .rank-value {
   font-size: 32rpx;
   font-weight: 700;
   color: #00b26a;
 }
+
 .empty {
   text-align: center;
   color: #999;

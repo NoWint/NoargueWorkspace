@@ -190,7 +190,7 @@
 }
 
 .checkin-btn-text {
-  font-size: 28rpx;
+  font-size: 38rpx;
   color: white;
   font-weight: 700;
 }
