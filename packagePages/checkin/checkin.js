@@ -1,9 +1,7 @@
-const app = getApp();
 const { checkinApi } = require('../../utils/api');
 
 Page({
   data: {
-    navBarHeight: app.globalData.navBarHeight || 44,
     checkedIn: false,
     streakDays: 0,
     totalPoints: 0,
@@ -21,7 +19,6 @@ Page({
     ],
     currentYear: 0,
     currentMonth: 0,
-    streakAnim: {},
   },
 
   onLoad() {
@@ -193,9 +190,5 @@ Page({
 
   goToLeaderboard() {
     wx.navigateTo({ url: '/packagePages/checkinLeaderboard/checkinLeaderboard' });
-  },
-
-  onBack() {
-    wx.navigateBack();
   },
 });

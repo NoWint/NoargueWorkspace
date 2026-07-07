@@ -1,14 +1,5 @@
 <view class="page">
-  <!-- Navigation Bar -->
-  <view class="nav-bar" style="padding-top:{{navBarHeight}}px;">
-    <view class="nav-inner">
-      <t-icon name="chevron-left" size="48rpx" color="#333" bindtap="onBack" />
-      <text class="nav-title">签到打卡</text>
-      <t-icon name="rank" size="40rpx" color="#00b26a" bindtap="goToLeaderboard" />
-    </view>
-  </view>
-
-  <scroll-view scroll-y class="scroll-view" bind:scrolltolower="onLoadMore">
+  <scroll-view scroll-y class="scroll-view">
     <!-- 上半区：签到操作 + 月历 -->
     <view class="upper-section">
       <!-- 签到头部 -->
@@ -16,7 +7,7 @@
         <view class="checkin-left">
           <view class="streak-row">
             <t-icon name="check-circle-filled" size="36rpx" color="#00b26a" />
-            <text class="streak-num" animation="{{streakAnim}}">{{streakDays}}</text>
+            <text class="streak-num">{{streakDays}}</text>
             <text class="streak-label">天连签</text>
           </view>
           <view class="week-badge">{{yearWeek}}</view>

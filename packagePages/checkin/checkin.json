@@ -1,5 +1,5 @@
 {
-  "navigationStyle": "custom",
+  "navigationBarTitleText": "签到打卡",
   "enablePullDownRefresh": true,
   "usingComponents": {
     "t-icon": "tdesign-miniprogram/icon/icon",
