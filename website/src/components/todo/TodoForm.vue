@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useTodosStore } from '@/stores/todos'
 import { useTagsStore } from '@/stores/tags'
@@ -13,7 +13,7 @@ const todosStore = useTodosStore()
 const tagsStore = useTagsStore()
 const combosStore = useCombosStore()
 
-const isEdit = !!route.params.id
+const isEdit = computed(() => !!route.params.id)
 const submitting = ref(false)
 const loading = ref(false)
 

@@ -41,6 +41,24 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/trash',
+      name: 'Trash',
+      component: () => import('@/views/TrashView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/notices',
+      name: 'Notices',
+      component: () => import('@/views/NoticeView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/changelogs',
+      name: 'Changelogs',
+      component: () => import('@/views/ChangelogView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/calendar',
       name: 'Calendar',
       component: () => import('@/views/CalendarView.vue'),

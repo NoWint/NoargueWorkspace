@@ -36,7 +36,7 @@ function clearSearch() {
           <t-icon
             :name="searchText ? 'close-circle' : 'search'"
             size="16px"
-            @click="clearSearch"
+            @click="searchText ? clearSearch() : handleSearch()"
           />
         </template>
       </t-input>
