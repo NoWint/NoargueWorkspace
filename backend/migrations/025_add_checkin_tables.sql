@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS check_ins (
   UNIQUE KEY uk_user_date (user_id, check_in_date),
   INDEX idx_user_date (user_id, check_in_date),
   INDEX idx_date (check_in_date)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 里程碑奖励记录表
 CREATE TABLE IF NOT EXISTS checkin_milestones (
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS checkin_milestones (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY uk_user_milestone (user_id, milestone_day),
   INDEX idx_user (user_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 积分变动审计表
 CREATE TABLE IF NOT EXISTS points_log (
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS points_log (
   note VARCHAR(255) DEFAULT '' COMMENT '备注，如"签到" "分享配置" "里程碑7天"',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_user_created (user_id, created_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 用户表追加字段
 ALTER TABLE users
