@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useCombosStore } from '@/stores/combos'
 import { MessagePlugin } from 'tdesign-vue-next'
 import ComboForm from '@/components/combo/ComboForm.vue'
 import type { Combo } from '@/types'
 
+const router = useRouter()
+const route = useRoute()
 const combosStore = useCombosStore()
 
 const showForm = ref(false)
@@ -15,10 +18,6 @@ onMounted(() => {
     combosStore.fetchCombos()
   }
 })
-
-function selectCombo(id: number | null) {
-  combosStore.selectCombo(id)
-}
 
 function openCreate() {
   editingCombo.value = null
@@ -58,27 +57,21 @@ async function deleteCombo(combo: Combo) {
     <t-loading v-if="combosStore.loading" :loading="true" size="small" />
 
     <div class="combo-list">
-      <!-- 全部待办 -->
-      <div
-        class="combo-item"
-        :class="{ active: combosStore.selectedId === null }"
-        @click="selectCombo(null)"
-      >
+      <router-link to="/" class="combo-item" :class="{ active: route.path === '/' }">
         <t-icon name="list" size="18px" />
         <span class="combo-name">全部待办</span>
-      </div>
+      </router-link>
 
-      <!-- 组合列表 -->
-      <div
+      <router-link
         v-for="combo in combosStore.items"
         :key="combo.id"
+        :to="`/combos/${combo.id}`"
         class="combo-item"
-        :class="{ active: combosStore.selectedId === combo.id }"
-        @click="selectCombo(combo.id)"
+        :class="{ active: route.path === `/combos/${combo.id}` }"
       >
         <t-icon :name="combo.icon || 'folder'" size="18px" :style="{ color: combo.color }" />
         <span class="combo-name">{{ combo.name }}</span>
-        <div class="combo-actions">
+        <div class="combo-actions" @click.prevent>
           <t-button
             variant="text"
             shape="square"
@@ -102,7 +95,7 @@ async function deleteCombo(combo: Combo) {
             </t-button>
           </t-popconfirm>
         </div>
-      </div>
+      </router-link>
     </div>
 
     <div v-if="!combosStore.loading && combosStore.items.length === 0" class="empty-hint">

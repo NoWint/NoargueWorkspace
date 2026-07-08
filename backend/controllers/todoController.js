@@ -181,7 +181,7 @@ const create = async (req, res) => {
 const update = async (req, res) => {
   const userId = req.user.id;
   const { id } = req.params;
-  const { text, setDate, setTime, remarks, location, isStar, completed, comboId, tagIds, version, images } = req.body;
+  const { text, setDate, setTime, remarks, location, isStar, completed, comboId, tagIds, version, images, priority, parent_id } = req.body;
   
   try {
     const todos = await query(

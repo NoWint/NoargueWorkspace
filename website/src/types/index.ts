@@ -25,13 +25,15 @@ export interface Todo {
   locationText?: string
   completed: number
   isStar: boolean
+  priority?: string
   tags?: number[]
-  images?: string
+  images?: string[]
   version: number
   isDeleted: boolean
   comboId?: number
-  createdAt: string
-  updatedAt?: string
+  time: number
+  createdAt?: string
+  updatedAt?: number
 }
 
 // ====== 组合 ======

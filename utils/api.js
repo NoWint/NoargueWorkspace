@@ -690,6 +690,12 @@ const shareApi = {
     url: `/share/snapshot/list-by-todo/${todoId}`,
     method: 'GET'
   }),
+
+  batchMetadata: (shareIds) => request({
+    url: '/share/snapshot/batch-metadata',
+    method: 'POST',
+    data: { shareIds }
+  }),
 };
 
 // 分享撤回检测：删除前调用，如待办有活跃分享则询问用户

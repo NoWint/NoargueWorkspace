@@ -93,7 +93,7 @@ function goDetail() {
           @click.stop="handleToggleStar"
         />
       </t-tooltip>
-      <t-popconfirm attach="body" content="确定删除此待办？" @confirm="handleDelete">
+      <t-popconfirm attach="body" trigger="click" content="确定删除此待办？" @confirm="handleDelete">
         <t-icon name="delete" size="16px" class="action-btn danger" />
       </t-popconfirm>
     </div>

@@ -1,6 +1,10 @@
 <view class="top">
   <view class="header" style="padding-top:{{navBarHeight-44}}px;padding-left:{{menuRight+20}}rpx">
     <text class="title">社区</text>
+    <view class="header-right" bindtap="goToUserCenter" wx:if="{{isLoggedIn}}">
+      <image class="header-avatar" src="{{avatarUrl || '../../images/avatar.png'}}" />
+      <text class="header-nickname">{{nickname || '用户'}}</text>
+    </view>
     <view class="action-group" style="right:{{menuRight + menuWidth + 10}}px">
       <t-icon name="search" size="40rpx" color="#000" bindtap="onSearch" />
     </view>

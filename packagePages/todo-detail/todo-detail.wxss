@@ -1170,43 +1170,56 @@
   background: #00b26a;
 }
 
-.visitor-btn {
+.visitor-popup {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8rpx;
-  padding: 24rpx;
-  margin: 0 20rpx 140rpx;
-  background: #f0fdf6;
-  border-radius: 16rpx;
-  color: #00b26a;
-  font-size: 26rpx;
+  flex-direction: column;
+  height: 70vh;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(24rpx) saturate(180%);
+  -webkit-backdrop-filter: blur(24rpx) saturate(180%);
+  border-radius: 32rpx 32rpx 0 0;
+  border: 1rpx solid rgba(255, 255, 255, 0.3);
 }
 
-.visitor-popup-panel {
-  padding: 30rpx;
-  padding-bottom: calc(30rpx + env(safe-area-inset-bottom));
-  max-height: 600rpx;
-  overflow-y: auto;
+.visitor-popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  flex-shrink: 0;
 }
 
 .visitor-popup-title {
-  font-size: 30rpx;
+  font-size: 34rpx;
   font-weight: 600;
   color: #333;
-  text-align: center;
-  margin-bottom: 20rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8rpx;
+}
+
+.visitor-popup-close-btn {
+  padding: 8rpx;
+}
+
+.visitor-popup-list {
+  flex: 1;
+  padding: 24rpx 32rpx;
+  overflow-y: auto;
 }
 
 .visitor-popup-empty {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 0;
   color: #999;
-  font-size: 26rpx;
-  padding: 40rpx 0;
+  width: 100%;
+}
+
+.visitor-popup-empty text {
+  margin-top: 20rpx;
+  font-size: 28rpx;
+  text-align: center;
 }
 
 .visitor-popup-item {
@@ -1264,13 +1277,6 @@
 .visitor-popup-time {
   color: #999;
   font-size: 20rpx;
-}
-
-.visitor-popup-close {
-  text-align: center;
-  padding: 20rpx 0 10rpx;
-  font-size: 28rpx;
-  color: #999;
 }
 
 /* ==================== 分享快照遮罩 ==================== */

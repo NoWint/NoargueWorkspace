@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted, watch } from 'vue'
 import { useTodosStore } from '@/stores/todos'
-import { useCombosStore } from '@/stores/combos'
 import { useTagsStore } from '@/stores/tags'
 import GlassPanel from '@/components/common/GlassPanel.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
@@ -11,22 +10,13 @@ import TodoQuickAdd from '@/components/todo/TodoQuickAdd.vue'
 import TodoItem from '@/components/todo/TodoItem.vue'
 
 const todosStore = useTodosStore()
-const combosStore = useCombosStore()
 const tagsStore = useTagsStore()
 
 onMounted(() => {
   todosStore.fetchTodos()
 })
 
-// Re-fetch when filter changes
-watch(
-  () => combosStore.selectedId,
-  () => {
-    todosStore.filter.comboId = combosStore.selectedId
-    todosStore.fetchTodos()
-  },
-)
-
+// Re-fetch when tag filter changes
 watch(
   () => tagsStore.selectedIds,
   () => {

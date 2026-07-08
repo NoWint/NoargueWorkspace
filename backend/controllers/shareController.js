@@ -48,10 +48,11 @@ const createSnapshot = async (req, res) => {
 
     res.json({ success: true, shareId });
   } catch (err) {
-    logger.dbError('分享', '创建分享快照失败', { userId, error: err.message });
+    console.error('createSnapshot error:', err);
+    logger.dbError('分享', '创建分享快照失败', { userId, error: err.message, sql: err.sql, code: err.code });
     res.status(500).json({
       success: false,
-      message: '服务器错误'
+      message: err.message || '服务器错误'
     });
   }
 };
@@ -242,6 +243,32 @@ const recordAddAction = async (req, res) => {
   }
 };
 
+const batchMetadata = async (req, res) => {
+  const userId = req.user.id;
+  const { shareIds } = req.body;
+
+  if (!Array.isArray(shareIds) || shareIds.length === 0) {
+    return res.json({ success: true, data: [] });
+  }
+
+  try {
+    const placeholders = shareIds.map(() => '?').join(',');
+    const rows = await query(
+      `SELECT share_id, remark, expires_at, created_at, current_views, max_views,
+              password IS NOT NULL AS has_password, allow_copy
+       FROM share_snapshots
+       WHERE share_id IN (${placeholders}) AND user_id = ? AND revoked = FALSE AND expires_at > NOW()
+       ORDER BY created_at DESC`,
+      [...shareIds, userId]
+    );
+
+    res.json({ success: true, data: rows });
+  } catch (err) {
+    logger.dbError('分享', '批量查询分享元数据失败', { shareIds, userId, error: err.message });
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+};
+
 const listByTodo = async (req, res) => {
   const userId = req.user.id;
   const { todoId } = req.params;
@@ -297,5 +324,6 @@ module.exports = {
   verifyPassword,
   recordAddAction,
   getVisitors,
-  listByTodo
+  listByTodo,
+  batchMetadata
 };

@@ -6,7 +6,6 @@ import { combosApi } from '@/api/combos'
 export const useCombosStore = defineStore('combos', () => {
   const items = ref<Combo[]>([])
   const loading = ref(false)
-  const selectedId = ref<number | null>(null)
 
   async function fetchCombos() {
     loading.value = true
@@ -18,10 +17,6 @@ export const useCombosStore = defineStore('combos', () => {
     } finally {
       loading.value = false
     }
-  }
-
-  function selectCombo(id: number | null) {
-    selectedId.value = id
   }
 
   async function createCombo(data: Partial<Combo>) {
@@ -45,7 +40,6 @@ export const useCombosStore = defineStore('combos', () => {
     const res = await combosApi.delete(id)
     if (res.success) {
       items.value = items.value.filter((c) => c.id !== id)
-      if (selectedId.value === id) selectedId.value = null
     }
     return res
   }
@@ -53,9 +47,7 @@ export const useCombosStore = defineStore('combos', () => {
   return {
     items,
     loading,
-    selectedId,
     fetchCombos,
-    selectCombo,
     createCombo,
     updateCombo,
     deleteCombo,

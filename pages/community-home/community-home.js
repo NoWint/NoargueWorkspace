@@ -26,6 +26,8 @@ Page({
     yearWeek: '',
     weekDays: [],
     checkinError: false,
+    avatarUrl: '',
+    nickname: '',
   },
 
   onShow() {
@@ -190,7 +192,12 @@ Page({
 
   _checkLogin() {
     const token = wx.getStorageSync('authToken');
-    this.setData({ isLoggedIn: !!token });
+    const userInfo = app.globalData.userInfo;
+    this.setData({
+      isLoggedIn: !!token,
+      avatarUrl: (userInfo && userInfo.avatarUrl) || '',
+      nickname: (userInfo && userInfo.nickname) || '',
+    });
   },
 
   async loadCheckinData() {
@@ -234,7 +241,7 @@ Page({
       list.push({ text: title, color });
       list.push({ text: `连签${streakDays}天`, color: '#00b26a' });
     }
-    list.push({ text: `已注册${Math.max(1, registeredDays)}天`, color: '#999999' });
+    list.push({ text: `注册${Math.max(1, registeredDays)}天`, color: '#999999' });
     return list;
   },
 
@@ -302,6 +309,17 @@ Page({
 
   goToLeaderboard() {
     wx.navigateTo({ url: '/packagePages/checkinLeaderboard/checkinLeaderboard' });
+  },
+
+  goToUserCenter() {
+    if (!this.data.isLoggedIn) {
+      wx.navigateTo({ url: '/packagePages/login/login' });
+      return;
+    }
+    const userInfo = app.globalData.userInfo;
+    const userId = userInfo && userInfo.id;
+    const url = userId ? `/packageProfile/user-home/user-home?userId=${userId}` : '/packageProfile/user-home/user-home';
+    wx.navigateTo({ url });
   },
 
   formatTime(dateStr) {

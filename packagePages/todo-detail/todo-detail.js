@@ -111,7 +111,7 @@ Page({
 
     if (isShare && !isSharedTodo) {
       if (allowAdd) {
-        buttons.push({ id: 'add', icon: 'add', text: '添加到我的待办', method: 'addToMyTodos', row: 0 });
+        buttons.push({ id: 'add', icon: 'add', text: '添加', method: 'addToMyTodos', row: 0 });
       }
       buttons.push({ id: 'home', icon: 'home', text: '返回首页', method: 'goHome', row: 0 });
       return this._layoutFabButtons(buttons);
@@ -138,6 +138,11 @@ Page({
     }
     if (isFromShare) {
       buttons.push({ id: 'home', icon: 'home', text: '返回首页', method: 'goHome', row: 1 });
+    }
+
+    // 第2行：访客记录
+    if (activeShares.length > 0 && !isSharedTodo && !adminView) {
+      buttons.push({ id: 'visitor', icon: 'browse', text: '访客记录', method: 'onViewVisitors', row: 2 });
     }
 
     return this._layoutFabButtons(buttons);
@@ -180,7 +185,7 @@ Page({
     const map = {
       star: 'toggleStar', edit: 'editTodo', delete: 'deleteTodo',
       comment: 'openCommentPopup', revoke: 'revokeShare',
-      share: 'goToShareConfig', add: 'addToMyTodos', home: 'goHome',
+      share: 'goToShareConfig', add: 'addToMyTodos', home: 'goHome', visitor: 'onViewVisitors',
     };
     const method = map[id];
     if (method) this[method]();
@@ -1290,14 +1295,22 @@ Page({
     try {
       const res = await shareApi.listByTodo(todo.id);
       let active = (res.success && Array.isArray(res.data)) ? res.data : [];
-      // 合并本地记录：本地有但后端未返回的（本地 ID / 后端的 todo_id 为 null）
+
+      // 尝试通过 share_id 批量查询本地记录的云端元数据
       try {
         const storedIds = wx.getStorageSync('_sharedSnapshotIds') || {};
         const localIds = storedIds[todo.id];
         if (Array.isArray(localIds) && localIds.length > 0) {
           const cloudIds = new Set(active.map(s => s.share_id));
           const missing = localIds.filter(id => !cloudIds.has(id));
-          missing.forEach(id => active.push({ share_id: id, _localOnly: true }));
+          if (missing.length > 0) {
+            const batchRes = await shareApi.batchMetadata(missing).catch(() => null);
+            if (batchRes && batchRes.success && Array.isArray(batchRes.data)) {
+              active = active.concat(batchRes.data);
+            } else {
+              missing.forEach(id => active.push({ share_id: id, _localOnly: true }));
+            }
+          }
         }
         // 同步清理本地已被云端移除的过期/已撤回到记录
         const allActiveIds = new Set(active.map(s => s.share_id));
@@ -1343,12 +1356,16 @@ Page({
       );
       Promise.all(promises).then(() => {
         wx.hideLoading();
-        // 清理本地记录
+        // 只移除被撤回的 share_id，保留其他活跃分享记录
         try {
           const storedIds = wx.getStorageSync('_sharedSnapshotIds') || {};
           const todoId = that.data.todo.id;
-          if (todoId) {
-            delete storedIds[todoId];
+          if (todoId && Array.isArray(storedIds[todoId])) {
+            const revokedSet = new Set(shareIds);
+            storedIds[todoId] = storedIds[todoId].filter(id => !revokedSet.has(id));
+            if (storedIds[todoId].length === 0) {
+              delete storedIds[todoId];
+            }
             wx.setStorageSync('_sharedSnapshotIds', storedIds);
           }
         } catch (e) {}
@@ -1376,7 +1393,17 @@ Page({
       // 多个快照，用 ActionSheet 展示列表
       const padTime = (s) => {
         try {
+          if (!s.created_at) {
+            let label = '本地记录';
+            if (s.remark) label = `[${s.remark}] ` + label;
+            return label;
+          }
           const date = new Date(s.created_at);
+          if (isNaN(date.getTime())) {
+            let label = '本地记录';
+            if (s.remark) label = `[${s.remark}] ` + label;
+            return label;
+          }
           const m = String(date.getMonth() + 1).padStart(2, '0');
           const d = String(date.getDate()).padStart(2, '0');
           const h = String(date.getHours()).padStart(2, '0');
@@ -1391,7 +1418,9 @@ Page({
             }
           }
           const views = s.current_views || 0;
-          let label = `${timeStr} · ${expiresInfo} · ${views}次查看`;
+          let label = timeStr;
+          if (expiresInfo) label += ` · ${expiresInfo}`;
+          label += ` · ${views}次查看`;
           if (s.remark) label = `[${s.remark}] ` + label;
           return label;
         } catch (e) {

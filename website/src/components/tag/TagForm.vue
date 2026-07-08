@@ -68,6 +68,7 @@ function handleCancel() {
 
 <template>
   <t-dialog
+    attach="body"
     :visible="visible"
     :header="tag ? '编辑标签' : '新建标签'"
     :confirm-btn="{ content: '保存', loading: submitting }"

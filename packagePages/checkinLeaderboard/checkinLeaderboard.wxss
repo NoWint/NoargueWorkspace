@@ -83,6 +83,7 @@
 }
 
 .rank-title {
+  margin-left: 12rpx;
   font-size: 20rpx;
   color: #999;
 }

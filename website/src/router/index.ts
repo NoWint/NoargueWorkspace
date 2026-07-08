@@ -29,6 +29,12 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/combos/:id',
+      name: 'ComboDetail',
+      component: () => import('@/views/ComboDetailView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/todos/:id/edit',
       name: 'TodoEdit',
       component: () => import('@/components/todo/TodoForm.vue'),

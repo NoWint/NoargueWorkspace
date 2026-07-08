@@ -460,37 +460,38 @@
   </view>
 </view>
 
-<!-- 访客记录按钮 -->
-<view wx:if="{{hasActiveShare && !isSharedTodo && !adminView}}" class="visitor-btn" bind:tap="onViewVisitors">
-  <t-icon name="browse" size="32rpx" color="#00b26a" />
-  <text>查看访客记录</text>
-</view>
-
 <!-- 访客记录弹窗 -->
-<t-popup visible="{{showVisitorPopup}}" placement="bottom" bind:visible-change="onVisitorPopupChange">
-  <view class="visitor-popup-panel">
-    <view class="visitor-popup-title">
-      <t-icon name="browse" size="32rpx" color="#00b26a" />
-      <text>访客记录 ({{visitorList.length}})</text>
-    </view>
-    <view wx:if="{{visitorList.length === 0}}" class="visitor-popup-empty">
-      <t-icon name="browse-off" size="48rpx" color="#ddd" />
-      <text>暂无访客记录</text>
-    </view>
-    <block wx:for="{{visitorList}}" wx:key="id">
-      <view class="visitor-popup-item">
-        <view class="visitor-popup-user">
-          <t-icon name="person" size="32rpx" color="#999" />
-          <text wx:if="{{item.visitor_nickname}}" class="visitor-popup-name">{{item.visitor_nickname}}</text>
-          <text wx:else class="visitor-popup-name visitor-popup-ip">{{item.visitor_ip}}</text>
-        </view>
-        <view class="visitor-popup-action {{item.action === 'add' ? 'action-add' : 'action-view'}}">
-          {{item.action === 'add' ? '添加' : '查看'}}
-        </view>
-        <text class="visitor-popup-time">{{item.created_at}}</text>
+<t-popup visible="{{showVisitorPopup}}" placement="bottom" bind:visible-change="onVisitorPopupChange" custom-style="border-radius: 32rpx 32rpx 0 0; max-height: 70vh;">
+  <view class="visitor-popup">
+    <!-- 头部 -->
+    <view class="visitor-popup-header">
+      <text class="visitor-popup-title">访客记录 ({{visitorList.length}})</text>
+      <view class="visitor-popup-close-btn" bindtap="onCloseVisitorPopup">
+        <t-icon name="close" size="40rpx" color="#999" />
       </view>
-    </block>
-    <view class="visitor-popup-close" bind:tap="onCloseVisitorPopup">关闭</view>
+    </view>
+
+    <!-- 访客列表 -->
+    <scroll-view class="visitor-popup-list" scroll-y>
+      <view wx:if="{{visitorList.length === 0}}" class="visitor-popup-empty">
+        <t-icon name="browse-off" size="80rpx" color="#ddd" />
+        <text>暂无访客记录</text>
+      </view>
+
+      <block wx:for="{{visitorList}}" wx:key="id">
+        <view class="visitor-popup-item">
+          <view class="visitor-popup-user">
+            <t-icon name="person" size="32rpx" color="#999" />
+            <text wx:if="{{item.visitor_nickname}}" class="visitor-popup-name">{{item.visitor_nickname}}</text>
+            <text wx:else class="visitor-popup-name visitor-popup-ip">{{item.visitor_ip}}</text>
+          </view>
+          <view class="visitor-popup-action {{item.action === 'add' ? 'action-add' : 'action-view'}}">
+            {{item.action === 'add' ? '添加' : '查看'}}
+          </view>
+          <text class="visitor-popup-time">{{item.created_at}}</text>
+        </view>
+      </block>
+    </scroll-view>
   </view>
 </t-popup>
 

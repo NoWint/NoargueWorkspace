@@ -307,7 +307,6 @@ Page({
 
   _snapshotDefaults() {
     _defaultSettings = JSON.parse(JSON.stringify(this.data.settings));
-    _defaultFieldPicker = [...this.data.fieldPickerValue].sort();
   },
 
   async _loadUserPoints() {
@@ -326,10 +325,7 @@ Page({
   _checkDirty() {
     const defaults = _defaultSettings;
     const cur = this.data.settings;
-    const settingsDiff = Object.keys(defaults).some(k => defaults[k] !== cur[k]);
-    const curSorted = [...this.data.fieldPickerValue].sort();
-    const pickerDiff = JSON.stringify(_defaultFieldPicker) !== JSON.stringify(curSorted);
-    const dirty = settingsDiff || pickerDiff;
+    const dirty = Object.keys(defaults).some(k => defaults[k] !== cur[k]);
     // 设置为非脏状态时重置扣分标记，以便下次修改后重新扣分
     if (!dirty) _deductedForShare = false;
     this.setData({

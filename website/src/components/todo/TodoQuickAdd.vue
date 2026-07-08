@@ -5,7 +5,6 @@ import { useCombosStore } from '@/stores/combos'
 import { MessagePlugin } from 'tdesign-vue-next'
 
 const todosStore = useTodosStore()
-const combosStore = useCombosStore()
 
 const text = ref('')
 const submitting = ref(false)
@@ -16,10 +15,7 @@ async function handleSubmit() {
 
   submitting.value = true
   try {
-    await todosStore.createTodo({
-      text: trimmed,
-      comboId: combosStore.selectedId ?? undefined,
-    })
+    await todosStore.createTodo({ text: trimmed })
     text.value = ''
   } catch {
     MessagePlugin.error('创建失败')

@@ -83,6 +83,7 @@ function handleCancel() {
 
 <template>
   <t-dialog
+    attach="body"
     :visible="visible"
     :header="combo ? '编辑组合' : '新建组合'"
     :confirm-btn="{ content: '保存', loading: submitting }"

@@ -10,7 +10,6 @@ export const useTodosStore = defineStore('todos', () => {
   const error = ref<string | null>(null)
 
   const filter = reactive({
-    comboId: null as number | null,
     tagIds: [] as number[],
     search: '',
     showCompleted: true,
@@ -21,7 +20,6 @@ export const useTodosStore = defineStore('todos', () => {
       loading.value = true
       error.value = null
       const params: Record<string, string | number | boolean> = {}
-      if (filter.comboId) params.comboId = filter.comboId
       if (filter.tagIds.length) params.tagIds = filter.tagIds.join(',')
       if (filter.search) params.search = filter.search
       params.showCompleted = filter.showCompleted

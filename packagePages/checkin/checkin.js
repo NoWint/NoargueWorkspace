@@ -83,7 +83,7 @@ Page({
       list.push({ text: title, color });
       list.push({ text: `连签${streakDays}天`, color: '#00b26a' });
     }
-    list.push({ text: `已注册${registeredDays}天`, color: '#999999' });
+    list.push({ text: `注册${registeredDays}天`, color: '#999999' });
     return list;
   },
 
