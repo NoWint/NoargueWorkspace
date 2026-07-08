@@ -153,6 +153,23 @@
   flex-shrink: 0;
 }
 
+/* ========== HomeTabs 三栏视图 ========== */
+.homeTabs {
+  margin-top: 16px;
+}
+
+.comboSection {
+  margin-bottom: 24px;
+}
+
+.comboSectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
 /* 加载更多指示器 */
 .loadingMore {
   display: flex;
