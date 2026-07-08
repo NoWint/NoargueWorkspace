@@ -13,24 +13,24 @@ export const todosApi = {
   }) =>
     http.get<TodoListResponse>('/todos/list', { params }),
 
-  getById: (id: number) =>
+  getById: (id: number | string) =>
     http.get<TodoItemResponse>(`/todos/${id}`),
 
   create: (data: Partial<Todo>) =>
     http.post<TodoCreateResponse>('/todos/create', data),
 
-  update: (id: number, data: Partial<Todo>) =>
+  update: (id: number | string, data: Partial<Todo>) =>
     http.put<TodoCreateResponse>(`/todos/${id}`, data),
 
-  delete: (id: number) =>
+  delete: (id: number | string) =>
     http.delete<{ success: boolean; message?: string }>(`/todos/${id}`),
 
   getDeleted: () =>
     http.get<TodoDeletedResponse>('/todos/deleted'),
 
-  restore: (todoId: number) =>
+  restore: (todoId: number | string) =>
     http.post<{ success: boolean; todo: Todo }>(`/todos/restore/${todoId}`),
 
-  permanentDelete: (todoId: number) =>
+  permanentDelete: (todoId: number | string) =>
     http.delete<{ success: boolean; message?: string }>(`/todos/permanent/${todoId}`),
 }

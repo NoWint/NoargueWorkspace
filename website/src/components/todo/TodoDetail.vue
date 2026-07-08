@@ -18,7 +18,7 @@ const todo = ref<Todo | null>(null)
 const loading = ref(true)
 
 onMounted(async () => {
-  const id = Number(route.params.id)
+  const id = route.params.id as string
   if (!id) {
     router.push('/not-found')
     return
@@ -37,8 +37,8 @@ onMounted(async () => {
 })
 
 const tagIds = computed<number[]>(() => {
-  if (!todo.value?.tags) return []
-  try { return JSON.parse(todo.value.tags) as number[] } catch { return [] }
+  if (!todo.value?.tags || !todo.value.tags.length) return []
+  return todo.value.tags
 })
 
 const tagItems = computed(() => {
@@ -90,7 +90,7 @@ function goBack() {
             <template #icon><t-icon name="edit" /></template>
             编辑
           </t-button>
-          <t-popconfirm content="确定删除此待办？" @confirm="handleDelete">
+          <t-popconfirm attach="body" content="确定删除此待办？" @confirm="handleDelete">
             <t-button variant="outline" size="small" theme="danger">
               <template #icon><t-icon name="delete" /></template>
               删除

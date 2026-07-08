@@ -44,7 +44,7 @@ export const useTodosStore = defineStore('todos', () => {
     return res
   }
 
-  async function updateTodo(id: number, data: Partial<Todo>) {
+  async function updateTodo(id: string, data: Partial<Todo>) {
     const res = await todosApi.update(id, data)
     if (res.success) {
       const idx = items.value.findIndex((t) => t.id === id)
@@ -55,7 +55,7 @@ export const useTodosStore = defineStore('todos', () => {
     return res
   }
 
-  async function deleteTodo(id: number) {
+  async function deleteTodo(id: string) {
     const res = await todosApi.delete(id)
     if (res.success) {
       items.value = items.value.filter((t) => t.id !== id)
@@ -63,11 +63,11 @@ export const useTodosStore = defineStore('todos', () => {
     return res
   }
 
-  async function toggleComplete(id: number) {
+  async function toggleComplete(id: string) {
     const idx = items.value.findIndex((t) => t.id === id)
     if (idx === -1) return
     const original = items.value[idx].completed
-    items.value[idx].completed = original ? 0 : 1
+    items.value[idx].completed = original ? 0 : Date.now()
     try {
       await todosApi.update(id, { completed: items.value[idx].completed })
     } catch {
@@ -75,11 +75,11 @@ export const useTodosStore = defineStore('todos', () => {
     }
   }
 
-  async function toggleStar(id: number) {
+  async function toggleStar(id: string) {
     const idx = items.value.findIndex((t) => t.id === id)
     if (idx === -1) return
     const original = items.value[idx].isStar
-    items.value[idx].isStar = original ? 0 : 1
+    items.value[idx].isStar = !original
     try {
       await todosApi.update(id, { isStar: items.value[idx].isStar })
     } catch {
@@ -87,10 +87,14 @@ export const useTodosStore = defineStore('todos', () => {
     }
   }
 
-  async function fetchTodoById(id: number): Promise<Todo | null> {
+  async function fetchTodoById(id: string): Promise<Todo | null> {
     try {
       const res = await todosApi.getById(id)
-      if (res.success && res.todo) return res.todo
+      if (res.success && res.todo) {
+        const idx = items.value.findIndex((t) => t.id === id || t.todoId === id)
+        if (idx !== -1) items.value[idx] = res.todo
+        return res.todo
+      }
       return null
     } catch {
       return null
@@ -105,7 +109,7 @@ export const useTodosStore = defineStore('todos', () => {
     return res
   }
 
-  async function restoreTodo(todoId: number) {
+  async function restoreTodo(todoId: string) {
     const res = await todosApi.restore(todoId)
     if (res.success) {
       deletedItems.value = deletedItems.value.filter((t) => t.id !== todoId)
@@ -113,7 +117,7 @@ export const useTodosStore = defineStore('todos', () => {
     return res
   }
 
-  async function permanentDeleteTodo(todoId: number) {
+  async function permanentDeleteTodo(todoId: string) {
     const res = await todosApi.permanentDelete(todoId)
     if (res.success) {
       deletedItems.value = deletedItems.value.filter((t) => t.id !== todoId)

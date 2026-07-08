@@ -13,16 +13,12 @@ const router = useRouter()
 const todosStore = useTodosStore()
 const tagsStore = useTagsStore()
 
-const completed = computed(() => props.todo.completed === 1)
-const starred = computed(() => props.todo.isStar === 1)
+const completed = computed(() => !!props.todo.completed)
+const starred = computed(() => !!props.todo.isStar)
 
 const tagIds = computed<number[]>(() => {
   if (!props.todo.tags) return []
-  try {
-    return JSON.parse(props.todo.tags) as number[]
-  } catch {
-    return []
-  }
+  return props.todo.tags
 })
 
 const tagItems = computed(() => {
@@ -88,7 +84,7 @@ function goDetail() {
     </div>
 
     <div class="todo-actions">
-      <t-tooltip :content="starred ? '取消星标' : '星标'">
+      <t-tooltip attach="body" :content="starred ? '取消星标' : '星标'">
         <t-icon
           :name="starred ? 'star-filled' : 'star'"
           :color="starred ? '#ff9800' : undefined"
@@ -97,7 +93,7 @@ function goDetail() {
           @click.stop="handleToggleStar"
         />
       </t-tooltip>
-      <t-popconfirm content="确定删除此待办？" @confirm="handleDelete">
+      <t-popconfirm attach="body" content="确定删除此待办？" @confirm="handleDelete">
         <t-icon name="delete" size="16px" class="action-btn danger" />
       </t-popconfirm>
     </div>

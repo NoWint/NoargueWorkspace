@@ -15,7 +15,7 @@ export interface User {
 
 // ====== 待办 ======
 export interface Todo {
-  id: number
+  id: string
   todoId?: string
   userId: number
   text: string
@@ -24,11 +24,11 @@ export interface Todo {
   remarks?: string
   locationText?: string
   completed: number
-  isStar: number
-  tags?: string
+  isStar: boolean
+  tags?: number[]
   images?: string
   version: number
-  isDeleted: number
+  isDeleted: boolean
   comboId?: number
   createdAt: string
   updatedAt?: string

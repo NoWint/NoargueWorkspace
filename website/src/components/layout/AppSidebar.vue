@@ -31,7 +31,7 @@ function navigate(path: string) {
         v-for="item in navItems"
         :key="item.path"
         class="nav-item"
-        :class="{ active: route.path === item.path }"
+        :class="{ active: route.path.startsWith(item.path) && (item.path !== '/' ? true : route.path === '/') }"
         @click="navigate(item.path)"
       >
         <t-icon :name="item.icon" size="20px" />

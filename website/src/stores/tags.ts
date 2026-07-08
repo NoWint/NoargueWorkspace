@@ -42,7 +42,7 @@ export const useTagsStore = defineStore('tags', () => {
     if (res.success) {
       const idx = items.value.findIndex((t) => t.id === id)
       if (idx !== -1) {
-        items.value[idx] = { ...items.value[idx], ...data }
+        Object.assign(items.value[idx], data)
       }
     }
     return res

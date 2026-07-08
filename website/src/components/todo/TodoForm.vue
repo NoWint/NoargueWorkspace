@@ -35,7 +35,7 @@ onMounted(async () => {
   if (isEdit) {
     loading.value = true
     try {
-      const res = await todosStore.fetchTodoById(Number(route.params.id))
+      const res = await todosStore.fetchTodoById(route.params.id as string)
       if (res) {
         form.text = res.text
         form.setDate = res.setDate || ''
@@ -43,7 +43,7 @@ onMounted(async () => {
         form.remarks = res.remarks || ''
         form.comboId = res.comboId || undefined
         if (res.tags) {
-          try { form.tags = JSON.parse(res.tags) as number[] } catch { form.tags = [] }
+          form.tags = res.tags
         }
       }
     } finally {
@@ -60,7 +60,7 @@ async function handleSubmit() {
 
   submitting.value = true
   try {
-    const payload = {
+    const payload: Record<string, unknown> = {
       text: form.text.trim(),
       setDate: form.setDate || undefined,
       setTime: form.setTime || undefined,
@@ -70,7 +70,7 @@ async function handleSubmit() {
     }
 
     if (isEdit) {
-      await todosStore.updateTodo(Number(route.params.id), payload)
+      await todosStore.updateTodo(route.params.id as string, payload)
       MessagePlugin.success('已更新')
     } else {
       await todosStore.createTodo(payload)

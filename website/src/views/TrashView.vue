@@ -17,7 +17,7 @@ onMounted(async () => {
   }
 })
 
-async function handleRestore(id: number) {
+async function handleRestore(id: string) {
   try {
     await todosStore.restoreTodo(id)
     MessagePlugin.success('已恢复')
@@ -26,7 +26,7 @@ async function handleRestore(id: number) {
   }
 }
 
-async function handlePermanentDelete(id: number) {
+async function handlePermanentDelete(id: string) {
   try {
     await todosStore.permanentDeleteTodo(id)
     MessagePlugin.success('已永久删除')
@@ -63,7 +63,7 @@ async function handlePermanentDelete(id: number) {
               <template #icon><t-icon name="rollback" /></template>
               恢复
             </t-button>
-            <t-popconfirm content="永久删除后不可恢复" @confirm="handlePermanentDelete(todo.id)">
+            <t-popconfirm attach="body" content="永久删除后不可恢复" @confirm="handlePermanentDelete(todo.id)">
               <t-button variant="outline" size="small" theme="danger">
                 <template #icon><t-icon name="delete" /></template>
                 删除
