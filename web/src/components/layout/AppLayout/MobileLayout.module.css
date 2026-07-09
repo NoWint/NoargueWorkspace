@@ -17,7 +17,7 @@
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch; /* iOS 平滑滚动 */
   padding: var(--spacing-4);
-  padding-bottom: calc(var(--spacing-4) + 56px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(var(--spacing-4) + var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
   background-color: var(--color-bg-page);
 }
 
@@ -30,7 +30,7 @@
 /* 内容内层容器 */
 .contentInner {
   width: 100%;
-  min-height: calc(100vh - 56px - 56px - env(safe-area-inset-bottom, 0px));
+  min-height: calc(100vh - var(--header-height) - var(--tabbar-height) - env(safe-area-inset-bottom, 0px));
 }
 
 /* ========== 暗色主题适配 ========== */

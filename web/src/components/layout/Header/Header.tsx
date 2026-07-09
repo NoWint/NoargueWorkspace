@@ -26,7 +26,7 @@ import {
   BarChartOutlined,
   AppstoreOutlined,
 } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useUIStore } from '@/stores/uiStore';
 import { useDeviceType } from '@/hooks/useMediaQuery';
 import { useAuth } from '@/hooks/useAuth';
@@ -38,10 +38,24 @@ import styles from './Header.module.css';
  */
 const Header: React.FC = memo(() => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { sidebarCollapsed, toggleSidebar } = useUIStore();
   const { isMobile } = useDeviceType();
   const { user, isAuthenticated, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+
+  /**
+   * 判断指定路径是否为当前激活的菜单项
+   */
+  const isActivePath = useCallback(
+    (path: string): boolean => {
+      if (path === '/') {
+        return location.pathname === '/';
+      }
+      return location.pathname.startsWith(path);
+    },
+    [location.pathname]
+  );
 
   /**
    * 处理搜索
@@ -162,8 +176,9 @@ const Header: React.FC = memo(() => {
         onClose={() => setMobileMenuOpen(false)}
         width={260}
         styles={{ body: { padding: 0 } }}
+        className={styles.drawerBody}
       >
-        <div style={{ padding: '16px 0' }}>
+        <div className={styles.menuContainer}>
           {[
             { key: 'home', icon: <HomeOutlined />, label: '首页', path: '/' },
             { key: 'calendar', icon: <CalendarOutlined />, label: '日历', path: '/calendar' },
@@ -174,25 +189,14 @@ const Header: React.FC = memo(() => {
             { key: 'tags', icon: <SettingOutlined />, label: '标签管理', path: '/tags' },
           ].map((item) =>
             'type' in item ? (
-              <div key={item.key} style={{ borderTop: '1px solid #f0f0f0', margin: '8px 16px' }} />
+              <div key={item.key} className={styles.menuDivider} />
             ) : (
               <div
                 key={item.key}
+                className={`${styles.menuItem} ${isActivePath(item.path) ? styles.menuItemActive : ''}`}
                 onClick={() => { navigate(item.path); setMobileMenuOpen(false); }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 12,
-                  padding: '12px 24px',
-                  cursor: 'pointer',
-                  fontSize: 15,
-                  color: 'var(--color-text-primary, #333)',
-                  transition: 'background-color 0.2s',
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-fill-secondary, #f5f5f5)')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '')}
               >
-                <span style={{ fontSize: 18 }}>{item.icon}</span>
+                <span className={styles.menuItemIcon}>{item.icon}</span>
                 <span>{item.label}</span>
               </div>
             )

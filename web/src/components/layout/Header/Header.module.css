@@ -206,6 +206,75 @@
   }
 }
 
+/* ========== 移动端抽屉菜单 ========== */
+.drawerBody {
+  padding: 0;
+}
+
+.menuContainer {
+  padding: 16px 0;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  cursor: pointer;
+  font-size: 15px;
+  color: var(--color-text-primary);
+  transition: background-color 0.2s ease, color 0.2s ease;
+  position: relative;
+}
+
+.menuItem:hover {
+  background-color: var(--color-fill-secondary);
+}
+
+.menuItem:active {
+  background-color: var(--color-fill-tertiary);
+}
+
+/* 菜单项图标 */
+.menuItemIcon {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+/* 激活的菜单项 - 绿色左边框指示 */
+.menuItemActive {
+  color: var(--color-primary);
+  background-color: var(--color-primary-bg);
+}
+
+.menuItemActive::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 20px;
+  background-color: var(--color-primary);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.menuItemActive .menuItemIcon {
+  color: var(--color-primary);
+}
+
+.menuItemActive:hover {
+  background-color: var(--color-primary-bg-hover);
+}
+
+/* 菜单分割线 */
+.menuDivider {
+  border-top: 1px solid var(--color-border-secondary);
+  margin: 8px 16px;
+}
+
 /* ========== 暗色主题适配 ========== */
 [data-theme='dark'] .header {
   background-color: var(--color-bg-container);

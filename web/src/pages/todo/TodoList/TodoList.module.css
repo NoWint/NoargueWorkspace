@@ -1,9 +1,8 @@
 /* TodoList - 待办列表页样式 */
 
 .pageContainer {
-  max-width: 1200px;
   margin: 0 auto;
-  padding: 24px;
+  padding: var(--page-padding-desktop);
   min-height: 100%;
 }
 
@@ -186,7 +185,7 @@
 /* 平板设备 */
 @media (max-width: 992px) {
   .pageContainer {
-    padding: 16px;
+    padding: var(--page-padding-tablet);
   }
 
   .todoGrid {
@@ -207,7 +206,7 @@
 /* 移动端 */
 @media (max-width: 768px) {
   .pageContainer {
-    padding: 12px;
+    padding: var(--page-padding-mobile);
   }
 
   .statsSection {

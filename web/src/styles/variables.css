@@ -174,10 +174,16 @@
   --z-tooltip: 1070;
   --z-toast: 1080;
 
+  /* 页面容器间距 */
+  --page-padding-desktop: 24px;
+  --page-padding-tablet: 16px;
+  --page-padding-mobile: 12px;
+
   /* ---------- 尺寸常量 ---------- */
   --header-height: 56px;
   --sidebar-width: 240px;
   --sidebar-collapsed-width: 72px;
+  --tabbar-height: 56px;
   --container-max-width: 1200px;
 }
 
