@@ -12,24 +12,21 @@
  */
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Tabs, Button, Tag, Radio, Space } from 'antd';
+import { Tabs, Button, Tag, Space } from 'antd';
 import {
   PlusOutlined,
-  FilterOutlined,
-  ClearOutlined,
   FolderOpenOutlined,
   TeamOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useTodoStore } from '@/stores/todoStore';
 import { useComboStore } from '@/stores/comboStore';
-import { useTagStore } from '@/stores/tagStore';
 import { useDeviceType } from '@/hooks/useMediaQuery';
 import TodoCard from '@/components/business/TodoCard/TodoCard';
 import TodoListItem from '@/components/business/TodoListItem/TodoListItem';
 import EmptyState from '@/components/ui/EmptyState/EmptyState';
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton/LoadingSkeleton';
-import { getTagColorById } from '@/styles/themes/tagColors';
+import FilterBar from './FilterBar';
 import type { Todo } from '@/types/todo';
 import styles from './TodoList.module.css';
 
@@ -43,14 +40,6 @@ const TABS = [
 type TabKey = (typeof TABS)[number]['key'];
 
 /** 优先级筛选选项 */
-const PRIORITY_OPTIONS = [
-  { label: '全部', value: '' },
-  { label: 'P1', value: 'p1' },
-  { label: 'P2', value: 'p2' },
-  { label: 'P3', value: 'p3' },
-  { label: 'P4', value: 'p4' },
-];
-
 /**
  * 首页三栏视图组件
  */
@@ -70,11 +59,8 @@ const HomeTabs: React.FC = () => {
   const sharedCombos = useComboStore((s) => s.sharedCombos);
   const fetchSharedCombos = useComboStore((s) => s.fetchSharedCombos);
 
-  const allTags = useTagStore((s) => [...s.systemTags, ...s.userTags]);
-
   // ========== 本地状态 ==========
   const [activeTab, setActiveTab] = useState<TabKey>('todos');
-  const [showFilter, setShowFilter] = useState(false);
   const [activeStatus, setActiveStatus] = useState<'all' | 'completed' | 'uncompleted'>('all');
   const [activePriority, setActivePriority] = useState<string>('');
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
@@ -128,21 +114,6 @@ const HomeTabs: React.FC = () => {
   }, [combos, todos]);
 
   // ========== 回调处理 ==========
-  const hasActiveFilters = activeStatus !== 'all' || activePriority !== '' || selectedTagIds.length > 0 || untaggedOnly;
-
-  const clearFilters = useCallback(() => {
-    setActiveStatus('all');
-    setActivePriority('');
-    setSelectedTagIds([]);
-    setUntaggedOnly(false);
-  }, []);
-
-  const handleToggleTag = useCallback((tagId: number) => {
-    setSelectedTagIds((prev) =>
-      prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId]
-    );
-  }, []);
-
   const handleToggleComplete = useCallback(
     (id: string) => {
       toggleComplete(id).catch(console.error);
@@ -197,116 +168,34 @@ const HomeTabs: React.FC = () => {
 
     return (
       <div>
-        {/* 筛选切换按钮 */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-          <Button
-            size="small"
-            icon={<FilterOutlined />}
-            onClick={() => setShowFilter((v) => !v)}
-            type={showFilter ? 'primary' : 'default'}
-          >
-            {showFilter ? '收起筛选' : '筛选'}
-          </Button>
-          {hasActiveFilters && (
-            <Button size="small" icon={<ClearOutlined />} onClick={clearFilters}>
-              清除筛选
-            </Button>
-          )}
-        </div>
-
-        {/* 筛选面板 */}
-        {showFilter && (
-          <div
-            style={{
-              padding: 16,
-              marginBottom: 16,
-              background: 'var(--bg-secondary, #fafafa)',
-              borderRadius: 8,
-              border: '1px solid var(--border-color, #f0f0f0)',
-            }}
-          >
-            {/* 状态筛选 */}
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 13, color: '#666', marginBottom: 6, fontWeight: 500 }}>状态</div>
-              <Radio.Group
-                value={activeStatus}
-                onChange={(e) => setActiveStatus(e.target.value)}
-                size="small"
-                optionType="button"
-                buttonStyle="solid"
-              >
-                <Radio.Button value="all">全部</Radio.Button>
-                <Radio.Button value="uncompleted">未完成</Radio.Button>
-                <Radio.Button value="completed">已完成</Radio.Button>
-              </Radio.Group>
-            </div>
-
-            {/* 优先级筛选 */}
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 13, color: '#666', marginBottom: 6, fontWeight: 500 }}>优先级</div>
-              <Radio.Group
-                value={activePriority}
-                onChange={(e) => setActivePriority(e.target.value)}
-                size="small"
-                optionType="button"
-                buttonStyle="solid"
-              >
-                {PRIORITY_OPTIONS.map((opt) => (
-                  <Radio.Button key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </Radio.Button>
-                ))}
-              </Radio.Group>
-            </div>
-
-            {/* 标签筛选 */}
-            <div style={{ marginBottom: 8 }}>
-              <div style={{ fontSize: 13, color: '#666', marginBottom: 6, fontWeight: 500 }}>标签</div>
-              <Space wrap size={[4, 4]}>
-                {allTags.map((tag) => {
-                  const isSelected = selectedTagIds.includes(tag.id);
-                  const tagColor = getTagColorById(tag.id);
-                  return (
-                    <Tag
-                      key={tag.id}
-                      color={isSelected ? tagColor.color : undefined}
-                      style={{
-                        cursor: 'pointer',
-                        borderColor: isSelected ? tagColor.color : tagColor.borderColor,
-                        background: isSelected ? tagColor.color : tagColor.bgColor,
-                        color: isSelected ? '#fff' : tagColor.color,
-                        fontSize: 12,
-                      }}
-                      onClick={() => handleToggleTag(tag.id)}
-                    >
-                      {tag.name}
-                    </Tag>
-                  );
-                })}
-                <Tag
-                  style={{
-                    cursor: 'pointer',
-                    borderStyle: 'dashed',
-                    borderColor: untaggedOnly ? '#00b26a' : '#d9d9d9',
-                    background: untaggedOnly ? 'rgba(0, 178, 106, 0.08)' : undefined,
-                    color: untaggedOnly ? '#00b26a' : '#666',
-                    fontSize: 12,
-                  }}
-                  onClick={() => setUntaggedOnly((v) => !v)}
-                >
-                  无标签
-                </Tag>
-              </Space>
-            </div>
-          </div>
-        )}
+        {/* 使用 FilterBar 组件 */}
+        <FilterBar
+          filter={{
+            status: activeStatus,
+            tagIds: selectedTagIds,
+            priority: activePriority || null,
+            untagged: untaggedOnly,
+          }}
+          onChange={(partial) => {
+            if (partial.status !== undefined) setActiveStatus(partial.status);
+            if (partial.tagIds !== undefined) setSelectedTagIds(partial.tagIds);
+            if (partial.priority !== undefined) setActivePriority(partial.priority || '');
+            if (partial.untagged !== undefined) setUntaggedOnly(partial.untagged);
+          }}
+        />
 
         {/* 待办列表 */}
         {displayTodos.length === 0 ? (
           <EmptyState
-            description={hasActiveFilters ? '没有符合条件的待办事项' : '暂无待办事项'}
+            description={
+              activeStatus !== 'all' || activePriority !== '' ||
+              selectedTagIds.length > 0 || untaggedOnly
+                ? '没有符合条件的待办事项'
+                : '暂无待办事项'
+            }
             action={
-              !hasActiveFilters ? (
+              activeStatus === 'all' && activePriority === '' &&
+              selectedTagIds.length === 0 && !untaggedOnly ? (
                 <Button
                   type="primary"
                   icon={<PlusOutlined />}
