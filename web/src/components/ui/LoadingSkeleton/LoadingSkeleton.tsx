@@ -49,7 +49,7 @@ const LoadingSkeleton: React.FC<LoadingSkeletonProps> = memo(({
   };
 
   return (
-    <div className={styles.wrapper}>
+    <div className={styles.wrapper} aria-label="加载中，请稍候" role="status">
       {renderItems()}
     </div>
   );

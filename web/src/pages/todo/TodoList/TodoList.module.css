@@ -4,6 +4,19 @@
   margin: 0 auto;
   padding: var(--page-padding-desktop);
   min-height: 100%;
+  animation: pageFadeIn var(--duration-slow) var(--ease-out);
+}
+
+/* 页面淡入动画 */
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ========== 统计概览区域 ========== */
@@ -14,7 +27,7 @@
 .statCard {
   border-radius: 12px;
   text-align: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform var(--duration-normal) var(--ease-out), box-shadow var(--duration-normal) var(--ease-out);
 }
 
 .statCard:hover {
@@ -40,6 +53,11 @@
   border-radius: var(--radius-lg);
   margin-bottom: 20px;
   box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.filterCard:hover {
+  box-shadow: var(--shadow-md);
 }
 
 /* Tab 样式 */
@@ -111,11 +129,17 @@
 .gridItem {
   position: relative;
   cursor: pointer;
+  transition: transform var(--duration-normal) var(--ease-out), box-shadow var(--duration-normal) var(--ease-out);
 }
 
 .gridItem:hover {
   transform: translateY(-2px);
-  transition: transform 0.2s ease;
+  box-shadow: var(--shadow-card-hover);
+  transition: transform var(--duration-normal) var(--ease-out), box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.gridItem:active {
+  transform: translateY(0);
 }
 
 /* 批量选择复选框 */
@@ -298,5 +322,29 @@
 
   .gridItem:hover {
     transform: none;
+    box-shadow: none;
+  }
+}
+
+/* 减少动效 */
+@media (prefers-reduced-motion: reduce) {
+  .pageContainer {
+    animation: none;
+  }
+
+  .statCard,
+  .gridItem,
+  .sharedComboCard,
+  .filterCard {
+    transition: none;
+  }
+
+  .statCard:hover,
+  .gridItem:hover,
+  .sharedComboCard:hover,
+  .sharedComboCard:active,
+  .filterCard:hover {
+    transform: none;
+    box-shadow: var(--shadow-card);
   }
 }
