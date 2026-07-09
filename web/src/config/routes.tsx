@@ -51,6 +51,7 @@ const Acknowledge = lazy(() => import('@/pages/tools/Acknowledge/Acknowledge'));
 /** 系统页面 */
 const Notice = lazy(() => import('@/pages/system/Notice/Notice'));
 const Changelog = lazy(() => import('@/pages/system/Changelog/Changelog'));
+const NotificationList = lazy(() => import('@/pages/notification/NotificationList'));
 
 /** 协作 */
 const CollabJoin = lazy(() => import('@/pages/collab/CollabJoin/CollabJoin'));
@@ -176,6 +177,10 @@ export const routes: RouteObject[] = [
   {
     path: 'changelog',
     element: <Changelog />,
+  },
+  {
+    path: 'notifications',
+    element: <NotificationList />,
   },
 
   // ---------- 协作 ----------
