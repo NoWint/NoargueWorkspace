@@ -79,11 +79,15 @@ const HomeTabs: React.FC = () => {
   const [activePriority, setActivePriority] = useState<string>('');
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
   const [untaggedOnly, setUntaggedOnly] = useState(false);
+  const [sharedCombosLoading, setSharedCombosLoading] = useState(false);
 
   // ========== 共享组合懒加载 ==========
   useEffect(() => {
     if (activeTab === 'sharedCombos') {
-      fetchSharedCombos().catch(console.error);
+      setSharedCombosLoading(true);
+      fetchSharedCombos()
+        .catch(console.error)
+        .finally(() => setSharedCombosLoading(false));
     }
   }, [activeTab, fetchSharedCombos]);
 
@@ -104,7 +108,7 @@ const HomeTabs: React.FC = () => {
     if (selectedTagIds.length > 0) {
       result = result.filter((t) => {
         if (!t.tags || t.tags.length === 0) return false;
-        return selectedTagIds.every((id) => t.tags!.includes(id));
+        return selectedTagIds.every((id) => t.tags.includes(id));
       });
     }
 
@@ -360,6 +364,10 @@ const HomeTabs: React.FC = () => {
 
   // ========== Tab 2: 我的组合 ==========
   const renderMyCombosTab = () => {
+    if (isLoading && combos.length === 0) {
+      return <LoadingSkeleton type="todo" count={3} />;
+    }
+
     if (combos.length === 0) {
       return (
         <EmptyState
@@ -447,6 +455,10 @@ const HomeTabs: React.FC = () => {
 
   // ========== Tab 3: 共享组合 ==========
   const renderSharedCombosTab = () => {
+    if (sharedCombosLoading) {
+      return <LoadingSkeleton type="todo" count={3} />;
+    }
+
     if (sharedCombos.length === 0) {
       return (
         <EmptyState
@@ -510,7 +522,7 @@ const HomeTabs: React.FC = () => {
 
   // ========== 主渲染 ==========
   return (
-    <div className={styles.homeTabs} style={{ marginTop: 16 }}>
+    <div className={styles.homeTabs}>
       <Tabs
         activeKey={activeTab}
         onChange={(key) => setActiveTab(key as TabKey)}
