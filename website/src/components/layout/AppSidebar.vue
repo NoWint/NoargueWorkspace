@@ -1,10 +1,17 @@
 <script setup lang="ts">
 import { useRouter, useRoute } from 'vue-router'
-import { computed } from 'vue'
 import GlassPanel from '@/components/common/GlassPanel.vue'
+import { useResizable } from '@/composables/useResizable'
 
 const router = useRouter()
 const route = useRoute()
+
+const { width, onHandleMouseDown } = useResizable({
+  storageKey: 'sidebar-width',
+  defaultWidth: 240,
+  minWidth: 180,
+  maxWidth: 360,
+})
 
 const navItems = [
   { path: '/', name: '待办', icon: 'check' },
@@ -20,7 +27,7 @@ function navigate(path: string) {
 </script>
 
 <template>
-  <GlassPanel class="sidebar">
+  <GlassPanel variant="liquid" class="sidebar" :style="{ width: width + 'px' }">
     <div class="sidebar-logo" @click="router.push('/')">
       <t-icon name="leaf" size="24px" class="logo-icon" />
       <span class="logo-text">时光绿径</span>
@@ -38,12 +45,17 @@ function navigate(path: string) {
         <span class="nav-label">{{ item.name }}</span>
       </div>
     </nav>
+
+    <!-- 拖拽调节手柄 -->
+    <div
+      class="resize-handle"
+      @mousedown="onHandleMouseDown"
+    />
   </GlassPanel>
 </template>
 
 <style scoped>
 .sidebar {
-  width: var(--sidebar-width);
   height: 100vh;
   position: sticky;
   top: 0;
@@ -101,5 +113,31 @@ function navigate(path: string) {
 
 .nav-label {
   font-size: var(--font-size-base);
+}
+
+[data-theme='dark'] .sidebar {
+  background: var(--bg-sidebar);
+  border-color: var(--border-color);
+}
+
+[data-theme='dark'] .nav-item.active {
+  background: var(--color-primary-light);
+}
+
+.resize-handle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 4px;
+  height: 100%;
+  cursor: col-resize;
+  transition: background 0.15s;
+  z-index: 10;
+}
+
+.resize-handle:hover,
+.resize-handle:active {
+  background: var(--color-primary);
+  opacity: 0.5;
 }
 </style>

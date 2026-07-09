@@ -22,7 +22,8 @@ export const useTodosStore = defineStore('todos', () => {
       const params: Record<string, string | number | boolean> = {}
       if (filter.tagIds.length) params.tagIds = filter.tagIds.join(',')
       if (filter.search) params.search = filter.search
-      params.showCompleted = filter.showCompleted
+      // 默认显示所有（包含已完成），仅在需要筛选未完成时传递参数
+      if (!filter.showCompleted) params.completed = '0'
       const res = await todosApi.getList(params)
       if (res.success && res.todos) {
         items.value = res.todos

@@ -84,4 +84,8 @@ import GlassPanel from '@/components/common/GlassPanel.vue'
   font-size: var(--font-size-xs);
   color: var(--text-disabled);
 }
+
+[data-theme='dark'] .login-view {
+  background: var(--bg-page);
+}
 </style>

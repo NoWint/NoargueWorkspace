@@ -5,7 +5,8 @@ export const todosApi = {
   getList: (params?: {
     page?: number
     size?: number
-    comboId?: number
+    pageSize?: number
+    comboId?: number | string
     tagIds?: string
     search?: string
     showCompleted?: boolean
@@ -13,8 +14,13 @@ export const todosApi = {
   }) =>
     http.get<TodoListResponse>('/todos/list', { params }),
 
-  getById: (id: number | string) =>
-    http.get<TodoItemResponse>(`/todos/${id}`),
+  getById: (id: number | string) => {
+    if (id === undefined || id === null || id === 'undefined') {
+      console.warn('[todosApi.getById] invalid id:', id)
+      return Promise.reject(new Error('无效的待办ID'))
+    }
+    return http.get<TodoItemResponse>(`/todos/${id}`)
+  },
 
   create: (data: Partial<Todo>) =>
     http.post<TodoCreateResponse>('/todos/create', data),

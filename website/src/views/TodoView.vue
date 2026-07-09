@@ -1,13 +1,22 @@
 <script setup lang="ts">
-import { onMounted, watch } from 'vue'
+import { onMounted, watch, TransitionGroup } from 'vue'
 import { useTodosStore } from '@/stores/todos'
 import { useTagsStore } from '@/stores/tags'
 import GlassPanel from '@/components/common/GlassPanel.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
+import Skeleton from '@/components/common/Skeleton.vue'
 import ComboTree from '@/components/combo/ComboTree.vue'
 import TagFilter from '@/components/tag/TagFilter.vue'
 import TodoQuickAdd from '@/components/todo/TodoQuickAdd.vue'
 import TodoItem from '@/components/todo/TodoItem.vue'
+import { useResizable } from '@/composables/useResizable'
+
+const { width: tagPanelWidth, onHandleMouseDown } = useResizable({
+  storageKey: 'tag-panel-width',
+  defaultWidth: 180,
+  minWidth: 140,
+  maxWidth: 300,
+})
 
 const todosStore = useTodosStore()
 const tagsStore = useTagsStore()
@@ -30,12 +39,16 @@ watch(
 <template>
   <div class="todo-view">
     <!-- 左侧面板：组合 + 标签 -->
-    <aside class="todo-sidebar">
+    <aside class="todo-sidebar" :style="{ width: tagPanelWidth + 'px' }">
       <GlassPanel class="sidebar-panel">
         <ComboTree />
         <div class="panel-divider" />
         <TagFilter />
       </GlassPanel>
+      <div
+        class="resize-handle"
+        @mousedown="onHandleMouseDown"
+      />
     </aside>
 
     <!-- 主区域 -->
@@ -45,7 +58,7 @@ watch(
 
       <!-- 待办列表 -->
       <div class="todo-list-section">
-        <t-loading v-if="todosStore.loading" :loading="true" size="large" />
+        <Skeleton v-if="todosStore.loading" type="todo" :count="4" />
 
         <EmptyState
           v-else-if="todosStore.items.length === 0"
@@ -54,28 +67,31 @@ watch(
           description="在上方输入框添加新待办"
         />
 
-        <div v-else class="todo-list">
+        <TransitionGroup v-else name="todo-stagger" tag="div" class="todo-list">
           <TodoItem
-            v-for="todo in todosStore.items"
+            v-for="(todo, index) in todosStore.items"
             :key="todo.id"
             :todo="todo"
+            :style="`--stagger-delay: ${index * 30}ms`"
           />
-        </div>
+        </TransitionGroup>
       </div>
     </main>
+
   </div>
 </template>
 
 <style scoped>
 .todo-view {
   display: flex;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-md);
   height: 100%;
 }
 
 .todo-sidebar {
   width: var(--tag-panel-width);
   flex-shrink: 0;
+  position: relative;
 }
 
 .sidebar-panel {
@@ -109,6 +125,41 @@ watch(
   display: flex;
   flex-direction: column;
   gap: 1px;
+}
+
+.todo-stagger-enter-active {
+  transition: opacity var(--duration-normal) var(--ease-out),
+              transform var(--duration-normal) var(--ease-out);
+  transition-delay: var(--stagger-delay, 0ms);
+}
+.todo-stagger-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .todo-stagger-enter-active {
+    transition: none;
+  }
+  .todo-stagger-enter-from {
+    transform: none;
+  }
+}
+
+.resize-handle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 4px;
+  height: 100%;
+  cursor: col-resize;
+  transition: background 0.15s;
+  z-index: 10;
+}
+
+.resize-handle:hover,
+.resize-handle:active {
+  background: var(--color-primary);
+  opacity: 0.5;
 }
 
 @media (max-width: 767px) {

@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useTagsStore } from '@/stores/tags'
 import { MessagePlugin } from 'tdesign-vue-next'
 import TagForm from '@/components/tag/TagForm.vue'
+import Skeleton from '@/components/common/Skeleton.vue'
 import type { Tag } from '@/types'
 
 const tagsStore = useTagsStore()
@@ -51,7 +52,7 @@ async function deleteTag(tag: Tag) {
       </t-button>
     </div>
 
-    <t-loading v-if="tagsStore.loading" :loading="true" size="small" />
+    <Skeleton v-if="tagsStore.loading" type="text" :count="4" />
 
     <div class="tag-list">
       <div
@@ -67,7 +68,7 @@ async function deleteTag(tag: Tag) {
       >
         <t-icon v-if="tagsStore.selectedIds.includes(tag.id)" name="check" size="14px" />
         <span class="tag-name">{{ tag.name }}</span>
-        <div class="tag-actions">
+        <div v-if="!tag.isSystem" class="tag-actions">
           <t-button
             variant="text"
             shape="square"
@@ -91,6 +92,7 @@ async function deleteTag(tag: Tag) {
             </t-button>
           </t-popconfirm>
         </div>
+        <span v-else class="system-tag-mark">系统</span>
       </div>
     </div>
 
@@ -190,6 +192,13 @@ async function deleteTag(tag: Tag) {
 
 .tag-action-btn:hover {
   opacity: 1;
+}
+
+.system-tag-mark {
+  font-size: 10px;
+  color: var(--text-disabled);
+  margin-left: 2px;
+  flex-shrink: 0;
 }
 
 .empty-hint {

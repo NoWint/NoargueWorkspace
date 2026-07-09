@@ -74,7 +74,7 @@ onMounted(async () => {
 
 <style scoped>
 .notice-page {
-  max-width: 600px;
+  max-width: 720px;
   margin: 0 auto;
   padding: var(--spacing-lg) 0;
 }
@@ -97,7 +97,8 @@ onMounted(async () => {
   padding: var(--spacing-md);
   background: var(--bg-glass);
   border-radius: var(--border-radius);
-  backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: var(--glass-blur) var(--glass-saturate);
+  -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
   cursor: pointer;
   transition: box-shadow 0.2s;
 }

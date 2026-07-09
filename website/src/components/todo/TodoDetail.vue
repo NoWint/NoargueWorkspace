@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useTodosStore } from '@/stores/todos'
 import { useTagsStore } from '@/stores/tags'
 import { useCombosStore } from '@/stores/combos'
+import { combosApi } from '@/api/combos'
 import { MessagePlugin } from 'tdesign-vue-next'
 import GlassPanel from '@/components/common/GlassPanel.vue'
 import type { Todo } from '@/types'
@@ -17,6 +18,11 @@ const combosStore = useCombosStore()
 const todo = ref<Todo | null>(null)
 const loading = ref(true)
 
+// 共享待办相关
+const sharedTodoId = ref<number | null>(null)
+const comboId = route.query.comboId as string | undefined
+const isShared = computed(() => !!comboId)
+
 const priorityLabels: Record<string, string> = {
   p1: '紧急重要',
   p2: '重要不紧急',
@@ -25,10 +31,10 @@ const priorityLabels: Record<string, string> = {
 }
 
 const priorityColors: Record<string, string> = {
-  p1: '#f44336',
-  p2: '#ff9800',
-  p3: '#2196f3',
-  p4: '#9e9e9e',
+  p1: '#e34d59',
+  p2: '#2196F3',
+  p3: '#ff9800',
+  p4: '#999',
 }
 
 onMounted(async () => {
@@ -42,11 +48,33 @@ onMounted(async () => {
   if (combosStore.items.length === 0) await combosStore.fetchCombos()
 
   try {
-    const result = await todosStore.fetchTodoById(id)
-    if (result) {
-      todo.value = result
+    if (comboId) {
+      // 共享待办: 从组合 API 获取
+      const res = await combosApi.getById(Number(comboId))
+      if (res.success && res.combo) {
+        const sharedTodo = (res.combo.sharedTodos || []).find((t: any) => String(t.id) === id)
+        if (sharedTodo) {
+          todo.value = {
+            ...sharedTodo,
+            id: String(sharedTodo.id),
+            isStar: !!sharedTodo.isStar,
+            completed: sharedTodo.myCompletedAt ? 1 : 0,
+            tags: sharedTodo.tags || [],
+            priority: sharedTodo.priority || 'p2',
+          }
+        } else {
+          router.push('/not-found')
+        }
+      } else {
+        router.push('/not-found')
+      }
     } else {
-      router.push('/not-found')
+      const result = await todosStore.fetchTodoById(id)
+      if (result) {
+        todo.value = result
+      } else {
+        router.push('/not-found')
+      }
     }
   } finally {
     loading.value = false
@@ -66,6 +94,16 @@ const comboName = computed(() => {
   return c?.name || ''
 })
 
+const parsedLocation = computed(() => {
+  const lt = todo.value?.locationText
+  if (!lt) return null
+  try {
+    return JSON.parse(lt)
+  } catch {
+    return { name: lt, address: '' }
+  }
+})
+
 const formatDateTime = (ts: number | string | undefined | null) => {
   if (!ts) return ''
   const d = new Date(ts)
@@ -77,6 +115,10 @@ const formatDateTime = (ts: number | string | undefined | null) => {
   const min = d.getMinutes().toString().padStart(2, '0')
   const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
   return `${y}-${m}-${day} ${h}:${min} ${weekDays[d.getDay()]}`
+}
+
+function openImage(url: string) {
+  window.open(url, '_blank')
 }
 
 async function handleDelete() {
@@ -178,6 +220,38 @@ function goBack() {
           </div>
         </section>
 
+        <!-- 地点 -->
+        <section v-if="parsedLocation" class="info-section">
+          <div class="info-row">
+            <t-icon name="location" size="16px" />
+            <span class="info-label">地点</span>
+            <span class="info-value location-text">
+              {{ parsedLocation.name }}
+              <span v-if="parsedLocation.address" class="location-address">({{ parsedLocation.address }})</span>
+            </span>
+          </div>
+        </section>
+
+        <!-- 附加图片 -->
+        <section v-if="todo.images?.length" class="info-section">
+          <div class="info-row">
+            <t-icon name="image" size="16px" />
+            <span class="info-label">图片</span>
+          </div>
+          <div class="image-gallery">
+            <div
+              v-for="(img, idx) in todo.images"
+              :key="idx"
+              class="gallery-item"
+            >
+              <img :src="img" class="gallery-img" @click="openImage(img)" />
+            </div>
+          </div>
+          <p class="image-cleanup-tip">
+            图片由第三方图床托管，连续60天未访问将被自动清理
+          </p>
+        </section>
+
         <!-- 所属组合 -->
         <section v-if="comboName" class="info-section">
           <div class="info-row">
@@ -213,7 +287,7 @@ function goBack() {
 
 <style scoped>
 .detail-page {
-  max-width: 600px;
+  max-width: 720px;
   margin: 0 auto;
   padding: var(--spacing-lg) 0;
 }
@@ -318,6 +392,53 @@ function goBack() {
   background: var(--bg-hover);
   border-radius: var(--border-radius);
   margin-left: 28px;
+}
+
+/* 地点 */
+.location-text {
+  line-height: 1.4;
+}
+
+.location-address {
+  font-size: var(--font-size-xs);
+  color: var(--text-disabled);
+}
+
+/* 图片画廊 */
+.image-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+  margin-left: 28px;
+}
+
+.gallery-item {
+  width: 100px;
+  height: 100px;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+}
+
+.gallery-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.15s;
+}
+
+.gallery-img:hover {
+  transform: scale(1.05);
+}
+
+.image-cleanup-tip {
+  font-size: var(--font-size-xs);
+  color: var(--text-disabled);
+  margin-top: var(--spacing-xs);
+  margin-left: 28px;
+  line-height: 1.5;
 }
 
 .detail-footer {

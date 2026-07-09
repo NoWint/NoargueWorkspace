@@ -3,48 +3,109 @@ const logger = require('../utils/logger');
 
 const getList = async (req, res) => {
   const userId = req.user.id;
-  const { page = 1, pageSize = 50, date, completed, includeDeleted, parent_id } = req.query;
+  const { page = 1, pageSize = 50, date, completed, includeDeleted, parent_id, search, tagIds, comboId } = req.query;
   const offset = (page - 1) * pageSize;
-  
+
   try {
-    let sql = 'SELECT * FROM todos WHERE user_id = ?';
-    const params = [userId];
-    
+    let sql = 'SELECT DISTINCT t.* FROM todos t';
+    const countSqlParts = ['SELECT COUNT(DISTINCT t.id) as total FROM todos t'];
+    const params = [];
+    const countParams = [];
+    const conditions = ['t.user_id = ?'];
+    const countConditions = ['t.user_id = ?'];
+    params.push(userId);
+    countParams.push(userId);
+
     if (includeDeleted !== 'true') {
-      sql += ' AND is_deleted = 0';
+      conditions.push('t.is_deleted = 0');
+      countConditions.push('t.is_deleted = 0');
     }
-    
+
     if (parent_id !== undefined) {
       if (parent_id === 'null' || parent_id === '') {
-        sql += ' AND parent_id IS NULL';
+        conditions.push('t.parent_id IS NULL');
+        countConditions.push('t.parent_id IS NULL');
       } else {
-        sql += ' AND parent_id = ?';
+        conditions.push('t.parent_id = ?');
+        countConditions.push('t.parent_id = ?');
         params.push(parent_id);
+        countParams.push(parent_id);
       }
-    } else {
-      sql += ' AND parent_id IS NULL';
+    } else if (!search) {
+      // When searching, include subtasks (don't filter parent_id)
+      conditions.push('t.parent_id IS NULL');
+      countConditions.push('t.parent_id IS NULL');
     }
-    
+
+    if (search) {
+      const trimmed = search.trim();
+      if (!trimmed) {
+        // Whitespace-only search: treat as no search, filter root todos
+        conditions.push('t.parent_id IS NULL');
+        countConditions.push('t.parent_id IS NULL');
+      } else {
+        const kw = trimmed.split(/\s+/).filter(k => k);
+        if (kw.length > 0) {
+          const likeClauses = kw.map(() => '(t.text LIKE ? OR t.remarks LIKE ?)').join(' AND ');
+          conditions.push(`(${likeClauses})`);
+          countConditions.push(`(${likeClauses})`);
+          kw.forEach(k => {
+            const pattern = `%${k}%`;
+            params.push(pattern, pattern);
+            countParams.push(pattern, pattern);
+          });
+        }
+      }
+    }
+
+    if (tagIds) {
+      const ids = tagIds.split(',').map(Number).filter(n => !isNaN(n));
+      if (ids.length > 0) {
+        sql += ' JOIN todo_tags tt ON t.id = tt.todo_id';
+        conditions.push(`tt.tag_id IN (${ids.map(() => '?').join(',')})`);
+        countConditions.push(`EXISTS (SELECT 1 FROM todo_tags tt2 WHERE tt2.todo_id = t.id AND tt2.tag_id IN (${ids.map(() => '?').join(',')}))`);
+        ids.forEach(id => {
+          params.push(id);
+          countParams.push(id);
+        });
+      }
+    }
+
+    if (comboId) {
+      const cid = parseInt(comboId);
+      if (!isNaN(cid)) {
+        conditions.push('t.combo_id = ?');
+        countConditions.push('t.combo_id = ?');
+        params.push(cid);
+        countParams.push(cid);
+      }
+    }
+
     if (date) {
-      sql += ' AND set_date = ?';
+      conditions.push('t.set_date = ?');
+      countConditions.push('t.set_date = ?');
       params.push(date);
+      countParams.push(date);
     }
-    
+
     if (completed !== undefined) {
       if (completed === '0' || completed === 'false') {
-        sql += ' AND completed = 0';
+        conditions.push('t.completed = 0');
+        countConditions.push('t.completed = 0');
       } else {
-        sql += ' AND completed > 0';
+        conditions.push('t.completed > 0');
+        countConditions.push('t.completed > 0');
       }
     }
-    
-    sql += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
+
+    sql += ' WHERE ' + conditions.join(' AND ');
+    sql += ' ORDER BY t.created_at DESC LIMIT ? OFFSET ?';
     params.push(parseInt(pageSize), parseInt(offset));
-    
+
     const todos = await query(sql, params);
-    
-    const countSql = 'SELECT COUNT(*) as total FROM todos WHERE user_id = ? AND is_deleted = 0';
-    const countResult = await query(countSql, [userId]);
+
+    const countSql = countSqlParts.join(' ') + ' WHERE ' + countConditions.join(' AND ');
+    const countResult = await query(countSql, countParams);
     
     res.json({
       success: true,

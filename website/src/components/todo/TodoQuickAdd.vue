@@ -1,27 +1,22 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useTodosStore } from '@/stores/todos'
-import { useCombosStore } from '@/stores/combos'
-import { MessagePlugin } from 'tdesign-vue-next'
+import { useRouter } from 'vue-router'
 
-const todosStore = useTodosStore()
+const router = useRouter()
 
 const text = ref('')
-const submitting = ref(false)
 
-async function handleSubmit() {
+function handleKeydown(val: string, context: { e: KeyboardEvent }) {
+  if (context.e.key === 'Enter') {
+    handleEnter()
+  }
+}
+
+function handleEnter() {
   const trimmed = text.value.trim()
   if (!trimmed) return
-
-  submitting.value = true
-  try {
-    await todosStore.createTodo({ text: trimmed })
-    text.value = ''
-  } catch {
-    MessagePlugin.error('创建失败')
-  } finally {
-    submitting.value = false
-  }
+  router.push(`/todos/add?text=${encodeURIComponent(trimmed)}`)
+  text.value = ''
 }
 </script>
 
@@ -29,10 +24,9 @@ async function handleSubmit() {
   <div class="quick-add">
     <t-input
       v-model="text"
-      placeholder="添加待办，按 Enter 创建..."
+      placeholder="输入待办，按 Enter 跳转新建页..."
       :maxlength="200"
-      @keyup.enter="handleSubmit"
-      :disabled="submitting"
+      @keydown="handleKeydown"
       size="large"
       class="add-input"
     >
@@ -42,7 +36,7 @@ async function handleSubmit() {
           size="20px"
           class="add-btn"
           :style="{ color: text.trim() ? 'var(--color-primary)' : 'var(--text-disabled)' }"
-          @click="handleSubmit"
+          @click="handleEnter"
         />
       </template>
     </t-input>

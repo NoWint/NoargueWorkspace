@@ -110,7 +110,7 @@ function cancelEdit() {
 
 <style scoped>
 .user-center-page {
-  max-width: 600px;
+  max-width: 640px;
   margin: 0 auto;
   padding: var(--spacing-lg) 0;
   display: flex;
@@ -124,7 +124,8 @@ function cancelEdit() {
   padding: var(--spacing-lg);
   background: var(--bg-glass);
   border-radius: var(--border-radius);
-  backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: var(--glass-blur) var(--glass-saturate);
+  -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
 }
 .profile-info {
   display: flex;
@@ -160,7 +161,8 @@ function cancelEdit() {
   padding: var(--spacing-lg);
   background: var(--bg-glass);
   border-radius: var(--border-radius);
-  backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: var(--glass-blur) var(--glass-saturate);
+  -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
 }
 .limits-grid {
   display: grid;

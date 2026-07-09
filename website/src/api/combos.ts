@@ -6,7 +6,24 @@ export const combosApi = {
     http.get<ComboListResponse>('/combos/list'),
 
   getById: (id: number) =>
-    http.get<{ success: boolean; combo: Combo & { members?: any[]; sharedTodos?: any[] } }>(`/combos/${id}`),
+    http.get<{
+      success: boolean
+      combo: Combo & {
+        shareCode?: string
+        todoCount?: number
+        memberCount?: number
+        userRole?: string | null
+        members: Array<{
+          id: number
+          nickname: string
+          avatarUrl: string
+          role: string
+          joinedAt: string
+        }>
+        sharedTodos: any[]
+        createdAt: string
+      }
+    }>(`/combos/${id}`),
 
   create: (data: Partial<Combo>) =>
     http.post<ComboCreateResponse>('/combos/create', data),

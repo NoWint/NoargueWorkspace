@@ -1,25 +1,19 @@
 <script setup lang="ts">
+import { ref, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
-import { useTodosStore } from '@/stores/todos'
-import { ref } from 'vue'
 
 const authStore = useAuthStore()
 const router = useRouter()
-const todosStore = useTodosStore()
 
 const searchText = ref('')
 
-function handleSearch() {
-  todosStore.filter.search = searchText.value
-  todosStore.fetchTodos()
-}
-
-function clearSearch() {
-  searchText.value = ''
-  todosStore.filter.search = ''
-  todosStore.fetchTodos()
-}
+// 当输入非空时自动跳转到搜索页
+watch(searchText, (val) => {
+  if (val.trim()) {
+    router.push(`/search?q=${encodeURIComponent(val.trim())}`)
+  }
+})
 </script>
 
 <template>
@@ -27,18 +21,12 @@ function clearSearch() {
     <div class="header-left">
       <t-input
         v-model="searchText"
-        placeholder="搜索待办..."
+        placeholder="搜索待办事项（空格分隔关键词）"
+        clearable
         size="medium"
         class="search-input"
-        @keyup.enter="handleSearch"
       >
-        <template #suffix-icon>
-          <t-icon
-            :name="searchText ? 'close-circle' : 'search'"
-            size="16px"
-            @click="searchText ? clearSearch() : handleSearch()"
-          />
-        </template>
+        <template #prefix-icon><t-icon name="search" size="16px" /></template>
       </t-input>
     </div>
     <div class="header-right">
@@ -81,5 +69,10 @@ function clearSearch() {
 
 .user-avatar {
   cursor: pointer;
+}
+
+[data-theme='dark'] .app-header {
+  background: var(--bg-card);
+  border-color: var(--border-color);
 }
 </style>

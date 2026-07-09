@@ -16,23 +16,27 @@ const emit = defineEmits<{
   (e: 'saved'): void
 }>()
 
+const isEdit = () => !!props.combo
+
 const form = reactive({
   name: '',
   icon: 'folder',
   color: '#00b26a',
   description: '',
+  isShared: false,
 })
 
 const submitting = ref(false)
 
 const presetColors = [
-  '#00b26a', '#2196f3', '#ff9800', '#f44336', '#9c27b0',
-  '#4caf50', '#00bcd4', '#ff5722', '#607d8b', '#e91e63',
+  '#00B26A', '#1890FF', '#722ED1', '#FA8C16',
+  '#C8CA4F', '#13C2C2', '#f44336', '#607d8b',
 ]
 
 const presetIcons = [
-  'folder', 'bookmark', 'star', 'heart', 'flag',
-  'edit', 'time', 'calendar', 'user', 'mail',
+  'folder', 'work', 'book', 'star', 'cart', 'command',
+  'terminal-rectangle-1', 'verified', 'heart', 'city-1', 'tea',
+  'flag', 'calendar', 'user', 'mail', 'edit',
 ]
 
 function resetForm() {
@@ -40,6 +44,7 @@ function resetForm() {
   form.icon = 'folder'
   form.color = '#00b26a'
   form.description = ''
+  form.isShared = false
 }
 
 function open() {
@@ -48,6 +53,7 @@ function open() {
     form.icon = props.combo.icon || 'folder'
     form.color = props.combo.color || '#00b26a'
     form.description = props.combo.description || ''
+    form.isShared = props.combo.isShared || false
   } else {
     resetForm()
   }
@@ -64,7 +70,13 @@ async function handleSubmit() {
       await combosStore.updateCombo(props.combo.id, { ...form })
       MessagePlugin.success('组合已更新')
     } else {
-      await combosStore.createCombo({ ...form })
+      await combosStore.createCombo({
+        name: form.name.trim(),
+        icon: form.icon,
+        color: form.color,
+        description: form.description,
+        isShared: form.isShared,
+      })
       MessagePlugin.success('组合已创建')
     }
     emit('saved')
@@ -96,6 +108,18 @@ function handleCancel() {
       <t-form :data="form" layout="vertical">
         <t-form-item label="名称">
           <t-input v-model="form.name" placeholder="组合名称" maxlength="20" />
+        </t-form-item>
+
+        <!-- 共享开关：仅创建时可见 -->
+        <t-form-item v-if="!combo" label="启用协作模式">
+          <div class="switch-row">
+            <t-switch v-model="form.isShared" />
+            <span class="switch-hint">与其他用户共享组合内待办</span>
+          </div>
+          <p v-if="form.isShared" class="shared-tip">
+            <t-icon name="info-circle" size="14px" color="#00b26a" />
+            创建组合后才可邀请成员加入
+          </p>
         </t-form-item>
 
         <t-form-item label="图标">
@@ -136,6 +160,26 @@ function handleCancel() {
 <style scoped>
 .combo-form {
   min-height: 200px;
+}
+
+.switch-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.switch-hint {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.shared-tip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-xs);
+  color: #00b26a;
+  margin-top: var(--spacing-xs);
 }
 
 .icon-grid {

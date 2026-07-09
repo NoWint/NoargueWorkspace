@@ -8,9 +8,12 @@ defineProps<{
 
 <template>
   <div class="empty-state">
-    <t-icon v-if="icon" :name="icon" size="64px" color="#c9cdd4" />
+    <t-icon v-if="icon" :name="icon" size="64px" class="empty-icon" />
     <p class="empty-title">{{ title || '暂无数据' }}</p>
     <p v-if="description" class="empty-desc">{{ description }}</p>
+    <div v-if="$slots.action" class="empty-action">
+      <slot name="action" />
+    </div>
   </div>
 </template>
 
@@ -23,12 +26,25 @@ defineProps<{
   padding: var(--spacing-xl);
   color: var(--text-secondary);
 }
+
+.empty-icon {
+  color: var(--text-disabled);
+}
+
 .empty-title {
   margin-top: var(--spacing-md);
   font-size: var(--font-size-lg);
 }
+
 .empty-desc {
   margin-top: var(--spacing-xs);
   font-size: var(--font-size-sm);
+  max-width: 280px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.empty-action {
+  margin-top: var(--spacing-md);
 }
 </style>

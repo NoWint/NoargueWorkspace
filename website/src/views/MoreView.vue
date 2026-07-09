@@ -96,7 +96,7 @@ function handleLogout() {
 
 <style scoped>
 .more-page {
-  max-width: 600px;
+  max-width: 640px;
   margin: 0 auto;
   padding: var(--spacing-lg) 0;
   display: flex;
@@ -128,13 +128,16 @@ function handleLogout() {
   padding: var(--spacing-lg) var(--spacing-sm);
   background: var(--bg-glass);
   border-radius: var(--border-radius);
-  backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: var(--glass-blur) var(--glass-saturate);
+  -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
   cursor: pointer;
-  transition: box-shadow 0.2s;
+  transition: transform var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out);
   text-align: center;
 }
 .nav-card:hover {
-  box-shadow: var(--shadow-sm);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
 }
 .nav-label {
   font-size: var(--font-size-base);
@@ -147,9 +150,6 @@ function handleLogout() {
 }
 .about-card {
   padding: var(--spacing-md);
-  background: var(--bg-glass);
-  border-radius: var(--border-radius);
-  backdrop-filter: blur(var(--glass-blur));
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);

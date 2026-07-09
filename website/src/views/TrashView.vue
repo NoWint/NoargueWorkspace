@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, TransitionGroup } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTodosStore } from '@/stores/todos'
 import { MessagePlugin } from 'tdesign-vue-next'
@@ -52,8 +52,8 @@ async function handlePermanentDelete(id: string) {
         <p>回收站为空</p>
       </div>
 
-      <div v-else class="trash-list">
-        <div v-for="todo in todosStore.deletedItems" :key="todo.id" class="trash-item">
+      <TransitionGroup v-else name="todo-stagger" tag="div" class="trash-list">
+        <div v-for="(todo, index) in todosStore.deletedItems" :key="todo.id" class="trash-item" :style="`--stagger-delay: ${index * 30}ms`">
           <div class="trash-item-text">
             <p class="todo-text">{{ todo.text }}</p>
             <p class="todo-meta">{{ todo.setDate || '无日期' }}</p>
@@ -71,14 +71,14 @@ async function handlePermanentDelete(id: string) {
             </t-popconfirm>
           </div>
         </div>
-      </div>
+      </TransitionGroup>
     </t-loading>
   </div>
 </template>
 
 <style scoped>
 .trash-page {
-  max-width: 600px;
+  max-width: 640px;
   margin: 0 auto;
   padding: var(--spacing-lg) 0;
 }
@@ -105,6 +105,24 @@ async function handlePermanentDelete(id: string) {
   flex-direction: column;
   gap: var(--spacing-sm);
 }
+
+.todo-stagger-enter-active {
+  transition: opacity var(--duration-normal) var(--ease-out),
+              transform var(--duration-normal) var(--ease-out);
+  transition-delay: var(--stagger-delay, 0ms);
+}
+.todo-stagger-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .todo-stagger-enter-active {
+    transition: none;
+  }
+  .todo-stagger-enter-from {
+    transform: none;
+  }
+}
 .trash-item {
   display: flex;
   align-items: center;
@@ -112,7 +130,8 @@ async function handlePermanentDelete(id: string) {
   padding: var(--spacing-md);
   background: var(--bg-glass);
   border-radius: var(--border-radius);
-  backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: var(--glass-blur) var(--glass-saturate);
+  -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
 }
 .trash-item-text {
   flex: 1;
