@@ -1,7 +1,6 @@
-<view class="page">
+<scroll-view class="scroll-area" scroll-y>
 
-  <!-- 主体内容 -->
-  <view class="content">
+  <view class="container">
     <t-tabs value="{{currentType}}" bind:change="onTypeChange">
       <t-tab-panel label="日报模板" value="daily">
         <view class="section-list">
@@ -59,9 +58,8 @@
       </t-tab-panel>
     </t-tabs>
 
-    <!-- 底部保存按钮 -->
-    <view class="save-area">
-      <t-button block theme="primary" bindtap="saveTemplates">保存模板</t-button>
-    </view>
+    <view class="bottom-safe"></view>
   </view>
-</view>
+</scroll-view>
+
+<t-fab icon="check" text="完成" bind:click="saveTemplates" style="right: 32rpx; bottom: 32rpx;" />

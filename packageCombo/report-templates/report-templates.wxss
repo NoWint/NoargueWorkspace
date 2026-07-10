@@ -1,13 +1,13 @@
-.page {
-  min-height: 100vh;
+.scroll-area {
+  height: 100vh;
 }
 
-.content {
-  box-sizing: border-box;
+.container {
+  padding: 0 32rpx 160rpx;
 }
 
 .section-list {
-  padding: 20rpx 24rpx;
+  padding: 20rpx 0;
 }
 
 /* 模板项 — 对标 report-edit 绿色色点 + 输入框 */
@@ -83,6 +83,6 @@
   font-weight: 500;
 }
 
-.save-area {
-  padding: 16rpx 24rpx calc(16rpx + env(safe-area-inset-bottom, 0rpx));
+.bottom-safe {
+  height: 160rpx;
 }
