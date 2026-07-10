@@ -5,24 +5,21 @@
     <t-tabs value="{{currentType}}" bind:change="onTypeChange">
       <t-tab-panel label="日报模板" value="daily">
         <view class="section-list">
-          <view class="section-card" wx:for="{{dailySections}}" wx:key="key" data-index="{{index}}">
-            <view class="card-header">
-              <t-icon name="move" size="36rpx" color="#ccc" />
-              <t-input
-                class="section-title-input"
-                value="{{item.title}}"
-                placeholder="输入段落名称"
-                data-type="daily"
-                data-index="{{index}}"
-                bind:change="onSectionTitleInput"
-              />
+          <view class="template-item" wx:for="{{dailySections}}" wx:key="key" data-index="{{index}}">
+            <view class="template-item-header">
+              <text class="item-title">段落名称</text>
               <view class="delete-icon" data-type="daily" data-index="{{index}}" bindtap="deleteSection">
-                <t-icon name="delete" size="36rpx" color="#ff4d4f" />
+                <t-icon name="delete" size="32rpx" color="#ff4d4f" />
               </view>
             </view>
-            <view class="card-meta">
-              <text class="meta-text">最多 {{item.max_lines || 20}} 行</text>
-            </view>
+            <t-input
+              class="item-input"
+              value="{{item.title}}"
+              placeholder="输入段落名称"
+              data-type="daily"
+              data-index="{{index}}"
+              bind:change="onSectionTitleInput"
+            />
           </view>
           <view wx:if="{{dailySections.length === 0}}" class="empty-hint">
             <text>暂无日报段落，点击下方添加</text>
@@ -35,24 +32,21 @@
       </t-tab-panel>
       <t-tab-panel label="周报模板" value="weekly">
         <view class="section-list">
-          <view class="section-card" wx:for="{{weeklySections}}" wx:key="key" data-index="{{index}}">
-            <view class="card-header">
-              <t-icon name="move" size="36rpx" color="#ccc" />
-              <t-input
-                class="section-title-input"
-                value="{{item.title}}"
-                placeholder="输入段落名称"
-                data-type="weekly"
-                data-index="{{index}}"
-                bind:change="onSectionTitleInput"
-              />
+          <view class="template-item" wx:for="{{weeklySections}}" wx:key="key" data-index="{{index}}">
+            <view class="template-item-header">
+              <text class="item-title">段落名称</text>
               <view class="delete-icon" data-type="weekly" data-index="{{index}}" bindtap="deleteSection">
-                <t-icon name="delete" size="36rpx" color="#ff4d4f" />
+                <t-icon name="delete" size="32rpx" color="#ff4d4f" />
               </view>
             </view>
-            <view class="card-meta">
-              <text class="meta-text">最多 {{item.max_lines || 20}} 行</text>
-            </view>
+            <t-input
+              class="item-input"
+              value="{{item.title}}"
+              placeholder="输入段落名称"
+              data-type="weekly"
+              data-index="{{index}}"
+              bind:change="onSectionTitleInput"
+            />
           </view>
           <view wx:if="{{weeklySections.length === 0}}" class="empty-hint">
             <text>暂无周报段落，点击下方添加</text>

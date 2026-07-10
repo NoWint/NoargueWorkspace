@@ -10,27 +10,36 @@
   padding: 20rpx 24rpx;
 }
 
-.section-card {
-  background: #fff;
-  border-radius: 16rpx;
-  margin-bottom: 16rpx;
-  padding: 20rpx 24rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+/* 模板项 — 对标 report-edit 绿色色点 + 输入框 */
+.template-item {
+  margin-bottom: 32rpx;
 }
 
-.card-header {
+.template-item-header {
   display: flex;
   align-items: center;
-  gap: 16rpx;
+  justify-content: space-between;
+  padding-left: 32rpx;
+  position: relative;
+  margin-bottom: 12rpx;
 }
 
-.section-title-input {
-  flex: 1;
-  font-size: 28rpx;
+.template-item-header::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16rpx;
+  height: 16rpx;
+  background: #00b26a;
+  border-radius: 50%;
+}
+
+.item-title {
+  font-size: 30rpx;
+  font-weight: 500;
   color: #333;
-  background: #f7f8fa;
-  border-radius: 8rpx;
-  padding: 8rpx 16rpx;
 }
 
 .delete-icon {
@@ -40,14 +49,13 @@
   justify-content: center;
 }
 
-.card-meta {
-  margin-top: 12rpx;
-  padding-left: 52rpx;
-}
-
-.meta-text {
-  font-size: 24rpx;
-  color: #999;
+/* 输入框 — gray background, no card */
+.item-input {
+  background: #f8f8f8 !important;
+  border-radius: 32rpx !important;
+  padding: 16rpx 24rpx !important;
+  font-size: 28rpx !important;
+  color: #333 !important;
 }
 
 .empty-hint {
@@ -62,10 +70,10 @@
   align-items: center;
   justify-content: center;
   gap: 12rpx;
-  margin: 16rpx 24rpx 40rpx;
+  margin: 16rpx 0 40rpx;
   padding: 24rpx 0;
   border: 2rpx dashed #00b26a;
-  border-radius: 16rpx;
+  border-radius: 32rpx;
   background: #fafff5;
 }
 
