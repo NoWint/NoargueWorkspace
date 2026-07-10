@@ -215,9 +215,25 @@ Page({
     }
   },
 
-  async loadTemplates() {
-    const comboId = this.data.selectedComboId;
+  async loadTemplates(comboIdOverride) {
+    const comboId = comboIdOverride !== undefined ? comboIdOverride : this.data.selectedComboId;
     if (!comboId) {
+      // For private (no combo), still try to load from API for per-user templates
+      try {
+        const res = await reportTemplateApi.getList({
+          combo_id: 0,
+          type: this.data.reportType
+        });
+        const templates = res.templates || res.data || [];
+        if (templates.length > 0) {
+          const template = templates[0];
+          const sections = this.buildSectionsFromTemplate(template);
+          this.setData({ sections });
+          return;
+        }
+      } catch (err) {
+        logger.warn('REPORT', 'TEMPLATE', '加载私人模板失败，使用默认', err);
+      }
       this.setData({ sections: this.copyDefaultSections() });
       return;
     }
@@ -419,9 +435,26 @@ Page({
 
     results.forEach(r => { if (r.compatible) compatibleIds.push(r.id); });
 
-    // 检查私人选项
-    const defaultKeys = this.getSectionKeys(this.copyDefaultSections());
-    const privateCompatible = defaultKeys === currentKeys;
+    // 检查私人选项 — 加载用户私人模板对比
+    let privateCompatible = false;
+    try {
+      const res = await reportTemplateApi.getList({
+        combo_id: 0,
+        type: reportType
+      });
+      const templates = res.templates || res.data || [];
+      let privateKeys;
+      if (templates.length > 0) {
+        privateKeys = this.getSectionKeys(this.buildSectionsFromTemplate(templates[0]));
+      } else {
+        privateKeys = this.getSectionKeys(this.copyDefaultSections());
+      }
+      privateCompatible = privateKeys === currentKeys;
+    } catch (err) {
+      logger.warn('REPORT', 'COMBO_CHECK', '检查私人模板失败', err);
+      const defaultKeys = this.getSectionKeys(this.copyDefaultSections());
+      privateCompatible = defaultKeys === currentKeys;
+    }
 
     return { compatibleIds, privateCompatible };
   },
@@ -455,12 +488,8 @@ Page({
     this.setData({ showComboPicker: false });
     this.clearDraft();
 
-    // Reload templates for the new combo
-    if (this.data.selectedComboId) {
-      await this.loadTemplates();
-    } else {
-      this.setData({ sections: this.copyDefaultSections() });
-    }
+    // Reload templates for the new combo (includes private via API)
+    await this.loadTemplates();
   },
 
   // ========== Todo Import ==========

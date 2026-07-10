@@ -3,10 +3,6 @@ const logger = require('../utils/logger');
 
 const MODULE = 'REPORT';
 
-/**
- * Parse sections field from JSON string to object.
- * Returns the original value if already an object, or null on parse failure.
- */
 const parseSections = (sections) => {
   if (!sections) return null;
   if (typeof sections === 'object') return sections;
@@ -18,10 +14,10 @@ const parseSections = (sections) => {
 };
 
 /**
- * GET /report-templates
+ * GET /work-reports/templates/list
  * Query param: combo_id
- * If combo_id > 0, verifies the requesting user is a combo member.
- * Returns all templates for that combo_id.
+ * combo_id=0 → return current user's private template
+ * combo_id>0  → verify membership, return combo template
  */
 const getTemplates = async (req, res) => {
   const userId = req.user.id;
@@ -41,9 +37,10 @@ const getTemplates = async (req, res) => {
       }
     }
 
+    const queryUserId = comboId > 0 ? 0 : userId;
     const templates = await query(
-      'SELECT * FROM report_templates WHERE combo_id = ?',
-      [comboId]
+      'SELECT * FROM report_templates WHERE combo_id = ? AND user_id = ?',
+      [comboId, queryUserId]
     );
 
     const data = templates.map((t) => ({
@@ -59,10 +56,10 @@ const getTemplates = async (req, res) => {
 };
 
 /**
- * PUT /report-templates
+ * PUT /work-reports/templates
  * Body: { combo_id, type, sections }
- * If combo_id > 0, verifies the requesting user is combo owner or admin.
- * Upserts the template row.
+ * combo_id=0 → upsert current user's private template
+ * combo_id>0 → verify admin, upsert combo template (user_id=0)
  */
 const upsertTemplate = async (req, res) => {
   const userId = req.user.id;
@@ -98,10 +95,11 @@ const upsertTemplate = async (req, res) => {
     }
 
     const sectionsJson = typeof sections === 'object' ? JSON.stringify(sections) : sections;
+    const entityUserId = comboId > 0 ? 0 : userId;
 
     const existing = await query(
-      'SELECT id FROM report_templates WHERE combo_id = ? AND type = ?',
-      [comboId, type]
+      'SELECT id FROM report_templates WHERE combo_id = ? AND user_id = ? AND type = ?',
+      [comboId, entityUserId, type]
     );
 
     if (existing.length > 0) {
@@ -119,8 +117,8 @@ const upsertTemplate = async (req, res) => {
       });
     } else {
       const result = await query(
-        'INSERT INTO report_templates (combo_id, type, sections, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())',
-        [comboId, type, sectionsJson]
+        'INSERT INTO report_templates (combo_id, user_id, type, sections, created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW())',
+        [comboId, entityUserId, type, sectionsJson]
       );
 
       const inserted = await query('SELECT * FROM report_templates WHERE id = ?', [result.insertId]);
@@ -138,9 +136,10 @@ const upsertTemplate = async (req, res) => {
 };
 
 /**
- * POST /report-templates/defaults
+ * POST /work-reports/templates/defaults
  * Body: { combo_id }
- * Creates default daily and weekly templates if they don't already exist.
+ * Creates default daily and weekly templates if they don't exist.
+ * combo_id=0 → per-user; combo_id>0 → per-combo (user_id=0)
  */
 const createDefaults = async (req, res) => {
   const userId = req.user.id;
@@ -158,18 +157,19 @@ const createDefaults = async (req, res) => {
       }
     ];
 
+    const entityUserId = comboId > 0 ? 0 : userId;
     const created = [];
 
     for (const tmpl of defaults) {
       const existing = await query(
-        'SELECT id FROM report_templates WHERE combo_id = ? AND type = ?',
-        [comboId, tmpl.type]
+        'SELECT id FROM report_templates WHERE combo_id = ? AND user_id = ? AND type = ?',
+        [comboId, entityUserId, tmpl.type]
       );
 
       if (existing.length === 0) {
         const result = await query(
-          'INSERT INTO report_templates (combo_id, type, sections, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())',
-          [comboId, tmpl.type, tmpl.sections]
+          'INSERT INTO report_templates (combo_id, user_id, type, sections, created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW())',
+          [comboId, entityUserId, tmpl.type, tmpl.sections]
         );
         created.push({ id: result.insertId, combo_id: comboId, type: tmpl.type, sections: parseSections(tmpl.sections) });
       } else {
