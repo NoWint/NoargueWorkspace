@@ -61,6 +61,11 @@
         leftIcon="check-circle-filled" hover arrow
         note="{{totalPoints >= 0 ? totalPoints + ' 积分' : ''}}"
       />
+      <t-cell
+        title="日报/周报模板"
+        url="/packageCombo/report-templates/report-templates?combo_id=0"
+        leftIcon="edit" hover arrow
+      />
     </t-cell-group>
   </view>
 
