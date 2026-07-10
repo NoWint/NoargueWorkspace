@@ -513,7 +513,7 @@ Page({
   getWeekTitle(dateStr) {
     if (!dateStr) return '';
     const weekNum = this.getWeekNumber(dateStr);
-    return `第${weekNum}周 · ${this.getReportDateTitle(dateStr)}`;
+    return `${this.getReportDateTitle(dateStr)} · 第${weekNum}周`;
   },
 
   onFabTap() {
