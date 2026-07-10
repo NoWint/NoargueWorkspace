@@ -29,6 +29,19 @@ const isComboMember = async (comboId, userId) => {
 };
 
 /**
+ * 安全解析 JSON 内容字段
+ */
+const safeParseContent = (content) => {
+  if (!content) return null;
+  try {
+    return JSON.parse(content);
+  } catch (e) {
+    logger.warn('REPORT', 'safeParseContent', 'JSON 解析失败，返回 null', { error: e.message });
+    return null;
+  }
+};
+
+/**
  * GET /api/work-reports
  * 查询工作报告列表（支持分页与多条件筛选）
  *
@@ -132,7 +145,7 @@ const getList = async (req, res) => {
       periodDate: row.period_date,
       periodLabel: row.period_label,
       comboId: row.combo_id,
-      content: row.content ? JSON.parse(row.content) : null,
+      content: safeParseContent(row.content),
       nickname: row.nickname,
       avatarUrl: row.avatar_url,
       createdAt: row.created_at,
@@ -215,7 +228,7 @@ const getById = async (req, res) => {
         periodDate: report.period_date,
         periodLabel: report.period_label,
         comboId: report.combo_id,
-        content: report.content ? JSON.parse(report.content) : null,
+        content: safeParseContent(report.content),
         nickname: report.nickname,
         avatarUrl: report.avatar_url,
         createdAt: report.created_at,
@@ -527,7 +540,7 @@ const getBoard = async (req, res) => {
           periodDate: row.period_date,
           periodLabel: row.period_label,
           comboId: row.combo_id,
-          content: row.content ? JSON.parse(row.content) : null,
+          content: safeParseContent(row.content),
           createdAt: row.created_at,
           updatedAt: row.updated_at,
         });

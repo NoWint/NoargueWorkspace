@@ -1,4 +1,5 @@
 const { workReportApi, combosApi } = require('../../utils/api.js');
+const logger = require('../../utils/logger.js');
 const app = getApp();
 
 Page({
@@ -28,6 +29,7 @@ Page({
   },
 
   async loadComboInfo() {
+    wx.showLoading({ title: '加载中...' });
     try {
       const result = await combosApi.getById(this.data.comboId);
       if (result.success) {
@@ -36,7 +38,9 @@ Page({
           members: result.combo.members || [],
         });
       }
+      wx.hideLoading();
     } catch (err) {
+      wx.hideLoading();
       logger.error('REPORT', 'BOARD_LOAD', '加载组合信息失败', err);
     }
   },
@@ -100,17 +104,27 @@ Page({
     params.period_date = currentTab === 'daily' ? selectedDate : this.getMondayOfWeek(selectedDate);
     if (selectedMemberId !== '0') params.user_id = parseInt(selectedMemberId);
     try {
+      wx.showLoading({ title: '加载中...' });
       const result = await workReportApi.getBoard(params);
+      wx.hideLoading();
       if (result.success) {
-        const reports = (result.data || []).map(item => {
-          const sections = item.content?.sections || [];
-          const firstLine = sections[0]?.lines?.[0] || '';
-          const lineCount = sections.reduce((s, sec) => s + (sec.lines || []).filter(l => l.trim()).length, 0);
-          return { ...item, summary: firstLine || '暂无记录', lineCount };
+        const boardData = result.data || {};
+        const members = boardData.members || [];
+        const reports = [];
+        members.forEach(m => {
+          (m.reports || []).forEach(r => {
+            const content = r.content || {};
+            const firstKey = Object.keys(content)[0];
+            const firstLines = firstKey ? content[firstKey] : [];
+            const firstLine = Array.isArray(firstLines) ? firstLines.find(l => l && l.trim()) : '';
+            const lineCount = Object.values(content).reduce((c, lines) =>
+              c + (Array.isArray(lines) ? lines.filter(l => l && l.trim()).length : 0), 0);
+            reports.push({ ...r, nickname: m.nickname, avatarUrl: m.avatarUrl, summary: firstLine || '暂无记录', lineCount });
+          });
         });
-        this.setData({ reports, isAdmin: result.isAdmin });
+        this.setData({ reports });
       }
-    } catch (err) { logger.error('REPORT', 'BOARD', '加载看板数据失败', err); }
+    } catch (err) { logger.error('REPORT', 'BOARD', '加载看板数据失败', err); wx.hideLoading(); }
   },
 
   navigateToDetail(e) {

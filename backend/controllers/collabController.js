@@ -728,13 +728,19 @@ const removeMember = async (req, res) => {
       [comboId, targetUserId]
     );
 
-    await query(
-      `DELETE FROM shared_todo_assignments
-       WHERE user_id = ? AND shared_todo_id IN (
-         SELECT id FROM shared_todos WHERE combo_id = ?
-       )`,
-      [targetUserId, comboId]
+    // Two-step: SELECT IDs first for MySQL 5.5/5.6 compatibility
+    const rmSharedTodos = await query(
+      'SELECT id FROM shared_todos WHERE combo_id = ?',
+      [comboId]
     );
+    const rmSharedIds = rmSharedTodos.map(t => t.id);
+
+    if (rmSharedIds.length > 0) {
+      await query(
+        `DELETE FROM shared_todo_assignments WHERE user_id = ? AND shared_todo_id IN (${rmSharedIds.map(() => '?').join(',')})`,
+        [targetUserId, ...rmSharedIds]
+      );
+    }
     
     res.json({
       success: true,
@@ -956,13 +962,28 @@ const leaveCombo = async (req, res) => {
         );
       } else {
         const otherMembers = await query(
-          'SELECT user_id, role FROM combo_members WHERE combo_id = ? AND user_id != ? ORDER BY role',
+          `SELECT user_id, role FROM combo_members WHERE combo_id = ? AND user_id != ? ORDER BY CASE role WHEN 'owner' THEN 1 WHEN 'admin' THEN 2 ELSE 3 END`,
           [comboId, userId]
         );
         
         if (otherMembers.length === 0) {
-          await query('DELETE FROM shared_todo_comments WHERE shared_todo_id IN (SELECT id FROM shared_todos WHERE combo_id = ?)', [comboId]);
-          await query('DELETE FROM shared_todo_assignments WHERE shared_todo_id IN (SELECT id FROM shared_todos WHERE combo_id = ?)', [comboId]);
+          // Two-step: SELECT IDs first for MySQL 5.5/5.6 compatibility
+          const sharedTodos = await query(
+            'SELECT id FROM shared_todos WHERE combo_id = ?',
+            [comboId]
+          );
+          const sharedIds = sharedTodos.map(t => t.id);
+
+          if (sharedIds.length > 0) {
+            await query(
+              `DELETE FROM shared_todo_comments WHERE shared_todo_id IN (${sharedIds.map(() => '?').join(',')})`,
+              sharedIds
+            );
+            await query(
+              `DELETE FROM shared_todo_assignments WHERE shared_todo_id IN (${sharedIds.map(() => '?').join(',')})`,
+              sharedIds
+            );
+          }
           await query('DELETE FROM shared_todos WHERE combo_id = ?', [comboId]);
           await query('DELETE FROM combo_members WHERE combo_id = ?', [comboId]);
           await query('DELETE FROM collab_requests WHERE combo_id = ?', [comboId]);
@@ -991,12 +1012,27 @@ const leaveCombo = async (req, res) => {
         );
       }
     }
-    
+
+    // Convert leaving member's work_reports to private
     await query(
-      'DELETE FROM shared_todo_assignments WHERE user_id = ? AND shared_todo_id IN (SELECT id FROM shared_todos WHERE combo_id = ?)',
-      [userId, comboId]
+      'UPDATE work_reports SET combo_id = 0, updated_at = NOW() WHERE combo_id = ? AND user_id = ?',
+      [comboId, userId]
     );
-    
+
+    // Two-step: SELECT IDs first for MySQL 5.5/5.6 compatibility
+    const leaveSharedTodos = await query(
+      'SELECT id FROM shared_todos WHERE combo_id = ?',
+      [comboId]
+    );
+    const leaveSharedIds = leaveSharedTodos.map(t => t.id);
+
+    if (leaveSharedIds.length > 0) {
+      await query(
+        `DELETE FROM shared_todo_assignments WHERE user_id = ? AND shared_todo_id IN (${leaveSharedIds.map(() => '?').join(',')})`,
+        [userId, ...leaveSharedIds]
+      );
+    }
+
     await query(
       'DELETE FROM combo_members WHERE combo_id = ? AND user_id = ?',
       [comboId, userId]

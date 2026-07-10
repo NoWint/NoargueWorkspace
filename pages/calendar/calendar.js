@@ -414,24 +414,24 @@ Page({
   },
 
   formatReportItem(item) {
-    let summary = '';
-    let lineCount = 0;
+    const content = item.content || {};
+    const type = item.type || 'daily';
+    const fallback = type === 'weekly' ? '周报' : '日报';
 
-    if (item.content && typeof item.content === 'string') {
-      const sections = item.content.split('\n').filter(s => s.trim());
-      summary = sections.length > 0 ? sections[0].replace(/^[#*\- ]+/, '').trim() : '日报';
-      lineCount = sections.length;
-    } else if (Array.isArray(item.sections)) {
-      const first = item.sections[0];
-      summary = first ? (first.title || first.content || '日报') : '日报';
-      lineCount = item.sections.length;
-    } else {
-      summary = item.summary || '日报';
-    }
+    // Extract first non-empty line from first section
+    const firstKey = Object.keys(content)[0];
+    const firstLines = firstKey ? content[firstKey] : [];
+    const firstLine = Array.isArray(firstLines) ? firstLines.find(l => l && l.trim()) : '';
+
+    // Count total non-empty lines
+    const lineCount = Object.values(content).reduce((count, lines) => {
+      if (Array.isArray(lines)) return count + lines.filter(l => l && l.trim()).length;
+      return count;
+    }, 0);
 
     return {
       ...item,
-      summary,
+      summary: firstLine || fallback,
       lineCount
     };
   },
@@ -494,12 +494,12 @@ Page({
       });
     } else if (tab === 'daily') {
       wx.navigateTo({
-        url: `/packagePages/report-edit/report-edit?type=daily&period_date=${selectedDateStr}`
+        url: `/packagePages/report-edit/report-edit?type=daily&date=${selectedDateStr}`
       });
     } else if (tab === 'weekly') {
       const monday = this.getMondayOfWeek(selectedDateStr);
       wx.navigateTo({
-        url: `/packagePages/report-edit/report-edit?type=weekly&period_date=${monday}`
+        url: `/packagePages/report-edit/report-edit?type=weekly&date=${monday}`
       });
     }
   },

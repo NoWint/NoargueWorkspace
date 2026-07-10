@@ -171,16 +171,16 @@ Page({
     wx.showLoading({ title: '加载中...' });
     try {
       const res = await workReportApi.getById(id);
-      const report = res.report || res;
-      if (report) {
+      const report = res.data || res;
+      if (report && report.id) {
         const sections = this.buildSectionsFromReport(report);
-        const comboName = report.combo_name || '私人';
+        const comboName = report.comboName || '私人';
         this.setData({
           sections,
-          reportDate: report.report_date || this.data.reportDate,
-          selectedComboId: report.combo_id || null,
+          reportDate: report.periodDate || this.data.reportDate,
+          selectedComboId: report.comboId || null,
           selectedComboName: comboName,
-          isSharedCombo: !!report.combo_id
+          isSharedCombo: !!report.comboId
         });
       }
       wx.hideLoading();
@@ -222,25 +222,37 @@ Page({
 
   buildSectionsFromReport(report) {
     const type = this.data.reportType;
+    const content = report.content || {};
     const keys = Object.keys(SECTION_LABELS[type] || SECTION_LABELS.daily);
     return keys.map(key => ({
       key,
       title: (SECTION_LABELS[type] || SECTION_LABELS.daily)[key],
       color: SECTION_COLORS[key],
-      lines: report[key] && Array.isArray(report[key]) ? report[key] : ['']
+      lines: content[key] && Array.isArray(content[key]) ? content[key] : ['']
     }));
   },
 
   buildSectionsFromTemplate(template) {
     const type = this.data.reportType;
-    const keys = Object.keys(SECTION_LABELS[type] || SECTION_LABELS.daily);
-    return keys.map(key => ({
+    const labels = SECTION_LABELS[type] || SECTION_LABELS.daily;
+
+    // Extract allowed keys from template sections (supports array-of-objects, array-of-strings, or object format)
+    let allowedKeys = Object.keys(labels);
+    if (template.sections) {
+      if (Array.isArray(template.sections)) {
+        const keys = template.sections.map(s => typeof s === 'string' ? s : s.key).filter(Boolean);
+        if (keys.length > 0) allowedKeys = keys;
+      } else if (typeof template.sections === 'object') {
+        const keys = Object.keys(template.sections);
+        if (keys.length > 0) allowedKeys = keys;
+      }
+    }
+
+    return allowedKeys.map(key => ({
       key,
-      title: (SECTION_LABELS[type] || SECTION_LABELS.daily)[key],
-      color: SECTION_COLORS[key],
-      lines: template.sections && template.sections[key] && template.sections[key].length > 0
-        ? [...template.sections[key]]
-        : ['']
+      title: labels[key] || key,
+      color: SECTION_COLORS[key] || '#00b26a',
+      lines: ['']
     }));
   },
 
@@ -502,14 +514,14 @@ Page({
 
     const reportData = {
       type: this.data.reportType,
-      report_date: this.data.reportDate,
-      week_number: this.data.reportWeek,
-      combo_id: this.data.selectedComboId || null
+      period_date: this.data.reportDate,
+      combo_id: this.data.selectedComboId || null,
+      period_label: this.data.reportType === 'weekly' ? '第' + this.data.reportWeek + '周' : undefined,
+      content: {}
     };
 
-    // Assign section lines to the data object
     cleanSections.forEach(s => {
-      reportData[s.key] = s.lines;
+      reportData.content[s.key] = s.lines;
     });
 
     const apiCall = this.data.reportId

@@ -14,7 +14,7 @@
   </view>
 
   <!-- Content -->
-  <scroll-view class="scroll-area" scroll-y show-scrollbar="{{false}}" refresher-enabled refresher-triggered="{{refreshing}}" bindrefresherrefresh="loadReport" data-id="{{report.id}}">
+  <scroll-view class="scroll-area" scroll-y show-scrollbar="{{false}}" refresher-enabled refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" data-id="{{report.id}}">
     <view wx:if="{{!loaded}}" class="loading-area">
       <view class="loading-spinner" />
       <text class="loading-text">加载中...</text>

@@ -325,10 +325,15 @@ const create = async (req, res) => {
     const comboId = result.insertId;
     
     if (isShared) {
+      const userInfo = await query(
+        'SELECT nickname FROM users WHERE id = ?',
+        [userId]
+      );
+      const nickname = userInfo.length > 0 ? userInfo[0].nickname : '';
       await query(
         `INSERT INTO combo_members (combo_id, user_id, role, nickname, joined_at)
          VALUES (?, ?, 'owner', ?, NOW())`,
-        [comboId, userId, '']
+        [comboId, userId, nickname]
       );
 
       // Auto-create default report templates for shared combos
@@ -464,38 +469,50 @@ const deleteCombo = async (req, res) => {
     }
     
     const combo = combos[0];
-    
-    if (combo.is_shared === 1) {
-      await query('DELETE FROM shared_todo_comments WHERE shared_todo_id IN (SELECT id FROM shared_todos WHERE combo_id = ?)', [id]);
-      await query('DELETE FROM shared_todo_assignments WHERE shared_todo_id IN (SELECT id FROM shared_todos WHERE combo_id = ?)', [id]);
-      await query('DELETE FROM shared_todos WHERE combo_id = ?', [id]);
-      await query('DELETE FROM combo_members WHERE combo_id = ?', [id]);
-      await query('DELETE FROM collab_requests WHERE combo_id = ?', [id]);
-    } else {
-      if (action === 'delete_todos') {
-        await query(
-          'UPDATE todos SET is_deleted = 1, deleted_at = NOW() WHERE combo_id = ?',
+
+    await transaction(async (conn) => {
+      if (combo.is_shared === 1) {
+        // Two-step: SELECT IDs first for MySQL 5.5/5.6 compatibility
+        const sharedTodos = await conn.query(
+          'SELECT id FROM shared_todos WHERE combo_id = ?',
           [id]
         );
+        const sharedIds = sharedTodos.map(t => t.id);
+
+        if (sharedIds.length > 0) {
+          await conn.query(
+            `DELETE FROM shared_todo_comments WHERE shared_todo_id IN (${sharedIds.map(() => '?').join(',')})`,
+            sharedIds
+          );
+          await conn.query(
+            `DELETE FROM shared_todo_assignments WHERE shared_todo_id IN (${sharedIds.map(() => '?').join(',')})`,
+            sharedIds
+          );
+        }
+        await conn.query('DELETE FROM shared_todos WHERE combo_id = ?', [id]);
+        await conn.query('DELETE FROM combo_members WHERE combo_id = ?', [id]);
+        await conn.query('DELETE FROM collab_requests WHERE combo_id = ?', [id]);
       } else {
-        await query(
-          'UPDATE todos SET combo_id = NULL, updated_at = NOW() WHERE combo_id = ?',
-          [id]
-        );
+        if (action === 'delete_todos') {
+          await conn.query(
+            'UPDATE todos SET is_deleted = 1, deleted_at = NOW() WHERE combo_id = ?',
+            [id]
+          );
+        } else {
+          await conn.query(
+            'UPDATE todos SET combo_id = NULL, updated_at = NOW() WHERE combo_id = ?',
+            [id]
+          );
+        }
       }
-    }
-    
-    // Convert all work_reports under this combo to private
-    await query(
-      'UPDATE work_reports SET combo_id = 0, updated_at = NOW() WHERE combo_id = ?',
-      [id]
-    );
-    // Remove report templates for this combo
-    await query(
-      'DELETE FROM report_templates WHERE combo_id = ?',
-      [id]
-    );
-    await query('DELETE FROM combos WHERE id = ?', [id]);
+
+      await conn.query(
+        'UPDATE work_reports SET combo_id = 0, updated_at = NOW() WHERE combo_id = ?',
+        [id]
+      );
+      await conn.query('DELETE FROM report_templates WHERE combo_id = ?', [id]);
+      await conn.query('DELETE FROM combos WHERE id = ?', [id]);
+    });
     
     res.json({
       success: true,

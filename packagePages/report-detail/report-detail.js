@@ -2,6 +2,12 @@ const { workReportApi } = require('../../utils/api.js');
 const { formatFriendlyDate } = require('../../utils/util.js');
 
 const SECTION_COLORS = ['#00b26a', '#3498db', '#e67e22', '#9b59b6', '#e74c3c', '#1abc9c'];
+const SECTION_LABELS = {
+  daily: { completed: '今日完成', in_progress: '进行中', blocked: '遇到的问题', tomorrow_plan: '明日计划', summary: '总结与思考' },
+  weekly: { completed: '本周完成', in_progress: '进行中', blocked: '遇到的问题', next_plan: '下周计划', summary: '总结与思考' }
+};
+
+const SECTION_COLORS = ['#00b26a', '#3498db', '#e67e22', '#9b59b6', '#e74c3c', '#1abc9c'];
 const app = getApp();
 
 Page({
@@ -16,6 +22,7 @@ Page({
     canDelete: false,
     loaded: false,
     refreshing: false,
+    sectionLabels: SECTION_LABELS,
   },
 
   onLoad(options) {
@@ -28,8 +35,15 @@ Page({
       const result = await workReportApi.getById(id);
       if (result.success && result.data) {
         const report = result.data;
-        const sections = report.content?.sections || [];
+        report.scope = !report.comboId ? 'private' : 'shared';
         const type = report.type || 'daily';
+        const content = report.content || {};
+        const labels = SECTION_LABELS[type] || SECTION_LABELS.daily;
+        const sections = Object.keys(content).filter(k => Array.isArray(content[k])).map(key => ({
+          key,
+          title: labels[key] || key,
+          lines: content[key].filter(l => l && l.trim())
+        }));
         this.setData({
           report,
           reportType: type,
@@ -46,6 +60,13 @@ Page({
     } catch (err) {
       wx.showToast({ title: '加载失败', icon: 'none' });
       this.setData({ loaded: true, refreshing: false });
+    }
+  },
+
+  onRefresh() {
+    if (this.data.report && this.data.report.id) {
+      this.setData({ refreshing: true });
+      this.loadReport(this.data.report.id);
     }
   },
 
