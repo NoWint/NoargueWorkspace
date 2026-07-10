@@ -820,6 +820,21 @@ const checkinApi = {
   deductPoints: (points) => request({ url: '/checkin/deduct-points', method: 'POST', data: { points } }),
 };
 
+const workReportApi = {
+  getList: (params) => request({ url: '/work-reports', method: 'GET', data: params }),
+  getById: (id) => request({ url: `/work-reports/${id}`, method: 'GET' }),
+  create: (data) => request({ url: '/work-reports', method: 'POST', data }),
+  update: (id, data) => request({ url: `/work-reports/${id}`, method: 'PUT', data }),
+  delete: (id) => request({ url: `/work-reports/${id}`, method: 'DELETE' }),
+  getBoard: (params) => request({ url: '/work-reports/board', method: 'GET', data: params })
+};
+
+const reportTemplateApi = {
+  getList: (params) => request({ url: '/work-reports/templates/list', method: 'GET', data: params }),
+  upsert: (data) => request({ url: '/work-reports/templates', method: 'PUT', data }),
+  createDefaults: (data) => request({ url: '/work-reports/templates/defaults', method: 'POST', data })
+};
+
 module.exports = {
   setToken,
   getToken,
@@ -840,5 +855,7 @@ module.exports = {
   shareApi,
   userApi,
   checkinApi,
+  workReportApi,
+  reportTemplateApi,
   confirmRevokeIfShared
 };

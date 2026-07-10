@@ -65,7 +65,8 @@
         "user-center/user-center",
         "checkin/checkin",
         "checkinLeaderboard/checkinLeaderboard",
-        "report-detail/report-detail"
+        "report-detail/report-detail",
+        "report-edit/report-edit"
       ]
     },
     {

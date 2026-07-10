@@ -717,13 +717,19 @@ const removeMember = async (req, res) => {
       });
     }
     
+    // Convert member's work_reports under this combo to private
+    await query(
+      'UPDATE work_reports SET combo_id = 0, updated_at = NOW() WHERE combo_id = ? AND user_id = ?',
+      [comboId, targetUserId]
+    );
+
     await query(
       'DELETE FROM combo_members WHERE combo_id = ? AND user_id = ?',
       [comboId, targetUserId]
     );
-    
+
     await query(
-      `DELETE FROM shared_todo_assignments 
+      `DELETE FROM shared_todo_assignments
        WHERE user_id = ? AND shared_todo_id IN (
          SELECT id FROM shared_todos WHERE combo_id = ?
        )`,

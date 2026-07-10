@@ -485,6 +485,16 @@ const deleteCombo = async (req, res) => {
       }
     }
     
+    // Convert all work_reports under this combo to private
+    await query(
+      'UPDATE work_reports SET combo_id = 0, updated_at = NOW() WHERE combo_id = ?',
+      [id]
+    );
+    // Remove report templates for this combo
+    await query(
+      'DELETE FROM report_templates WHERE combo_id = ?',
+      [id]
+    );
     await query('DELETE FROM combos WHERE id = ?', [id]);
     
     res.json({
