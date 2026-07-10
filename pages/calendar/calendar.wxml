@@ -87,21 +87,23 @@
   <t-tab-panel label="日报" value="daily">
     <view class="tab-content">
       <view class="report-list" wx:if="{{selectedDate}}">
-        <block wx:for="{{dailyReports}}" wx:key="id">
-          <t-swipe-cell>
-            <t-cell
-              note="{{item.periodLabel || '日报'}}"
-              title="{{item.summary}}"
-              description="{{lockIcon}} 私人 · {{item.lineCount}}项内容"
-              bordered="{{false}}"
-              bindtap="navigateToReportDetail"
-              data-id="{{item.id}}"
-            />
-            <view slot="right" class="btn-wrapper">
-              <view class="btn edit-btn column" data-id="{{item.id}}" bindtap="handleReportSwipe" data-type="edit">编辑</view>
-              <view class="btn delete-btn column" data-id="{{item.id}}" bindtap="handleReportSwipe" data-type="delete">删除</view>
-            </view>
-          </t-swipe-cell>
+        <block wx:if="{{dailyReports.length > 0}}">
+          <block wx:for="{{dailyReports}}" wx:key="id">
+            <t-swipe-cell>
+              <t-cell
+                note="{{item.periodLabel || '日报'}}"
+                title="{{item.summary}}"
+                description="{{lockIcon}} 私人 · {{item.lineCount}}项内容"
+                bordered="{{false}}"
+                bindtap="navigateToReportDetail"
+                data-id="{{item.id}}"
+              />
+              <view slot="right" class="btn-wrapper">
+                <view class="btn edit-btn column" data-id="{{item.id}}" bindtap="handleReportSwipe" data-type="edit">编辑</view>
+                <view class="btn delete-btn column" data-id="{{item.id}}" bindtap="handleReportSwipe" data-type="delete">删除</view>
+              </view>
+            </t-swipe-cell>
+          </block>
         </block>
         <block wx:else>
           <view class="no-todo-container"><text class="no-todo-text">暂无日报</text></view>
@@ -112,21 +114,23 @@
   <t-tab-panel label="周报" value="weekly">
     <view class="tab-content">
       <view class="report-list" wx:if="{{selectedDate}}">
-        <block wx:for="{{weeklyReports}}" wx:key="id">
-          <t-swipe-cell>
-            <t-cell
-              note="{{item.periodLabel || '周报'}}"
-              title="{{item.summary}}"
-              description="{{lockIcon}} 私人 · {{item.lineCount}}项内容"
-              bordered="{{false}}"
-              bindtap="navigateToReportDetail"
-              data-id="{{item.id}}"
-            />
-            <view slot="right" class="btn-wrapper">
-              <view class="btn edit-btn column" data-id="{{item.id}}" bindtap="handleReportSwipe" data-type="edit">编辑</view>
-              <view class="btn delete-btn column" data-id="{{item.id}}" bindtap="handleReportSwipe" data-type="delete">删除</view>
-            </view>
-          </t-swipe-cell>
+        <block wx:if="{{weeklyReports.length > 0}}">
+          <block wx:for="{{weeklyReports}}" wx:key="id">
+            <t-swipe-cell>
+              <t-cell
+                note="{{item.periodLabel || '周报'}}"
+                title="{{item.summary}}"
+                description="{{lockIcon}} 私人 · {{item.lineCount}}项内容"
+                bordered="{{false}}"
+                bindtap="navigateToReportDetail"
+                data-id="{{item.id}}"
+              />
+              <view slot="right" class="btn-wrapper">
+                <view class="btn edit-btn column" data-id="{{item.id}}" bindtap="handleReportSwipe" data-type="edit">编辑</view>
+                <view class="btn delete-btn column" data-id="{{item.id}}" bindtap="handleReportSwipe" data-type="delete">删除</view>
+              </view>
+            </t-swipe-cell>
+          </block>
         </block>
         <block wx:else>
           <view class="no-todo-container"><text class="no-todo-text">暂无周报</text></view>
