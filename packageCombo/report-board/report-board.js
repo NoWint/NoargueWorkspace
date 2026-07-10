@@ -6,6 +6,7 @@ Page({
     comboId: 0,
     comboName: '',
     isAdmin: false,
+    currentUserId: null,
     members: [],
     minDate: new Date(2020, 0, 1).getTime(),
     maxDate: new Date(new Date().getFullYear() + 5, 11, 31).getTime(),
@@ -23,7 +24,11 @@ Page({
 
   onLoad(options) {
     const { combo_id } = options;
-    this.setData({ comboId: parseInt(combo_id || 0) });
+    const userInfo = getApp().globalData.userInfo || {};
+    this.setData({
+      comboId: parseInt(combo_id || 0),
+      currentUserId: userInfo.id || null
+    });
     this.loadComboInfo();
   },
 
@@ -32,9 +37,14 @@ Page({
     try {
       const result = await combosApi.getById(this.data.comboId);
       if (result.success) {
+        const members = result.combo.members || [];
+        // 判断当前用户是否为 owner/admin
+        const me = members.find(m => String(m.user_id) === String(this.data.currentUserId));
+        const isAdmin = me && (me.role === 'owner' || me.role === 'admin');
         this.setData({
           comboName: result.combo.name,
-          members: result.combo.members || [],
+          members,
+          isAdmin: !!isAdmin,
         });
       }
       wx.hideLoading();
@@ -168,7 +178,7 @@ Page({
             const firstLine = Array.isArray(firstLines) ? firstLines.find(l => l && l.trim()) : '';
             const lineCount = Object.values(content).reduce((c, lines) =>
               c + (Array.isArray(lines) ? lines.filter(l => l && l.trim()).length : 0), 0);
-            reports.push({ ...r, nickname: m.nickname, avatarUrl: m.avatarUrl, summary: firstLine || '暂无记录', lineCount });
+            reports.push({ ...r, userId: m.userId, nickname: m.nickname, avatarUrl: m.avatarUrl, summary: firstLine || '暂无记录', lineCount, isOwnReport: String(m.userId) === String(this.data.currentUserId) });
           });
         });
         this.setData({ reports });

@@ -24,11 +24,11 @@
           <view class="report-toolbar">
             <text class="todo-text">{{boardTitle}}</text>
             <view class="report-toolbar-actions">
-              <view class="report-toolbar-action" bindtap="navigateToReportTemplates">
+              <view wx:if="{{isAdmin}}" class="report-toolbar-action" bindtap="navigateToReportTemplates">
                 <t-icon name="edit-2" size="28rpx" color="#00b26a" />
                 <text class="report-toolbar-text">编辑模板</text>
               </view>
-              <view class="filter-trigger" bindtap="showMemberFilter">
+              <view wx:if="{{isAdmin}}" class="filter-trigger" bindtap="showMemberFilter">
                 <t-icon name="user" size="28rpx" color="#00b26a" />
                 <text class="filter-trigger-text">筛选</text>
               </view>
@@ -45,7 +45,7 @@
                   bindtap="navigateToDetail"
                   data-id="{{item.id}}"
                 />
-                <view slot="right" class="btn-wrapper">
+                <view wx:if="{{item.isOwnReport}}" slot="right" class="btn-wrapper">
                   <view class="btn edit-btn column" data-id="{{item.id}}" bindtap="handleReportSwipe" data-type="edit">编辑</view>
                   <view class="btn delete-btn column" data-id="{{item.id}}" bindtap="handleReportSwipe" data-type="delete">删除</view>
                 </view>
@@ -64,11 +64,11 @@
           <view class="report-toolbar">
             <text class="todo-text">{{boardTitle}}</text>
             <view class="report-toolbar-actions">
-              <view class="report-toolbar-action" bindtap="navigateToReportTemplates">
+              <view wx:if="{{isAdmin}}" class="report-toolbar-action" bindtap="navigateToReportTemplates">
                 <t-icon name="edit-2" size="28rpx" color="#00b26a" />
                 <text class="report-toolbar-text">编辑模板</text>
               </view>
-              <view class="filter-trigger" bindtap="showMemberFilter">
+              <view wx:if="{{isAdmin}}" class="filter-trigger" bindtap="showMemberFilter">
                 <t-icon name="user" size="28rpx" color="#00b26a" />
                 <text class="filter-trigger-text">筛选</text>
               </view>
@@ -85,7 +85,7 @@
                   bindtap="navigateToDetail"
                   data-id="{{item.id}}"
                 />
-                <view slot="right" class="btn-wrapper">
+                <view wx:if="{{item.isOwnReport}}" slot="right" class="btn-wrapper">
                   <view class="btn edit-btn column" data-id="{{item.id}}" bindtap="handleReportSwipe" data-type="edit">编辑</view>
                   <view class="btn delete-btn column" data-id="{{item.id}}" bindtap="handleReportSwipe" data-type="delete">删除</view>
                 </view>
