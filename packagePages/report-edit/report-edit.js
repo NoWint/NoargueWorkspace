@@ -82,9 +82,10 @@ Page({
 
     const navTitles = { daily: '写日报', weekly: '写周报' };
     wx.setNavigationBarTitle({ title: navTitles[reportType] });
+    const fullDateLabel = this.formatDateWithWeekday(reportDate);
     const dateLabels = {
-      daily: this.getFriendlyDate(reportDate) + ' 日报',
-      weekly: reportDate + ' 第' + this.getWeekNumber(reportDate) + '周 周报'
+      daily: '日报 · ' + fullDateLabel,
+      weekly: '周报 · 第' + this.getWeekNumber(reportDate) + '周 · ' + fullDateLabel
     };
 
     const isEdit = !!reportId;
@@ -592,36 +593,6 @@ Page({
     });
   },
 
-  batchAddToTodo(e) {
-    const sectionIdx = Number(e.currentTarget.dataset.section);
-    const lines = this.data.sections[sectionIdx].lines.filter(l => l && l.text && l.text.trim()).map(l => l.text);
-
-    if (lines.length === 0) {
-      wx.showToast({ title: '暂无内容可添加', icon: 'none' });
-      return;
-    }
-
-    const setDate = this.data.reportDate;
-    const comboId = this.data.selectedComboId || '';
-    const isShared = this.data.isSharedCombo ? '1' : '0';
-
-    wx.showModal({
-      title: '添加到待办',
-      content: `将 ${lines.length} 条计划添加到待办？`,
-      success: (res) => {
-        if (res.confirm) {
-          // Navigate to add-todo with first line
-          wx.navigateTo({
-            url: `/packagePages/add-todo/add-todo?text=${encodeURIComponent(lines[0].trim())}&setDate=${setDate}&comboId=${comboId}&isShared=${isShared}&fromReport=1`
-          });
-          if (lines.length > 1) {
-            wx.showToast({ title: `已打开第1条，剩余${lines.length - 1}条可继续添加`, icon: 'none' });
-          }
-        }
-      }
-    });
-  },
-
   // ========== Save ==========
 
   saveReport() {
@@ -676,6 +647,20 @@ Page({
     const m = (now.getMonth() + 1).toString().padStart(2, '0');
     const d = now.getDate().toString().padStart(2, '0');
     return `${y}-${m}-${d}`;
+  },
+
+  getWeekday(dateStr) {
+    const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    const date = new Date(dateStr.replace(/-/g, '/'));
+    return days[date.getDay()] || '';
+  },
+
+  formatDateWithWeekday(dateStr) {
+    if (!dateStr) return '';
+    const month = dateStr.substring(5, 7);
+    const day = dateStr.substring(8, 10);
+    const weekday = this.getWeekday(dateStr);
+    return `${parseInt(month)}月${parseInt(day)}日 ${weekday}`;
   },
 
   formatDateStr(dateVal) {

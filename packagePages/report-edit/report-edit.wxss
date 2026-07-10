@@ -1,116 +1,93 @@
 /* ========== 滚动区域 ========== */
 .scroll-area {
   height: 100vh;
-  box-sizing: border-box;
 }
 
-/* ========== 目标选择器 ========== */
-.target-selector {
+.container {
+  padding: 0 32rpx 160rpx;
+}
+
+/* ========== 日期提示 ========== */
+.page-title {
+  font-size: 48rpx;
+  font-weight: 600;
+  line-height: 1.5;
+  color: #333;
+  padding: 10rpx 0 20rpx 0;
+  display: block;
+}
+
+/* ========== 表单项（对标 add-todo） ========== */
+.form-item {
+  padding-bottom: 32rpx;
+}
+
+.question-title {
+  display: flex;
+  align-items: center;
+  font-size: 36rpx;
+  font-weight: 500;
+  line-height: 1.1;
+  color: #333;
+  margin-bottom: 15rpx;
+  padding-left: 32rpx;
+  position: relative;
+}
+
+.question-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16rpx;
+  height: 16rpx;
+  background: #00b26a;
+  border-radius: 50%;
+}
+
+/* ========== 组合选择器（对标 add-todo） ========== */
+.combo-selector {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 28rpx 32rpx;
-  background: #ffffff;
+  padding: 24rpx 32rpx;
+  margin-left: 24rpx;
+  background: #f8f8f8;
   border-radius: 32rpx;
-  margin: 20rpx 24rpx 12rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
 }
 
-.target-label {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
+.selected-combo {
+  flex: 1;
 }
 
-.target-text {
+.combo-name-text {
   font-size: 30rpx;
   color: #333;
-  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.target-value {
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-}
-
-.target-name {
-  font-size: 30rpx;
-  color: #00b26a;
-  font-weight: 500;
-}
-
-.target-hint {
-  font-size: 24rpx;
-  color: #999;
-  padding: 0 12rpx 20rpx 24rpx;
-}
-
-/* ========== 区块卡片 ========== */
+/* ========== 区块容器 ========== */
 .sections-container {
   display: flex;
   flex-direction: column;
-  gap: 20rpx;
-  padding: 20rpx 24rpx 0;
-}
-
-.section-card {
-  background: #ffffff;
-  border-radius: 32rpx;
-  padding: 28rpx 28rpx 16rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
-  border: 1rpx solid rgba(0, 0, 0, 0.03);
-}
-
-/* 区块标题 */
-.section-header {
-  margin-bottom: 16rpx;
-}
-
-.section-title-row {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-}
-
-.section-color-tag {
-  width: 8rpx;
-  height: 28rpx;
-  border-radius: 4rpx;
-  flex-shrink: 0;
-}
-
-.section-title {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #333;
-}
-
-.section-badge {
-  font-size: 22rpx;
-  color: #999;
-  background: #f5f5f5;
-  padding: 4rpx 14rpx;
-  border-radius: 32rpx;
-  margin-left: auto;
+  gap: 0;
 }
 
 /* ========== 行编辑 ========== */
 .lines-container {
   display: flex;
   flex-direction: column;
+  margin-left: 24rpx;
 }
 
 .line-item {
   display: flex;
   align-items: flex-start;
-  padding: 12rpx 0;
+  padding: 8rpx 0;
   gap: 12rpx;
-  border-bottom: 1rpx solid #f0f0f0;
-}
-
-.line-item:last-child {
-  border-bottom: none;
 }
 
 .line-textarea {
@@ -118,9 +95,9 @@
   font-size: 28rpx;
   color: #333;
   line-height: 1.6;
-  background: #fafafa;
+  background: #f8f8f8;
   border-radius: 32rpx;
-  padding: 12rpx 16rpx;
+  padding: 16rpx 20rpx;
   min-height: 60rpx;
   box-sizing: border-box;
   word-break: break-all;
@@ -178,9 +155,8 @@
 .section-actions {
   display: flex;
   gap: 16rpx;
-  padding-top: 16rpx;
-  border-top: 1rpx solid #f0f0f0;
-  margin-top: 4rpx;
+  padding-top: 12rpx;
+  margin-left: 24rpx;
 }
 
 .section-action-btn {
@@ -328,12 +304,6 @@
   padding: 60rpx 0;
   color: #999;
   font-size: 28rpx;
-}
-
-/* TDesign component overrides */
-page {
-  --td-cell-bg-color: #e3f5eb;
-  --td-radio-bg-color: transparent;
 }
 
 /* ========== 待办导入 Popup ========== */

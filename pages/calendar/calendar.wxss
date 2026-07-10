@@ -81,7 +81,7 @@
 
 .report-item-wrapper {
   position: relative;
-  margin-bottom: 0rpx;
+  margin-top: 24rpx;
   border-radius: 32rpx;
   overflow: hidden;
   transition: all 0.3s ease;

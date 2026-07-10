@@ -14,32 +14,28 @@ module.exports = {
 
 <scroll-view class="scroll-area" scroll-y>
 
+  <view class="container">
+
+  <!-- 页面标题 -->
+  <text class="page-title">{{targetDateHint}}</text>
+
   <!-- 汇报到选择器 -->
-  <view class="target-selector" bindtap="showComboPicker">
-    <view class="target-label">
-      <t-icon name="flag" size="32rpx" color="#00b26a" />
-      <text class="target-text">汇报到</text>
-    </view>
-    <view class="target-value">
-      <text class="target-name">{{selectedComboName}}</text>
-      <t-icon name="chevron-down" size="32rpx" color="#999" />
+  <view class="form-item">
+    <text class="question-title">汇报到</text>
+    <view class="combo-selector" bindtap="showComboPicker">
+      <view class="selected-combo">
+        <text class="combo-name-text">{{selectedComboName}}</text>
+      </view>
+      <t-icon name="chevron-down" size="32rpx" color="#ccc" />
     </view>
   </view>
 
-  <view class="target-hint">{{targetDateHint}}</view>
-
-  <!-- 区块卡片列表 -->
+  <!-- 区块列表 -->
   <view class="sections-container">
-    <view class="section-card" wx:for="{{sections}}" wx:key="_rk" wx:for-index="sectionIndex" data-section-index="{{sectionIndex}}">
+    <view class="form-item" wx:for="{{sections}}" wx:key="_rk" wx:for-index="sectionIndex" data-section-index="{{sectionIndex}}">
 
       <!-- 区块标题 -->
-      <view class="section-header">
-        <view class="section-title-row">
-          <view class="section-color-tag" style="background: {{item.color}}"></view>
-          <text class="section-title">{{item.title}}</text>
-          <view class="section-badge">{{item.lines.length}}条</view>
-        </view>
-      </view>
+      <text class="question-title">{{item.title}}</text>
 
       <!-- 行列表 -->
       <view class="lines-container">
@@ -55,12 +51,12 @@ module.exports = {
             bindinput="onLineInput"
           />
           <view class="line-actions">
-            <view class="line-action-btn todo-btn" bindtap="addLineToTodo" data-section="{{sectionIndex}}" data-line="{{lineIndex}}">
-              <t-icon name="add" size="24rpx" color="#00b26a" />
-              <text class="todo-btn-text">待办</text>
-            </view>
             <view class="line-action-btn delete-btn" bindtap="deleteLine" data-section="{{sectionIndex}}" data-line="{{lineIndex}}">
               <t-icon name="close" size="32rpx" color="#ff4d4f" />
+            </view>
+            <view class="line-action-btn todo-btn" bindtap="addLineToTodo" data-section="{{sectionIndex}}" data-line="{{lineIndex}}">
+              <t-icon name="add" size="24rpx" color="#00b26a" />
+              <text class="todo-btn-text">到待办</text>
             </view>
           </view>
         </view>
@@ -68,17 +64,13 @@ module.exports = {
 
       <!-- 区块操作按钮 -->
       <view class="section-actions">
-        <view wx:if="{{!isPlanSection(item.key)}}" class="section-action-btn" bindtap="importFromTodos" data-section="{{sectionIndex}}">
-          <t-icon name="download" size="28rpx" color="#00b26a" />
-          <text class="action-text">从待办导入</text>
-        </view>
-        <view wx:if="{{isPlanSection(item.key)}}" class="section-action-btn" bindtap="batchAddToTodo" data-section="{{sectionIndex}}">
-          <t-icon name="add" size="28rpx" color="#00b26a" />
-          <text class="action-text">全部添加到待办</text>
-        </view>
         <view class="section-action-btn primary" bindtap="addLine" data-section="{{sectionIndex}}">
           <t-icon name="add" size="28rpx" color="#00b26a" />
           <text class="action-text">添加新条目</text>
+        </view>
+        <view wx:if="{{!isPlanSection(item.key)}}" class="section-action-btn" bindtap="importFromTodos" data-section="{{sectionIndex}}">
+          <t-icon name="download" size="28rpx" color="#00b26a" />
+          <text class="action-text">从待办导入</text>
         </view>
       </view>
 
@@ -88,6 +80,7 @@ module.exports = {
   <!-- 底部安全区域 -->
   <view class="bottom-safe"></view>
 
+  </view>
 </scroll-view>
 
 <!-- 保存 FAB -->
