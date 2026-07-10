@@ -505,4 +505,10 @@ Page({
       });
     }
   },
+
+  navigateToPrivateTemplates() {
+    wx.navigateTo({
+      url: `/packageCombo/report-templates/report-templates?combo_id=0`
+    });
+  },
 });
