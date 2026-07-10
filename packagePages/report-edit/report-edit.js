@@ -247,11 +247,19 @@ Page({
   buildSectionsFromReport(report) {
     const type = this.data.reportType;
     const content = report.content || {};
-    const keys = Object.keys(SECTION_LABELS[type] || SECTION_LABELS.daily);
+    const labels = SECTION_LABELS[type] || SECTION_LABELS.daily;
+    const colors = SECTION_COLORS;
+
+    // Use the report's actual content keys to preserve custom template sections,
+    // fall back to default labels only if content is empty
+    const keys = Object.keys(content).length > 0
+      ? Object.keys(content)
+      : Object.keys(labels);
+
     return keys.map((key, i) => ({
       key,
-      title: (SECTION_LABELS[type] || SECTION_LABELS.daily)[key],
-      color: SECTION_COLORS[key],
+      title: labels[key] || key,
+      color: colors[key] || '#00b26a',
       lines: content[key] && Array.isArray(content[key]) ? _makeLines(content[key]) : _makeLines(['']),
       _rk: i
     }));
