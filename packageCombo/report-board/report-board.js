@@ -18,6 +18,7 @@ Page({
     reports: [],
     showFilterPopup: false,
     selectedMemberId: '0',
+    boardTitle: '',
   },
 
   onLoad(options) {
@@ -50,6 +51,7 @@ Page({
       const dateStr = this.formatDate(today);
       this.setData({ selectedDate: dateStr });
       this.loadReports();
+      this.updateBoardTitle();
     }, 300);
   },
 
@@ -68,11 +70,46 @@ Page({
     return this.formatDate(d);
   },
 
+  getReportDateTitle(dateStr) {
+    if (!dateStr) return '';
+    const month = dateStr.substring(5, 7);
+    const day = dateStr.substring(8, 10);
+    const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    const date = new Date(dateStr.replace(/-/g, '/'));
+    const weekday = weekdays[date.getDay()] || '';
+    return `${parseInt(month)}月${parseInt(day)}日 ${weekday}`;
+  },
+
+  getWeekNumber(dateStr) {
+    const date = new Date(dateStr.replace(/-/g, '/'));
+    const startOfYear = new Date(date.getFullYear(), 0, 1);
+    const diff = date - startOfYear;
+    const oneWeek = 604800000;
+    return Math.ceil((((startOfYear.getDay() + 1) + diff) / oneWeek));
+  },
+
+  getWeekTitle(dateStr) {
+    if (!dateStr) return '';
+    const weekNum = this.getWeekNumber(dateStr);
+    return `${this.getReportDateTitle(dateStr)} · 第${weekNum}周`;
+  },
+
+  updateBoardTitle() {
+    const { selectedDate, currentTab, comboName } = this.data;
+    if (!selectedDate) return;
+    const dateTitle = currentTab === 'weekly'
+      ? this.getWeekTitle(selectedDate)
+      : this.getReportDateTitle(selectedDate);
+    this.setData({ boardTitle: dateTitle });
+  },
+
   handleDateChange(e) {
-    const { checked } = e.detail;
+    const { checked } = e.detail || {};
+    if (!checked) return;
     const d = new Date(checked.year, checked.month - 1, checked.day);
     this.setData({ selectedDate: this.formatDate(d) });
     this.loadReports();
+    this.updateBoardTitle();
   },
 
   handleViewChange(e) {
@@ -102,6 +139,7 @@ Page({
       if (this.calendar && this.calendar.toggleView) this.calendar.toggleView('week');
     }
     this.loadReports();
+    this.updateBoardTitle();
   },
 
   async loadReports() {
@@ -158,7 +196,7 @@ Page({
         (result.data?.members || []).forEach(m => {
           (m.reports || []).forEach(r => {
             if (r.periodDate) {
-              marks.push({ value: r.periodDate, type: 'dot', color: '#ff8800' });
+              marks.push({ date: r.periodDate, type: 'dot', color: '#ff8800' });
             }
           });
         });
@@ -195,6 +233,33 @@ Page({
     wx.navigateTo({
       url: `/packageCombo/report-templates/report-templates?combo_id=${this.data.comboId}`
     });
+  },
+
+  handleReportSwipe(e) {
+    const { type, id } = e.currentTarget.dataset;
+    if (type === 'edit') {
+      wx.navigateTo({
+        url: `/packagePages/report-edit/report-edit?id=${encodeURIComponent(id)}`
+      });
+    } else if (type === 'delete') {
+      wx.showModal({
+        title: '删除确认',
+        content: '确定删除该报告吗？删除后不可恢复。',
+        confirmText: '删除',
+        confirmColor: '#ff4d4f',
+        success: async (res) => {
+          if (res.confirm) {
+            try {
+              await workReportApi.delete(id);
+              wx.showToast({ title: '已删除', icon: 'success' });
+              this.loadReports();
+            } catch (err) {
+              wx.showToast({ title: '删除失败', icon: 'none' });
+            }
+          }
+        }
+      });
+    }
   },
 
   goBack() { wx.navigateBack(); },

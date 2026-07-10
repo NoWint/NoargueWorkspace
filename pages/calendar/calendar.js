@@ -208,7 +208,8 @@ Page({
 
   // 修改原有的handleConfirm方法
   handleConfirm(e) {
-    const { checked } = e.detail;
+    const { checked } = e.detail || {};
+    if (!checked) return;
     const standardDate = new Date(
       checked.year,
       checked.month - 1,
@@ -437,10 +438,13 @@ Page({
       return count;
     }, 0);
 
+    const isPrivate = !item.comboId || item.comboId === 0;
+
     return {
       ...item,
       summary: firstLine || fallback,
-      lineCount
+      lineCount,
+      scopeLabel: isPrivate ? '私人' : (item.comboName || '团队'),
     };
   },
 

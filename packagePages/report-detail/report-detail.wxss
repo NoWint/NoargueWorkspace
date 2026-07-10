@@ -63,6 +63,42 @@
   background: linear-gradient(150deg, #f9f9f9 0%, #f6f0c5 100%);
 }
 
+.date-info-priority {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.creator-info {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.creator-info .section-header {
+  margin-bottom: 0;
+}
+
+.creator-content {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.creator-avatar {
+  width: 42rpx;
+  height: 42rpx;
+  border-radius: 50%;
+  border: 2rpx solid #fff;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.1);
+}
+
+.creator-name {
+  font-size: 30rpx;
+  color: #333;
+  font-weight: 500;
+}
+
 .label {
   color: #666;
   font-size: 34rpx;
@@ -150,58 +186,6 @@
   color: #bbb;
 }
 
-/* ===== Time Info ===== */
-.time-info {
-  margin-top: 24rpx;
-}
-
-.time-row {
-  display: flex;
-  align-items: center;
-}
-
-.time-col {
-  flex: 1;
-  min-width: 0;
-}
-
-.time-divider {
-  width: 2rpx;
-  height: 48rpx;
-  background: #e0e0e0;
-  margin: 0 24rpx;
-  flex-shrink: 0;
-}
-
-.time-value {
-  font-size: 26rpx;
-  color: #999;
-}
-
-/* ===== Delete Button ===== */
-.delete-area {
-  margin-top: 40rpx;
-  padding-bottom: 48rpx;
-}
-
-.delete-btn {
-  width: 100%;
-  height: 88rpx;
-  line-height: 88rpx;
-  text-align: center;
-  background: #fff;
-  border: 2rpx solid #ff4d4f;
-  border-radius: 32rpx;
-  font-size: 30rpx;
-  font-weight: 500;
-  color: #ff4d4f;
-  padding: 0;
-}
-
-.delete-btn::after {
-  border: none;
-}
-
 /* ===== Section Header: 统一卡片图标+标签排布 ===== */
 .section-header {
   display: flex;
@@ -214,4 +198,9 @@
   margin-right: 0;
   margin-bottom: 0;
   display: inline;
+}
+
+/* flex row 布局下 section-header 无需底部间距 */
+.date-info-priority .section-header {
+  margin-bottom: 0;
 }

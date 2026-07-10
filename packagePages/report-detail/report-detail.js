@@ -19,6 +19,7 @@ Page({
     loaded: false,
     refreshing: false,
     sectionLabels: SECTION_LABELS,
+    creator: null,
   },
 
   onLoad(options) {
@@ -45,6 +46,8 @@ Page({
           report,
           reportType: type,
           sections,
+          creator: report.nickname ? { id: report.userId, nickname: report.nickname, avatar: report.avatarUrl } : null,
+          comboName: report.scope === 'private' ? '' : (report.comboName || ''),
           friendlyDate: formatFriendlyDate(report.periodDate) + (type === 'weekly' && report.periodLabel ? ` · ${report.periodLabel}` : ''),
           formattedCreatedAt: formatDateTime(report.createdAt),
           formattedUpdatedAt: formatDateTime(report.updatedAt),
@@ -97,4 +100,17 @@ Page({
   },
 
   goBack() { wx.navigateBack(); },
+
+  goToUserHome(e) {
+    const userId = e.currentTarget.dataset.userId;
+    if (!userId) return;
+    wx.navigateTo({ url: `/packageProfile/user-home/user-home?userId=${userId}` });
+  },
+
+  copyCreator() {
+    const creator = this.data.creator;
+    if (creator) {
+      wx.setClipboardData({ data: creator.nickname || '未知用户' });
+    }
+  },
 });

@@ -59,7 +59,7 @@
 .item-input {
   background: #f8f8f8 !important;
   border-radius: 32rpx !important;
-  padding: 16rpx 24rpx !important;
+  padding: 24rpx !important;
   font-size: 28rpx !important;
   color: #333 !important;
 }
@@ -84,7 +84,7 @@
 }
 
 .add-text {
-  font-size: 28rpx;
+  font-size: 32rpx;
   color: #00b26a;
   font-weight: 500;
 }

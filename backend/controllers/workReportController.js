@@ -129,9 +129,10 @@ const getList = async (req, res) => {
     // 查询分页数据
     const offset = (pageNum - 1) * pageSize;
     const rows = await query(
-      `SELECT wr.*, u.nickname, u.avatar_url
+      `SELECT wr.*, u.nickname, u.avatar_url, c.name as combo_name
        FROM work_reports wr
        LEFT JOIN users u ON wr.user_id = u.id
+       LEFT JOIN combos c ON wr.combo_id = c.id
        WHERE ${whereClause}
        ORDER BY wr.period_date DESC, wr.created_at DESC
        LIMIT ? OFFSET ?`,
@@ -145,6 +146,7 @@ const getList = async (req, res) => {
       periodDate: row.period_date,
       periodLabel: row.period_label,
       comboId: row.combo_id,
+      comboName: row.combo_name,
       content: safeParseContent(row.content),
       nickname: row.nickname,
       avatarUrl: row.avatar_url,
@@ -185,9 +187,10 @@ const getById = async (req, res) => {
 
   try {
     const rows = await query(
-      `SELECT wr.*, u.nickname, u.avatar_url
+      `SELECT wr.*, u.nickname, u.avatar_url, c.name as combo_name
        FROM work_reports wr
        LEFT JOIN users u ON wr.user_id = u.id
+       LEFT JOIN combos c ON wr.combo_id = c.id
        WHERE wr.id = ? AND wr.is_deleted = 0`,
       [id]
     );
@@ -228,6 +231,7 @@ const getById = async (req, res) => {
         periodDate: report.period_date,
         periodLabel: report.period_label,
         comboId: report.combo_id,
+        comboName: report.combo_name,
         content: safeParseContent(report.content),
         nickname: report.nickname,
         avatarUrl: report.avatar_url,

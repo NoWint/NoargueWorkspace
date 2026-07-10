@@ -16,35 +16,39 @@
     />
   </view>
 
-  <!-- 组合名称 + 成员筛选 -->
-  <view class="board-header">
-    <text class="board-title">{{comboName || '组合'}}</text>
-    <view class="board-actions">
-      <view class="filter-trigger" bindtap="showMemberFilter">
-        <t-icon name="user" size="32rpx" color="#00b26a" />
-        <text class="filter-trigger-text">筛选成员</text>
-      </view>
-      <view class="filter-trigger" bindtap="navigateToReportTemplates">
-        <t-icon name="file" size="32rpx" color="#00b26a" />
-        <text class="filter-trigger-text">编辑模板</text>
-      </view>
-    </view>
-  </view>
-
   <!-- tabs: 日报 / 周报 -->
   <view class="tabs-wrapper">
     <t-tabs theme="card" bindchange="onTabChange" value="{{currentTab}}">
       <t-tab-panel label="日报" value="daily">
-        <view class="report-list">
+        <view class="tab-content">
+          <view class="report-toolbar">
+            <text class="todo-text">{{boardTitle}}</text>
+            <view class="report-toolbar-actions">
+              <view class="report-toolbar-action" bindtap="navigateToReportTemplates">
+                <t-icon name="edit-2" size="28rpx" color="#00b26a" />
+                <text class="report-toolbar-text">编辑模板</text>
+              </view>
+              <view class="filter-trigger" bindtap="showMemberFilter">
+                <t-icon name="user" size="28rpx" color="#00b26a" />
+                <text class="filter-trigger-text">筛选</text>
+              </view>
+            </view>
+          </view>
           <block wx:for="{{reports}}" wx:key="id">
-            <view class="report-item-wrapper" data-id="{{item.id}}" bindtap="navigateToDetail">
+            <view class="report-item-wrapper">
               <t-swipe-cell>
                 <t-cell
-                  note="{{item.periodLabel || item.type}}"
+                  note="{{item.periodLabel || '日报'}}"
                   title="{{item.summary}}"
-                  description="👤 {{item.nickname || '匿名用户'}} · {{item.lineCount}}项内容"
+                  description="{{item.nickname || '匿名用户'}} · {{item.lineCount}}项内容"
                   bordered="{{false}}"
+                  bindtap="navigateToDetail"
+                  data-id="{{item.id}}"
                 />
+                <view slot="right" class="btn-wrapper">
+                  <view class="btn edit-btn column" data-id="{{item.id}}" bindtap="handleReportSwipe" data-type="edit">编辑</view>
+                  <view class="btn delete-btn column" data-id="{{item.id}}" bindtap="handleReportSwipe" data-type="delete">删除</view>
+                </view>
               </t-swipe-cell>
             </view>
           </block>
@@ -56,16 +60,35 @@
       </t-tab-panel>
 
       <t-tab-panel label="周报" value="weekly">
-        <view class="report-list">
+        <view class="tab-content">
+          <view class="report-toolbar">
+            <text class="todo-text">{{boardTitle}}</text>
+            <view class="report-toolbar-actions">
+              <view class="report-toolbar-action" bindtap="navigateToReportTemplates">
+                <t-icon name="edit-2" size="28rpx" color="#00b26a" />
+                <text class="report-toolbar-text">编辑模板</text>
+              </view>
+              <view class="filter-trigger" bindtap="showMemberFilter">
+                <t-icon name="user" size="28rpx" color="#00b26a" />
+                <text class="filter-trigger-text">筛选</text>
+              </view>
+            </view>
+          </view>
           <block wx:for="{{reports}}" wx:key="id">
-            <view class="report-item-wrapper" data-id="{{item.id}}" bindtap="navigateToDetail">
+            <view class="report-item-wrapper">
               <t-swipe-cell>
                 <t-cell
-                  note="{{item.periodLabel || item.type}}"
+                  note="{{item.periodLabel || '日报'}}"
                   title="{{item.summary}}"
-                  description="👤 {{item.nickname || '匿名用户'}} · {{item.lineCount}}项内容"
+                  description="{{item.nickname || '匿名用户'}} · {{item.lineCount}}项内容"
                   bordered="{{false}}"
+                  bindtap="navigateToDetail"
+                  data-id="{{item.id}}"
                 />
+                <view slot="right" class="btn-wrapper">
+                  <view class="btn edit-btn column" data-id="{{item.id}}" bindtap="handleReportSwipe" data-type="edit">编辑</view>
+                  <view class="btn delete-btn column" data-id="{{item.id}}" bindtap="handleReportSwipe" data-type="delete">删除</view>
+                </view>
               </t-swipe-cell>
             </view>
           </block>

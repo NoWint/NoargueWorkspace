@@ -4,26 +4,6 @@
   padding: 0;
 }
 
-/* 顶部信息栏 */
-.board-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12rpx 24rpx;
-}
-
-.board-title {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #333;
-}
-
-.board-actions {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-}
-
 .filter-trigger {
   display: flex;
   align-items: center;
@@ -44,6 +24,52 @@
   font-weight: 500;
 }
 
+/* 标题 — 对齐 calendar 页样式 */
+.todo-text {
+  font-size: 32rpx;
+  color: #333;
+  font-weight: 550;
+  padding: 10rpx 20rpx;
+  border-radius: 12rpx;
+  display: block;
+}
+
+/* 报告工具栏 — 对齐 calendar 页样式 */
+.report-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0;
+}
+
+.report-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.report-toolbar-action {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  padding: 8rpx 16rpx;
+  background: #e3f5eb;
+  border-radius: 32rpx;
+}
+
+.report-toolbar-action:active {
+  opacity: 0.7;
+}
+
+.report-toolbar-text {
+  font-size: 28rpx;
+  color: #00b26a;
+  font-weight: 500;
+}
+
+.tab-content {
+}
+
 /* 日历区域 */
 .calendar-wrapper {
   background: #e3f5eb;
@@ -56,10 +82,15 @@
 
 /* 报告列表 */
 .report-list {
+  padding: 0 0 30rpx;
 }
 
 .report-item-wrapper {
-  margin: 12rpx 0;
+  position: relative;
+  margin-top: 24rpx;
+  border-radius: 32rpx;
+  overflow: hidden;
+  transition: all 0.3s ease;
 }
 
 /* 空状态 */
@@ -119,7 +150,7 @@
 
 /* TDesign component overrides to blend with page background */
 page {
-  --td-cell-bg-color: #e3f5eb;
   --td-tab-nav-bg-color: #e3f5eb;
   --td-swipe-cell-bg-color: transparent;
+  --td-tab-item-height: 64rpx;
 }

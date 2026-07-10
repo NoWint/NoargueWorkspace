@@ -4,5 +4,5 @@
     "t-button": "tdesign-miniprogram/button/button",
     "t-fab": "tdesign-miniprogram/fab/fab"
   },
-  "navigationBarTitleText": "日报"
+  "navigationBarTitleText": "报告详情"
 }

@@ -117,7 +117,7 @@
 }
 
 .report-toolbar-text {
-  font-size: 24rpx;
+  font-size: 28rpx;
   color: #00b26a;
   font-weight: 500;
 }

@@ -14,34 +14,64 @@
 
     <block wx:if="{{loaded && report}}">
       <!-- 日期 -->
-      <view class="date-info deadline">
+      <view class="date-info deadline date-info-priority">
         <view class="section-header">
           <t-icon name="time" size="32rpx" color="#999" />
-          <text class="label">日期</text>
+          <text class="label">报告时间</text>
         </view>
         <text class="value">{{friendlyDate}}</text>
       </view>
 
       <!-- 报告类型 -->
-      <view class="date-info">
+      <view class="date-info date-info-priority">
         <view class="section-header">
-          <t-icon name="edit" size="32rpx" color="#999" />
-          <text class="label">类型</text>
+          <t-icon name="tag" size="32rpx" color="#999" />
+          <text class="label">报告类型</text>
         </view>
         <text class="value">{{reportType === 'weekly' ? '周报' : '日报'}}</text>
       </view>
 
       <!-- 归属 -->
-      <view class="date-info">
+      <view class="date-info date-info-priority">
         <view class="section-header">
-          <t-icon name="user" size="32rpx" color="#999" />
-          <text class="label">归属</text>
+          <t-icon name="data" size="32rpx" color="#999" />
+          <text class="label">报告归属</text>
         </view>
         <view class="scope-badge">
-          <t-icon wx:if="{{report.scope === 'private'}}" name="lock-on" size="28rpx" color="#00b26a" />
-          <t-icon wx:else name="user-group" size="28rpx" color="#00b26a" />
-          <text class="value">{{report.scope === 'private' ? '个人报告' : '团队报告'}}</text>
+          <t-icon wx:if="{{report.scope === 'private'}}" name="lock-on" size="32rpx" color="#00b26a" />
+          <t-icon wx:else name="user-group" size="32rpx" color="#00b26a" />
+          <text class="value">{{report.scope === 'private' ? '个人报告' : comboName || '团队报告'}}</text>
         </view>
+      </view>
+
+      <!-- 创建人员 -->
+      <view wx:if="{{creator}}" class="date-info creator-info">
+        <view class="section-header">
+          <t-icon name="user" size="32rpx" color="#999" />
+          <text class="label">创建人员</text>
+        </view>
+        <view class="creator-content" catch:tap="goToUserHome" data-user-id="{{creator.id}}" bindlongpress="copyCreator">
+          <image class="creator-avatar" src="{{creator.avatar || '/images/avatar.png'}}" mode="aspectFill" />
+          <text class="creator-name">{{creator.nickname || '未知用户'}}</text>
+        </view>
+      </view>
+
+      <!-- 创建时间 -->
+      <view class="date-info date-info-priority">
+        <view class="section-header">
+          <t-icon name="add" size="32rpx" color="#999" />
+          <text class="label">创建时间</text>
+        </view>
+        <text class="value">{{formattedCreatedAt || '-'}}</text>
+      </view>
+
+      <!-- 更新时间 -->
+      <view class="date-info date-info-priority">
+        <view class="section-header">
+          <t-icon name="upload" size="32rpx" color="#999" />
+          <text class="label">更新时间</text>
+        </view>
+        <text class="value">{{formattedUpdatedAt || '-'}}</text>
       </view>
 
       <!-- 报告内容区块 -->
@@ -62,37 +92,12 @@
           </view>
         </view>
       </view>
-
-      <!-- 时间信息 -->
-      <view class="time-info date-info">
-        <view class="time-row">
-          <view class="time-col">
-            <view class="section-header">
-              <t-icon name="add" size="26rpx" color="#bbb" />
-              <text class="label">创建时间</text>
-            </view>
-            <text class="value time-value">{{formattedCreatedAt || '-'}}</text>
-          </view>
-          <view class="time-divider" />
-          <view class="time-col">
-            <view class="section-header">
-              <t-icon name="time" size="26rpx" color="#bbb" />
-              <text class="label">更新时间</text>
-            </view>
-            <text class="value time-value">{{formattedUpdatedAt || '-'}}</text>
-          </view>
-        </view>
-      </view>
-
-      <!-- 删除 -->
-      <view wx:if="{{canDelete}}" class="delete-area">
-        <button class="delete-btn" bindtap="deleteReport">删除报告</button>
-      </view>
     </block>
   </view>
 </view>
 
-<!-- 编辑 FAB -->
+<!-- FAB 组 -->
 <view wx:if="{{canEdit}}">
+  <t-fab wx:if="{{canDelete}}" icon="delete" bind:click="deleteReport" style="right: 248rpx; bottom: 32rpx;" />
   <t-fab icon="edit-1" text="编辑" bind:click="navigateToEdit" style="right: 32rpx; bottom: 32rpx;" />
 </view>
