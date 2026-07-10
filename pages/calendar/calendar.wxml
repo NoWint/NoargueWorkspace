@@ -25,7 +25,7 @@
   <t-tab-panel label="待办" value="todo">
     <view class="tab-content">
       <view class="todo-list" wx:if="{{selectedDate}}">
-        <text class="todo-text">{{friendlySelectedDate || selectedDate}} 的待办（按截止时间排序）</text>
+        <text class="todo-text">待办 · {{dailyReportTitle || friendlySelectedDate || selectedDate}}</text>
 
           <block wx:if="{{selectedTodos.length > 0}}">
           <block wx:for="{{selectedTodos}}" wx:key="index" wx:for-item="todo">
@@ -87,7 +87,7 @@
   <t-tab-panel label="日报" value="daily">
     <view class="tab-content">
       <view class="report-toolbar">
-        <text class="todo-text">日报 · {{dailyReportTitle}}</text>
+        <text class="todo-text">日报 · {{dailyReportTitle || friendlySelectedDate || selectedDate}}</text>
         <view class="report-toolbar-action" bindtap="navigateToPrivateTemplates">
           <t-icon name="file" size="28rpx" color="#00b26a" />
           <text class="report-toolbar-text">模板</text>
@@ -123,7 +123,7 @@
   <t-tab-panel label="周报" value="weekly">
     <view class="tab-content">
       <view class="report-toolbar">
-        <text class="todo-text">周报 · {{weeklyReportTitle}}</text>
+        <text class="todo-text">周报 · {{weeklyReportTitle || friendlySelectedDate || selectedDate}}</text>
         <view class="report-toolbar-action" bindtap="navigateToPrivateTemplates">
           <t-icon name="file" size="28rpx" color="#00b26a" />
           <text class="report-toolbar-text">模板</text>
