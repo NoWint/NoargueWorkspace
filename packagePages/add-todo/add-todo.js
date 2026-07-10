@@ -15,6 +15,8 @@ Page({
     remarks: '',
     location: null,
     isStar: false,
+    isFromReport: false,
+    isEditMode: false,
     isEdit: false,
     editIndex: -1,
     sharedTodoId: null,
@@ -128,6 +130,13 @@ Page({
       }
     }
     
+    if (options.fromReport === '1') {
+      this.setData({
+        inputValue: decodeURIComponent(options.text || ''),
+        isFromReport: true
+      });
+    }
+
     if (options.edit === '1' || options.edit === 1) {
       let parsedLocation = null;
       if (options.location && options.location !== 'false') {
@@ -206,6 +215,7 @@ Page({
         location: parsedLocation,
         isStar: options.isStar === 'true' || options.isStar === true,
         isEdit: true,
+        isEditMode: true,
         editIndex: options.index,
         editTodoId: options.todoId || null,
         selectedTags: parsedTags,

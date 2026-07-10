@@ -1,43 +1,7 @@
-/* ========== 导航栏 ========== */
-.nav-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 88rpx;
-  background: #e3f5eb;
-  z-index: 1000;
-  box-sizing: content-box;
-}
-
-.nav-left {
-  display: flex;
-  align-items: center;
-  padding: 8rpx;
-}
-
-.nav-title {
-  font-size: 34rpx;
-  font-weight: 600;
-  color: #2d3436;
-}
-
-.nav-right {
-  display: flex;
-  align-items: center;
-  padding: 8rpx;
-}
-
 /* ========== 滚动区域 ========== */
 .scroll-area {
   height: 100vh;
-  padding-left: 24rpx;
-  padding-right: 24rpx;
   box-sizing: border-box;
-  background: #f5f9f7;
 }
 
 /* ========== 目标选择器 ========== */
@@ -48,7 +12,7 @@
   padding: 28rpx 32rpx;
   background: #ffffff;
   border-radius: 24rpx;
-  margin-bottom: 12rpx;
+  margin: 20rpx 24rpx 12rpx;
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
 }
 
@@ -79,7 +43,7 @@
 .target-hint {
   font-size: 24rpx;
   color: #999;
-  padding: 0 8rpx 20rpx 8rpx;
+  padding: 0 12rpx 20rpx 24rpx;
 }
 
 /* ========== 区块卡片 ========== */
@@ -87,6 +51,7 @@
   display: flex;
   flex-direction: column;
   gap: 20rpx;
+  padding: 20rpx 24rpx 0;
 }
 
 .section-card {
@@ -108,10 +73,10 @@
   gap: 12rpx;
 }
 
-.section-dot {
-  width: 24rpx;
-  height: 24rpx;
-  border-radius: 50%;
+.section-color-tag {
+  width: 8rpx;
+  height: 28rpx;
+  border-radius: 4rpx;
   flex-shrink: 0;
 }
 
@@ -140,20 +105,12 @@
   display: flex;
   align-items: flex-start;
   padding: 12rpx 0;
-  gap: 16rpx;
+  gap: 12rpx;
   border-bottom: 1rpx solid #f0f0f0;
 }
 
 .line-item:last-child {
   border-bottom: none;
-}
-
-.line-dot {
-  width: 16rpx;
-  height: 16rpx;
-  border-radius: 50%;
-  margin-top: 24rpx;
-  flex-shrink: 0;
 }
 
 .line-textarea {
@@ -190,6 +147,23 @@
   border-radius: 50%;
   background: #f5f5f5;
   transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.line-action-btn.todo-btn {
+  width: auto;
+  height: auto;
+  border-radius: 28rpx;
+  background: #e3f5eb;
+  border: 1rpx solid #00b26a;
+  padding: 8rpx 18rpx;
+  gap: 4rpx;
+}
+
+.todo-btn-text {
+  font-size: 24rpx;
+  color: #00b26a;
+  font-weight: 600;
 }
 
 .line-action-btn:active {
@@ -236,7 +210,7 @@
 
 /* ========== 底部安全区域 ========== */
 .bottom-safe {
-  height: 120rpx;
+  height: 160rpx;
 }
 
 /* ========== 组合选择 Popup ========== */
@@ -356,6 +330,12 @@
   font-size: 28rpx;
 }
 
+/* TDesign component overrides */
+page {
+  --td-cell-bg-color: #e3f5eb;
+  --td-radio-bg-color: transparent;
+}
+
 /* ========== 待办导入 Popup ========== */
 .import-popup-content {
   background: rgba(255, 255, 255, 0.96);
@@ -366,6 +346,11 @@
   display: flex;
   flex-direction: column;
   border: 1rpx solid rgba(255, 255, 255, 0.3);
+}
+
+.import-search-area {
+  padding: 16rpx 32rpx;
+  border-bottom: 1rpx solid #f0f0f0;
 }
 
 .import-scroll {

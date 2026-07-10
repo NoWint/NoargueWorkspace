@@ -1,10 +1,8 @@
 const { workReportApi, combosApi } = require('../../utils/api.js');
 const logger = require('../../utils/logger.js');
-const app = getApp();
 
 Page({
   data: {
-    navBarHeight: app.globalData.navBarHeight,
     comboId: 0,
     comboName: '',
     isAdmin: false,
@@ -63,7 +61,7 @@ Page({
   },
 
   getMondayOfWeek(dateStr) {
-    const d = new Date(dateStr);
+    const d = new Date(dateStr.replace(/-/g, '/'));
     const day = d.getDay();
     const diff = d.getDate() - day + (day === 0 ? -6 : 1);
     d.setDate(diff);
@@ -79,7 +77,16 @@ Page({
 
   handleViewChange(e) {
     if (this.data.activeTabFlag) { this.setData({ activeTabFlag: false }); return; }
-    const view = e.detail ? (e.detail.value || e.detail) : e;
+    const detail = e.detail;
+    // Month/year navigation: reload marks
+    if (detail && typeof detail.year === 'number' && typeof detail.month === 'number') {
+      const d = new Date(detail.year, detail.month - 1, 1);
+      const firstDay = this.formatDate(d);
+      const lastDay = this.formatDate(new Date(detail.year, detail.month, 0));
+      this.loadMarksForRange(firstDay, lastDay);
+      return;
+    }
+    const view = detail ? (detail.value || detail) : e;
     if (view === 'month' && this.data.currentTab === 'weekly') this.setData({ currentTab: 'daily' });
     else if (view === 'week' && this.data.currentTab === 'daily') this.setData({ currentTab: 'weekly' });
   },
@@ -125,6 +132,46 @@ Page({
         this.setData({ reports });
       }
     } catch (err) { logger.error('REPORT', 'BOARD', '加载看板数据失败', err); wx.hideLoading(); }
+    this.loadCalendarMarks();
+  },
+
+  async loadCalendarMarks() {
+    const { selectedDate } = this.data;
+    if (!selectedDate) return;
+    const d = new Date(selectedDate.replace(/-/g, '/'));
+    const firstDay = this.formatDate(new Date(d.getFullYear(), d.getMonth(), 1));
+    const lastDay = this.formatDate(new Date(d.getFullYear(), d.getMonth() + 1, 0));
+    this.loadMarksForRange(firstDay, lastDay);
+  },
+
+  async loadMarksForRange(firstDay, lastDay) {
+    const { comboId } = this.data;
+    if (!comboId) return;
+    try {
+      const result = await workReportApi.getBoard({
+        combo_id: comboId,
+        date_from: firstDay,
+        date_to: lastDay,
+      });
+      if (result.success) {
+        const marks = [];
+        (result.data?.members || []).forEach(m => {
+          (m.reports || []).forEach(r => {
+            if (r.periodDate) {
+              marks.push({ value: r.periodDate, type: 'dot', color: '#ff8800' });
+            }
+          });
+        });
+        // Deduplicate dates
+        const seen = new Set();
+        const uniqueMarks = marks.filter(m => {
+          if (seen.has(m.value)) return false;
+          seen.add(m.value);
+          return true;
+        });
+        this.setData({ marks: uniqueMarks });
+      }
+    } catch (err) { logger.error('REPORT', 'BOARD', '加载日历标记失败', err); }
   },
 
   navigateToDetail(e) {
@@ -139,8 +186,9 @@ Page({
 
   onFabTap() {
     const { comboId, currentTab, selectedDate } = this.data;
-    const date = currentTab === 'daily' ? selectedDate : this.getMondayOfWeek(selectedDate);
-    wx.navigateTo({ url: `/packagePages/report-edit/report-edit?type=${currentTab}&date=${date}&combo_id=${comboId}` });
+    const date = selectedDate || this.formatDate(new Date());
+    const target = currentTab === 'daily' ? date : this.getMondayOfWeek(date);
+    wx.navigateTo({ url: `/packagePages/report-edit/report-edit?type=${currentTab}&date=${target}&combo_id=${comboId}` });
   },
 
   goBack() { wx.navigateBack(); },

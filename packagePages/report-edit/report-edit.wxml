@@ -12,18 +12,7 @@ module.exports = {
 }
 </wxs>
 
-<!-- 自定义导航栏 -->
-<view class="nav-bar" style="padding-top: {{navBarHeight - 22}}px; padding-left: {{menuRight + 20}}rpx; padding-right: {{menuRight + 20}}rpx;">
-  <view class="nav-left" bindtap="goBack">
-    <t-icon name="chevron-left" size="48rpx" color="#2d3436" />
-  </view>
-  <text class="nav-title">{{navTitle}}</text>
-  <view class="nav-right" bindtap="saveReport">
-    <t-icon name="check" size="48rpx" color="#00b26a" />
-  </view>
-</view>
-
-<scroll-view class="scroll-area" scroll-y style="padding-top: {{navBarHeight + 10}}px;">
+<scroll-view class="scroll-area" scroll-y>
 
   <!-- 汇报到选择器 -->
   <view class="target-selector" bindtap="showComboPicker">
@@ -41,12 +30,12 @@ module.exports = {
 
   <!-- 区块卡片列表 -->
   <view class="sections-container">
-    <view class="section-card" wx:for="{{sections}}" wx:key="key" wx:for-index="sectionIndex" data-section-index="{{sectionIndex}}">
+    <view class="section-card" wx:for="{{sections}}" wx:key="_rk" wx:for-index="sectionIndex" data-section-index="{{sectionIndex}}">
 
       <!-- 区块标题 -->
       <view class="section-header">
         <view class="section-title-row">
-          <view class="section-dot" style="background: {{item.color}}"></view>
+          <view class="section-color-tag" style="background: {{item.color}}"></view>
           <text class="section-title">{{item.title}}</text>
           <view class="section-badge">{{item.lines.length}}条</view>
         </view>
@@ -55,7 +44,6 @@ module.exports = {
       <!-- 行列表 -->
       <view class="lines-container">
         <view class="line-item" wx:for="{{item.lines}}" wx:key="index" wx:for-index="lineIndex" data-section-index="{{sectionIndex}}" data-line-index="{{lineIndex}}">
-          <view class="line-dot" style="background: {{item.color}}"></view>
           <textarea
             class="line-textarea"
             value="{{item.lines[lineIndex]}}"
@@ -68,8 +56,9 @@ module.exports = {
             bindfocus="onLineFocus"
           />
           <view class="line-actions">
-            <view wx:if="{{isPlanSection(item.key)}}" class="line-action-btn" bindtap="addLineToTodo" data-section="{{sectionIndex}}" data-line="{{lineIndex}}">
-              <t-icon name="add" size="32rpx" color="#00b26a" />
+            <view class="line-action-btn todo-btn" bindtap="addLineToTodo" data-section="{{sectionIndex}}" data-line="{{lineIndex}}">
+              <t-icon name="add" size="24rpx" color="#00b26a" />
+              <text class="todo-btn-text">待办</text>
             </view>
             <view class="line-action-btn delete-btn" bindtap="deleteLine" data-section="{{sectionIndex}}" data-line="{{lineIndex}}">
               <t-icon name="close" size="32rpx" color="#ff4d4f" />
@@ -84,6 +73,10 @@ module.exports = {
           <t-icon name="download" size="28rpx" color="#00b26a" />
           <text class="action-text">从待办导入</text>
         </view>
+        <view wx:if="{{isPlanSection(item.key)}}" class="section-action-btn" bindtap="batchAddToTodo" data-section="{{sectionIndex}}">
+          <t-icon name="add" size="28rpx" color="#00b26a" />
+          <text class="action-text">全部添加到待办</text>
+        </view>
         <view class="section-action-btn primary" bindtap="addLine" data-section="{{sectionIndex}}">
           <t-icon name="add" size="28rpx" color="#00b26a" />
           <text class="action-text">添加新条目</text>
@@ -97,6 +90,9 @@ module.exports = {
   <view class="bottom-safe"></view>
 
 </scroll-view>
+
+<!-- 保存 FAB -->
+<t-fab icon="check" text="完成" bind:click="saveReport" style="right: 32rpx; bottom: 32rpx;" />
 
 <!-- 组合选择 Popup -->
 <t-popup
@@ -118,29 +114,24 @@ module.exports = {
     <t-radio-group value="{{comboPickerMode}}" bind:change="onComboModeChange">
       <view class="mode-options">
         <t-radio label="私人" value="private" />
-        <t-radio label="共享组合" value="shared" />
+        <t-radio label="共享" value="shared" />
       </view>
     </t-radio-group>
 
     <scroll-view class="combo-list-scroll" scroll-y>
-      <view wx:if="{{comboPickerMode === 'private' && privateCombos.length > 0}}" class="combo-options">
+      <view wx:if="{{comboPickerMode === 'private'}}" class="combo-options">
         <view
-          class="combo-card {{selectedComboId === item.id && !isSharedCombo ? 'selected' : ''}}"
-          wx:for="{{privateCombos}}"
-          wx:key="id"
-          data-id="{{item.id}}"
-          data-name="{{item.name}}"
-          data-shared="0"
-          bindtap="selectCombo"
+          class="combo-card {{!selectedComboId && !isSharedCombo ? 'selected' : ''}}"
+          bindtap="selectPrivateCombo"
         >
-          <view class="combo-card-icon" style="background: {{item.color || '#4CAF50'}}">
-            <t-icon name="{{item.icon || 'folder'}}" size="36rpx" color="#fff" />
+          <view class="combo-card-icon" style="background: #00b26a">
+            <t-icon name="lock-on" size="36rpx" color="#fff" />
           </view>
           <view class="combo-card-info">
-            <text class="combo-card-name">{{item.name}}</text>
-            <text class="combo-card-count">{{item.todoCount || 0}}个待办</text>
+            <text class="combo-card-name">不绑定组合</text>
+            <text class="combo-card-count">仅自己可见，不归属任何组合</text>
           </view>
-          <t-icon wx:if="{{selectedComboId === item.id && !isSharedCombo}}" name="check" size="36rpx" color="#00b26a" />
+          <t-icon wx:if="{{!selectedComboId && !isSharedCombo}}" name="check" size="36rpx" color="#00b26a" />
         </view>
       </view>
 
@@ -166,10 +157,7 @@ module.exports = {
       </view>
 
       <view wx:if="{{comboPickerMode === 'shared' && sharedCombos.length === 0}}" class="empty-combos">
-        <text>暂无可用的共享组合</text>
-      </view>
-      <view wx:if="{{comboPickerMode === 'private' && privateCombos.length === 0}}" class="empty-combos">
-        <text>暂无私密组合</text>
+        <text>暂无共享组合</text>
       </view>
     </scroll-view>
 
@@ -194,6 +182,18 @@ module.exports = {
       <view class="popup-close" bindtap="hideImportPopup">
         <t-icon name="close" size="40rpx" color="#999" />
       </view>
+    </view>
+
+    <view class="import-search-area">
+      <t-input
+        placeholder="搜索待办..."
+        value="{{importSearchKeyword}}"
+        borderless
+        bind:change="onImportSearchInput"
+        style="--td-input-bg-color: #f8f8f8"
+      >
+        <t-icon slot="prefix-icon" name="search" size="32rpx" color="#999" />
+      </t-input>
     </view>
 
     <scroll-view class="import-scroll" scroll-y>
@@ -230,7 +230,7 @@ module.exports = {
       </view>
 
       <view wx:if="{{importTodos.completed.length === 0 && importTodos.uncompleted.length === 0}}" class="empty-combos">
-        <text>该日期没有待办</text>
+        <text>暂无待办</text>
       </view>
     </scroll-view>
 

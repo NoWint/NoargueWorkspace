@@ -1,21 +1,10 @@
 <view class="container">
-  <!-- 自定义导航栏 -->
-  <view class="nav-bar" style="height: {{navBarHeight}}px;">
-    <view class="nav-content">
-      <view class="nav-back" bindtap="goBack">
-        <t-icon name="chevron-left" size="48rpx" color="#333" />
-      </view>
-      <text class="nav-title">{{comboName || '组合'}} · 汇报看板</text>
-      <view class="nav-right" bindtap="showMemberFilter">
-        <t-icon name="user" size="40rpx" color="#666" />
-      </view>
-    </view>
-  </view>
 
   <!-- 日历 -->
-  <view class="calendar-wrapper" style="padding-top: {{navBarHeight}}px;">
+  <view class="calendar-wrapper">
     <calendar
       id="boardCalendar"
+      style="--wc-primary: #00b26a;--wc-bg-light: #E3F5EB;--wc-checked-bg-light: #CCEDDC;--wc-dot-color-light: #ff8800;--wc-annual-bg-light: #CCEDDC;"
       bind:load="handleLoad"
       bind:change="handleDateChange"
       bind:viewchange="handleViewChange"
@@ -24,6 +13,17 @@
       max-date="{{maxDate}}"
       marks="{{marks}}"
     />
+  </view>
+
+  <!-- 组合名称 + 成员筛选 -->
+  <view class="board-header">
+    <text class="board-title">{{comboName || '组合'}}</text>
+    <view class="board-actions">
+      <view class="filter-trigger" bindtap="showMemberFilter">
+        <t-icon name="user" size="32rpx" color="#00b26a" />
+        <text class="filter-trigger-text">筛选成员</text>
+      </view>
+    </view>
   </view>
 
   <!-- tabs: 日报 / 周报 -->

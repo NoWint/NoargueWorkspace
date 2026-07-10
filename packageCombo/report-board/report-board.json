@@ -1,5 +1,4 @@
 {
-  "navigationStyle": "custom",
   "usingComponents": {
     "calendar": "@lspriv/wx-calendar/index",
     "t-tabs": "tdesign-miniprogram/tabs/tabs",
@@ -11,5 +10,6 @@
     "t-popup": "tdesign-miniprogram/popup/popup",
     "t-radio": "tdesign-miniprogram/radio/radio",
     "t-radio-group": "tdesign-miniprogram/radio-group/radio-group"
-  }
+  },
+  "navigationBarTitleText": "汇报看板"
 }

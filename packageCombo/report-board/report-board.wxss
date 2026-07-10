@@ -1,48 +1,52 @@
 @import '../../pages/todo/todo.wxss';
 
 .container {
-  background: #ffffff;
-  min-height: 100vh;
+  padding: 0;
 }
 
-/* 导航栏 */
-.nav-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  background: #e3f5eb99;
-  backdrop-filter: blur(20rpx) saturate(180%);
-  -webkit-backdrop-filter: blur(20rpx) saturate(180%);
-}
-
-.nav-content {
+/* 顶部信息栏 */
+.board-header {
   display: flex;
   align-items: center;
-  padding: 0 20rpx;
-  height: 88rpx;
+  justify-content: space-between;
+  padding: 12rpx 24rpx;
 }
 
-.nav-back {
-  padding: 8rpx;
-  margin-right: 16rpx;
-}
-
-.nav-title {
-  flex: 1;
-  font-size: 34rpx;
+.board-title {
+  font-size: 32rpx;
   font-weight: 600;
   color: #333;
 }
 
-.nav-right {
-  padding: 8rpx;
+.board-actions {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.filter-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  padding: 8rpx 16rpx;
+  background: #e3f5eb;
+  border: 1rpx solid #00b26a;
+  border-radius: 28rpx;
+}
+
+.filter-trigger:active {
+  opacity: 0.7;
+}
+
+.filter-trigger-text {
+  font-size: 24rpx;
+  color: #00b26a;
+  font-weight: 500;
 }
 
 /* 日历区域 */
 .calendar-wrapper {
-  background: #f5faf7;
+  background: #e3f5eb;
 }
 
 /* 标签页区域 */
@@ -52,7 +56,6 @@
 
 /* 报告列表 */
 .report-list {
-  padding-bottom: 240rpx;
 }
 
 .report-item-wrapper {
@@ -112,4 +115,11 @@
 
 .filter-option:last-child {
   border-bottom: none;
+}
+
+/* TDesign component overrides to blend with page background */
+page {
+  --td-cell-bg-color: #e3f5eb;
+  --td-tab-nav-bg-color: #e3f5eb;
+  --td-swipe-cell-bg-color: transparent;
 }

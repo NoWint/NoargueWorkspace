@@ -1,18 +1,4 @@
 <view class="page">
-  <!-- Custom Nav Bar -->
-  <view class="nav-bar" style="padding-top: {{navBarHeight}}px;">
-    <view class="nav-inner">
-      <view class="nav-back" bindtap="goBack">
-        <t-icon name="chevron-left" size="48rpx" color="#333" />
-      </view>
-      <text class="nav-title">{{reportType === 'weekly' ? '周报' : '日报'}}</text>
-      <view wx:if="{{canEdit}}" class="nav-edit" bindtap="navigateToEdit">
-        <t-icon name="edit-1" size="40rpx" color="#00b26a" />
-      </view>
-      <view wx:else class="nav-edit-placeholder" />
-    </view>
-  </view>
-
   <!-- Content -->
   <scroll-view class="scroll-area" scroll-y show-scrollbar="{{false}}" refresher-enabled refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" data-id="{{report.id}}">
     <view wx:if="{{!loaded}}" class="loading-area">
@@ -77,4 +63,9 @@
       </view>
     </block>
   </scroll-view>
+
+  <!-- 编辑 FAB -->
+  <view wx:if="{{canEdit}}">
+    <t-fab icon="edit-1" text="编辑" bind:click="navigateToEdit" style="right: 32rpx; bottom: 32rpx;" />
+  </view>
 </view>

@@ -7,12 +7,8 @@ const SECTION_LABELS = {
   weekly: { completed: '本周完成', in_progress: '进行中', blocked: '遇到的问题', next_plan: '下周计划', summary: '总结与思考' }
 };
 
-const SECTION_COLORS = ['#00b26a', '#3498db', '#e67e22', '#9b59b6', '#e74c3c', '#1abc9c'];
-const app = getApp();
-
 Page({
   data: {
-    navBarHeight: app.globalData.navBarHeight,
     report: null,
     reportType: 'daily',
     sections: [],
@@ -37,6 +33,7 @@ Page({
         const report = result.data;
         report.scope = !report.comboId ? 'private' : 'shared';
         const type = report.type || 'daily';
+        wx.setNavigationBarTitle({ title: type === 'weekly' ? '周报' : '日报' });
         const content = report.content || {};
         const labels = SECTION_LABELS[type] || SECTION_LABELS.daily;
         const sections = Object.keys(content).filter(k => Array.isArray(content[k])).map(key => ({

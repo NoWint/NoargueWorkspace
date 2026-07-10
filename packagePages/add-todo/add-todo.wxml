@@ -16,6 +16,14 @@ module.exports = {
   <image src="../../images/todo-active.png" class="voice-icon"/>
   <text class="tip-text">语音识别已完成，可继续完善其他信息</text>
 </view>
+<view wx:elif="{{isFromReport}}" class="voice-tip">
+  <image src="../../images/todo-active.png" class="voice-icon"/>
+  <text class="tip-text">从日报导入，可继续完善其他信息</text>
+</view>
+<view wx:elif="{{isEditMode}}" class="voice-tip">
+  <image src="../../images/todo-active.png" class="voice-icon"/>
+  <text class="tip-text">编辑已有待办，可修改各项信息</text>
+</view>
 
 <view class="container">
   <view class="form-container">

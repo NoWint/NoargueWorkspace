@@ -40,9 +40,6 @@ const app = getApp();
 
 Page({
   data: {
-    navBarHeight: app.globalData.navBarHeight || 44,
-    menuRight: app.globalData.menuRight || 0,
-
     reportId: null,
     reportType: 'daily',
     reportDate: '',
@@ -51,7 +48,6 @@ Page({
     targetDateHint: '',
 
     sections: [],
-    privateCombos: [],
     sharedCombos: [],
     selectedComboId: null,
     selectedComboName: '私人',
@@ -63,7 +59,9 @@ Page({
     showImportPopup: false,
     importTargetSection: 0,
     importTodos: { completed: [], uncompleted: [] },
-    selectedImportTodos: []
+    selectedImportTodos: [],
+    importSearchKeyword: '',
+    sectionRenderKey: 0
   },
 
   onLoad(options) {
@@ -73,6 +71,7 @@ Page({
     const reportId = options.id ? Number(options.id) : null;
 
     const navTitles = { daily: '写日报', weekly: '写周报' };
+    wx.setNavigationBarTitle({ title: navTitles[reportType] });
     const dateLabels = {
       daily: this.getFriendlyDate(reportDate) + ' 日报',
       weekly: reportDate + ' 第' + this.getWeekNumber(reportDate) + '周 周报'
@@ -145,7 +144,11 @@ Page({
           cancelText: '丢弃',
           success: (res) => {
             if (res.confirm) {
-              this.setData({ sections: draft.sections });
+              const sections = (draft.sections || []).map((s, i) => ({
+                ...s,
+                _rk: i
+              }));
+              this.setData({ sections });
             } else {
               this.clearDraft();
             }
@@ -174,14 +177,22 @@ Page({
       const report = res.data || res;
       if (report && report.id) {
         const sections = this.buildSectionsFromReport(report);
-        const comboName = report.comboName || '私人';
         this.setData({
           sections,
           reportDate: report.periodDate || this.data.reportDate,
           selectedComboId: report.comboId || null,
-          selectedComboName: comboName,
           isSharedCombo: !!report.comboId
         });
+        // Look up combo name from already-loaded shared combos
+        if (report.comboId) {
+          const combos = this.data.sharedCombos.length > 0
+            ? this.data.sharedCombos
+            : (getApp().globalData.sharedCombos || []);
+          const selected = combos.find(c => String(c.id) === String(report.comboId));
+          this.setData({ selectedComboName: selected ? selected.name : '组合' });
+        } else {
+          this.setData({ selectedComboName: '私人' });
+        }
       }
       wx.hideLoading();
     } catch (err) {
@@ -228,7 +239,8 @@ Page({
       key,
       title: (SECTION_LABELS[type] || SECTION_LABELS.daily)[key],
       color: SECTION_COLORS[key],
-      lines: content[key] && Array.isArray(content[key]) ? content[key] : ['']
+      lines: content[key] && Array.isArray(content[key]) ? content[key] : [''],
+      _rk: 0
     }));
   },
 
@@ -252,7 +264,8 @@ Page({
       key,
       title: labels[key] || key,
       color: SECTION_COLORS[key] || '#00b26a',
-      lines: ['']
+      lines: [''],
+      _rk: 0
     }));
   },
 
@@ -263,40 +276,37 @@ Page({
       key,
       title: (SECTION_LABELS[type] || SECTION_LABELS.daily)[key],
       color: SECTION_COLORS[key],
-      lines: ['']
+      lines: [''],
+      _rk: 0
     }));
   },
 
   async loadCombos() {
     try {
-      const combos = app.globalData.combos || [];
       const sharedCombos = app.globalData.sharedCombos || [];
+      this.setData({ sharedCombos });
 
-      const sharedComboIds = new Set(sharedCombos.map(c => c.id));
-      const privateCombos = combos.filter(c =>
-        !sharedComboIds.has(c.id) && c.isShared !== 1 && c.is_shared !== 1
-      );
-
-      this.setData({
-        privateCombos,
-        sharedCombos
-      });
-
-      // If combo_id was passed, find its name
+      // If combo_id was passed from URL, find its name
       if (this.data.selectedComboId) {
-        const allCombos = [...privateCombos, ...sharedCombos];
-        const selected = allCombos.find(c => String(c.id) === String(this.data.selectedComboId));
+        const selected = sharedCombos.find(c => String(c.id) === String(this.data.selectedComboId));
         if (selected) {
-          const isShared = selected.isShared || selected.is_shared;
           this.setData({
             selectedComboName: selected.name,
-            isSharedCombo: !!isShared
+            isSharedCombo: true
           });
         }
       }
     } catch (err) {
       logger.error('REPORT', 'COMBOS', '加载组合失败', err);
     }
+  },
+
+  selectPrivateCombo() {
+    this.setData({
+      selectedComboId: null,
+      selectedComboName: '私人',
+      isSharedCombo: false
+    });
   },
 
   // ========== Line Editing ==========
@@ -395,29 +405,66 @@ Page({
 
   importFromTodos(e) {
     const sectionIdx = Number(e.currentTarget.dataset.section);
-    const date = this.data.reportDate;
     const todos = getLocalTodos();
 
-    const matched = todos.filter(todo => {
+    const allTodos = todos.filter(todo => {
       if (todo.isDeleted || todo.parent_id) return false;
-      const todoDate = this.formatDateStr(todo.setDate);
-      return todoDate === date;
+      return true;
     });
+    this._allImportTodos = allTodos;
 
-    const completed = matched.filter(t => t.completed).map(t => ({
+    const completed = allTodos.filter(t => t.completed).map(t => ({
       ...t,
       _key: 'completed_' + (t.id || t.time)
     }));
-    const uncompleted = matched.filter(t => !t.completed).map(t => ({
+    const uncompleted = allTodos.filter(t => !t.completed).map(t => ({
       ...t,
       _key: 'uncompleted_' + (t.id || t.time)
     }));
+
+    // Build lookup map for confirmImport
+    this._importKeyMap = {};
+    [...completed, ...uncompleted].forEach(t => { this._importKeyMap[t._key] = t; });
 
     this.setData({
       showImportPopup: true,
       importTargetSection: sectionIdx,
       importTodos: { completed, uncompleted },
-      selectedImportTodos: []
+      selectedImportTodos: [],
+      importSearchKeyword: ''
+    });
+  },
+
+  onImportSearchInput(e) {
+    const keyword = (e.detail.value || '').trim().toLowerCase();
+    this.setData({ importSearchKeyword: keyword });
+
+    const allTodos = this._allImportTodos || [];
+    const filtered = allTodos.filter(todo => {
+      if (keyword && todo.text.toLowerCase().indexOf(keyword) === -1) return false;
+      return true;
+    });
+
+    const completed = filtered.filter(t => t.completed).map(t => ({
+      ...t,
+      _key: 'completed_' + (t.id || t.time)
+    }));
+    const uncompleted = filtered.filter(t => !t.completed).map(t => ({
+      ...t,
+      _key: 'uncompleted_' + (t.id || t.time)
+    }));
+
+    // Keep _importKeyMap in sync with current filtered results
+    this._importKeyMap = {};
+    [...completed, ...uncompleted].forEach(t => { this._importKeyMap[t._key] = t; });
+
+    // Preserve selections that still exist in filtered results
+    const validKeys = new Set(Object.keys(this._importKeyMap));
+    const preserved = this.data.selectedImportTodos.filter(key => validKeys.has(key));
+
+    this.setData({
+      importTodos: { completed, uncompleted },
+      selectedImportTodos: preserved
     });
   },
 
@@ -444,29 +491,35 @@ Page({
   },
 
   confirmImport() {
-    const { selectedImportTodos, importTodos, sections, importTargetSection } = this.data;
+    const { selectedImportTodos, sections, importTargetSection } = this.data;
     if (selectedImportTodos.length === 0) {
       wx.showToast({ title: '请选择待办', icon: 'none' });
       return;
     }
 
-    const newSections = JSON.parse(JSON.stringify(sections));
-    const allTodos = [...importTodos.completed, ...importTodos.uncompleted];
+    const todoMap = this._importKeyMap || {};
+    const newSections = JSON.parse(JSON.stringify(sections)).map((s, i) => ({
+      ...s,
+      _rk: (this.data.sectionRenderKey || 0) + i
+    }));
+    let importedCount = 0;
 
     selectedImportTodos.forEach(key => {
-      const todo = allTodos.find(t => t._key === key);
-      if (todo) {
-        newSections[importTargetSection].lines.push(todo.text);
+      const todo = todoMap[key];
+      if (todo && todo.text && todo.text.trim()) {
+        newSections[importTargetSection].lines.push(todo.text.trim());
+        importedCount++;
       }
     });
 
     this.setData({
       sections: newSections,
+      sectionRenderKey: (this.data.sectionRenderKey || 0) + 1,
       showImportPopup: false,
       selectedImportTodos: []
     });
 
-    wx.showToast({ title: `已导入 ${selectedImportTodos.length} 条`, icon: 'success' });
+    wx.showToast({ title: `已导入 ${importedCount} 条`, icon: importedCount > 0 ? 'success' : 'none' });
   },
 
   // ========== Add Line to Todo ==========
@@ -480,17 +533,42 @@ Page({
       return;
     }
 
-    // Calculate tomorrow's date
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = this.formatDateObj(tomorrow);
-
+    const setDate = this.data.reportDate;
     const comboId = this.data.selectedComboId || '';
     const isShared = this.data.isSharedCombo ? '1' : '0';
 
     wx.navigateTo({
-      url: `/packagePages/add-todo/add-todo?text=${encodeURIComponent(text.trim())}&setDate=${tomorrowStr}&comboId=${comboId}&isShared=${isShared}`
+      url: `/packagePages/add-todo/add-todo?text=${encodeURIComponent(text.trim())}&setDate=${setDate}&comboId=${comboId}&isShared=${isShared}&fromReport=1`
+    });
+  },
+
+  batchAddToTodo(e) {
+    const sectionIdx = Number(e.currentTarget.dataset.section);
+    const lines = this.data.sections[sectionIdx].lines.filter(l => l && l.trim());
+
+    if (lines.length === 0) {
+      wx.showToast({ title: '暂无内容可添加', icon: 'none' });
+      return;
+    }
+
+    const setDate = this.data.reportDate;
+    const comboId = this.data.selectedComboId || '';
+    const isShared = this.data.isSharedCombo ? '1' : '0';
+
+    wx.showModal({
+      title: '添加到待办',
+      content: `将 ${lines.length} 条计划添加到待办？`,
+      success: (res) => {
+        if (res.confirm) {
+          // Navigate to add-todo with first line
+          wx.navigateTo({
+            url: `/packagePages/add-todo/add-todo?text=${encodeURIComponent(lines[0].trim())}&setDate=${setDate}&comboId=${comboId}&isShared=${isShared}&fromReport=1`
+          });
+          if (lines.length > 1) {
+            wx.showToast({ title: `已打开第1条，剩余${lines.length - 1}条可继续添加`, icon: 'none' });
+          }
+        }
+      }
     });
   },
 
@@ -584,13 +662,12 @@ Page({
 
   getWeekNumber(dateStr) {
     if (!dateStr) return '';
-    const date = new Date(dateStr);
+    const date = new Date(dateStr.replace(/-/g, '/'));
     if (isNaN(date.getTime())) return '';
     const startOfYear = new Date(date.getFullYear(), 0, 1);
     const diff = date - startOfYear + (startOfYear.getTimezoneOffset() - date.getTimezoneOffset()) * 60000;
-    const oneWeek = 604800000;
-    const week = Math.ceil((diff / oneWeek + startOfYear.getDay() + 1) / 7);
-    return week;
+    const dayOfYear = Math.floor(diff / 86400000);
+    return Math.floor(dayOfYear / 7) + 1;
   },
 
   trimTrailingEmpty(lines) {
