@@ -7,7 +7,8 @@
     "t-radio-group": "tdesign-miniprogram/radio-group/radio-group",
     "t-button": "tdesign-miniprogram/button/button",
     "t-fab": "tdesign-miniprogram/fab/fab",
-    "t-input": "tdesign-miniprogram/input/input"
+    "t-input": "tdesign-miniprogram/input/input",
+    "t-calendar": "tdesign-miniprogram/calendar/calendar"
   },
   "navigationBarTitleText": "写日报"
 }
