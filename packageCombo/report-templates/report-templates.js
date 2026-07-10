@@ -1,9 +1,24 @@
 const { reportTemplateApi, combosApi } = require('../../utils/api.js');
-const app = getApp();
+const logger = require('../../utils/logger.js');
+
+const PRESET_DAILY = [
+  { key: 'completed', title: '今日完成', sort_order: 1, max_lines: 20 },
+  { key: 'in_progress', title: '进行中', sort_order: 2, max_lines: 20 },
+  { key: 'blocked', title: '遇到的问题', sort_order: 3, max_lines: 20 },
+  { key: 'tomorrow_plan', title: '明日计划', sort_order: 4, max_lines: 20 },
+  { key: 'summary', title: '总结与思考', sort_order: 5, max_lines: 20 },
+];
+
+const PRESET_WEEKLY = [
+  { key: 'completed', title: '本周完成', sort_order: 1, max_lines: 20 },
+  { key: 'in_progress', title: '进行中', sort_order: 2, max_lines: 20 },
+  { key: 'blocked', title: '遇到的问题', sort_order: 3, max_lines: 20 },
+  { key: 'next_plan', title: '下周计划', sort_order: 4, max_lines: 20 },
+  { key: 'summary', title: '总结与思考', sort_order: 5, max_lines: 20 },
+];
 
 Page({
   data: {
-    navBarHeight: app.globalData.navBarHeight,
     comboId: 0,
     comboName: '',
     currentType: 'daily',
@@ -13,7 +28,12 @@ Page({
 
   onLoad(options) {
     const { combo_id } = options;
-    this.setData({ comboId: parseInt(combo_id || 0) });
+    this.setData({
+      comboId: parseInt(combo_id || 0),
+      // Start with presets immediately so the UI is never empty
+      dailySections: JSON.parse(JSON.stringify(PRESET_DAILY)),
+      weeklySections: JSON.parse(JSON.stringify(PRESET_WEEKLY)),
+    });
     this.loadData();
   },
 
@@ -29,10 +49,15 @@ Page({
       }
       if (templateResult.success) {
         const templates = templateResult.data || [];
-        this.setData({
-          dailySections: templates.find(t => t.type === 'daily')?.sections || [],
-          weeklySections: templates.find(t => t.type === 'weekly')?.sections || [],
-        });
+        const daily = templates.find(t => t.type === 'daily')?.sections;
+        const weekly = templates.find(t => t.type === 'weekly')?.sections;
+        // Only override presets if saved templates exist
+        if (daily && daily.length > 0) {
+          this.setData({ dailySections: daily });
+        }
+        if (weekly && weekly.length > 0) {
+          this.setData({ weeklySections: weekly });
+        }
       }
     } catch (err) { logger.error('TEMPLATE', 'LOAD', '加载模板失败', err); }
   },
@@ -92,5 +117,4 @@ Page({
     }
   },
 
-  goBack() { wx.navigateBack(); },
 });

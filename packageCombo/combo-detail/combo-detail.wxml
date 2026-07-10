@@ -262,14 +262,6 @@
 
     <view wx:if="{{!adminView}}" class="combo-actions">
       <view
-        wx:if="{{isShared && (userRole === 'owner' || userRole === 'admin')}}"
-        class="action-btn-item"
-        bindtap="navigateToReportTemplates"
-      >
-        <t-icon name="file" size="36rpx" color="#00b26a" />
-        <text class="action-text">汇报模板</text>
-      </view>
-      <view
         wx:if="{{!isShared}}"
         class="delete-combo-btn"
         bindtap="deleteCombo"

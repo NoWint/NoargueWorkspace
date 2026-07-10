@@ -1,43 +1,5 @@
 .page {
   min-height: 100vh;
-  background: #f5f7fa;
-}
-
-.nav-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 999;
-  background: #e3f5eb;
-}
-
-.nav-inner {
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 16rpx;
-}
-
-.nav-left,
-.nav-right {
-  width: 80rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10rpx;
-}
-
-.nav-title {
-  flex: 1;
-  text-align: center;
-  font-size: 32rpx;
-  font-weight: 500;
-  color: #333;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .content {
@@ -111,4 +73,8 @@
   font-size: 28rpx;
   color: #00b26a;
   font-weight: 500;
+}
+
+.save-area {
+  padding: 16rpx 24rpx calc(16rpx + env(safe-area-inset-bottom, 0rpx));
 }

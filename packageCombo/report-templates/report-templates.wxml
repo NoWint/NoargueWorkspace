@@ -1,22 +1,7 @@
 <view class="page">
-  <!-- 自定义导航栏 -->
-  <view class="nav-bar" style="height: {{navBarHeight}}px;">
-    <view class="nav-inner">
-      <view class="nav-left" bindtap="goBack">
-        <t-icon name="chevron-left" size="44rpx" color="#333" />
-      </view>
-      <view class="nav-title">
-        <text wx:if="{{comboName}}">{{comboName}} · </text>
-        <text>汇报模板</text>
-      </view>
-      <view class="nav-right" bindtap="saveTemplates">
-        <t-icon name="check" size="44rpx" color="#00b26a" />
-      </view>
-    </view>
-  </view>
 
   <!-- 主体内容 -->
-  <view class="content" style="padding-top: {{navBarHeight}}px;">
+  <view class="content">
     <t-tabs value="{{currentType}}" bind:change="onTypeChange">
       <t-tab-panel label="日报模板" value="daily">
         <view class="section-list">
@@ -79,5 +64,10 @@
         </view>
       </t-tab-panel>
     </t-tabs>
+
+    <!-- 底部保存按钮 -->
+    <view class="save-area">
+      <t-button block theme="primary" bindtap="saveTemplates">保存模板</t-button>
+    </view>
   </view>
 </view>

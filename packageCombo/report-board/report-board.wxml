@@ -24,6 +24,10 @@
         <t-icon name="user" size="32rpx" color="#00b26a" />
         <text class="filter-trigger-text">筛选成员</text>
       </view>
+      <view class="filter-trigger" bindtap="navigateToReportTemplates">
+        <t-icon name="file" size="32rpx" color="#00b26a" />
+        <text class="filter-trigger-text">编辑模板</text>
+      </view>
     </view>
   </view>
 

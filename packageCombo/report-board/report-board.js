@@ -191,5 +191,11 @@ Page({
     wx.navigateTo({ url: `/packagePages/report-edit/report-edit?type=${currentTab}&date=${target}&combo_id=${comboId}` });
   },
 
+  navigateToReportTemplates() {
+    wx.navigateTo({
+      url: `/packageCombo/report-templates/report-templates?combo_id=${this.data.comboId}`
+    });
+  },
+
   goBack() { wx.navigateBack(); },
 });
