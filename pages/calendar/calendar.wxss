@@ -101,13 +101,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20rpx 20rpx 0;
-}
-
-.report-toolbar-title {
-  font-size: 32rpx;
-  font-weight: 550;
-  color: #333;
 }
 
 .report-toolbar-action {

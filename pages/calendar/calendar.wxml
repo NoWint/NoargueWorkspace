@@ -87,7 +87,7 @@
   <t-tab-panel label="日报" value="daily">
     <view class="tab-content">
       <view class="report-toolbar">
-        <text class="report-toolbar-title">日报</text>
+        <text class="todo-text">日报 · {{dailyReportTitle}}</text>
         <view class="report-toolbar-action" bindtap="navigateToPrivateTemplates">
           <t-icon name="file" size="28rpx" color="#00b26a" />
           <text class="report-toolbar-text">模板</text>
@@ -123,7 +123,7 @@
   <t-tab-panel label="周报" value="weekly">
     <view class="tab-content">
       <view class="report-toolbar">
-        <text class="report-toolbar-title">周报</text>
+        <text class="todo-text">周报 · {{weeklyReportTitle}}</text>
         <view class="report-toolbar-action" bindtap="navigateToPrivateTemplates">
           <t-icon name="file" size="28rpx" color="#00b26a" />
           <text class="report-toolbar-text">模板</text>

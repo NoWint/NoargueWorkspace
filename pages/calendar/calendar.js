@@ -34,6 +34,10 @@ Page({
     weeklyReports: [],
     reportDateStrings: [],
     lockIcon: '\u{1F512}',
+
+    // 日报/周报工具栏文案
+    dailyReportTitle: '',
+    weeklyReportTitle: '',
   },
 
   // 日历日期格式化方法
@@ -196,7 +200,9 @@ Page({
     this.setData({
       selectedTodos: sorted,
       selectedDate: currentKey,
-      friendlySelectedDate: formatFriendlyDate(currentKey)
+      friendlySelectedDate: formatFriendlyDate(currentKey),
+      dailyReportTitle: this.getReportDateTitle(currentKey),
+      weeklyReportTitle: this.getWeekTitle(currentKey)
     });
   },
 
@@ -484,6 +490,30 @@ Page({
     const m = (monday.getMonth() + 1).toString().padStart(2, '0');
     const d = monday.getDate().toString().padStart(2, '0');
     return `${y}-${m}-${d}`;
+  },
+
+  getWeekNumber(dateStr) {
+    const date = new Date(dateStr);
+    const startOfYear = new Date(date.getFullYear(), 0, 1);
+    const diff = date - startOfYear;
+    const oneWeek = 604800000;
+    return Math.ceil((((startOfYear.getDay() + 1) + diff) / oneWeek));
+  },
+
+  getReportDateTitle(dateStr) {
+    if (!dateStr) return '';
+    const month = dateStr.substring(5, 7);
+    const day = dateStr.substring(8, 10);
+    const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    const date = new Date(dateStr.replace(/-/g, '/'));
+    const weekday = weekdays[date.getDay()] || '';
+    return `${parseInt(month)}月${parseInt(day)}日 ${weekday}`;
+  },
+
+  getWeekTitle(dateStr) {
+    if (!dateStr) return '';
+    const weekNum = this.getWeekNumber(dateStr);
+    return `第${weekNum}周 · ${this.getReportDateTitle(dateStr)}`;
   },
 
   onFabTap() {
