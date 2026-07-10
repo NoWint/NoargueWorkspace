@@ -90,7 +90,10 @@ Page({
 
   getWeekTitle(dateStr) {
     if (!dateStr) return '';
-    const weekNum = this.getWeekNumber(dateStr);
+    // Use Thursday as ISO week anchor for consistent week numbers
+    const d = new Date(dateStr.replace(/-/g, '/'));
+    d.setDate(d.getDate() + (4 - d.getDay()));
+    const weekNum = this.getWeekNumber(this.formatDate(d));
     return `${this.getReportDateTitle(dateStr)} · 第${weekNum}周`;
   },
 

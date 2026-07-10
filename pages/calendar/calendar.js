@@ -516,7 +516,11 @@ Page({
 
   getWeekTitle(dateStr) {
     if (!dateStr) return '';
-    const weekNum = this.getWeekNumber(dateStr);
+    // Use Thursday as ISO week anchor for consistent week numbers
+    const d = new Date(dateStr);
+    d.setDate(d.getDate() + (4 - d.getDay()));
+    const thursday = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`;
+    const weekNum = this.getWeekNumber(thursday);
     return `${this.getReportDateTitle(dateStr)} · 第${weekNum}周`;
   },
 

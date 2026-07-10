@@ -83,9 +83,12 @@ Page({
     const navTitles = { daily: '写日报', weekly: '写周报' };
     wx.setNavigationBarTitle({ title: navTitles[reportType] });
     const fullDateLabel = this.formatDateWithWeekday(reportDate);
+    // Use Thursday of the week as ISO week anchor — Monday can span simple-week boundaries
+    const weekAnchor = reportType === 'weekly' ? this.addDays(reportDate, 3) : reportDate;
+    const reportWeek = this.getWeekNumber(weekAnchor);
     const dateLabels = {
       daily: '日报 · ' + fullDateLabel,
-      weekly: '周报 · 第' + this.getWeekNumber(reportDate) + '周 · ' + fullDateLabel
+      weekly: '周报 · 第' + reportWeek + '周 · ' + fullDateLabel
     };
 
     const isEdit = !!reportId;
@@ -98,7 +101,7 @@ Page({
       reportType,
       reportDate,
       reportId,
-      reportWeek: this.getWeekNumber(reportDate),
+      reportWeek,
       navTitle: isEdit ? navTitles[reportType] : navTitles[reportType],
       targetDateHint: dateLabels[reportType] || dateLabels.daily,
       selectedComboId: comboId,
@@ -190,9 +193,21 @@ Page({
       const report = res.data || res;
       if (report && report.id) {
         const sections = this.buildSectionsFromReport(report);
+        const actualDate = report.periodDate || this.data.reportDate;
+        const actualType = report.type || this.data.reportType;
+        const weekAnchor = actualType === 'weekly' ? this.addDays(actualDate, 3) : actualDate;
+        const reportWeek = this.getWeekNumber(weekAnchor);
+        const fullDateLabel = this.formatDateWithWeekday(actualDate);
+        const dateLabels = {
+          daily: '日报 · ' + fullDateLabel,
+          weekly: '周报 · 第' + reportWeek + '周 · ' + fullDateLabel
+        };
         this.setData({
           sections,
-          reportDate: report.periodDate || this.data.reportDate,
+          reportType: actualType,
+          reportDate: actualDate,
+          reportWeek,
+          targetDateHint: dateLabels[actualType] || dateLabels.daily,
           selectedComboId: report.comboId || null,
           isSharedCombo: !!report.comboId
         });
@@ -730,6 +745,12 @@ Page({
     const month = dateStr.substring(5, 7);
     const day = dateStr.substring(8, 10);
     return `${parseInt(month)}月${parseInt(day)}日`;
+  },
+
+  addDays(dateStr, days) {
+    const d = new Date(dateStr.replace(/-/g, '/'));
+    d.setDate(d.getDate() + days);
+    return this.formatDateObj(d);
   },
 
   getWeekNumber(dateStr) {
