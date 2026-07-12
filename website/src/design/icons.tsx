@@ -24,4 +24,5 @@ export {
   RefreshIcon,
   UploadIcon,
   ImageIcon,
+  LockOnIcon as LockIcon,
 } from 'tdesign-icons-react'

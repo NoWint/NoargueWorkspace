@@ -19,4 +19,7 @@ export const authApi = {
 
   confirmQrCodeLogin: (sceneId: string) =>
     http.post<{ success: boolean; message?: string }>('/auth/qrcode/confirm', { sceneId }),
+
+  increaseTodoLimit: () =>
+    http.post<UserInfoResponse>('/auth/increaseTodoLimit'),
 }
