@@ -1,0 +1,67 @@
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--primary-line);
+  background: var(--primary-soft);
+  margin-bottom: 8px;
+}
+
+.count {
+  font: 500 11.5px/1 var(--font-sans);
+  color: var(--primary-hi);
+  flex: none;
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.btn {
+  height: 24px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--mt);
+  font: 500 11px/1 var(--font-sans);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn:hover {
+  color: var(--fg);
+  border-color: var(--mt3);
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.btnPri {
+  background: var(--primary);
+  color: var(--primary-fg);
+  border-color: var(--primary);
+}
+
+.btnPri:hover {
+  background: var(--primary-hi);
+  color: var(--primary-fg);
+  border-color: var(--primary-hi);
+}
+
+.btnPri:disabled {
+  background: var(--mt3);
+  border-color: var(--mt3);
+}
+
+.btnIcon {
+  width: 11px;
+  height: 11px;
+  flex: none;
+}
