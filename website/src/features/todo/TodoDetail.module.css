@@ -5,31 +5,169 @@
   gap: 20px;
   overflow-y: auto;
   flex: 1 1 auto;
-  max-width: 720px;
+  min-height: 0;
 }
-.head { display: flex; justify-content: space-between; align-items: flex-end; }
+
+/* Hero header */
+.hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+.heroLeft { flex: 1; min-width: 0; }
+.hdRow { display: flex; gap: 12px; align-items: flex-start; }
+.hdIc {
+  width: 28px; height: 28px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--mt);
+  display: grid; place-items: center;
+  flex: none;
+}
+.hdIc svg { width: 15px; height: 15px; }
+.titleWrap { min-width: 0; }
 .title {
   margin: 4px 0 0;
   font: 600 20px/1.3 var(--font-sans);
   color: var(--fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
 }
-.loading { padding: 40px; color: var(--mt); text-align: center; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.btnIcon { width: 12px; height: 12px; flex: none; }
 
-.row {
-  display: flex; gap: 14px; align-items: flex-start;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 13px;
+/* Loading / not found */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 60px 20px;
+  color: var(--mt);
+  text-align: center;
 }
-.row:last-child { border-bottom: 0; }
-.label {
+.loadingIcon {
+  width: 40px; height: 40px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--mt2);
+  display: grid; place-items: center;
+}
+.loadingIcon svg { width: 18px; height: 18px; }
+.loadingTitle {
+  font: 500 14px/1.3 var(--font-sans);
+  color: var(--fg);
+}
+.loadingSub {
+  font-size: 12px;
+  color: var(--mt2);
+}
+
+/* Card head */
+.cardHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+}
+.cardHeadL { display: flex; gap: 12px; align-items: flex-start; }
+.cardTitle {
+  margin: 4px 0 0;
+  font: 600 14px/1.3 var(--font-sans);
+  color: var(--fg);
+}
+.song { font-family: var(--font-song); color: var(--primary); font-weight: 600; }
+
+/* Lines */
+.lines, .metaLines { display: flex; flex-direction: column; }
+.lineLabel {
   font: 500 10px/1 var(--font-mono);
   color: var(--mt2);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  min-width: 60px;
-  padding-top: 2px;
 }
-.remarks { color: var(--mt); white-space: pre-wrap; }
+.lineVal {
+  color: var(--fg);
+  font-size: 13px;
+}
+.monoVal {
+  color: var(--fg);
+  font: 500 11.5px/1.4 var(--font-mono);
+  word-break: break-all;
+}
+.remarks {
+  color: var(--mt);
+  font-size: 13px;
+  white-space: pre-wrap;
+  text-align: right;
+  max-width: 70%;
+  line-height: 1.5;
+}
 
-.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+/* Combo tag (inline colored) */
+.comboTag {
+  font: 500 10px/1 var(--font-mono);
+  padding: 2px 6px;
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+/* Star value */
+.starVal {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--primary);
+  font-size: 12px;
+}
+.starIcon { width: 12px; height: 12px; color: var(--primary); }
+
+/* Tag list */
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+  max-width: 70%;
+}
+
+/* Action footer */
+.actionFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.actionLeft {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.starBtnIcon { color: var(--mt2); }
+.starBtnIconOn { color: var(--primary); }
+
+/* Delete button */
+.deleteBtn {
+  color: var(--mt2) !important;
+  border-color: var(--border) !important;
+  background: transparent !important;
+}
+.deleteBtn:hover {
+  color: var(--destructive) !important;
+  border-color: var(--destructive) !important;
+  background: rgba(255, 100, 103, 0.08) !important;
+}
+
+/* Responsive: on small screens, stack action footer */
+@media (max-width: 720px) {
+  .actionFooter { justify-content: stretch; }
+  .remarks { max-width: 100%; text-align: left; }
+  .tagList { max-width: 100%; justify-content: flex-start; }
+}
