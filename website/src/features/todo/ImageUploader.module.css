@@ -1,0 +1,78 @@
+.uploader {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.thumb {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  flex: none;
+}
+
+.thumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.thumbRemove {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border: 0;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.thumbUploading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.uploadBtn {
+  width: 80px;
+  height: 80px;
+  border: 1px dashed var(--mt3);
+  background: transparent;
+  color: var(--mt2);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  flex: none;
+}
+
+.uploadBtn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.uploadBtn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.uploadBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.hint {
+  font: 500 10px/1 var(--font-mono);
+  color: var(--mt2);
+  margin-top: 4px;
+}
