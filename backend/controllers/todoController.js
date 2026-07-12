@@ -165,7 +165,7 @@ const getById = async (req, res) => {
 
 const create = async (req, res) => {
   const userId = req.user.id;
-  const { text, setDate, setTime, remarks, location, isStar, comboId, tagIds, todoId, images, parent_id, priority } = req.body;
+  const { text, setDate, setTime, remarks, location, isStar, comboId, tagIds, todoId, images, parent_id, priority, subtasks } = req.body;
   
   if (!text || !text.trim()) {
     return res.status(400).json({
@@ -192,44 +192,104 @@ const create = async (req, res) => {
     
     const finalTodoId = todoId || generateTodoId();
     const imagesJson = images && images.length > 0 ? JSON.stringify(images) : null;
-    
-    const result = await query(
-      `INSERT INTO todos 
-       (user_id, todo_id, parent_id, text, set_date, set_time, remarks, location_text, is_star, combo_id, images, priority, version, created_at, updated_at) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, NOW(), NOW())`,
-      [
-        userId,
-        finalTodoId,
-        parent_id || null,
-        text.trim(),
-        setDate || null,
-        setTime || null,
-        remarks || null,
-        location ? JSON.stringify(location) : null,
-        isStar ? 1 : 0,
-        comboId || null,
-        imagesJson,
-        priority || 'p2'
-      ]
-    );
-    
-    if (tagIds && tagIds.length > 0) {
-      const tagValues = tagIds.map(tagId => [result.insertId, tagId]);
-      await query(
-        'INSERT INTO todo_tags (todo_id, tag_id) VALUES ?',
-        [tagValues]
+
+    if (subtasks && subtasks.length > 0) {
+      // 有子待办：事务中批量创建父待办 + 所有子待办
+      let subtaskResults = [];
+
+      await transaction(async (conn) => {
+        const tQuery = (sql, params) => new Promise((resolve, reject) => {
+          conn.query(sql, params, (err, result) => {
+            if (err) reject(err);
+            else resolve(result);
+          });
+        });
+
+        // 插入父待办
+        const parentResult = await tQuery(
+          `INSERT INTO todos
+           (user_id, todo_id, parent_id, text, set_date, set_time, remarks, location_text, is_star, combo_id, images, priority, version, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, NOW(), NOW())`,
+          [
+            userId,
+            finalTodoId,
+            parent_id || null,
+            text.trim(),
+            setDate || null,
+            setTime || null,
+            remarks || null,
+            location ? JSON.stringify(location) : null,
+            isStar ? 1 : 0,
+            comboId || null,
+            imagesJson,
+            priority || 'p2'
+          ]
+        );
+
+        // 标签
+        if (tagIds && tagIds.length > 0) {
+          const tagValues = tagIds.map(tagId => [parentResult.insertId, tagId]);
+          await tQuery(
+            'INSERT INTO todo_tags (todo_id, tag_id) VALUES ?',
+            [tagValues]
+          );
+        }
+
+        // 递归插入子待办
+        subtaskResults = [];
+        await insertSubtodosInTx(conn, userId, finalTodoId, subtasks, { setDate, setTime, priority, comboId }, subtaskResults);
+      });
+
+      logger.todoInfo('创建', '待办创建成功', { userId, todoId: finalTodoId, text: text.substring(0, 50), subtaskCount: subtaskResults.length });
+
+      const newTodo = await query('SELECT * FROM todos WHERE todo_id = ?', [finalTodoId]);
+
+      res.json({
+        success: true,
+        message: '待办创建成功',
+        todo: formatTodo(newTodo[0]),
+        subtasks: subtaskResults
+      });
+    } else {
+      // 无子待办：走原有流程（无事务）
+      const result = await query(
+        `INSERT INTO todos
+         (user_id, todo_id, parent_id, text, set_date, set_time, remarks, location_text, is_star, combo_id, images, priority, version, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, NOW(), NOW())`,
+        [
+          userId,
+          finalTodoId,
+          parent_id || null,
+          text.trim(),
+          setDate || null,
+          setTime || null,
+          remarks || null,
+          location ? JSON.stringify(location) : null,
+          isStar ? 1 : 0,
+          comboId || null,
+          imagesJson,
+          priority || 'p2'
+        ]
       );
+
+      if (tagIds && tagIds.length > 0) {
+        const tagValues = tagIds.map(tagId => [result.insertId, tagId]);
+        await query(
+          'INSERT INTO todo_tags (todo_id, tag_id) VALUES ?',
+          [tagValues]
+        );
+      }
+
+      logger.todoInfo('创建', '待办创建成功', { userId, todoId: finalTodoId, text: text.substring(0, 50) });
+
+      const newTodo = await query('SELECT * FROM todos WHERE id = ?', [result.insertId]);
+
+      res.json({
+        success: true,
+        message: '待办创建成功',
+        todo: formatTodo(newTodo[0])
+      });
     }
-    
-    logger.todoInfo('创建', '待办创建成功', { userId, todoId: finalTodoId, text: text.substring(0, 50) });
-
-    const newTodo = await query('SELECT * FROM todos WHERE id = ?', [result.insertId]);
-
-    res.json({
-      success: true,
-      message: '待办创建成功',
-      todo: formatTodo(newTodo[0])
-    });
   } catch (err) {
     logger.todoError('创建', '创建待办失败', { userId, error: err.message });
     res.status(500).json({
@@ -242,7 +302,7 @@ const create = async (req, res) => {
 const update = async (req, res) => {
   const userId = req.user.id;
   const { id } = req.params;
-  const { text, setDate, setTime, remarks, location, isStar, completed, comboId, tagIds, version, images, priority, parent_id } = req.body;
+  const { text, setDate, setTime, remarks, location, isStar, completed, comboId, tagIds, version, images, priority, parent_id, subtasks } = req.body;
   
   try {
     const todos = await query(
@@ -336,6 +396,19 @@ const update = async (req, res) => {
       }
     }
     
+    // 处理子待办：subtasks 存在时表示全量更新（增删改，嵌套递归）
+    if (subtasks !== undefined && Array.isArray(subtasks)) {
+      const inherited = {
+        setDate: setDate !== undefined ? setDate : existingTodo.set_date,
+        setTime: setTime !== undefined ? setTime : existingTodo.set_time,
+        priority: priority !== undefined ? priority : existingTodo.priority || 'p2',
+        comboId: comboId !== undefined ? comboId : existingTodo.combo_id
+      };
+      await transaction(async (conn) => {
+        await syncSubtodosInTx(conn, userId, id, subtasks, inherited);
+      });
+    }
+
     const updatedTodo = await query('SELECT * FROM todos WHERE todo_id = ?', [id]);
     
     res.json({
@@ -352,25 +425,166 @@ const update = async (req, res) => {
   }
 };
 
+/**
+ * 在事务中递归插入子待办
+ * @param {object} conn - 事务连接对象
+ * @param {number} userId
+ * @param {string} parentTodoId - 父待办的 todo_id
+ * @param {Array} subtasks - 子待办数组（支持嵌套 subtasks）
+ * @param {object} inheritedFields - 从父待办继承的字段
+ * @param {Array} resultList - 输出：收集所有插入的子待办信息
+ */
+async function insertSubtodosInTx(conn, userId, parentTodoId, subtasks, inheritedFields, resultList) {
+  const tQuery = (sql, params) => new Promise((resolve, reject) => {
+    conn.query(sql, params, (err, result) => {
+      if (err) reject(err);
+      else resolve(result);
+    });
+  });
+
+  for (const subtask of subtasks) {
+    if (!subtask.text || !subtask.text.trim()) continue;
+
+    const subtaskId = generateTodoId();
+
+    await tQuery(
+      `INSERT INTO todos
+       (user_id, todo_id, parent_id, text, set_date, set_time, priority, combo_id, version, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, NOW(), NOW())`,
+      [
+        userId,
+        subtaskId,
+        parentTodoId,
+        subtask.text.trim(),
+        inheritedFields.setDate || null,
+        inheritedFields.setTime || null,
+        inheritedFields.priority || 'p2',
+        inheritedFields.comboId || null
+      ]
+    );
+
+    resultList.push({
+      id: subtaskId,
+      text: subtask.text.trim(),
+      parentId: parentTodoId,
+      completed: 0,
+      priority: inheritedFields.priority || 'p2',
+      version: 1
+    });
+
+    if (subtask.subtasks && subtask.subtasks.length > 0) {
+      await insertSubtodosInTx(conn, userId, subtaskId, subtask.subtasks, inheritedFields, resultList);
+    }
+  }
+}
+
+/**
+ * 递归软删除 todo 及其所有后代（在事务中使用）
+ * @param {object} conn - 事务连接对象
+ * @param {number} userId
+ * @param {string[]} todoIds - 要删除的 todo_id 数组
+ */
+async function softDeleteTodoTree(conn, userId, todoIds) {
+  const tQuery = (sql, params) => new Promise((resolve, reject) => {
+    conn.query(sql, params, (err, result) => {
+      if (err) reject(err);
+      else resolve(result);
+    });
+  });
+
+  // 递归收集所有后代 todo_id
+  async function collectDescendants(ids) {
+    const children = await tQuery(
+      'SELECT todo_id FROM todos WHERE parent_id IN (?) AND user_id = ? AND is_deleted = 0',
+      [ids, userId]
+    );
+    if (children.length > 0) {
+      const childIds = children.map(t => t.todo_id);
+      const deeper = await collectDescendants(childIds);
+      return [...childIds, ...deeper];
+    }
+    return [];
+  }
+
+  const descendants = await collectDescendants(todoIds);
+  const allIds = [...todoIds, ...descendants];
+
+  if (allIds.length > 0) {
+    await tQuery(
+      `UPDATE todos SET is_deleted = 1, deleted_at = NOW(), updated_at = NOW(), version = version + 1
+       WHERE todo_id IN (?) AND user_id = ?`,
+      [allIds, userId]
+    );
+  }
+}
+
+/**
+ * 递归同步子待办：增/删/改，支持无限嵌套（在事务中使用）
+ * @param {object} conn - 事务连接对象
+ * @param {number} userId
+ * @param {string} parentTodoId - 父待办的 todo_id
+ * @param {Array} subtasks - 子待办数组（支持嵌套 subtasks）
+ * @param {object} inherited - 从父待办继承的字段
+ */
+async function syncSubtodosInTx(conn, userId, parentTodoId, subtasks, inherited) {
+  const tQuery = (sql, params) => new Promise((resolve, reject) => {
+    conn.query(sql, params, (err, result) => {
+      if (err) reject(err);
+      else resolve(result);
+    });
+  });
+
+  const existingChildren = await tQuery(
+    'SELECT todo_id FROM todos WHERE parent_id = ? AND user_id = ? AND is_deleted = 0',
+    [parentTodoId, userId]
+  );
+  const existingIdSet = new Set(existingChildren.map(t => t.todo_id));
+  const incomingIdSet = new Set(subtasks.filter(s => s.id).map(s => s.id));
+  const toDelete = [...existingIdSet].filter(eid => !incomingIdSet.has(eid));
+
+  for (const subtask of subtasks) {
+    if (!subtask.text || !subtask.text.trim()) continue;
+
+    if (subtask.id) {
+      const subUpdateFields = ['version = version + 1', 'updated_at = NOW()'];
+      const subUpdateValues = [];
+      subUpdateFields.push('text = ?');
+      subUpdateValues.push(subtask.text.trim());
+      if (subtask.completed !== undefined) {
+        subUpdateFields.push('completed = ?');
+        subUpdateValues.push(subtask.completed ? Date.now() : 0);
+      }
+      await tQuery(
+        `UPDATE todos SET ${subUpdateFields.join(', ')} WHERE todo_id = ? AND user_id = ?`,
+        [...subUpdateValues, subtask.id, userId]
+      );
+      // 递归处理现有子待办的嵌套子待办
+      if (subtask.subtasks && Array.isArray(subtask.subtasks) && subtask.subtasks.length > 0) {
+        await syncSubtodosInTx(conn, userId, subtask.id, subtask.subtasks, inherited);
+      }
+    } else {
+      await insertSubtodosInTx(conn, userId, parentTodoId, [subtask], inherited, []);
+    }
+  }
+
+  // 软删除已移除的子待办及其所有后代
+  if (toDelete.length > 0) {
+    await softDeleteTodoTree(conn, userId, toDelete);
+  }
+}
+
 const deleteTodo = async (req, res) => {
   const userId = req.user.id;
   const { id } = req.params;
-  
+
   try {
-    const result = await query(
-      'UPDATE todos SET is_deleted = 1, deleted_at = NOW(), updated_at = NOW(), version = version + 1 WHERE todo_id = ? AND user_id = ?',
-      [id, userId]
-    );
-    
-    if (result.affectedRows === 0) {
-      return res.status(404).json({
-        success: false,
-        message: '待办不存在'
-      });
-    }
-    
+    // 递归软删除所有后代，确保不产生飘零数据
+    await transaction(async (conn) => {
+      await softDeleteTodoTree(conn, userId, [id]);
+    });
+
     logger.todoInfo('删除', '待办删除成功', { userId, id });
-    
+
     res.json({
       success: true,
       message: '待办删除成功'
