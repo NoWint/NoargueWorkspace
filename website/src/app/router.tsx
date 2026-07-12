@@ -7,6 +7,11 @@ import { AllTodosView } from '@/features/todo/AllTodosView'
 import { TodoForm } from '@/features/todo/TodoForm'
 import { TodoDetail } from '@/features/todo/TodoDetail'
 import { CalendarView } from '@/features/calendar/CalendarView'
+import { StatsView } from '@/features/stats/StatsView'
+import { CombosView } from '@/features/todo/CombosView'
+import { ComboDetailView } from '@/features/todo/ComboDetailView'
+import { SearchView } from '@/features/search/SearchView'
+import { TrashView } from '@/features/trash/TrashView'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const token = useAuthStore((s) => s.token)
@@ -33,6 +38,11 @@ export const router = createBrowserRouter([
       { path: 'todos/:id/edit', element: <TodoForm mode="edit" /> },
       { path: 'todos/:id', element: <TodoDetail /> },
       { path: 'calendar', element: <CalendarView /> },
+      { path: 'stats', element: <StatsView /> },
+      { path: 'combos', element: <CombosView /> },
+      { path: 'combos/:id', element: <ComboDetailView /> },
+      { path: 'search', element: <SearchView /> },
+      { path: 'trash', element: <TrashView /> },
     ],
   },
   { path: '*', element: <Navigate to="/" replace /> },

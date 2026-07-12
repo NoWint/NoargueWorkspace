@@ -71,6 +71,10 @@ export function Sidebar() {
           <CalendarIcon className={styles.navIcon} />
           <span>日历</span>
         </NavLink>
+        <NavLink to="/combos" className={navClass}>
+          <ListIcon className={styles.navIcon} />
+          <span>组合</span>
+        </NavLink>
         <NavLink to="/stats" className={navClass}>
           <ChartIcon className={styles.navIcon} />
           <span>统计</span>
@@ -80,10 +84,10 @@ export function Sidebar() {
           <span>收藏</span>
           {starredCount > 0 && <span className={styles.ct}>{starredCount}</span>}
         </div>
-        <div className={styles.navItem}>
+        <NavLink to="/search" className={navClass}>
           <SearchIcon className={styles.navIcon} />
           <span>搜索</span>
-        </div>
+        </NavLink>
       </nav>
 
       <div className={styles.comboSection}>
@@ -101,10 +105,10 @@ export function Sidebar() {
       </div>
 
       <div className={styles.footer}>
-        <div className={styles.navItem}>
+        <NavLink to="/trash" className={navClass}>
           <TrashIcon className={styles.navIcon} />
           <span>回收站</span>
-        </div>
+        </NavLink>
         <div className={styles.userPill}>
           <div className={styles.userAv}>
             {user?.nickname?.[0] || '?'}
