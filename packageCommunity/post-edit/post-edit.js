@@ -3,6 +3,7 @@ const { communityApi, combosApi, isLoggedIn } = require('../../utils/api');
 const { getLocalTodos } = require('../../utils/sync');
 
 const { formatFriendlyDate } = require('../../utils/util');
+const { initUpload, uploadToR2, confirmUpload, deleteFile } = require('../../utils/fileUpload');
 
 const compressImage = (filePath) => {
   return new Promise((resolve) => {
@@ -74,6 +75,9 @@ Page({
     currentMentions: [],
     showMentionListPopup: false,
     mentionIdCounter: 0,
+    visitorToken: '',
+    attachedFiles: [],
+    comboId: null,
   },
 
   onLoad(options) {
@@ -87,6 +91,9 @@ Page({
     this.loadTodos();
     this.loadPickerCombos();
     if (options.postId) this.loadEditData(options.postId);
+    if (options.comboId) {
+      this.setData({ comboId: options.comboId });
+    }
 
     // 从 share-config 快速分享到社区：携带 todoId
     if (options.todoId) {
@@ -138,6 +145,9 @@ Page({
         }
       });
     }
+
+    const visitorToken = 'visitor_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
+    this.setData({ visitorToken });
   },
 
   loadTodos() {
@@ -162,11 +172,19 @@ Page({
   },
 
   onUnload() {
+    const { attachedFiles: unloadFiles } = this.data;
+    if (unloadFiles && unloadFiles.length > 0) {
+      for (const f of unloadFiles) {
+        if (f.id && f.owner_token) {
+          deleteFile({ fileId: f.id, ownerToken: f.owner_token }).catch(() => {});
+        }
+      }
+    }
     if (!this.data.editMode && (this.data.title || this.data.body)) {
       wx.setStorageSync('communityDraft', {
         title: this.data.title, body: this.data.body, fileList: this.data.fileList, imageUrls: this.data.imageUrls,
         selectedTodoIds: this.data.selectedTodoIds, selectedComboCode: this.data.selectedComboCode,
-        selectedComboName: this.data.selectedComboName, location: this.data.location
+        selectedComboName: this.data.selectedComboName, location: this.data.location, attachedFiles: this.data.attachedFiles
       });
     } else if (!this.data.title && !this.data.body) { wx.removeStorageSync('communityDraft'); }
   },
@@ -661,6 +679,89 @@ Page({
     });
   },
 
+  async handleFileSelect() {
+    const { attachedFiles, visitorToken } = this.data;
+    const remaining = 9 - attachedFiles.length;
+    if (remaining <= 0) {
+      wx.showToast({ title: '最多上传 9 个文件', icon: 'none' });
+      return;
+    }
+
+    try {
+      const res = await wx.chooseMessageFile({ count: remaining, type: 'all' });
+      const files = res.tempFiles;
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        wx.showLoading({ title: `上传文件 ${i + 1}/${files.length}`, mask: true });
+
+        try {
+          const initResult = await initUpload({
+            filename: file.name,
+            contentType: file.type || 'application/octet-stream',
+            size: file.size,
+            visitorToken
+          });
+
+          await uploadToR2(initResult.upload_url, file.path);
+
+          const confirmResult = await confirmUpload({
+            filename: file.name,
+            size: file.size,
+            contentType: file.type || 'application/octet-stream',
+            r2Key: initResult.r2_key,
+            visitorToken
+          });
+
+          const fileInfo = {
+            id: confirmResult.file.id,
+            url: confirmResult.file.url,
+            raw_url: confirmResult.file.raw_url,
+            filename: file.name,
+            size: file.size,
+            human_size: confirmResult.file.human_size,
+            content_type: file.type || 'application/octet-stream',
+            expires_at: confirmResult.file.expires_at,
+            owner_token: confirmResult.owner_token
+          };
+
+          this.setData({
+            attachedFiles: [...this.data.attachedFiles, fileInfo]
+          });
+        } catch (err) {
+          wx.showToast({ title: `"${file.name}" 上传失败`, icon: 'none' });
+        }
+      }
+    } catch (err) {
+      // User cancelled
+    }
+    wx.hideLoading();
+  },
+
+  handleFileRemove(e) {
+    const index = e.currentTarget.dataset.index;
+    const files = [...this.data.attachedFiles];
+    files.splice(index, 1);
+    this.setData({ attachedFiles: files });
+  },
+
+  getFileIcon(contentType) {
+    const FILE_ICONS = {
+      'application/pdf': 'file-pdf',
+      'application/msword': 'file-word',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'file-word',
+      'application/vnd.ms-excel': 'file-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'file-excel',
+      'application/zip': 'file-zip',
+      'application/x-rar-compressed': 'file-zip',
+      'text/plain': 'file-txt',
+      'text/csv': 'file-csv',
+      'image/': 'file-image',
+    };
+    const key = Object.keys(FILE_ICONS).find(k => contentType && contentType.startsWith(k));
+    return FILE_ICONS[key] || 'file-unknown';
+  },
+
   async handleSubmit() {
     if (!this.data.title.trim()) { wx.showToast({ title: '请输入标题', icon: 'none' }); return; }
     this.setData({ submitting: true });
@@ -671,7 +772,14 @@ Page({
         title: this.data.title, body: body || null,
         images: this.data.imageUrls.length > 0 ? this.data.imageUrls : null,
         todoIds: this.data.selectedTodoIds.length > 0 ? this.data.selectedTodoIds : null,
-        shareCode: this.data.selectedComboCode || null, location: this.data.location || null
+        shareCode: this.data.selectedComboCode || null, location: this.data.location || null,
+        comboId: this.data.comboId || null,
+        files: this.data.attachedFiles.length > 0 ? this.data.attachedFiles.map(f => ({
+          id: f.id, url: f.url, raw_url: f.raw_url,
+          filename: f.filename, size: f.size, human_size: f.human_size,
+          content_type: f.content_type, expires_at: f.expires_at,
+          owner_token: f.owner_token
+        })) : null,
       };
       if (this.data.editMode) {
         await communityApi.updatePost(this.data.editPostId, payload);
@@ -689,6 +797,14 @@ Page({
   },
 
   goBack() {
+    const { attachedFiles: goBackFiles } = this.data;
+    if (goBackFiles && goBackFiles.length > 0) {
+      for (const f of goBackFiles) {
+        if (f.id && f.owner_token) {
+          deleteFile({ fileId: f.id, ownerToken: f.owner_token }).catch(() => {});
+        }
+      }
+    }
     if (this.data.title || this.data.body) {
       wx.showModal({
         title: '提示', content: '确定放弃当前编辑吗？',

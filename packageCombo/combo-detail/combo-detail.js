@@ -1,5 +1,5 @@
 const app = getApp();
-const { combosApi, collabApi, isLoggedIn, notifyApi, adminApi, confirmRevokeIfShared } = require('../../utils/api.js');
+const { combosApi, collabApi, isLoggedIn, notifyApi, adminApi, confirmRevokeIfShared, communityApi } = require('../../utils/api.js');
 const { getLocalTodos, saveTodo, getTodoById, deleteTodoById, syncWithCloud, addDeletedTodo } = require('../../utils/sync.js');
 const { formatDateTime } = require('../../utils/util.js');
 
@@ -74,7 +74,12 @@ Page({
     voiceWaveBars: [],
 
     navBarHeight: app.globalData.navBarHeight,
-    menuRight: app.globalData.menuRight
+    menuRight: app.globalData.menuRight,
+
+    comboPosts: [],
+    comboPostsCursor: null,
+    comboPostsHasMore: false,
+    loadingPosts: false
   },
 
   onLoad(options) {
@@ -134,6 +139,7 @@ Page({
         return;
       }
       this.loadComboData(this.data.comboId);
+      setTimeout(() => this.loadComboPosts(this.data.comboId), 500);
     }
   },
 
@@ -209,6 +215,11 @@ Page({
       });
     }
     this.data._nicknameChecking = false;
+  },
+
+  stripMarkdown(text) {
+    if (!text) return '';
+    return text.replace(/[#*`\[\]()>|~_]/g, '').trim();
   },
 
   async loadComboData(id) {
@@ -354,6 +365,7 @@ Page({
         this.updateStats();
         
         setTimeout(() => this.updateFixedHeaderHeight(), 100);
+        setTimeout(() => this.loadComboPosts(id), 500);
       } else {
         const allTodos = getLocalTodos();
         const comboTodos = allTodos.filter(todo => 
@@ -371,8 +383,9 @@ Page({
           userRole: 'owner'
         });
         this.updateStats();
-        
+
         setTimeout(() => this.updateFixedHeaderHeight(), 100);
+        setTimeout(() => this.loadComboPosts(id), 500);
       }
     } catch (err) {
       logger.error('COMBO', 'LOAD', '加载组合失败', err);
@@ -1115,6 +1128,49 @@ Page({
         completionRate
       });
     }
+  },
+
+  async loadComboPosts(comboId) {
+    if (this.data.loadingPosts) return;
+    this.setData({ loadingPosts: true });
+    try {
+      const res = await communityApi.getComboPosts(comboId, { cursor: this.data.comboPostsCursor });
+      if (res.success && res.data) {
+        const posts = (res.data.list || []).map(p => ({
+          ...p,
+          summary: this.stripMarkdown(p.body).substring(0, 80),
+          thumbImage: p.images && p.images.length > 0 ? p.images[0] : null,
+          fileCount: p.files ? p.files.length : 0
+        }));
+        this.setData({
+          comboPosts: this.data.comboPostsCursor ? [...this.data.comboPosts, ...posts] : posts,
+          comboPostsCursor: res.data.nextCursor,
+          comboPostsHasMore: res.data.hasMore,
+          loadingPosts: false
+        });
+      }
+    } catch (err) {
+      this.setData({ loadingPosts: false });
+    }
+  },
+
+  loadMoreComboPosts() {
+    if (this.data.comboPostsHasMore && !this.data.loadingPosts) {
+      this.loadComboPosts(this.data.comboId);
+    }
+  },
+
+  navigateToCreatePost() {
+    wx.navigateTo({
+      url: `/packageCommunity/post-edit/post-edit?comboId=${this.data.comboId}`
+    });
+  },
+
+  navigateToPostDetail(e) {
+    const { postid } = e.currentTarget.dataset;
+    wx.navigateTo({
+      url: `/packageCommunity/post-detail/post-detail?postId=${postid}`
+    });
   },
 
   async loadComboDataForAdmin(id, userId) {

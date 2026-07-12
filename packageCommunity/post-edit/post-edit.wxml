@@ -93,6 +93,26 @@
     </view>
   </view>
 
+  <!-- 文件上传区 -->
+  <view class="file-upload-section">
+    <view wx:if="{{attachedFiles.length > 0}}" class="file-list">
+      <view class="file-item" wx:for="{{attachedFiles}}" wx:key="id">
+        <t-icon name="{{getFileIcon(item.content_type)}}" size="40rpx" color="#666" />
+        <view class="file-info">
+          <text class="file-name">{{item.filename}}</text>
+          <text class="file-size">{{item.human_size}}</text>
+        </view>
+        <view class="file-remove" data-index="{{index}}" bindtap="handleFileRemove">
+          <t-icon name="close" size="28rpx" color="#999" />
+        </view>
+      </view>
+    </view>
+    <view wx:if="{{fileList.length + attachedFiles.length < 9}}" class="file-add-btn" bindtap="handleFileSelect">
+      <t-icon name="file-attachment" size="40rpx" color="#999" />
+      <text class="file-add-text">添加文件</text>
+    </view>
+  </view>
+
   <view class="picker-row" wx:if="{{!location}}" bind:tap="pickLocation">
     <t-icon name="location" size="38rpx" color="#999" />
     <text class="picker-placeholder">添加位置</text>

@@ -36,6 +36,10 @@
     <t-icon name="location" size="28rpx" color="#00b26a" />
     <text class="location-text">{{post.location.name || post.location.address || post.location.text || post.location}}</text>
   </view>
+  <view wx:if="{{post.files && post.files.length > 0}}" class="post-files-indicator">
+    <t-icon name="file-attachment" size="24rpx" color="#999" />
+    <text class="post-files-count">{{post.files.length}} 个附件</text>
+  </view>
   <view wx:if="{{post.todoIds && post.todoIds.length > 0 || post.shareCode}}" class="post-tags">
     <view wx:if="{{post.todoIds && post.todoIds.length > 0}}" class="tag-card" catch:tap="onTapTodoExpand" data-post-id="{{post.postId}}">
       <view class="tag-card-header">

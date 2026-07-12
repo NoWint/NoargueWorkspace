@@ -31,6 +31,32 @@
     </view>
   </view>
 
+  <!-- 文件列表 -->
+  <view wx:if="{{post.files && post.files.length > 0}}" class="post-files">
+    <view class="post-files-header">
+      <t-icon name="file-attachment" size="28rpx" color="#999" />
+      <text class="post-files-title">附件 ({{post.files.length}})</text>
+    </view>
+    <view
+      class="post-file-item {{isFileExpired(item.expires_at) ? 'expired' : ''}}"
+      wx:for="{{post.files}}"
+      wx:key="id"
+      data-index="{{index}}"
+      bindtap="openFile"
+    >
+      <t-icon name="{{getFileIcon(item.content_type)}}" size="48rpx" color="#666" />
+      <view class="post-file-info">
+        <text class="post-file-name">{{item.filename}}</text>
+        <text class="post-file-size">{{item.human_size}}</text>
+      </view>
+      <text wx:if="{{isFileExpired(item.expires_at)}}" class="post-file-status expired-text">已过期</text>
+      <text wx:elif="{{getFileRemainingDays(item.expires_at) <= 1}}" class="post-file-status expiring-text">即将过期</text>
+      <text wx:else class="post-file-arrow">
+        <t-icon name="chevron-right" size="28rpx" color="#ccc" />
+      </text>
+    </view>
+  </view>
+
   <view class="comment-section">
     <view class="comment-header">评论 ({{post.commentsCount || 0}})</view>
     <view wx:if="{{comments.length === 0 && !loadingComments}}" class="no-comments"><text>暂无评论，来说点什么吧</text></view>

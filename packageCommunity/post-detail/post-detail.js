@@ -531,6 +531,61 @@ Page({
     wx.previewImage({ current: url, urls: allImages.length > 0 ? allImages : [url] });
   },
 
+  getFileIcon(contentType) {
+    const FILE_ICONS = {
+      'application/pdf': 'file-pdf',
+      'application/msword': 'file-word',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'file-word',
+      'application/vnd.ms-excel': 'file-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'file-excel',
+      'application/zip': 'file-zip',
+      'application/x-rar-compressed': 'file-zip',
+      'text/plain': 'file-txt',
+      'text/csv': 'file-csv',
+      'image/': 'file-image',
+    };
+    const key = Object.keys(FILE_ICONS).find(k => contentType && contentType.startsWith(k));
+    return FILE_ICONS[key] || 'file-unknown';
+  },
+
+  isFileExpired(expiresAt) {
+    if (!expiresAt) return false;
+    return new Date(expiresAt) < new Date();
+  },
+
+  getFileRemainingDays(expiresAt) {
+    if (!expiresAt) return null;
+    const remaining = (new Date(expiresAt) - new Date()) / (1000 * 60 * 60 * 24);
+    return Math.ceil(remaining);
+  },
+
+  openFile(e) {
+    const index = e.currentTarget.dataset.index;
+    const file = this.data.post.files[index];
+    if (!file || this.isFileExpired(file.expires_at)) return;
+
+    wx.showLoading({ title: '下载中...' });
+    wx.downloadFile({
+      url: file.raw_url || file.url,
+      success(res) {
+        wx.hideLoading();
+        if (res.statusCode === 200) {
+          wx.openDocument({
+            filePath: res.tempFilePath,
+            success: () => {},
+            fail: () => {
+              wx.showToast({ title: '打开文件失败', icon: 'none' });
+            }
+          });
+        }
+      },
+      fail() {
+        wx.hideLoading();
+        wx.showToast({ title: '下载文件失败', icon: 'none' });
+      }
+    });
+  },
+
   formatTime(dateStr) {
     if (!dateStr) return '';
     try {

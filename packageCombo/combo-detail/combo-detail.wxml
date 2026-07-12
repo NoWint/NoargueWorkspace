@@ -260,6 +260,54 @@
       </view>
     </view>
 
+    <!-- 帖子圈区块 -->
+    <view wx:if="{{!adminView}}" class="posts-section">
+      <view class="section-header">
+        <view class="section-title-row">
+          <text class="section-title">帖子圈</text>
+          <view class="create-post-btn" bindtap="navigateToCreatePost">
+            <t-icon name="edit" size="28rpx" color="#00b26a" />
+            <text class="create-post-text">发帖</text>
+          </view>
+        </view>
+      </view>
+
+      <view wx:if="{{comboPosts.length === 0 && !loadingPosts}}" class="empty-state">
+        <text class="empty-text">暂无帖子</text>
+        <text class="empty-hint">点击右上角发布第一条帖子</text>
+      </view>
+
+      <view wx:if="{{comboPosts.length > 0}}" class="combo-posts-list">
+        <view
+          class="combo-post-item"
+          wx:for="{{comboPosts}}"
+          wx:key="postId"
+          data-postid="{{item.postId}}"
+          bindtap="navigateToPostDetail"
+        >
+          <view class="combo-post-title">{{item.title}}</view>
+          <view wx:if="{{item.summary}}" class="combo-post-summary">{{item.summary}}</view>
+          <view wx:if="{{item.thumbImage}}" class="combo-post-thumb">
+            <image src="{{item.thumbImage}}" mode="aspectFill" />
+          </view>
+          <view class="combo-post-footer">
+            <text class="combo-post-author">{{item.user.nickname}}</text>
+            <text class="combo-post-meta">
+              {{item.fileCount > 0 ? item.fileCount + '个文件 · ' : ''}}{{item.commentsCount}}评论
+            </text>
+          </view>
+        </view>
+      </view>
+
+      <view wx:if="{{loadingPosts}}" class="loading-posts">
+        <t-loading loading="{{true}}" size="40rpx" />
+      </view>
+
+      <view wx:if="{{comboPostsHasMore && !loadingPosts}}" class="load-more-posts" bindtap="loadMoreComboPosts">
+        <text>加载更多</text>
+      </view>
+    </view>
+
     <view wx:if="{{!adminView}}" class="combo-actions">
       <view
         wx:if="{{!isShared}}"

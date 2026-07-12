@@ -90,7 +90,8 @@ const getById = async (req, res) => {
   try {
     const combos = await query(
       `SELECT c.*,
-        (SELECT COUNT(*) FROM todos WHERE combo_id = c.id AND is_deleted = 0) as todo_count
+        (SELECT COUNT(*) FROM todos WHERE combo_id = c.id AND is_deleted = 0) as todo_count,
+        (SELECT COUNT(*) FROM posts WHERE combo_id = c.id AND is_deleted = 0) as combo_post_count
        FROM combos c WHERE c.id = ?`,
       [id]
     );
@@ -178,6 +179,7 @@ const getById = async (req, res) => {
         shareCode: combo.share_code,
         memberLimit: combo.member_limit,
         todoCount: combo.todo_count,
+        comboPostCount: combo.combo_post_count || 0,
         userRole,
         members: members.map(m => ({
           id: m.user_id,

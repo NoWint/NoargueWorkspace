@@ -1,6 +1,7 @@
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const axios = require('axios');
 const { query } = require('../config/database');
 const logger = require('../utils/logger');
 
@@ -140,9 +141,35 @@ const uploadTodoImage = async (req, res) => {
   }
 };
 
+// 通用文件代理上传（中转至 storage.to R2）
+const proxyStorage = multer.memoryStorage();
+const proxyUploader = multer({
+  storage: proxyStorage,
+  limits: { fileSize: 100 * 1024 * 1024 } // 100MB
+});
+
+const proxyUpload = async (req, res) => {
+  const { uploadUrl } = req.body;
+  if (!req.file || !uploadUrl) {
+    return res.status(400).json({ success: false, message: '缺少文件或上传地址' });
+  }
+
+  try {
+    await axios.put(uploadUrl, req.file.buffer, {
+      headers: { 'Content-Type': req.file.mimetype || 'application/octet-stream' }
+    });
+    res.json({ success: true });
+  } catch (err) {
+    logger.uploadError('代理上传', '转发到R2失败', { error: err.message });
+    res.status(502).json({ success: false, message: '代理上传失败' });
+  }
+};
+
 module.exports = {
   upload,
   imageUpload,
   uploadAvatar,
   uploadTodoImage,
+  proxyUploader,
+  proxyUpload,
 };

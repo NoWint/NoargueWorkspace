@@ -130,6 +130,16 @@
   margin-bottom: 8rpx;
 }
 
+.post-files-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  padding: 8rpx 0 4rpx;
+}
+.post-files-count {
+  font-size: 24rpx;
+  color: #999;
+}
 .post-tags {
   display: flex;
   flex-direction: column;

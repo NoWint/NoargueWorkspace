@@ -5,6 +5,18 @@ const { appendCheckinBadges } = require('../utils/checkinBadgeHelper');
 
 const POST_LOG = 'POST';
 
+async function checkComboAccess(comboId, userId) {
+  const { query } = require('./config/database');
+  const combos = await query('SELECT user_id FROM combos WHERE id = ?', [comboId]);
+  if (combos.length === 0) return false;
+  if (combos[0].user_id === userId) return true;
+  const member = await query(
+    'SELECT id FROM combo_members WHERE combo_id = ? AND user_id = ?',
+    [comboId, userId]
+  );
+  return member.length > 0;
+}
+
 const getFullAvatarUrl = (avatarUrl) => {
   if (!avatarUrl) return null;
   if (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://')) return avatarUrl;
@@ -27,6 +39,7 @@ async function formatPost(row, userId) {
   const todoIds = row.todo_ids ? JSON.parse(row.todo_ids) : [];
   const locationObj = row.location ? JSON.parse(row.location) : null;
   const viewerIds = row.viewer_ids ? JSON.parse(row.viewer_ids) : [];
+  const files = row.files ? JSON.parse(row.files) : [];
 
   // 若 ip_province 为空但有 ip_address，实时查询补上
   let ipProvince = row.ip_province;
@@ -45,6 +58,8 @@ async function formatPost(row, userId) {
     todoIds,
     shareCode: row.share_code,
     shareComboName: row.share_combo_name || null,
+    comboId: row.combo_id || null,
+    files,
     ipProvince,
     location: locationObj,
     likesCount: row.likes_count,
@@ -65,7 +80,7 @@ async function formatPost(row, userId) {
 }
 
 const create = async (req, res) => {
-  const { postId, title, body, images, todoIds, shareCode, location } = req.body;
+  const { postId, title, body, images, todoIds, shareCode, location, comboId, files } = req.body;
   const userId = req.user.id;
 
   if (!title || title.trim().length === 0) {
@@ -75,19 +90,36 @@ const create = async (req, res) => {
     return res.status(400).json({ success: false, message: '标题不能超过200字' });
   }
 
+  if (comboId) {
+    const combo = await query('SELECT user_id FROM combos WHERE id = ?', [comboId]);
+    if (combo.length === 0) {
+      return res.status(404).json({ success: false, message: '组合不存在' });
+    }
+    if (combo[0].user_id !== userId) {
+      const member = await query(
+        'SELECT id FROM combo_members WHERE combo_id = ? AND user_id = ?',
+        [comboId, userId]
+      );
+      if (member.length === 0) {
+        return res.status(403).json({ success: false, message: '你不是该组合成员' });
+      }
+    }
+  }
+
   const clientIp = req.headers['x-forwarded-for'] || req.ip;
 
   try {
     const ipProvince = getProvince(clientIp);
 
     await query(
-      `INSERT INTO posts (post_id, user_id, title, body, images, todo_ids, share_code, ip_address, ip_province, location)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO posts (post_id, user_id, combo_id, title, body, images, todo_ids, share_code, files, ip_address, ip_province, location)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        postId, userId, title.trim(), body || null,
+        postId, userId, comboId || null, title.trim(), body || null,
         images && images.length ? JSON.stringify(images) : null,
         todoIds && todoIds.length ? JSON.stringify(todoIds) : null,
-        shareCode || null,
+        comboId ? null : (shareCode || null),
+        files && files.length ? JSON.stringify(files) : null,
         clientIp,
         ipProvince,
         location ? JSON.stringify(location) : null
@@ -124,7 +156,7 @@ const getList = async (req, res) => {
        FROM posts p
        LEFT JOIN users u ON p.user_id = u.id
        LEFT JOIN combos c ON p.share_code = c.share_code
-       WHERE p.is_deleted = 0 ${cursorWhere}
+       WHERE p.is_deleted = 0 AND p.combo_id IS NULL ${cursorWhere}
        ORDER BY p.created_at DESC, p.id DESC
        LIMIT ?`,
       [...params, pageSize + 1]
@@ -172,6 +204,13 @@ const getById = async (req, res) => {
       return res.json({ success: true, data: { isDeleted: true, postId } });
     }
 
+    if (post.combo_id) {
+      const hasAccess = await checkComboAccess(post.combo_id, userId);
+      if (!hasAccess) {
+        return res.status(403).json({ success: false, message: '无权查看该帖子' });
+      }
+    }
+
     const alreadyViewed = await query(
       'SELECT id FROM post_views WHERE post_id = ? AND user_id = ?',
       [post.id, userId]
@@ -197,7 +236,7 @@ const getById = async (req, res) => {
 const update = async (req, res) => {
   const { postId } = req.params;
   const userId = req.user.id;
-  const { title, body, images, todoIds, shareCode, location } = req.body;
+  const { title, body, images, todoIds, shareCode, location, files } = req.body;
 
   try {
     const posts = await query('SELECT * FROM posts WHERE post_id = ?', [postId]);
@@ -212,7 +251,7 @@ const update = async (req, res) => {
     }
 
     await query(
-      `UPDATE posts SET title = ?, body = ?, images = ?, todo_ids = ?, share_code = ?, location = ?, is_edited = 1, updated_at = NOW()
+      `UPDATE posts SET title = ?, body = ?, images = ?, todo_ids = ?, share_code = ?, files = ?, location = ?, is_edited = 1, updated_at = NOW()
        WHERE post_id = ?`,
       [
         title || posts[0].title,
@@ -220,6 +259,7 @@ const update = async (req, res) => {
         images && images.length > 0 ? JSON.stringify(images) : null,
         todoIds && todoIds.length > 0 ? JSON.stringify(todoIds) : null,
         shareCode || null,
+        files && files.length > 0 ? JSON.stringify(files) : null,
         location ? JSON.stringify(location) : null,
         postId
       ]
@@ -248,6 +288,24 @@ const deletePost = async (req, res) => {
 
     if (posts[0].user_id !== userId && !isAdmin) {
       return res.status(403).json({ success: false, message: '无权删除该帖子' });
+    }
+
+    if (posts[0].files) {
+      try {
+        const fileList = JSON.parse(posts[0].files);
+        const https = require('https');
+        for (const f of fileList) {
+          if (f.owner_token && f.id) {
+            const req = https.request(
+              `https://storage.to/api/file/${f.id}`,
+              { method: 'DELETE', headers: { 'Authorization': `Owner ${f.owner_token}` } },
+              () => {}
+            );
+            req.on('error', () => {});
+            req.end();
+          }
+        }
+      } catch (e) {}
     }
 
     await query('UPDATE posts SET is_deleted = 1 WHERE post_id = ?', [postId]);
@@ -340,7 +398,7 @@ const getUserPosts = async (req, res) => {
        FROM posts p
        LEFT JOIN users u ON p.user_id = u.id
        LEFT JOIN combos c ON p.share_code = c.share_code
-       WHERE p.is_deleted = 0 AND p.user_id = ? ${cursorWhere}
+       WHERE p.is_deleted = 0 AND p.combo_id IS NULL AND p.user_id = ? ${cursorWhere}
        ORDER BY p.created_at DESC, p.id DESC
        LIMIT ?`,
       [...params, pageSize + 1]
@@ -360,6 +418,57 @@ const getUserPosts = async (req, res) => {
     logger.error(POST_LOG, '用户帖子列表', '获取用户帖子列表失败', { userId, currentUserId, error: err.message });
     res.status(500).json({ success: false, message: '获取用户帖子列表失败' });
   }
+}
+
+const getComboPosts = async (req, res) => {
+  const userId = req.user.id;
+  const { comboId } = req.params;
+  const { cursor, limit = 20 } = req.query;
+  const pageSize = Math.min(parseInt(limit), 50);
+
+  try {
+    const hasAccess = await checkComboAccess(comboId, userId);
+    if (!hasAccess) {
+      return res.status(403).json({ success: false, message: '你不是该组合成员' });
+    }
+
+    let cursorWhere = '';
+    let params = [userId];
+    if (cursor) {
+      const parts = cursor.split('_');
+      if (parts.length === 2) {
+        cursorWhere = 'AND (p.created_at < ? OR (p.created_at = ? AND p.id < ?))';
+        params.push(parts[0], parts[0], parts[1]);
+      }
+    }
+
+    params.push(comboId);
+
+    const rows = await query(
+      `SELECT p.*, u.nickname, u.avatar_url, u.badge_titles, u.badge_colors,
+              (SELECT id FROM post_likes WHERE post_id = p.id AND user_id = ?) as user_like_id
+       FROM posts p
+       LEFT JOIN users u ON p.user_id = u.id
+       WHERE p.combo_id = ? AND p.is_deleted = 0 ${cursorWhere}
+       ORDER BY p.created_at DESC, p.id DESC
+       LIMIT ?`,
+      [...params, pageSize + 1]
+    );
+
+    const hasMore = rows.length > pageSize;
+    if (hasMore) rows.pop();
+
+    const list = await Promise.all(rows.map(row => formatPost(row, userId)));
+
+    const nextCursor = hasMore && rows.length > 0
+      ? `${rows[rows.length - 1].created_at}_${rows[rows.length - 1].id}`
+      : null;
+
+    res.json({ success: true, data: { list, nextCursor, hasMore } });
+  } catch (err) {
+    logger.error(POST_LOG, '组合帖子列表', '获取组合帖子列表失败', { comboId, userId, error: err.message });
+    res.status(500).json({ success: false, message: '获取列表失败' });
+  }
 };
 
-module.exports = { create, getList, getById, update, deletePost, getVisitors, getUserPosts };
+module.exports = { create, getList, getById, update, deletePost, getVisitors, getUserPosts, getComboPosts };

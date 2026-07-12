@@ -785,6 +785,11 @@ const communityApi = {
     method: 'GET',
     data: params
   }),
+  getComboPosts: (comboId, params) => request({
+    url: `/posts/combo/${comboId}`,
+    method: 'GET',
+    data: params
+  }),
   getPostById: (postId) => request({ url: `/posts/${postId}`, method: 'GET' }),
   updatePost: (postId, data) => request({ url: `/posts/${postId}`, method: 'PUT', data }),
   deletePost: (postId) => request({ url: `/posts/${postId}`, method: 'DELETE' }),
