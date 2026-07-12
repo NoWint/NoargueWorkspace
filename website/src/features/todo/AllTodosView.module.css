@@ -1,0 +1,29 @@
+.screen {
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  flex: 1 1 auto;
+}
+.head { display: flex; justify-content: space-between; align-items: flex-end; }
+.title {
+  margin: 4px 0 0;
+  font: 600 24px/1.15 var(--font-sans);
+  color: var(--fg);
+}
+.song { font-family: var(--font-song); color: var(--primary); }
+
+.comboFilters { display: flex; flex-wrap: wrap; gap: 6px; }
+.comboBtn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--mt);
+  font: 500 11.5px/1 var(--font-sans);
+  cursor: pointer;
+}
+.comboBtn:hover { color: var(--fg); }
+.comboAct { color: var(--fg); border-color: var(--primary-line); background: var(--primary-soft); }
+.dot { width: 8px; height: 8px; }
