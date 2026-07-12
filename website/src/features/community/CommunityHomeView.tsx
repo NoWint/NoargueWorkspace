@@ -248,14 +248,18 @@ export function CommunityHomeView() {
         </Card>
       )}
 
-      {posts.map((p) => (
-        <PostCard
-          key={p.postId}
-          post={p}
-          onToggleLike={handleToggleLike}
-          onClick={(id) => navigate(`/community/${id}`)}
-        />
-      ))}
+      {posts.length > 0 && (
+        <div className={styles.postGrid}>
+          {posts.map((p) => (
+            <PostCard
+              key={p.postId}
+              post={p}
+              onToggleLike={handleToggleLike}
+              onClick={(id) => navigate(`/community/${id}`)}
+            />
+          ))}
+        </div>
+      )}
 
       {hasMore && posts.length > 0 && (
         <div className={styles.loadMoreRow}>

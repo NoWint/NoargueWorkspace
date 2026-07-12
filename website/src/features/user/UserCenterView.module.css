@@ -224,3 +224,29 @@
 }
 .dotOk { background: var(--success); }
 .dotOff { background: var(--mt3); }
+
+/* Author credit */
+.authorCredit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 0 4px;
+  margin-top: auto;
+  font: 500 11px/1 var(--font-mono);
+  color: var(--mt3);
+}
+.authorLabel {
+  letter-spacing: 0.04em;
+}
+.authorLink {
+  color: var(--mt2);
+  text-decoration: none;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1px;
+  transition: color 0.15s;
+}
+.authorLink:hover {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}

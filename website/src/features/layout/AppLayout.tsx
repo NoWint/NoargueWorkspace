@@ -9,6 +9,7 @@ export function AppLayout() {
   const { open, setOpen } = useCmdPaletteStore()
   return (
     <div className={styles.app}>
+      <div className={styles.watermark} aria-hidden="true" />
       <Sidebar />
       <main className={styles.main}>
         <Topbar />

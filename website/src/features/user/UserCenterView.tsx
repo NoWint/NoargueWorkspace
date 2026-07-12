@@ -315,6 +315,19 @@ export function UserCenterView() {
           </div>
         </div>
       </Card>
+
+      {/* Author credit */}
+      <div className={styles.authorCredit}>
+        <span className={styles.authorLabel}>Web 前端</span>
+        <a
+          href="https://github.com/NoWint"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.authorLink}
+        >
+          GitHub: NoWint
+        </a>
+      </div>
     </div>
   )
 }
