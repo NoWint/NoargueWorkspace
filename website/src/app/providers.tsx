@@ -1,7 +1,6 @@
 import { type ReactNode, useEffect, useState, createContext, useContext } from 'react'
 import { ConfigProvider, theme as antdTheme, App as AntApp } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
-import { CommandPalette } from '@/features/cmd/CommandPalette'
 import { useCmdPaletteStore } from '@/stores/cmdPalette'
 
 type ThemeMode = 'dark' | 'light'
@@ -55,16 +54,8 @@ export function Providers({ children }: { children: ReactNode }) {
           algorithm: mode === 'dark' ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
         }}
       >
-        <AntApp>
-          {children}
-          <CommandPaletteWrapper />
-        </AntApp>
+        <AntApp>{children}</AntApp>
       </ConfigProvider>
     </ThemeModeContext.Provider>
   )
-}
-
-function CommandPaletteWrapper() {
-  const { open, setOpen } = useCmdPaletteStore()
-  return <CommandPalette open={open} onClose={() => setOpen(false)} />
 }
