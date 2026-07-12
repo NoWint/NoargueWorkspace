@@ -5,40 +5,294 @@
   gap: 20px;
   overflow-y: auto;
   flex: 1 1 auto;
-  max-width: 720px;
+  min-height: 0;
 }
-.head { display: flex; justify-content: space-between; align-items: flex-end; }
+
+/* Hero header */
+.hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+.heroLeft { flex: 1; min-width: 0; }
+.hdRow { display: flex; gap: 12px; align-items: flex-start; }
+.hdIc {
+  width: 28px; height: 28px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--mt);
+  display: grid; place-items: center;
+  flex: none;
+}
+.hdIc svg { width: 15px; height: 15px; }
 .title {
   margin: 4px 0 0;
   font: 600 24px/1.15 var(--font-sans);
+  letter-spacing: -0.01em;
   color: var(--fg);
 }
-.song { font-family: var(--font-song); color: var(--primary); }
+.song { font-family: var(--font-song); color: var(--primary); font-weight: 600; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.btnIcon { width: 12px; height: 12px; flex: none; }
 
+/* Two-column grid */
+.grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+@media (max-width: 1100px) {
+  .grid { grid-template-columns: 1fr; }
+}
+
+/* Form */
+.form { display: flex; flex-direction: column; gap: 14px; }
 .row { display: flex; gap: 12px; }
-
-.section { margin-top: 8px; }
-.secLabel {
+.fieldGroup { display: flex; flex-direction: column; gap: 8px; }
+.fieldLabel {
   font: 500 10px/1 var(--font-mono);
   color: var(--mt2);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  margin-bottom: 8px;
 }
-.tags { display: flex; flex-wrap: wrap; gap: 6px; }
-.comboBtn, .tagBtn {
-  display: inline-flex; align-items: center; gap: 6px;
-  border: 0; background: transparent; padding: 0;
-  cursor: pointer;
+
+/* Form.Item: remove default AntD margin so our gap takes over */
+.formItem {
+  margin-bottom: 0 !important;
 }
-.comboBtn {
+
+/* === AntD input overrides (BonjourPrism: 0 radius, dark bg, 1px border) === */
+.input,
+.textarea,
+.picker {
+  border-radius: 0 !important;
+  background: var(--input) !important;
+  border-color: var(--border) !important;
+  color: var(--fg) !important;
+}
+.input:hover,
+.textarea:hover,
+.picker:hover {
+  border-color: var(--mt3) !important;
+}
+.input:focus,
+.textarea:focus,
+.picker:focus-within {
+  border-color: var(--primary-line) !important;
+  box-shadow: none !important;
+}
+
+/* Input inner */
+.input :global(.ant-input),
+.textarea :global(.ant-input) {
+  background: transparent !important;
+  color: var(--fg) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.input :global(.ant-input::placeholder),
+.textarea :global(.ant-input::placeholder) {
+  color: var(--mt2) !important;
+}
+
+/* Input wrapper (for TextArea) */
+.textarea :global(.ant-input) {
+  background: var(--input) !important;
+  border-radius: 0 !important;
+  font-family: var(--font-sans) !important;
+  font-size: 13px !important;
+  padding: 8px 11px !important;
+  color: var(--fg) !important;
+}
+
+/* Regular input */
+.input {
+  height: 32px;
+  font-size: 13px;
+}
+.input :global(.ant-input) {
+  height: 30px;
+  padding: 0 11px;
+  font-size: 13px;
+}
+
+/* Picker (DatePicker / TimePicker) */
+.picker :global(.ant-picker-input > input) {
+  color: var(--fg) !important;
+  font-size: 13px !important;
+}
+.picker :global(.ant-picker-input > input::placeholder) {
+  color: var(--mt2) !important;
+}
+.picker :global(.ant-picker-suffix),
+.picker :global(.ant-picker-clear) {
+  color: var(--mt2) !important;
+}
+.picker :global(.ant-picker-active-bar) {
+  background: var(--primary) !important;
+}
+
+/* Section (combo / tags) */
+.section { display: flex; flex-direction: column; gap: 8px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chipBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 4px 10px;
   border: 1px solid var(--border);
+  background: transparent;
   color: var(--mt);
   font: 500 11.5px/1 var(--font-sans);
+  cursor: pointer;
 }
-.comboBtn:hover { color: var(--fg); }
-.comboAct { color: var(--fg); border-color: var(--primary-line); background: var(--primary-soft); }
-.dot { width: 8px; height: 8px; }
+.chipBtn:hover { color: var(--fg); }
+.chipAct {
+  color: var(--fg);
+  border-color: var(--primary-line);
+  background: var(--primary-soft);
+}
+.chipDot {
+  width: 8px; height: 8px;
+  flex: none;
+}
+.chipDotAll {
+  width: 8px; height: 8px;
+  flex: none;
+  border: 1px solid var(--mt3);
+  background: transparent;
+}
+.tagBtn {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+.emptyHint {
+  color: var(--mt2);
+  font-size: 12px;
+}
 
-.actions { display: flex; gap: 8px; margin-top: 16px; }
+/* Form actions */
+.formActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+/* Aside */
+.aside { display: flex; flex-direction: column; gap: 16px; }
+
+/* Card head (shared) */
+.cardHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+}
+.cardHeadL { display: flex; gap: 12px; align-items: flex-start; }
+.cardTitle {
+  margin: 4px 0 0;
+  font: 600 14px/1.3 var(--font-sans);
+  color: var(--fg);
+}
+
+/* Preview */
+.preview {
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+}
+.previewCheck {
+  width: 16px; height: 16px;
+  border: 1px solid var(--mt3);
+  flex: none;
+}
+.previewMain { min-width: 0; }
+.previewTitle {
+  font-weight: 500;
+  color: var(--fg);
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.previewSub {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 3px;
+  color: var(--mt);
+  font-size: 11.5px;
+  flex-wrap: wrap;
+}
+.previewCombo {
+  font: 500 10px/1 var(--font-mono);
+  padding: 2px 6px;
+  border: 1px solid var(--border);
+}
+.previewTag {
+  font: 500 10px/1 var(--font-mono);
+  color: var(--mt);
+  padding: 2px 6px;
+  border: 1px solid var(--border);
+}
+.previewHint {
+  font: 500 10.5px/1 var(--font-mono);
+  color: var(--mt2);
+}
+
+.previewMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.previewMetaRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+.previewMetaLabel {
+  font: 500 10px/1 var(--font-mono);
+  color: var(--mt2);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.previewMetaVal {
+  color: var(--fg);
+  font-size: 12px;
+}
+
+/* Tips */
+.tips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.tips li {
+  display: grid;
+  grid-template-columns: 14px 1fr;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 12px;
+  color: var(--mt);
+  line-height: 1.5;
+}
+.tipIcon {
+  width: 14px;
+  height: 14px;
+  color: var(--mt2);
+  flex: none;
+  margin-top: 1px;
+}

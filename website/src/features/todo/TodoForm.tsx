@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Input, DatePicker, TimePicker, Form, message, Button as AntButton } from 'antd'
+import { Input, DatePicker, TimePicker, Form, message } from 'antd'
 import dayjs from 'dayjs'
 import type { Todo } from '@/types'
 import { useTodoStore } from '@/stores/todos'
@@ -8,11 +8,19 @@ import { useComboStore } from '@/stores/combos'
 import { useTagStore } from '@/stores/tags'
 import { todosApi } from '@/api/todos'
 import { Button, Card, Eyebrow, Tag } from '@/design/primitives'
-import { todayStr } from '@/lib/utils'
+import { PlusIcon, CheckIcon, ClockIcon, TagIcon } from '@/design/icons'
+import { todayStr, cn } from '@/lib/utils'
 import styles from './TodoForm.module.css'
 
 interface TodoFormProps {
   mode: 'create' | 'edit'
+}
+
+interface FormValues {
+  text: string
+  remarks?: string
+  setDate?: dayjs.Dayjs | null
+  setTime?: dayjs.Dayjs | null
 }
 
 export function TodoForm({ mode }: TodoFormProps) {
@@ -23,10 +31,11 @@ export function TodoForm({ mode }: TodoFormProps) {
   const combos = useComboStore((s) => s.combos)
   const { systemTags, userTags, fetchTags } = useTagStore()
 
-  const [form] = Form.useForm()
+  const [form] = Form.useForm<FormValues>()
   const [selectedTags, setSelectedTags] = useState<number[]>([])
   const [selectedCombo, setSelectedCombo] = useState<number | undefined>()
   const [loading, setLoading] = useState(false)
+  const [textValue, setTextValue] = useState('')
 
   useEffect(() => {
     fetchTags()
@@ -40,6 +49,7 @@ export function TodoForm({ mode }: TodoFormProps) {
             setDate: t.setDate ? dayjs(t.setDate) : null,
             setTime: t.setTime ? dayjs(t.setTime, 'HH:mm') : null,
           })
+          setTextValue(t.text || '')
           setSelectedTags(t.tags || [])
           setSelectedCombo(t.comboId)
         }
@@ -47,16 +57,16 @@ export function TodoForm({ mode }: TodoFormProps) {
     } else {
       form.setFieldsValue({ setDate: dayjs(todayStr()) })
     }
-  }, [mode, id])
+  }, [mode, id, form])
 
-  const allTags = [...systemTags, ...userTags]
+  const allTags = useMemo(() => [...systemTags, ...userTags], [systemTags, userTags])
 
-  const handleSubmit = async (values: {
-    text: string
-    remarks?: string
-    setDate?: dayjs.Dayjs
-    setTime?: dayjs.Dayjs
-  }) => {
+  const selectedComboObj = useMemo(
+    () => combos.find((c) => c.id === selectedCombo),
+    [combos, selectedCombo],
+  )
+
+  const handleSubmit = async (values: FormValues) => {
     setLoading(true)
     try {
       const data: Partial<Todo> = {
@@ -82,90 +92,263 @@ export function TodoForm({ mode }: TodoFormProps) {
     }
   }
 
+  const isEdit = mode === 'edit'
+
   return (
     <div className={styles.screen}>
-      <div className={styles.head}>
-        <div>
-          <Eyebrow>{mode === 'create' ? 'NEW' : 'EDIT'}</Eyebrow>
-          <h1 className={styles.title}>
-            {mode === 'create' ? '新建' : '编辑'}
-            <span className={styles.song}> 待办</span>
-          </h1>
+      {/* Header */}
+      <div className={styles.hero}>
+        <div className={styles.heroLeft}>
+          <div className={styles.hdRow}>
+            <div className={styles.hdIc}>
+              <PlusIcon />
+            </div>
+            <div>
+              <Eyebrow>{isEdit ? 'EDIT' : 'NEW'}</Eyebrow>
+              <h1 className={styles.title}>
+                {isEdit ? '编辑' : '新建'}
+                <span className={styles.song}> 待办</span>
+              </h1>
+            </div>
+          </div>
         </div>
-        <Button variant="gh" size="sm" onClick={() => navigate(-1)}>← 返回</Button>
+        <div className={styles.actions}>
+          <Button variant="gh" size="sm" onClick={() => navigate(-1)}>
+            ← 返回
+          </Button>
+        </div>
       </div>
 
-      <Card>
-        <Form form={form} layout="vertical" onFinish={handleSubmit}>
-          <Form.Item label="内容" name="text" rules={[{ required: true, message: '请输入待办内容' }]}>
-            <Input placeholder="待办内容" />
-          </Form.Item>
-
-          <div className={styles.row}>
-            <Form.Item label="日期" name="setDate" style={{ flex: 1 }}>
-              <DatePicker style={{ width: '100%' }} />
-            </Form.Item>
-            <Form.Item label="时间" name="setTime" style={{ flex: 1 }}>
-              <TimePicker format="HH:mm" style={{ width: '100%' }} />
-            </Form.Item>
-          </div>
-
-          <Form.Item label="备注" name="remarks">
-            <Input.TextArea rows={3} placeholder="备注信息" />
-          </Form.Item>
-
-          <div className={styles.section}>
-            <div className={styles.secLabel}>组合</div>
-            <div className={styles.tags}>
-              <button
-                className={[styles.comboBtn, !selectedCombo && styles.comboAct].filter(Boolean).join(' ')}
-                onClick={() => setSelectedCombo(undefined)}
-                type="button"
+      {/* Two-column layout */}
+      <div className={styles.grid}>
+        {/* Form card */}
+        <Card>
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleSubmit}
+            className={styles.form}
+            requiredMark={false}
+          >
+            <div className={styles.fieldGroup}>
+              <div className={styles.fieldLabel}>内容</div>
+              <Form.Item
+                name="text"
+                rules={[{ required: true, message: '请输入待办内容' }]}
+                className={styles.formItem}
               >
-                无
-              </button>
-              {combos.map((c) => (
-                <button
-                  key={c.id}
-                  className={[styles.comboBtn, selectedCombo === c.id && styles.comboAct].filter(Boolean).join(' ')}
-                  onClick={() => setSelectedCombo(c.id)}
-                  type="button"
-                >
-                  <span className={styles.dot} style={{ background: c.color }} />
-                  {c.name}
-                </button>
-              ))}
+                <Input
+                  placeholder="待办内容"
+                  className={styles.input}
+                  onChange={(e) => setTextValue(e.target.value)}
+                />
+              </Form.Item>
             </div>
-          </div>
 
-          <div className={styles.section}>
-            <div className={styles.secLabel}>标签</div>
-            <div className={styles.tags}>
-              {allTags.map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  className={styles.tagBtn}
-                  onClick={() => {
-                    setSelectedTags((prev) =>
-                      prev.includes(t.id) ? prev.filter((x) => x !== t.id) : [...prev, t.id],
-                    )
-                  }}
-                >
-                  <Tag tone={selectedTags.includes(t.id) ? 'pri' : 'default'}>{t.name}</Tag>
-                </button>
-              ))}
+            <div className={styles.row}>
+              <div className={styles.fieldGroup} style={{ flex: 1 }}>
+                <div className={styles.fieldLabel}>日期</div>
+                <Form.Item name="setDate" className={styles.formItem}>
+                  <DatePicker
+                    style={{ width: '100%' }}
+                    className={styles.picker}
+                    format="YYYY-MM-DD"
+                  />
+                </Form.Item>
+              </div>
+              <div className={styles.fieldGroup} style={{ flex: 1 }}>
+                <div className={styles.fieldLabel}>时间</div>
+                <Form.Item name="setTime" className={styles.formItem}>
+                  <TimePicker
+                    format="HH:mm"
+                    style={{ width: '100%' }}
+                    className={styles.picker}
+                  />
+                </Form.Item>
+              </div>
             </div>
-          </div>
 
-          <div className={styles.actions}>
-            <AntButton type="primary" htmlType="submit" loading={loading}>
-              {mode === 'create' ? '创建' : '保存'}
-            </AntButton>
-            <AntButton onClick={() => navigate(-1)}>取消</AntButton>
-          </div>
-        </Form>
-      </Card>
+            <div className={styles.fieldGroup}>
+              <div className={styles.fieldLabel}>备注</div>
+              <Form.Item name="remarks" className={styles.formItem}>
+                <Input.TextArea
+                  rows={3}
+                  placeholder="备注信息"
+                  className={styles.textarea}
+                />
+              </Form.Item>
+            </div>
+
+            {/* Combo selection (chip-style buttons) */}
+            <div className={styles.section}>
+              <div className={styles.fieldLabel}>组合</div>
+              <div className={styles.chips}>
+                <button
+                  type="button"
+                  className={cn(
+                    styles.chipBtn,
+                    !selectedCombo && styles.chipAct,
+                  )}
+                  onClick={() => setSelectedCombo(undefined)}
+                >
+                  <span className={styles.chipDotAll} />
+                  无
+                </button>
+                {combos.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    className={cn(
+                      styles.chipBtn,
+                      selectedCombo === c.id && styles.chipAct,
+                    )}
+                    onClick={() => setSelectedCombo(c.id)}
+                  >
+                    <span
+                      className={styles.chipDot}
+                      style={{ background: c.color }}
+                    />
+                    {c.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Tag selection (Tag primitive with toggle) */}
+            <div className={styles.section}>
+              <div className={styles.fieldLabel}>标签</div>
+              <div className={styles.chips}>
+                {allTags.map((t) => {
+                  const active = selectedTags.includes(t.id)
+                  return (
+                    <button
+                      key={t.id}
+                      type="button"
+                      className={styles.tagBtn}
+                      onClick={() => {
+                        setSelectedTags((prev) =>
+                          prev.includes(t.id)
+                            ? prev.filter((x) => x !== t.id)
+                            : [...prev, t.id],
+                        )
+                      }}
+                    >
+                      <Tag tone={active ? 'pri' : 'default'}>{t.name}</Tag>
+                    </button>
+                  )
+                })}
+                {allTags.length === 0 && (
+                  <span className={styles.emptyHint}>暂无标签</span>
+                )}
+              </div>
+            </div>
+
+            {/* Submit / cancel (primitive Button) */}
+            <div className={styles.formActions}>
+              <Button
+                variant="pri"
+                type="submit"
+                disabled={loading}
+                icon={<CheckIcon className={styles.btnIcon} />}
+              >
+                {loading ? '保存中...' : isEdit ? '保存' : '创建'}
+              </Button>
+              <Button variant="sec" onClick={() => navigate(-1)}>
+                取消
+              </Button>
+            </div>
+          </Form>
+        </Card>
+
+        {/* Aside: preview + tips */}
+        <div className={styles.aside}>
+          {/* Preview card */}
+          <Card>
+            <div className={styles.cardHead}>
+              <div className={styles.cardHeadL}>
+                <div className={styles.hdIc}>
+                  <CheckIcon />
+                </div>
+                <div>
+                  <Eyebrow>PREVIEW</Eyebrow>
+                  <h3 className={styles.cardTitle}>
+                    实时 <span className={styles.song}>预览</span>
+                  </h3>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.preview}>
+              <div className={styles.previewCheck} />
+              <div className={styles.previewMain}>
+                <div className={styles.previewTitle}>
+                  {textValue || '待办内容预览'}
+                </div>
+                <div className={styles.previewSub}>
+                  {selectedComboObj && (
+                    <span
+                      className={styles.previewCombo}
+                      style={{ color: selectedComboObj.color }}
+                    >
+                      {selectedComboObj.name}
+                    </span>
+                  )}
+                  {selectedTags.length > 0 && (
+                    <span className={styles.previewTag}>
+                      {selectedTags.length} 个标签
+                    </span>
+                  )}
+                  <span className={styles.previewHint}>未设时间</span>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.previewMeta}>
+              <div className={styles.previewMetaRow}>
+                <span className={styles.previewMetaLabel}>状态</span>
+                <span className={styles.previewMetaVal}>待开始</span>
+              </div>
+              <div className={styles.previewMetaRow}>
+                <span className={styles.previewMetaLabel}>模式</span>
+                <span className={styles.previewMetaVal}>
+                  {isEdit ? '编辑' : '新建'}
+                </span>
+              </div>
+            </div>
+          </Card>
+
+          {/* Tips card */}
+          <Card>
+            <div className={styles.cardHead}>
+              <div className={styles.cardHeadL}>
+                <div className={styles.hdIc}>
+                  <TagIcon />
+                </div>
+                <div>
+                  <Eyebrow>TIPS</Eyebrow>
+                  <h3 className={styles.cardTitle}>
+                    快捷 <span className={styles.song}>提示</span>
+                  </h3>
+                </div>
+              </div>
+            </div>
+            <ul className={styles.tips}>
+              <li>
+                <ClockIcon className={styles.tipIcon} />
+                <span>设置日期与时间后，待办会在日历中显示标记</span>
+              </li>
+              <li>
+                <TagIcon className={styles.tipIcon} />
+                <span>标签用于分类，可多选；组合用于归类文件夹</span>
+              </li>
+              <li>
+                <PlusIcon className={styles.tipIcon} />
+                <span>备注支持多行文本，可写入详情或上下文</span>
+              </li>
+            </ul>
+          </Card>
+        </div>
+      </div>
     </div>
   )
 }
