@@ -96,22 +96,22 @@
   <!-- 文件上传区 -->
   <view class="file-picker">
     <view wx:if="{{attachedFiles.length > 0}}" class="file-picker-header" catch:tap="handleFileSelect">
-      <t-icon name="file-attachment" size="32rpx" color="#00b26a" />
+      <t-icon name="file-attachment" size="38rpx" color="#00b26a" />
       <text class="file-picker-value">已选 {{attachedFiles.length}} 个文件</text>
       <t-icon name="chevron-right" size="28rpx" color="#999" />
     </view>
     <view wx:if="{{attachedFiles.length > 0}}" class="file-picker-body">
-      <view class="file-mini-item" wx:for="{{attachedFiles}}" wx:key="id">
-        <t-icon name="{{getFileIcon(item.content_type)}}" size="28rpx" color="#666" />
+      <view class="file-mini-item" wx:for="{{attachedFiles}}" wx:key="id" catch:tap="openFile" data-index="{{index}}">
+        <t-icon name="{{item._icon}}" size="28rpx" color="#666" />
         <text class="file-mini-name">{{item.filename}}</text>
         <text class="file-mini-size">{{item.human_size}}</text>
-        <view class="file-mini-remove" data-index="{{index}}" bindtap="handleFileRemove">
+        <view class="file-mini-remove" catch:tap="handleFileRemove" data-index="{{index}}">
           <t-icon name="close" size="24rpx" color="#999" />
         </view>
       </view>
     </view>
     <view wx:if="{{fileList.length + attachedFiles.length < 9}}" class="file-picker-row" bindtap="handleFileSelect">
-      <t-icon name="file-attachment" size="38rpx" color="#999" />
+      <t-icon name="file-add" size="32rpx" color="#999" />
       <text class="file-picker-placeholder">添加文件</text>
     </view>
   </view>

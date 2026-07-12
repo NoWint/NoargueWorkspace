@@ -46,7 +46,7 @@ Page({
     showVisitorsPopup: false,
     visitors: [],
     refreshing: false,
-    todoExpanded: false, todoItems: [],
+    todoExpanded: false, fileExpanded: true, todoItems: [],
     reportReasons: ['垃圾广告', '色情低俗', '人身攻击', '违法信息', '其他'],
     commentFiles: [],
     commentImageUrls: [],
@@ -116,6 +116,9 @@ Page({
       const res = await communityApi.getPostById(this.data.postId);
       if (res.success && res.data) {
         const post = res.data;
+        if (post.files) {
+          post.files = post.files.map(f => ({ ...f, _icon: this.getFileIcon(f.content_type, f.filename) }));
+        }
         post._createdAtDisplay = this.formatTime(post.createdAt);
         post.createdAtDisplay = post._createdAtDisplay; // post-card component compatibility
         post._updatedAtDisplay = this.formatTime(post.updatedAt);
@@ -403,6 +406,10 @@ Page({
     this.setData({ todoExpanded: true });
   },
 
+  toggleFileExpand() {
+    this.setData({ fileExpanded: !this.data.fileExpanded });
+  },
+
   handleComboTap() {
     const code = this.data.post.shareCode;
     if (!code) return;
@@ -531,21 +538,44 @@ Page({
     wx.previewImage({ current: url, urls: allImages.length > 0 ? allImages : [url] });
   },
 
-  getFileIcon(contentType) {
-    const FILE_ICONS = {
-      'application/pdf': 'file-pdf',
-      'application/msword': 'file-word',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'file-word',
-      'application/vnd.ms-excel': 'file-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'file-excel',
-      'application/zip': 'file-zip',
-      'application/x-rar-compressed': 'file-zip',
-      'text/plain': 'file-txt',
-      'text/csv': 'file-csv',
-      'image/': 'file-image',
+  getFileIcon(contentType, filename) {
+    if (!contentType && !filename) return '?';
+    const ct = (contentType || '').toLowerCase();
+    const ext = filename ? filename.split('.').pop().toLowerCase() : '';
+    const EXT_MAP = {
+      'pdf': 'PDF', 'doc': 'DOC', 'docx': 'DOC', 'word': 'DOC',
+      'xls': 'XLS', 'xlsx': 'XLS', 'csv': 'CSV', 'excel': 'XLS',
+      'ppt': 'PPT', 'pptx': 'PPT', 'powerpoint': 'PPT',
+      'json': 'JSON', 'yaml': 'YAML', 'yml': 'YAML', 'xml': 'XML',
+      'zip': 'ZIP', 'rar': 'RAR', '7z': '7Z', 'tar': 'TAR', 'gz': 'GZ',
+      'txt': 'TXT', 'text': 'TXT', 'md': 'MD', 'log': 'LOG',
+      'html': 'HTML', 'htm': 'HTML', 'js': 'JS', 'css': 'CSS', 'ts': 'TS',
+      'png': 'IMG', 'jpg': 'IMG', 'jpeg': 'IMG', 'gif': 'IMG', 'webp': 'IMG', 'svg': 'IMG', 'bmp': 'IMG', 'ico': 'IMG', 'image': 'IMG',
+      'mp4': 'VID', 'avi': 'VID', 'mov': 'VID', 'mkv': 'VID', 'flv': 'VID', 'wmv': 'VID', 'video': 'VID',
+      'mp3': 'AUD', 'wav': 'AUD', 'flac': 'AUD', 'aac': 'AUD', 'ogg': 'AUD', 'audio': 'AUD',
+      'one': 'ONE', 'onenote': 'ONE',
+      'pst': 'PST', 'msg': 'MSG', 'outlook': 'PST',
     };
-    const key = Object.keys(FILE_ICONS).find(k => contentType && contentType.startsWith(k));
-    return FILE_ICONS[key] || 'file-unknown';
+    const MIME_MAP = {
+      'application/pdf': 'PDF', 'application/msword': 'DOC',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'DOC',
+      'application/vnd.ms-excel': 'XLS',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'XLS',
+      'application/vnd.ms-powerpoint': 'PPT',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'PPT',
+      'application/json': 'JSON', 'application/xml': 'XML',
+      'application/zip': 'ZIP', 'application/x-rar-compressed': 'RAR', 'application/x-7z-compressed': '7Z',
+      'application/x-yaml': 'YAML', 'text/yaml': 'YAML',
+      'text/plain': 'TXT', 'text/csv': 'CSV', 'text/html': 'HTML', 'text/css': 'CSS',
+      'application/javascript': 'JS',
+      'application/vnd.ms-outlook': 'PST', 'application/onenote': 'ONE',
+      'image/': 'IMG', 'video/': 'VID', 'audio/': 'AUD',
+    };
+    for (const [prefix, label] of Object.entries(MIME_MAP)) {
+      if (ct.startsWith(prefix)) return label;
+    }
+    if (ext && EXT_MAP[ext]) return EXT_MAP[ext];
+    return '?';
   },
 
   isFileExpired(expiresAt) {

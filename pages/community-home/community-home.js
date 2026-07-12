@@ -15,6 +15,7 @@ Page({
     loadingMore: false,
     refreshing: false,
     expandedPostId: null,
+    expandedFilePostId: null,
     postTodoMap: {},
     isLoggedIn: false,
     checkinData: {
@@ -178,6 +179,36 @@ Page({
 
   onToTop() {
     this.setData({ scrollTop: this.data.scrollTop === 0 ? 1 : 0, showBackTop: false });
+  },
+
+  toggleFileExpand(e) {
+    const postId = e.detail.postId;
+    this.setData({
+      expandedFilePostId: this.data.expandedFilePostId === postId ? null : postId
+    });
+  },
+
+  openFile(e) {
+    const { file } = e.detail;
+    if (!file) return;
+    wx.showLoading({ title: '下载中...' });
+    wx.downloadFile({
+      url: file.raw_url || file.url,
+      success(res) {
+        wx.hideLoading();
+        if (res.statusCode === 200) {
+          wx.openDocument({
+            filePath: res.tempFilePath,
+            success: () => {},
+            fail: () => { wx.showToast({ title: '打开文件失败', icon: 'none' }); }
+          });
+        }
+      },
+      fail() {
+        wx.hideLoading();
+        wx.showToast({ title: '下载文件失败', icon: 'none' });
+      }
+    });
   },
 
   onPostTapAuthor(e) {
