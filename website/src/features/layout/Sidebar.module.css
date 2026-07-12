@@ -1,0 +1,74 @@
+.sb {
+  background: var(--sb);
+  border-right: 1px solid var(--sb-border);
+  padding: 14px 10px;
+  padding-top: 38px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  font-size: 13px;
+  overflow-y: auto;
+}
+
+.brand { display: flex; align-items: center; gap: 8px; padding: 4px 6px; }
+.logo {
+  width: 18px; height: 18px; border-radius: 999px;
+  background: var(--primary); color: var(--primary-fg);
+  display: grid; place-items: center;
+  font: 600 9px/1 var(--font-sans);
+}
+.name { font-weight: 500; font-size: 12.5px; color: var(--fg); }
+
+.nav { display: flex; flex-direction: column; }
+.nav a, .navItem {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 6px; font-size: 12.5px; color: var(--mt);
+  text-decoration: none; cursor: pointer;
+}
+.nav a:hover, .navItem:hover { color: var(--fg); }
+.act { color: var(--fg) !important; }
+.ct {
+  font: 500 10px/1 var(--font-mono);
+  color: var(--mt2);
+}
+
+.comboSection { display: flex; flex-direction: column; gap: 2px; }
+.secHead {
+  font: 500 10px/1 var(--font-mono);
+  letter-spacing: 0.08em;
+  color: var(--mt2);
+  text-transform: uppercase;
+  padding: 0 6px 4px;
+}
+.comboItem {
+  display: grid; grid-template-columns: 10px 1fr auto; gap: 8px;
+  align-items: center; padding: 5px 6px; cursor: pointer;
+  font-size: 12px; color: var(--mt);
+}
+.comboItem:hover { color: var(--fg); }
+.dot { width: 8px; height: 8px; }
+.comboName { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.footer {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.userPill {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 6px; cursor: pointer; color: var(--mt);
+}
+.avatar {
+  width: 20px; height: 20px; border-radius: 999px;
+  background: var(--primary); color: var(--primary-fg);
+  display: grid; place-items: center;
+  font: 600 9px/1 var(--font-sans);
+}
+.handle { font-size: 12px; font-weight: 500; flex: 1; color: var(--fg); }
+.badge {
+  font: 500 9.5px/1 var(--font-mono);
+  color: var(--mt3);
+}
