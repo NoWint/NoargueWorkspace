@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import type { Combo } from '@/types'
 import { combosApi } from '@/api/combos'
+import { collabApi } from '@/api/collab'
 import { useTodoStore } from '@/stores/todos'
 import { Button, Card, Eyebrow, Stat, StatusChip } from '@/design/primitives'
 import {
@@ -9,6 +10,8 @@ import {
   PlusIcon,
   CheckIcon,
   BellIcon,
+  ChartIcon,
+  ClockIcon,
 } from '@/design/icons'
 import { TodoItem } from './TodoItem'
 import styles from './ComboDetailView.module.css'
@@ -43,6 +46,22 @@ export function ComboDetailView() {
   const { todos, fetchTodos, loading } = useTodoStore()
   const [combo, setCombo] = useState<ComboDetail | null>(null)
   const [detailLoading, setDetailLoading] = useState(true)
+  const [pendingRequests, setPendingRequests] = useState(0)
+
+  const fetchRequests = useCallback(async (comboId: number, userRole?: string | null) => {
+    if (userRole !== 'owner' && userRole !== 'admin') {
+      setPendingRequests(0)
+      return
+    }
+    try {
+      const res = await collabApi.getRequests(comboId)
+      if (res.success) {
+        setPendingRequests((res.requests || []).filter((r) => r.status === 'pending').length)
+      }
+    } catch {
+      setPendingRequests(0)
+    }
+  }, [])
 
   useEffect(() => {
     fetchTodos()
@@ -55,10 +74,15 @@ export function ComboDetailView() {
     combosApi
       .getById(numId)
       .then((res) => {
-        if (res.success && res.combo) setCombo(res.combo)
+        if (res.success && res.combo) {
+          setCombo(res.combo)
+          if (res.combo.isShared) {
+            fetchRequests(numId, res.combo.userRole ?? null)
+          }
+        }
       })
       .finally(() => setDetailLoading(false))
-  }, [id, fetchTodos])
+  }, [id, fetchTodos, fetchRequests])
 
   const comboTodos = useMemo(
     () =>
@@ -137,6 +161,24 @@ export function ComboDetailView() {
           <Button variant="gh" size="sm" onClick={() => navigate('/combos')}>
             ← 返回
           </Button>
+          <Button
+            variant="sec"
+            size="sm"
+            icon={<ChartIcon className={styles.btnIcon} />}
+            onClick={() => navigate(`/combos/${combo.id}/stats`)}
+          >
+            组合统计
+          </Button>
+          {combo.isShared && (
+            <Button
+              variant="sec"
+              size="sm"
+              icon={<BellIcon className={styles.btnIcon} />}
+              onClick={() => navigate(`/combos/${combo.id}/collaboration`)}
+            >
+              协作管理
+            </Button>
+          )}
           <Button
             variant="sec"
             size="sm"
@@ -305,6 +347,29 @@ export function ComboDetailView() {
                 ))}
               </div>
             </Card>
+          )}
+
+          {/* Join requests entry (shared + owner/admin only) */}
+          {combo.isShared && (combo.userRole === 'owner' || combo.userRole === 'admin') && (
+            <div
+              className={styles.reqEntry}
+              onClick={() => navigate(`/combos/${combo.id}/collaboration`)}
+            >
+              <div className={styles.reqEntryL}>
+                <div className={styles.hdIc}>
+                  <ClockIcon />
+                </div>
+                <div>
+                  <div className={styles.reqEntryTitle}>加入申请</div>
+                  <div className={styles.reqEntrySub}>
+                    {pendingRequests > 0 ? `${pendingRequests} 条待处理` : '查看并管理申请'}
+                  </div>
+                </div>
+              </div>
+              {pendingRequests > 0 && (
+                <span className={styles.reqBadge}>{pendingRequests}</span>
+              )}
+            </div>
           )}
         </div>
       </div>

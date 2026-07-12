@@ -10,6 +10,9 @@ import { CalendarView } from '@/features/calendar/CalendarView'
 import { StatsView } from '@/features/stats/StatsView'
 import { CombosView } from '@/features/todo/CombosView'
 import { ComboDetailView } from '@/features/todo/ComboDetailView'
+import { CollaborationView } from '@/features/combo/CollaborationView'
+import { JoinCollabView } from '@/features/combo/JoinCollabView'
+import { ComboStatsView } from '@/features/combo/ComboStatsView'
 import { SearchView } from '@/features/search/SearchView'
 import { TrashView } from '@/features/trash/TrashView'
 
@@ -41,6 +44,9 @@ export const router = createBrowserRouter([
       { path: 'stats', element: <StatsView /> },
       { path: 'combos', element: <CombosView /> },
       { path: 'combos/:id', element: <ComboDetailView /> },
+      { path: 'combos/:id/collaboration', element: <CollaborationView /> },
+      { path: 'combos/:id/stats', element: <ComboStatsView /> },
+      { path: 'join-collab', element: <JoinCollabView /> },
       { path: 'search', element: <SearchView /> },
       { path: 'trash', element: <TrashView /> },
     ],
