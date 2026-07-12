@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Popconfirm, message } from 'antd'
+import { Popconfirm, message, Image as AntImage } from 'antd'
 import type { Todo } from '@/types'
 import { todosApi } from '@/api/todos'
 import { useTodoStore } from '@/stores/todos'
@@ -20,8 +20,10 @@ import {
   TrashIcon,
   ClockIcon,
   TagIcon,
+  ImageIcon,
 } from '@/design/icons'
 import { cn } from '@/lib/utils'
+import { SubtaskList } from './SubtaskList'
 import styles from './TodoDetail.module.css'
 
 function comboBorder(hex: string): string {
@@ -50,6 +52,7 @@ export function TodoDetail() {
   const toggleComplete = useTodoStore((s) => s.toggleComplete)
   const toggleStar = useTodoStore((s) => s.toggleStar)
   const deleteTodo = useTodoStore((s) => s.deleteTodo)
+  const fetchSubtodos = useTodoStore((s) => s.fetchSubtodos)
   const combos = useComboStore((s) => s.combos)
   const { systemTags, userTags, fetchTags } = useTagStore()
 
@@ -62,7 +65,8 @@ export function TodoDetail() {
         if (res.success && res.todo) setTodo(res.todo)
       })
       .finally(() => setLoading(false))
-  }, [id, fetchTags])
+    fetchSubtodos(id)
+  }, [id, fetchTags, fetchSubtodos])
 
   const combo = useMemo(
     () => (todo ? combos.find((c) => c.id === todo.comboId) : undefined),
@@ -313,6 +317,56 @@ export function TodoDetail() {
               </Tag>
             ))}
           </div>
+        </Card>
+      )}
+
+      {/* Subtasks card */}
+      <Card>
+        <div className={styles.cardHead}>
+          <div className={styles.cardHeadL}>
+            <div className={styles.hdIc}>
+              <CheckIcon />
+            </div>
+            <div>
+              <Eyebrow>SUBTASKS</Eyebrow>
+              <h3 className={styles.cardTitle}>
+                子 <span className={styles.song}>任务</span>
+              </h3>
+            </div>
+          </div>
+        </div>
+        {id && <SubtaskList parentId={id} />}
+      </Card>
+
+      {/* Image gallery card */}
+      {todo.images && todo.images.length > 0 && (
+        <Card>
+          <div className={styles.cardHead}>
+            <div className={styles.cardHeadL}>
+              <div className={styles.hdIc}>
+                <ImageIcon />
+              </div>
+              <div>
+                <Eyebrow>IMAGES</Eyebrow>
+                <h3 className={styles.cardTitle}>
+                  图片 <span className={styles.song}>附件</span>
+                </h3>
+              </div>
+            </div>
+          </div>
+          <AntImage.PreviewGroup>
+            <div className={styles.gallery}>
+              {todo.images.map((url, i) => (
+                <AntImage
+                  key={i}
+                  src={url}
+                  className={styles.galleryImg}
+                  width="100%"
+                  height="100%"
+                />
+              ))}
+            </div>
+          </AntImage.PreviewGroup>
         </Card>
       )}
 

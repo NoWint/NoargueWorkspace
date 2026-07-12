@@ -171,3 +171,24 @@
   .remarks { max-width: 100%; text-align: left; }
   .tagList { max-width: 100%; justify-content: flex-start; }
 }
+
+/* Image gallery */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.galleryImg {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.galleryImg :global(img) {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
