@@ -1,0 +1,44 @@
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 18px;
+  border-bottom: 1px solid var(--border);
+  flex: 0 0 auto;
+}
+.search {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  max-width: 320px;
+  min-width: 180px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--mt);
+  cursor: pointer;
+}
+.search:hover { border-color: var(--mt3); }
+.placeholder { font-size: 12.5px; }
+.kbd {
+  padding: 1px 5px;
+  color: var(--mt2);
+  font: 500 10px/1.4 var(--font-mono);
+}
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+.iconBtn {
+  width: 28px; height: 28px;
+  color: var(--mt);
+  display: grid; place-items: center;
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+}
+.iconBtn:hover { color: var(--fg); }
