@@ -1,6 +1,6 @@
 import axios from 'axios'
 import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios'
-import { MessagePlugin } from 'tdesign-vue-next'
+import { message } from 'antd'
 
 const instance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -8,7 +8,6 @@ const instance = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
-// 请求拦截器：注入 JWT
 instance.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = localStorage.getItem('authToken')
   if (token) {
@@ -17,11 +16,8 @@ instance.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   return config
 })
 
-// 响应拦截器：解包 + 401 处理
 instance.interceptors.response.use(
-  (response: AxiosResponse) => {
-    return response.data
-  },
+  (response: AxiosResponse) => response.data,
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('authToken')
@@ -29,7 +25,7 @@ instance.interceptors.response.use(
       return Promise.reject(error)
     }
     const msg = error.response?.data?.message || error.message || '网络请求失败'
-    MessagePlugin.warning(msg)
+    message.error(msg)
     return Promise.reject(error)
   },
 )

@@ -1,5 +1,5 @@
 import http from './request'
-import type { ApiResponse, User, LoginResponse, UserInfoResponse, QrCodeStatusResponse } from '@/types'
+import type { ApiResponse, LoginResponse, UserInfoResponse, QrCodeStatusResponse } from '@/types'
 
 export const authApi = {
   login: (code: string) =>
