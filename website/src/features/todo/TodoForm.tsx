@@ -36,6 +36,7 @@ export function TodoForm({ mode }: TodoFormProps) {
   const [selectedCombo, setSelectedCombo] = useState<number | undefined>()
   const [loading, setLoading] = useState(false)
   const [textValue, setTextValue] = useState('')
+  const [priority, setPriority] = useState<'high' | 'medium' | 'low'>('low')
 
   useEffect(() => {
     fetchTags()
@@ -52,6 +53,7 @@ export function TodoForm({ mode }: TodoFormProps) {
           setTextValue(t.text || '')
           setSelectedTags(t.tags || [])
           setSelectedCombo(t.comboId)
+          setPriority((t.priority as 'high' | 'medium' | 'low') || 'low')
         }
       })
     } else {
@@ -76,6 +78,7 @@ export function TodoForm({ mode }: TodoFormProps) {
         setTime: values.setTime?.format('HH:mm'),
         tags: selectedTags,
         comboId: selectedCombo,
+        priority,
       }
       if (mode === 'create') {
         await createTodo(data)
@@ -211,6 +214,49 @@ export function TodoForm({ mode }: TodoFormProps) {
                     {c.name}
                   </button>
                 ))}
+              </div>
+            </div>
+
+            {/* Priority selection */}
+            <div className={styles.section}>
+              <div className={styles.fieldLabel}>优先级</div>
+              <div className={styles.priBtns}>
+                <button
+                  type="button"
+                  className={cn(
+                    styles.priBtn,
+                    priority === 'high' && styles.priAct,
+                    priority === 'high' && styles.priActHigh,
+                  )}
+                  onClick={() => setPriority('high')}
+                >
+                  <span className={styles.priDot} style={{ background: 'var(--destructive)' }} />
+                  高
+                </button>
+                <button
+                  type="button"
+                  className={cn(
+                    styles.priBtn,
+                    priority === 'medium' && styles.priAct,
+                    priority === 'medium' && styles.priActMed,
+                  )}
+                  onClick={() => setPriority('medium')}
+                >
+                  <span className={styles.priDot} style={{ background: 'var(--warn)' }} />
+                  中
+                </button>
+                <button
+                  type="button"
+                  className={cn(
+                    styles.priBtn,
+                    priority === 'low' && styles.priAct,
+                    priority === 'low' && styles.priActLow,
+                  )}
+                  onClick={() => setPriority('low')}
+                >
+                  <span className={styles.priDot} style={{ background: 'var(--mt3)' }} />
+                  低
+                </button>
               </div>
             </div>
 

@@ -296,3 +296,56 @@
   flex: none;
   margin-top: 1px;
 }
+
+/* Priority selector */
+.priBtns {
+  display: flex;
+  gap: 6px;
+}
+
+.priBtn {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--mt);
+  font: 500 12px/1 var(--font-sans);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.priBtn:hover {
+  border-color: var(--mt2);
+  color: var(--fg);
+}
+
+.priAct {
+  color: var(--fg);
+}
+
+.priActHigh {
+  border-color: var(--destructive);
+  background: rgba(255, 100, 103, 0.08);
+  color: var(--destructive);
+}
+
+.priActMed {
+  border-color: var(--warn);
+  background: rgba(234, 179, 8, 0.08);
+  color: var(--warn);
+}
+
+.priActLow {
+  border-color: var(--mt2);
+  background: var(--muted);
+  color: var(--fg);
+}
+
+.priDot {
+  width: 7px;
+  height: 7px;
+  flex: none;
+}
