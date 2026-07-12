@@ -201,3 +201,68 @@
 }
 .sortBtn:hover { color: var(--fg); border-color: var(--mt3); }
 .sortArrow { color: var(--mt2); }
+
+/* Batch mode */
+.batchToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--mt);
+  font: 500 10.5px/1 var(--font-mono);
+  cursor: pointer;
+}
+
+.batchToggle:hover {
+  color: var(--fg);
+  border-color: var(--mt3);
+}
+
+.batchToggleAct {
+  color: var(--primary);
+  border-color: var(--primary-line);
+  background: var(--primary-soft);
+}
+
+.batchCheck {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--mt3);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  background: transparent;
+  padding: 0;
+  flex: none;
+  margin-right: 8px;
+}
+
+.batchCheckOn {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.batchCheck svg {
+  width: 10px;
+  height: 10px;
+  color: var(--primary-fg);
+}
+
+.itemSel {
+  background: var(--primary-soft);
+}
+
+.batchIcon {
+  width: 11px;
+  height: 11px;
+  flex: none;
+}
+
+.cardHeadR {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

@@ -2,10 +2,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTodoStore } from '@/stores/todos'
 import { useComboStore } from '@/stores/combos'
 import { Card, Eyebrow, Stat } from '@/design/primitives'
-import { ListIcon, PlusIcon } from '@/design/icons'
+import { ListIcon, PlusIcon, CheckIcon, BatchIcon } from '@/design/icons'
 import { useNavigate } from 'react-router-dom'
 import { todayStr, formatDate, cn } from '@/lib/utils'
 import { TodoItem } from './TodoItem'
+import { BatchMode } from './BatchMode'
 import styles from './AllTodosView.module.css'
 
 type Filter = 'all' | 'uncompleted' | 'completed'
@@ -29,6 +30,8 @@ export function AllTodosView() {
   const [filter, setFilter] = useState<Filter>('all')
   const [comboFilter, setComboFilter] = useState<number | null>(null)
   const [sort, setSort] = useState<Sort>('newest')
+  const [batchMode, setBatchMode] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
 
   useEffect(() => {
     fetchTodos()
@@ -159,17 +162,30 @@ export function AllTodosView() {
                 </h3>
               </div>
             </div>
-            <div className={styles.seg}>
-              {(Object.keys(FILTER_LABELS) as Filter[]).map((f) => (
-                <button
-                  key={f}
-                  type="button"
-                  className={cn(styles.pill, filter === f && styles.pillAct)}
-                  onClick={() => setFilter(f)}
-                >
-                  {FILTER_LABELS[f]}
-                </button>
-              ))}
+            <div className={styles.cardHeadR}>
+              <div className={styles.seg}>
+                {(Object.keys(FILTER_LABELS) as Filter[]).map((f) => (
+                  <button
+                    key={f}
+                    type="button"
+                    className={cn(styles.pill, filter === f && styles.pillAct)}
+                    onClick={() => setFilter(f)}
+                  >
+                    {FILTER_LABELS[f]}
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                className={cn(styles.batchToggle, batchMode && styles.batchToggleAct)}
+                onClick={() => {
+                  setBatchMode(!batchMode)
+                  setSelectedIds([])
+                }}
+              >
+                <BatchIcon className={styles.batchIcon} />
+                {batchMode ? '退出批量' : '批量管理'}
+              </button>
             </div>
           </div>
 
@@ -209,6 +225,21 @@ export function AllTodosView() {
             ))}
           </div>
 
+          {batchMode && (
+            <BatchMode
+              selectedIds={selectedIds}
+              onDone={() => {
+                setBatchMode(false)
+                setSelectedIds([])
+                fetchTodos()
+              }}
+              onCancel={() => {
+                setBatchMode(false)
+                setSelectedIds([])
+              }}
+            />
+          )}
+
           <div className={styles.todoList}>
             {loading && (
               <div className={styles.empty}>
@@ -236,7 +267,45 @@ export function AllTodosView() {
               </div>
             )}
             {filtered.map((t) => (
-              <TodoItem key={t.id} todo={t} />
+              <div
+                key={t.id}
+                className={cn(
+                  styles.todoRow,
+                  batchMode && selectedIds.includes(t.id) && styles.itemSel,
+                )}
+                onClick={batchMode ? (e) => {
+                  e.stopPropagation()
+                  setSelectedIds((prev) =>
+                    prev.includes(t.id)
+                      ? prev.filter((id) => id !== t.id)
+                      : [...prev, t.id],
+                  )
+                } : undefined}
+                style={batchMode ? { display: 'flex', alignItems: 'center', cursor: 'pointer', padding: '0 4px' } : undefined}
+              >
+                {batchMode && (
+                  <button
+                    type="button"
+                    className={cn(
+                      styles.batchCheck,
+                      selectedIds.includes(t.id) && styles.batchCheckOn,
+                    )}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setSelectedIds((prev) =>
+                        prev.includes(t.id)
+                          ? prev.filter((id) => id !== t.id)
+                          : [...prev, t.id],
+                      )
+                    }}
+                  >
+                    {selectedIds.includes(t.id) && <CheckIcon strokeWidth={2.5} />}
+                  </button>
+                )}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <TodoItem todo={t} />
+                </div>
+              </div>
             ))}
           </div>
 
