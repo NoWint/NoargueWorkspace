@@ -12,8 +12,8 @@ export interface SharedComboItem {
 }
 
 export const collabApi = {
-  getSharedList: () =>
-    http.get<{ success: boolean; sharedCombos: SharedComboItem[] }>('/collab/shared'),
+  getSharedList: (comboId?: number) =>
+    http.get<{ success: boolean; sharedCombos: SharedComboItem[] }>('/collab/shared', comboId != null ? { params: { comboId } } : undefined),
 
   join: (shareCode: string) =>
     http.post<{ success: boolean; message?: string; isMember?: boolean; combo?: any }>('/collab/join', { shareCode }),
@@ -25,10 +25,10 @@ export const collabApi = {
     http.post<{ success: boolean; message?: string }>('/collab/leave', { comboId, transferToUserId }),
 
   removeMember: (comboId: number, userId: number) =>
-    http.delete<{ success: boolean; message?: string }>('/collab/member', { data: { comboId, userId } }),
+    http.delete<{ success: boolean; message?: string }>('/collab/member', { params: { comboId, userId } }),
 
-  sendRequest: (shareCode: string, message?: string) =>
-    http.post<{ success: boolean; message?: string }>('/collab/request', { shareCode, message }),
+  sendRequest: (comboId: number) =>
+    http.post<{ success: boolean; message?: string }>('/collab/request', { comboId }),
 
   getRequests: (comboId: number) =>
     http.get<{ success: boolean; requests: { id: number; userId: number; nickname: string; avatarUrl: string; message: string; status: string; createdAt: string }[] }>('/collab/requests', { params: { comboId } }),

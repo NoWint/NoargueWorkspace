@@ -83,7 +83,11 @@ export function JoinCollabView() {
           message.error(res.message || '加入失败')
         }
       } else {
-        const res = await collabApi.sendRequest(code, msg.trim() || undefined)
+        if (!combo?.id) {
+          message.warning('请先查询组合信息')
+          return
+        }
+        const res = await collabApi.sendRequest(combo.id)
         if (res.success) {
           message.success('申请已发送，等待审批')
           navigate('/combos')

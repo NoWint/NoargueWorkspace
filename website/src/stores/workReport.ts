@@ -8,10 +8,10 @@ interface WorkReportState {
   currentReport: WorkReport | null
   loading: boolean
   fetchReports: (params: { type?: 'daily' | 'weekly'; comboId?: number }) => Promise<void>
-  fetchBoard: (params: { comboId: number; type: 'daily' | 'weekly'; periodDate: string; userId?: number }) => Promise<void>
+  fetchBoard: (params: { comboId: number; type: 'daily' | 'weekly'; reportDate: string; userId?: number }) => Promise<void>
   fetchTemplates: (comboId: number) => Promise<void>
   fetchById: (id: number) => Promise<void>
-  create: (data: { type: 'daily' | 'weekly'; periodDate: string; comboId: number; content: Record<string, string[]> }) => Promise<WorkReport>
+  create: (data: { type: 'daily' | 'weekly'; reportDate: string; comboId: number; content: Record<string, string> }) => Promise<WorkReport>
   update: (id: number, data: Partial<WorkReport>) => Promise<void>
   remove: (id: number) => Promise<void>
   upsertTemplate: (data: { comboId: number; type: 'daily' | 'weekly'; sections: ReportTemplate['sections'] }) => Promise<void>

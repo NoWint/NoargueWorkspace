@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { message } from 'antd'
-import { Card, Eyebrow, Stat, StatusChip } from '@/design/primitives'
+import { Card, Eyebrow, Stat } from '@/design/primitives'
 import { CalendarCheckIcon, StarIcon, CheckIcon, ClockIcon } from '@/design/icons'
 import { cn } from '@/lib/utils'
 import { useCheckinStore } from '@/stores/checkin'
@@ -76,13 +76,11 @@ export function CheckinView() {
   }, [status?.streak])
 
   const handleCheckin = async () => {
-    if (status?.checkedInToday || checkinLoading) return
+    if (status?.checkedIn || checkinLoading) return
     try {
       const res = await checkin()
-      const msg = res.milestoneReward
-        ? `签到成功 +${res.points} 积分，里程碑奖励 +${res.milestoneReward}`
-        : `签到成功 +${res.points} 积分`
-      message.success(msg)
+      const badgeMsg = res.newBadges.length > 0 ? `，获得徽章：${res.newBadges.join('、')}` : ''
+      message.success(`签到成功 +${res.points} 积分${badgeMsg}`)
       fetchMonth(year, month)
     } catch (e) {
       message.error((e as Error).message || '签到失败')
@@ -140,21 +138,18 @@ export function CheckinView() {
               <span className={styles.bigStreakUnit}>天</span>
             </div>
             <div className={styles.checkinSub}>连续签到</div>
-            {status?.title && (
-              <StatusChip tone="acc">{status.title}</StatusChip>
-            )}
           </div>
           <div className={styles.checkinRight}>
             <button
               type="button"
               className={cn(
                 styles.bigBtn,
-                (status?.checkedInToday || todayChecked) && styles.bigBtnDone,
+                (status?.checkedIn || todayChecked) && styles.bigBtnDone,
               )}
               onClick={handleCheckin}
-              disabled={status?.checkedInToday || todayChecked || checkinLoading}
+              disabled={status?.checkedIn || todayChecked || checkinLoading}
             >
-              {status?.checkedInToday || todayChecked ? (
+              {status?.checkedIn || todayChecked ? (
                 <>
                   <CheckIcon className={styles.bigBtnIcon} />
                   今日已签到
@@ -166,15 +161,6 @@ export function CheckinView() {
                 </>
               )}
             </button>
-            {status?.nextMilestone && (
-              <div className={styles.nextMilestone}>
-                距离 {status.nextMilestone} 天里程碑还差{' '}
-                <span className={styles.nextMilestoneDays}>
-                  {status.nextMilestoneDays}
-                </span>{' '}
-                天
-              </div>
-            )}
           </div>
         </div>
       </Card>
@@ -189,22 +175,22 @@ export function CheckinView() {
         />
         <Stat
           label="总积分"
-          value={status?.totalPoints ?? 0}
+          value={status?.points ?? 0}
           delta="可用积分"
         />
         <Stat
           label="今日状态"
           value={
-            status?.checkedInToday || todayChecked ? '已签到' : '未签到'
+            status?.checkedIn || todayChecked ? '已签到' : '未签到'
           }
           delta={
-            status?.checkedInToday || todayChecked ? '今日完成' : '待签到'
+            status?.checkedIn || todayChecked ? '今日完成' : '待签到'
           }
         />
         <Stat
-          label="当前称号"
-          value={status?.title || '—'}
-          delta="基于连续天数"
+          label="累计天数"
+          value={status?.totalDays ?? 0}
+          delta="总签到"
         />
       </div>
 

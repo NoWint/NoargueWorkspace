@@ -10,7 +10,7 @@ interface CheckinState {
   fetchStatus: () => Promise<void>
   fetchMonth: (year: number, month: number) => Promise<void>
   fetchLeaderboard: (type?: 'streak' | 'total') => Promise<void>
-  checkin: () => Promise<{ points: number; streak: number; milestoneReward?: number }>
+  checkin: () => Promise<{ points: number; streak: number; newBadges: string[] }>
 }
 
 export const useCheckinStore = create<CheckinState>((set) => ({
@@ -24,7 +24,8 @@ export const useCheckinStore = create<CheckinState>((set) => ({
     try {
       set({ loading: true })
       const res = await checkinApi.getStatus()
-      set({ status: res.status })
+      const data = (res as any).data || (res as any).status || null
+      set({ status: data as CheckinStatus | null })
     } finally {
       set({ loading: false })
     }
@@ -32,12 +33,16 @@ export const useCheckinStore = create<CheckinState>((set) => ({
 
   fetchMonth: async (year, month) => {
     const res = await checkinApi.getMonth(year, month)
-    set({ monthRecords: res.records || [] })
+    const data = (res as any).data || res
+    const records = data.records || data.list || []
+    set({ monthRecords: records as CheckinRecord[] })
   },
 
   fetchLeaderboard: async (type = 'streak') => {
     const res = await checkinApi.getLeaderboard(type)
-    set({ leaderboard: res.leaderboard || [] })
+    const data = (res as any).data || res
+    const list = data.list || data.leaderboard || data.records || []
+    set({ leaderboard: list as LeaderboardEntry[] })
   },
 
   checkin: async () => {
@@ -45,7 +50,12 @@ export const useCheckinStore = create<CheckinState>((set) => ({
     try {
       const res = await checkinApi.checkin()
       await useCheckinStore.getState().fetchStatus()
-      return { points: res.points, streak: res.streak, milestoneReward: res.milestoneReward }
+      const data = (res as any).data || res
+      return {
+        points: data.points || 0,
+        streak: data.streak || 0,
+        newBadges: (data.newBadges || []) as string[],
+      }
     } finally {
       set({ checkinLoading: false })
     }

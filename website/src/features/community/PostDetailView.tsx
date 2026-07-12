@@ -84,9 +84,11 @@ export function PostDetailView() {
     commentsApi
       .getList(postId, {})
       .then((res) => {
-        setComments(res.comments)
-        setCommentCursor(res.nextCursor)
-        setCommentHasMore(res.hasMore)
+        const d = (res as unknown as Record<string, unknown>).data as Record<string, unknown> | undefined
+        const list = (d?.list as PostComment[]) || (res as unknown as Record<string, unknown>).comments as PostComment[] || []
+        setComments(list)
+        setCommentCursor((d?.nextCursor as string | null) ?? (res as unknown as Record<string, unknown>).nextCursor as string | null ?? null)
+        setCommentHasMore((d?.hasMore as boolean) ?? (res as unknown as Record<string, unknown>).hasMore as boolean ?? false)
       })
       .catch((e) => {
         message.error((e as Error).message || '评论加载失败')
@@ -99,9 +101,11 @@ export function PostDetailView() {
     setCommentLoading(true)
     try {
       const res = await commentsApi.getList(postId, {})
-      setComments(res.comments)
-      setCommentCursor(res.nextCursor)
-      setCommentHasMore(res.hasMore)
+      const d = (res as unknown as Record<string, unknown>).data as Record<string, unknown> | undefined
+      const list = (d?.list as PostComment[]) || (res as unknown as Record<string, unknown>).comments as PostComment[] || []
+      setComments(list)
+      setCommentCursor((d?.nextCursor as string | null) ?? (res as unknown as Record<string, unknown>).nextCursor as string | null ?? null)
+      setCommentHasMore((d?.hasMore as boolean) ?? (res as unknown as Record<string, unknown>).hasMore as boolean ?? false)
     } catch (e) {
       message.error((e as Error).message || '评论加载失败')
     } finally {
@@ -114,9 +118,11 @@ export function PostDetailView() {
     setCommentLoading(true)
     try {
       const res = await commentsApi.getList(postId, { cursor: commentCursor })
-      setComments((prev) => [...prev, ...res.comments])
-      setCommentCursor(res.nextCursor)
-      setCommentHasMore(res.hasMore)
+      const d = (res as unknown as Record<string, unknown>).data as Record<string, unknown> | undefined
+      const list = (d?.list as PostComment[]) || (res as unknown as Record<string, unknown>).comments as PostComment[] || []
+      setComments((prev) => [...prev, ...list])
+      setCommentCursor((d?.nextCursor as string | null) ?? (res as unknown as Record<string, unknown>).nextCursor as string | null ?? null)
+      setCommentHasMore((d?.hasMore as boolean) ?? (res as unknown as Record<string, unknown>).hasMore as boolean ?? false)
     } catch (e) {
       message.error((e as Error).message || '评论加载失败')
     } finally {
@@ -194,7 +200,9 @@ export function PostDetailView() {
     setLikeLoading(true)
     try {
       const res = await likesApi.getUsers(postId)
-      setLikeUsers(res.users || [])
+      const r = res as unknown as Record<string, unknown>
+      const d = r.data as Record<string, unknown> | undefined
+      setLikeUsers((d?.users as LikeUser[]) || r.users as LikeUser[] || [])
     } catch (e) {
       message.error((e as Error).message || '加载失败')
     } finally {
@@ -208,7 +216,8 @@ export function PostDetailView() {
     setVisitorLoading(true)
     try {
       const res = await postsApi.getVisitors(postId)
-      setVisitors(res.visitors || [])
+      const d = (res as unknown as Record<string, unknown>).data as Record<string, unknown> | undefined
+      setVisitors((d?.visitors as PostVisitor[]) || (res as unknown as Record<string, unknown>).visitors as PostVisitor[] || [])
     } catch (e) {
       message.error((e as Error).message || '加载失败')
     } finally {

@@ -103,7 +103,7 @@ export function TodoDetail() {
       .finally(() => setLoading(false))
     fetchSubtodos(id)
     fetchByTodo(id)
-    fetchByTodoId(id)
+    fetchByTodoId(Number(id))
   }, [id, fetchTags, fetchSubtodos, fetchByTodo, fetchByTodoId])
 
   const combo = useMemo(
@@ -485,7 +485,7 @@ export function TodoDetail() {
                   cancelText="保留"
                   onConfirm={async () => {
                     await cancelNotify(n.id)
-                    if (id) await fetchByTodoId(id)
+                    if (id) await fetchByTodoId(Number(id))
                     message.success('已取消')
                   }}
                 >
@@ -510,7 +510,7 @@ export function TodoDetail() {
             disabled={!newNotifyTime || !id}
             onClick={async () => {
               if (!newNotifyTime || !id) return
-              await scheduleNotify(id, newNotifyTime.format('YYYY-MM-DD HH:mm'))
+              await scheduleNotify(Number(id), newNotifyTime.format('YYYY-MM-DD HH:mm'))
               setNewNotifyTime(null)
               message.success('通知已设置')
             }}

@@ -83,10 +83,10 @@ export function ReportDetailView() {
 
   const sections = useMemo(() => {
     if (!currentReport) return []
-    return Object.entries(currentReport.content || {}).map(([key, lines], idx) => ({
+    return Object.entries(currentReport.content || {}).map(([key, text], idx) => ({
       key,
       title: sectionTitle(key, idx),
-      lines: lines || [],
+      lines: (text || '').split('\n'),
     }))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentReport, matchedTemplate])
@@ -158,7 +158,7 @@ export function ReportDetailView() {
               {TYPE_LABELS[currentReport.type]}
             </StatusChip>
             <span className={styles.sep}>·</span>
-            <span>{currentReport.periodLabel || currentReport.periodDate}</span>
+            <span>{currentReport.periodLabel || currentReport.reportDate}</span>
             {combo && (
               <>
                 <span className={styles.sep}>·</span>
@@ -274,7 +274,7 @@ export function ReportDetailView() {
           <div className={styles.line}>
             <span className={styles.lineLabel}>报告周期</span>
             <span className={styles.monoVal}>
-              {currentReport.periodLabel || currentReport.periodDate}
+              {currentReport.periodLabel || currentReport.reportDate}
             </span>
           </div>
           <div className={styles.line}>

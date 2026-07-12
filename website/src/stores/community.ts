@@ -2,6 +2,15 @@ import { create } from 'zustand'
 import { postsApi, type Post } from '@/api/posts'
 import { likesApi } from '@/api/likes'
 
+/** 从游标分页响应中提取 list/nextCursor/hasMore（兼容 data.xxx 和扁平 xxx） */
+function extractCursorPage<T>(res: Record<string, unknown>): { list: T[]; nextCursor: string | null; hasMore: boolean } {
+  const data = (res.data as Record<string, unknown> | undefined) || res
+  const list = (data.list as T[] | undefined) || (res.posts as T[] | undefined) || (res.comments as T[] | undefined) || []
+  const nextCursor = (data.nextCursor as string | null | undefined) ?? (res.nextCursor as string | null | undefined) ?? null
+  const hasMore = (data.hasMore as boolean | undefined) ?? (res.hasMore as boolean | undefined) ?? false
+  return { list, nextCursor, hasMore }
+}
+
 interface CommunityState {
   posts: Post[]
   currentPost: Post | null
@@ -33,10 +42,11 @@ export const useCommunityStore = create<CommunityState>((set, get) => ({
       set({ loading: true })
       const cursor = reset ? null : get().cursor
       const res = await postsApi.getList({ cursor: cursor || undefined })
+      const { list, nextCursor, hasMore } = extractCursorPage<Post>(res as unknown as Record<string, unknown>)
       set({
-        posts: reset ? res.posts : [...get().posts, ...res.posts],
-        cursor: res.nextCursor,
-        hasMore: res.hasMore,
+        posts: reset ? list : [...get().posts, ...list],
+        cursor: nextCursor,
+        hasMore,
       })
     } finally {
       set({ loading: false })
@@ -50,10 +60,11 @@ export const useCommunityStore = create<CommunityState>((set, get) => ({
       set({ loading: true })
       const cursor = reset ? null : get().cursor
       const res = await postsApi.getUserPosts(userId, { cursor: cursor || undefined })
+      const { list, nextCursor, hasMore } = extractCursorPage<Post>(res as unknown as Record<string, unknown>)
       set({
-        userPosts: reset ? res.posts : [...get().userPosts, ...res.posts],
-        cursor: res.nextCursor,
-        hasMore: res.hasMore,
+        userPosts: reset ? list : [...get().userPosts, ...list],
+        cursor: nextCursor,
+        hasMore,
       })
     } finally {
       set({ loading: false })
@@ -64,7 +75,8 @@ export const useCommunityStore = create<CommunityState>((set, get) => ({
     try {
       set({ loading: true })
       const res = await postsApi.getById(postId)
-      set({ currentPost: res.post })
+      const post = res.data || res.post || null
+      set({ currentPost: post })
     } finally {
       set({ loading: false })
     }

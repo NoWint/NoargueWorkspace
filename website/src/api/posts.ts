@@ -8,9 +8,9 @@ export interface Post {
   body: string
   images: string[]
   files: PostFile[]
-  todoIds: string[]
+  todoIds: number[]
   shareCode: string
-  location: { name: string; address: string; latitude: number; longitude: number } | null
+  location: { name: string; latitude: number; longitude: number; address?: string } | null
   ipAddress: string
   ipProvince: string
   likesCount: number
@@ -51,13 +51,24 @@ export interface PostVisitor {
   user?: { id: number; nickname: string; avatarUrl: string }
 }
 
+/** 游标分页响应（后端规范：data.list + data.nextCursor + data.hasMore） */
+interface CursorPageRes<T> {
+  success: boolean
+  data?: { list: T[]; nextCursor: string | null; hasMore: boolean }
+  /** 兼容扁平结构 */
+  posts?: T[]
+  list?: T[]
+  nextCursor?: string | null
+  hasMore?: boolean
+}
+
 export const postsApi = {
   create: (data: {
     postId: string
     title: string
     body: string
     images?: string[]
-    todoIds?: string[]
+    todoIds?: number[]
     shareCode?: string
     comboId?: number
     files?: PostFile[]
@@ -65,17 +76,17 @@ export const postsApi = {
   }) =>
     http.post<{ success: boolean; message?: string; postId: string }>('/posts/create', data),
 
-  getList: (params: { cursor?: string; pageSize?: number }) =>
-    http.get<{ success: boolean; posts: Post[]; nextCursor: string | null; hasMore: boolean }>('/posts/list', { params }),
+  getList: (params: { cursor?: string; limit?: number }) =>
+    http.get<CursorPageRes<Post>>('/posts/list', { params }),
 
-  getUserPosts: (userId: number, params: { cursor?: string; pageSize?: number }) =>
-    http.get<{ success: boolean; posts: Post[]; nextCursor: string | null; hasMore: boolean }>(`/posts/user/${userId}`, { params }),
+  getUserPosts: (userId: number, params: { cursor?: string; limit?: number }) =>
+    http.get<CursorPageRes<Post>>(`/posts/user/${userId}`, { params }),
 
-  getComboPosts: (comboId: number, params: { cursor?: string; pageSize?: number }) =>
-    http.get<{ success: boolean; posts: Post[]; nextCursor: string | null; hasMore: boolean }>(`/posts/combo/${comboId}`, { params }),
+  getComboPosts: (comboId: number, params: { cursor?: string; limit?: number }) =>
+    http.get<CursorPageRes<Post>>(`/posts/combo/${comboId}`, { params }),
 
   getById: (postId: string) =>
-    http.get<{ success: boolean; post: Post }>(`/posts/${postId}`),
+    http.get<{ success: boolean; data?: Post; post?: Post }>(`/posts/${postId}`),
 
   update: (postId: string, data: Partial<Pick<Post, 'title' | 'body' | 'images' | 'todoIds' | 'files' | 'location'>>) =>
     http.put<{ success: boolean; message?: string }>(`/posts/${postId}`, data),
@@ -84,5 +95,5 @@ export const postsApi = {
     http.delete<{ success: boolean; message?: string }>(`/posts/${postId}`),
 
   getVisitors: (postId: string) =>
-    http.get<{ success: boolean; visitors: PostVisitor[] }>(`/posts/${postId}/visitors`),
+    http.get<{ success: boolean; data?: { visitors: PostVisitor[] }; visitors?: PostVisitor[] }>(`/posts/${postId}/visitors`),
 }

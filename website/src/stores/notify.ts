@@ -6,8 +6,8 @@ interface NotifyState {
   todoNotifications: Record<string, TodoNotification[]>
   loading: boolean
   fetchList: () => Promise<void>
-  fetchByTodoId: (todoId: string) => Promise<void>
-  schedule: (todoId: string, notifyTime: string) => Promise<void>
+  fetchByTodoId: (todoId: number) => Promise<void>
+  schedule: (todoId: number, notifyAt: string) => Promise<void>
   cancel: (id: number) => Promise<void>
 }
 
@@ -20,7 +20,8 @@ export const useNotifyStore = create<NotifyState>((set, get) => ({
     try {
       set({ loading: true })
       const res = await notifyApi.getList()
-      set({ notifications: res.notifications || [] })
+      const data = (res as any).data || res
+      set({ notifications: data.notifications || [] })
     } finally {
       set({ loading: false })
     }
@@ -28,16 +29,17 @@ export const useNotifyStore = create<NotifyState>((set, get) => ({
 
   fetchByTodoId: async (todoId) => {
     const res = await notifyApi.getByTodoId(todoId)
+    const data = (res as any).data || res
     set({
       todoNotifications: {
         ...get().todoNotifications,
-        [todoId]: res.notifications || [],
+        [String(todoId)]: data.notifications || [],
       },
     })
   },
 
-  schedule: async (todoId, notifyTime) => {
-    await notifyApi.schedule({ todoId, notifyTime })
+  schedule: async (todoId, notifyAt) => {
+    await notifyApi.schedule({ todoId, notifyAt })
     await get().fetchByTodoId(todoId)
   },
 

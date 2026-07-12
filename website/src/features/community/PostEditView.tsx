@@ -23,7 +23,7 @@ export function PostEditView() {
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [images, setImages] = useState<string[]>([])
-  const [todoIds, setTodoIds] = useState<string[]>([])
+  const [todoIds, setTodoIds] = useState<number[]>([])
   const [comboId, setComboId] = useState<number | null>(null)
   const [locName, setLocName] = useState('')
   const [locAddress, setLocAddress] = useState('')
@@ -64,8 +64,10 @@ export function PostEditView() {
   )
 
   const handleToggleTodo = (id: string) => {
+    const numId = Number(id)
+    if (Number.isNaN(numId)) return
     setTodoIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+      prev.includes(numId) ? prev.filter((x) => x !== numId) : [...prev, numId],
     )
   }
 
@@ -282,7 +284,7 @@ export function PostEditView() {
               <span className={styles.emptyHint}>暂无待办</span>
             )}
             {availableTodos.map((t) => {
-              const active = todoIds.includes(t.id)
+              const active = todoIds.includes(Number(t.id))
               return (
                 <button
                   key={t.id}

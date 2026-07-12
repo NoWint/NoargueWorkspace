@@ -107,14 +107,14 @@ export function ReportEditView({ mode }: ReportEditViewProps) {
 
     if (isEdit && currentReport) {
       setType(currentReport.type)
-      setPeriodDate(currentReport.periodDate)
+      setPeriodDate(currentReport.reportDate)
       setComboId(currentReport.comboId)
       const list: SectionState[] = Object.entries(
         currentReport.content || {},
-      ).map(([key, lines]) => ({
+      ).map(([key, text]) => ({
         key,
         title: DEFAULT_SECTION_TITLES[key] || key,
-        text: (lines || []).join('\n'),
+        text: text || '',
       }))
       setSections(list)
     } else {
@@ -205,13 +205,9 @@ export function ReportEditView({ mode }: ReportEditViewProps) {
       message.error('请填写报告日期')
       return
     }
-    const content: Record<string, string[]> = {}
+    const content: Record<string, string> = {}
     for (const s of sections) {
-      const lines = s.text
-        .split('\n')
-        .map((l) => l.trimEnd())
-        // keep raw lines including empty middle lines but strip trailing empties handled by join
-      content[s.key] = lines
+      content[s.key] = s.text
     }
     setSaving(true)
     try {
@@ -222,7 +218,7 @@ export function ReportEditView({ mode }: ReportEditViewProps) {
       } else {
         const created = await create({
           type,
-          periodDate,
+          reportDate: periodDate,
           comboId,
           content,
         })

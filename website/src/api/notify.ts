@@ -11,20 +11,20 @@ export interface TodoNotification {
 }
 
 export const notifyApi = {
-  subscribe: (templateIds: string[]) =>
-    http.post<{ success: boolean }>('/notify/subscribe', { templateIds }),
+  subscribe: (templateId: string, targetMinutes?: number) =>
+    http.post<{ success: boolean }>('/notify/subscribe', { templateId, targetMinutes }),
 
-  schedule: (data: { todoId: string; notifyTime: string }) =>
+  schedule: (data: { todoId: number; notifyAt: string }) =>
     http.post<{ success: boolean; message?: string }>('/notify/schedule', data),
 
   testSend: (todoId: string) =>
     http.post<{ success: boolean; message?: string }>('/notify/test-send', { todoId }),
 
-  getByTodoId: (todoId: string) =>
+  getByTodoId: (todoId: number) =>
     http.get<{ success: boolean; notifications: TodoNotification[] }>('/notify/by-todo', { params: { todoId } }),
 
-  getList: () =>
-    http.get<{ success: boolean; notifications: TodoNotification[] }>('/notify/list'),
+  getList: (todoId?: number) =>
+    http.get<{ success: boolean; notifications: TodoNotification[] }>('/notify/list', { params: todoId ? { todoId } : {} }),
 
   update: (id: number, data: Partial<TodoNotification>) =>
     http.put<{ success: boolean; message?: string }>(`/notify/${id}`, data),

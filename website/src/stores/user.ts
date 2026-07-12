@@ -20,14 +20,28 @@ export const useUserStore = create<UserState>((set) => ({
       return
     }
     const res = await usersApi.search(keyword)
-    set({ searchResults: res.users || [] })
+    const data = (res as any).data || res
+    set({ searchResults: data.users || [] })
   },
 
   getProfile: async (userId) => {
     try {
       set({ loading: true })
       const res = await usersApi.getProfile(userId)
-      set({ currentProfile: res.user })
+      const data = (res as any).data || res
+      const user = data.user || {}
+      const stats = data.stats || {}
+      const profile: UserProfile = {
+        id: user.id,
+        nickname: user.nickname,
+        avatarUrl: user.avatarUrl || user.avatar || '',
+        badgeTitles: user.badgeTitles || [],
+        badgeColors: user.badgeColors || [],
+        postCount: stats.postCount ?? user.postCount ?? 0,
+        createdAt: user.createdAt || '',
+        registeredDays: user.registeredDays ?? 0,
+      }
+      set({ currentProfile: profile })
     } finally {
       set({ loading: false })
     }

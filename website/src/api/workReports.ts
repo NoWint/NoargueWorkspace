@@ -4,10 +4,10 @@ export interface WorkReport {
   id: number
   userId: number
   type: 'daily' | 'weekly'
-  periodDate: string
+  reportDate: string
   periodLabel: string
   comboId: number
-  content: Record<string, string[]>
+  content: Record<string, string>
   isDeleted: boolean
   createdAt: string
   updatedAt: string
@@ -45,13 +45,13 @@ export const workReportApi = {
   getList: (params: { type?: 'daily' | 'weekly'; comboId?: number; page?: number; pageSize?: number }) =>
     http.get<{ success: boolean; reports: WorkReport[]; total: number }>('/work-reports', { params }),
 
-  getBoard: (params: { comboId: number; type: 'daily' | 'weekly'; periodDate: string; userId?: number; dateFrom?: string; dateTo?: string }) =>
+  getBoard: (params: { comboId: number; type: 'daily' | 'weekly'; reportDate: string; userId?: number; dateFrom?: string; dateTo?: string }) =>
     http.get<{ success: boolean; board: ReportBoard }>('/work-reports/board', { params }),
 
   getById: (id: number) =>
     http.get<{ success: boolean; report: WorkReport }>(`/work-reports/${id}`),
 
-  create: (data: { type: 'daily' | 'weekly'; periodDate: string; comboId: number; content: Record<string, string[]> }) =>
+  create: (data: { type: 'daily' | 'weekly'; reportDate: string; comboId: number; content: Record<string, string> }) =>
     http.post<{ success: boolean; message?: string; report: WorkReport }>('/work-reports', data),
 
   update: (id: number, data: Partial<WorkReport>) =>

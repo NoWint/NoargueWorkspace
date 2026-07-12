@@ -23,9 +23,19 @@ export interface PostComment {
   replies?: PostComment[]
 }
 
+/** 游标分页响应（后端规范：data.list + data.nextCursor + data.hasMore） */
+interface CursorPageRes<T> {
+  success: boolean
+  data?: { list: T[]; nextCursor: string | null; hasMore: boolean }
+  comments?: T[]
+  list?: T[]
+  nextCursor?: string | null
+  hasMore?: boolean
+}
+
 export const commentsApi = {
-  getList: (postId: string, params: { cursor?: string; pageSize?: number }) =>
-    http.get<{ success: boolean; comments: PostComment[]; nextCursor: string | null; hasMore: boolean }>(`/post-comments/${postId}`, { params }),
+  getList: (postId: string, params: { cursor?: string; limit?: number }) =>
+    http.get<CursorPageRes<PostComment>>(`/post-comments/${postId}`, { params }),
 
   create: (postId: string, data: { content: string; images?: string[]; parentId?: number; replyToUserId?: number }) =>
     http.post<{ success: boolean; message?: string; comment: PostComment }>(`/post-comments/${postId}`, data),

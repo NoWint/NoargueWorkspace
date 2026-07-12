@@ -16,13 +16,12 @@ export function UserHomeView() {
   const { userId } = useParams()
   const navigate = useNavigate()
   const { currentProfile, loading: userLoading, getProfile } = useUserStore()
-  const {
-    userPosts,
-    hasMore,
-    loading: postLoading,
-    fetchUserPosts,
-    toggleLike,
-  } = useCommunityStore()
+  const rawUserPosts = useCommunityStore((s) => s.userPosts)
+  const hasMore = useCommunityStore((s) => s.hasMore)
+  const postLoading = useCommunityStore((s) => s.loading)
+  const fetchUserPosts = useCommunityStore((s) => s.fetchUserPosts)
+  const toggleLike = useCommunityStore((s) => s.toggleLike)
+  const userPosts = rawUserPosts || []
 
   const uid = Number(userId)
 

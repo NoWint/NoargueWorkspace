@@ -1,12 +1,11 @@
 import http from './request'
 
 export interface CheckinStatus {
-  checkedInToday: boolean
+  checkedIn: boolean
   streak: number
-  totalPoints: number
-  title: string
-  nextMilestone: number
-  nextMilestoneDays: number
+  totalDays: number
+  points: number
+  todayPoints: number
 }
 
 export interface CheckinRecord {
@@ -23,19 +22,25 @@ export interface LeaderboardEntry {
   title: string
 }
 
+export interface CheckinResult {
+  points: number
+  streak: number
+  newBadges: string[]
+}
+
 export const checkinApi = {
   checkin: () =>
-    http.post<{ success: boolean; message?: string; points: number; streak: number; milestoneReward?: number }>('/checkin'),
+    http.post<{ success: boolean; message?: string; data: CheckinResult }>('/checkin'),
 
   getStatus: (date?: string) =>
-    http.get<{ success: boolean; status: CheckinStatus }>('/checkin/status', { params: date ? { date } : {} }),
+    http.get<{ success: boolean; data: CheckinStatus }>('/checkin/status', { params: date ? { date } : {} }),
 
   getMonth: (year: number, month: number) =>
-    http.get<{ success: boolean; records: CheckinRecord[] }>('/checkin/month', { params: { year, month } }),
+    http.get<{ success: boolean; data?: { records: CheckinRecord[] }; records?: CheckinRecord[] }>('/checkin/month', { params: { year, month } }),
 
-  getLeaderboard: (type: 'streak' | 'total' = 'streak') =>
-    http.get<{ success: boolean; leaderboard: LeaderboardEntry[] }>('/checkin/leaderboard', { params: { type } }),
+  getLeaderboard: (type: 'streak' | 'total' = 'streak', limit = 20) =>
+    http.get<{ success: boolean; data?: { list: LeaderboardEntry[] }; leaderboard?: LeaderboardEntry[] }>('/checkin/leaderboard', { params: { type, limit } }),
 
-  deductPoints: (points: number, note: string) =>
-    http.post<{ success: boolean; message?: string; remainingPoints: number }>('/checkin/deduct-points', { points, note }),
+  deductPoints: (points: number) =>
+    http.post<{ success: boolean; message?: string }>('/checkin/deduct-points', { points }),
 }

@@ -59,15 +59,15 @@ function addDays(d: Date, n: number): Date {
   return date
 }
 
-function reportSummary(content: Record<string, string[]>): {
+function reportSummary(content: Record<string, string>): {
   firstLine: string
   lineCount: number
 } {
   let lineCount = 0
   let firstLine = ''
   for (const key of Object.keys(content)) {
-    const lines = content[key] || []
-    for (const line of lines) {
+    const text = content[key] || ''
+    for (const line of text.split('\n')) {
       const trimmed = (line || '').trim()
       if (!trimmed) continue
       lineCount++
@@ -103,7 +103,7 @@ export function ReportBoardView() {
 
   useEffect(() => {
     if (!comboId || Number.isNaN(comboId)) return
-    fetchBoard({ comboId, type: tab, periodDate, userId }).catch((e) => {
+    fetchBoard({ comboId, type: tab, reportDate: periodDate, userId }).catch((e) => {
       message.error((e as Error).message || '加载失败')
     })
   }, [comboId, tab, periodDate, userId, fetchBoard])
@@ -286,7 +286,7 @@ export function ReportBoardView() {
                   <div className={styles.reportMain}>
                     <div className={styles.reportSummary}>{sum.firstLine}</div>
                     <div className={styles.reportSub}>
-                      <span>{r.periodLabel || r.periodDate}</span>
+                      <span>{r.periodLabel || r.reportDate}</span>
                       <span className={styles.reportSep}>·</span>
                       <span>{sum.lineCount} 行</span>
                       <span className={styles.reportSep}>·</span>

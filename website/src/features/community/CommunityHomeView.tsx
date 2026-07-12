@@ -174,7 +174,12 @@ export function PostCard({ post, onToggleLike, onClick }: PostCardProps) {
 
 export function CommunityHomeView() {
   const navigate = useNavigate()
-  const { posts, hasMore, loading, fetchPosts, toggleLike } = useCommunityStore()
+  const rawPosts = useCommunityStore((s) => s.posts)
+  const hasMore = useCommunityStore((s) => s.hasMore)
+  const loading = useCommunityStore((s) => s.loading)
+  const fetchPosts = useCommunityStore((s) => s.fetchPosts)
+  const toggleLike = useCommunityStore((s) => s.toggleLike)
+  const posts = rawPosts || []
 
   useEffect(() => {
     fetchPosts(true).catch((e) => {
