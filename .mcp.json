@@ -5,6 +5,10 @@
       "command": "C:\\Users\\HUAWEI\\AppData\\Local\\Programs\\codebase-memory-mcp\\codebase-memory-mcp.exe",
       "args": [],
       "env": {}
+    },
+    "tdesign-mcp-server": {
+      "command": "npx",
+      "args": ["-y", "tdesign-mcp-server@latest"]
     }
   }
 }

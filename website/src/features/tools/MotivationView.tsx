@@ -62,7 +62,7 @@ export function MotivationView() {
         await fetchUserInfo()
         message.success('上限已增加 +10')
       } else {
-        message.error(res.message || '增加失败')
+        message.error('增加失败')
       }
     } catch (e) {
       message.error((e as Error).message || '增加失败')

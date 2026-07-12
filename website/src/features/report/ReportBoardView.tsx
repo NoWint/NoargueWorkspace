@@ -7,9 +7,8 @@ import {
   PlusIcon,
   ChartIcon,
   ChevronDownIcon,
-  BellIcon,
 } from '@/design/icons'
-import { cn, formatDate, todayStr } from '@/lib/utils'
+import { cn, todayStr } from '@/lib/utils'
 import { useWorkReportStore } from '@/stores/workReport'
 import { combosApi } from '@/api/combos'
 import styles from './ReportBoardView.module.css'
