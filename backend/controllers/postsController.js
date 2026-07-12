@@ -6,7 +6,6 @@ const { appendCheckinBadges } = require('../utils/checkinBadgeHelper');
 const POST_LOG = 'POST';
 
 async function checkComboAccess(comboId, userId) {
-  const { query } = require('./config/database');
   const combos = await query('SELECT user_id FROM combos WHERE id = ?', [comboId]);
   if (combos.length === 0) return false;
   if (combos[0].user_id === userId) return true;

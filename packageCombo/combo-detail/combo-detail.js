@@ -1148,6 +1148,8 @@ Page({
           comboPostsHasMore: res.data.hasMore,
           loadingPosts: false
         });
+      } else {
+        this.setData({ loadingPosts: false });
       }
     } catch (err) {
       this.setData({ loadingPosts: false });
