@@ -11,6 +11,7 @@ export const todosApi = {
     search?: string
     showCompleted?: boolean
     date?: string
+    parentId?: string
   }) =>
     http.get<TodoListResponse>('/todos/list', { params }),
 
@@ -39,4 +40,7 @@ export const todosApi = {
 
   permanentDelete: (todoId: number | string) =>
     http.delete<{ success: boolean; message?: string }>(`/todos/permanent/${todoId}`),
+
+  batchMove: (todoIds: string[], comboId: number | null) =>
+    http.post<{ success: boolean; message?: string }>('/todos/batch-move', { todoIds, comboId }),
 }
