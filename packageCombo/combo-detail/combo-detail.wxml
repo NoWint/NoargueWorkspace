@@ -113,7 +113,7 @@
         </view>
       </view>
     </view>
-    <view wx:if="{{!adminView}}" class="info-row single">
+    <view wx:if="{{!adminView}}" class="info-row">
       <view class="info-block report-block" bindtap="navigateToReportBoard">
         <view class="section-header">
           <text class="section-title">汇报 · 日报 & 周报</text>
