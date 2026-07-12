@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { Todo } from '@/types'
 import { todosApi } from '@/api/todos'
+import { useSyncStore } from './sync'
 
 type Filter = 'all' | 'today' | 'completed' | 'uncompleted' | 'starred'
 
@@ -8,8 +9,10 @@ interface TodoState {
   todos: Todo[]
   loading: boolean
   filter: Filter
+  subtaskMap: Record<string, Todo[]>
   setFilter: (f: Filter) => void
   fetchTodos: () => Promise<void>
+  fetchSubtodos: (parentId: string) => Promise<void>
   createTodo: (data: Partial<Todo>) => Promise<Todo>
   updateTodo: (id: string, data: Partial<Todo>) => Promise<void>
   deleteTodo: (id: string) => Promise<void>
@@ -17,12 +20,14 @@ interface TodoState {
   toggleStar: (id: string) => Promise<void>
   restoreTodo: (id: string) => Promise<void>
   permanentDelete: (id: string) => Promise<void>
+  batchMove: (todoIds: string[], comboId: number | null) => Promise<void>
 }
 
 export const useTodoStore = create<TodoState>((set, get) => ({
   todos: [],
   loading: false,
   filter: 'all',
+  subtaskMap: {},
 
   setFilter: (f) => set({ filter: f }),
 
@@ -36,10 +41,21 @@ export const useTodoStore = create<TodoState>((set, get) => ({
     }
   },
 
+  fetchSubtodos: async (parentId) => {
+    const res = await todosApi.getList({ parentId })
+    set({
+      subtaskMap: {
+        ...get().subtaskMap,
+        [parentId]: res.todos || [],
+      },
+    })
+  },
+
   createTodo: async (data) => {
     const res = await todosApi.create(data)
     if (res.success && res.todo) {
       set({ todos: [...get().todos, res.todo] })
+      useSyncStore.getState().markPending()
       return res.todo
     }
     throw new Error(res.message || '创建失败')
@@ -55,6 +71,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
       set({
         todos: get().todos.map((t) => (t.id === id ? res.todo! : t)),
       })
+      useSyncStore.getState().markPending()
     }
   },
 
@@ -65,6 +82,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
         t.id === id ? { ...t, isDeleted: true, updatedAt: Date.now() } : t,
       ),
     })
+    useSyncStore.getState().markPending()
   },
 
   toggleComplete: async (id) => {
@@ -88,11 +106,24 @@ export const useTodoStore = create<TodoState>((set, get) => ({
           t.id === id ? { ...t, isDeleted: false, updatedAt: Date.now() } : t,
         ),
       })
+      useSyncStore.getState().markPending()
     }
   },
 
   permanentDelete: async (id) => {
     await todosApi.permanentDelete(id)
     set({ todos: get().todos.filter((t) => t.id !== id) })
+  },
+
+  batchMove: async (todoIds, comboId) => {
+    await todosApi.batchMove(todoIds, comboId)
+    set({
+      todos: get().todos.map((t) =>
+        todoIds.includes(t.id)
+          ? { ...t, comboId: comboId || undefined, updatedAt: Date.now() }
+          : t,
+      ),
+    })
+    useSyncStore.getState().markPending()
   },
 }))
