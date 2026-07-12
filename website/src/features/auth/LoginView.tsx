@@ -47,7 +47,7 @@ export function LoginView() {
     <div className={styles.wrap}>
       <div className={styles.card}>
         <div className={styles.brand}>
-          <div className={styles.logo}>绿</div>
+          <img className={styles.logo} src="https://api.yzjtiantian.cn/uploads/logo/logo.png" alt="时光绿径" />
           <div className={styles.brandText}>
             <h1 className={styles.title}>时光绿径</h1>
             <p className={styles.tagline}>清爽绿意 · 高效待办</p>

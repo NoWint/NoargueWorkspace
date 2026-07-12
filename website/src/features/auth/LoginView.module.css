@@ -17,9 +17,7 @@
 .brandText { display: flex; flex-direction: column; gap: 3px; }
 .logo {
   width: 36px; height: 36px; border-radius: 999px;
-  background: var(--primary); color: var(--primary-fg);
-  display: grid; place-items: center;
-  font: 600 15px/1 var(--font-song);
+  object-fit: cover;
   flex: none;
 }
 .title {

@@ -25,9 +25,7 @@
 .ws:hover { color: var(--fg); }
 .wsAv {
   width: 18px; height: 18px; border-radius: 999px;
-  background: var(--primary); color: var(--primary-fg);
-  display: grid; place-items: center;
-  font: 600 9px/1 var(--font-sans);
+  object-fit: cover;
   flex: none;
 }
 .wsNm {

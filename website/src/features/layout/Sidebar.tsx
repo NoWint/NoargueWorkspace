@@ -38,7 +38,7 @@ export function Sidebar() {
   return (
     <aside className={styles.sb}>
       <div className={styles.ws}>
-        <div className={styles.wsAv}>绿</div>
+        <img className={styles.wsAv} src="https://api.yzjtiantian.cn/uploads/logo/logo.png" alt="时光绿径" />
         <div className={styles.wsNm}>时光绿径</div>
         <ChevronDownIcon className={styles.wsChev} />
       </div>
