@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { Combo } from '@/types'
 import { combosApi } from '@/api/combos'
+import { collabApi } from '@/api/collab'
 
 interface ComboState {
   combos: Combo[]
@@ -20,10 +21,13 @@ export const useComboStore = create<ComboState>((set, get) => ({
   fetchCombos: async () => {
     try {
       set({ loading: true })
-      const comboRes = await combosApi.getList()
+      const [comboRes, sharedRes] = await Promise.all([
+        combosApi.getList(),
+        collabApi.getSharedList().catch(() => ({ sharedCombos: [] })),
+      ])
       set({
         combos: comboRes.combos || [],
-        sharedCombos: [],
+        sharedCombos: (sharedRes.sharedCombos as Combo[]) || [],
       })
     } finally {
       set({ loading: false })
