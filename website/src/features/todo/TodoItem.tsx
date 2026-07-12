@@ -30,7 +30,13 @@ export function TodoItem({ todo, members }: TodoItemProps) {
   const navigate = useNavigate()
   const toggleComplete = useTodoStore((s) => s.toggleComplete)
   const toggleStar = useTodoStore((s) => s.toggleStar)
+  const subtaskMap = useTodoStore((s) => s.subtaskMap)
   const combos = useComboStore((s) => s.combos)
+
+  const subtasks = subtaskMap[todo.id]
+  const subtaskHint = subtasks && subtasks.length > 0
+    ? `${subtasks.filter((t) => t.completed).length}/${subtasks.length} 子任务`
+    : null
 
   const combo = combos.find((c) => c.id === todo.comboId)
   const isDone = !!todo.completed
@@ -74,6 +80,7 @@ export function TodoItem({ todo, members }: TodoItemProps) {
           )}
           {todo.setTime && <span className={styles.time}>{todo.setTime}</span>}
           {overdueText && <span className={styles.overdue}>{overdueText}</span>}
+          {subtaskHint && <span className={styles.subtaskHint}>{subtaskHint}</span>}
         </div>
       </div>
 

@@ -87,3 +87,9 @@
   flex: none;
   margin-left: 8px;
 }
+
+/* Subtask count hint */
+.subtaskHint {
+  font: 500 10px/1 var(--font-mono);
+  color: var(--mt2);
+}
