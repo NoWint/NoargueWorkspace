@@ -157,8 +157,10 @@ export function CalendarView() {
                 const inMonth = d.month() === current.month()
                 const isToday = dateStr === todayStrVal
                 const isSelected = dateStr === selectedDate
-                const count = todosByDate[dateStr]?.length || 0
-                const hasTodos = count > 0
+                const dayTodos = todosByDate[dateStr] || []
+                const hasTodos = dayTodos.length > 0
+                const visibleTodos = dayTodos.slice(0, 3)
+                const remainingCount = dayTodos.length - visibleTodos.length
                 return (
                   <button
                     key={dateStr}
@@ -173,12 +175,32 @@ export function CalendarView() {
                   >
                     <span className={styles.dayNum}>{d.date()}</span>
                     {hasTodos && (
-                      <span
-                        className={cn(
-                          styles.dot,
-                          isToday && styles.dotToday,
+                      <div className={styles.cellTodos}>
+                        {visibleTodos.map((t) => {
+                          const isDone = !!t.completed
+                          const isOver = !isDone && t.setDate && t.setDate < todayStrVal
+                          const priClass =
+                            t.priority === 'high' ? styles.cellTodoHigh
+                            : t.priority === 'medium' ? styles.cellTodoMed
+                            : ''
+                          return (
+                            <div
+                              key={t.id}
+                              className={cn(
+                                styles.cellTodo,
+                                priClass,
+                                isOver && styles.cellTodoOver,
+                                isDone && styles.cellTodoDone,
+                              )}
+                            >
+                              {t.text}
+                            </div>
+                          )
+                        })}
+                        {remainingCount > 0 && (
+                          <div className={styles.cellMore}>+{remainingCount} 更多</div>
                         )}
-                      />
+                      </div>
                     )}
                   </button>
                 )
