@@ -1,0 +1,71 @@
+:root {
+  --primary: #01796f;
+  --primary-hi: #0a8c80;
+  --primary-fg: #ffffff;
+  --primary-soft: rgba(1,121,111,0.16);
+  --primary-line: rgba(1,121,111,0.38);
+
+  --bg: #0a0a0a;
+  --bg2: #0e0e0e;
+  --card: #141414;
+  --muted: #1c1c1c;
+  --pop: #1c1c1c;
+
+  --fg: #fafafa;
+  --mt: #a1a1a1;
+  --mt2: #6b6b6b;
+  --mt3: #4a4a4a;
+
+  --secondary: #1c1c1c;
+  --secondary-fg: #fafafa;
+  --accent: #262626;
+  --accent-fg: #fafafa;
+  --input: #1f1f1f;
+  --border: #1a1a1a;
+  --border2: #161616;
+  --sb: #0a0a0a;
+  --sb-border: #1a1a1a;
+
+  --success: #62d178;
+  --warn: #eab308;
+  --destructive: #ff6467;
+  --info: #4a9eff;
+
+  --font-sans: "Geist", -apple-system, "SF Pro Text", "PingFang SC", system-ui, sans-serif;
+  --font-mono: "Geist Mono", "SF Mono", ui-monospace, monospace;
+  --font-song: "Songti SC", "STSong", "SimSun", serif;
+}
+
+[data-theme="light"] {
+  --primary: #01796f;
+  --primary-hi: #01665c;
+  --primary-fg: #ffffff;
+  --primary-soft: rgba(1,121,111,0.10);
+  --primary-line: rgba(1,121,111,0.30);
+
+  --bg: #ffffff;
+  --bg2: #fafafa;
+  --card: #ffffff;
+  --muted: #f5f5f5;
+  --pop: #f5f5f5;
+
+  --fg: #1a1a1a;
+  --mt: #666666;
+  --mt2: #999999;
+  --mt3: #cccccc;
+
+  --secondary: #f5f5f5;
+  --secondary-fg: #1a1a1a;
+  --accent: #eeeeee;
+  --accent-fg: #1a1a1a;
+  --input: #f5f5f5;
+  --border: #e5e5e5;
+  --border2: #ededed;
+  --sb: #fafafa;
+  --sb-border: #e5e5e5;
+
+  --success: #16a34a;
+  --warn: #ca8a04;
+  --destructive: #dc2626;
+  --info: #2563eb;
+}
