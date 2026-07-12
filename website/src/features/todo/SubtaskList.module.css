@@ -1,0 +1,98 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 16px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.item:last-child {
+  border-bottom: 0;
+}
+
+.check {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--mt3);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  background: transparent;
+  padding: 0;
+  flex: none;
+}
+
+.checkDone {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.check svg {
+  width: 10px;
+  height: 10px;
+  color: var(--primary-fg);
+}
+
+.text {
+  font-size: 13px;
+  color: var(--fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.textDone {
+  color: var(--mt2);
+  text-decoration: line-through;
+}
+
+.remove {
+  color: var(--mt2);
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+  font-size: 14px;
+  padding: 2px 4px;
+}
+
+.remove:hover {
+  color: var(--destructive);
+}
+
+.addRow {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.addInput {
+  flex: 1;
+  height: 30px;
+  border: 1px solid var(--border);
+  background: var(--input);
+  color: var(--fg);
+  font-size: 13px;
+  padding: 0 10px;
+  outline: none;
+}
+
+.addInput:focus {
+  border-color: var(--primary-line);
+}
+
+.addInput::placeholder {
+  color: var(--mt2);
+}
+
+.progress {
+  font: 500 10.5px/1 var(--font-mono);
+  color: var(--mt2);
+  margin-bottom: 8px;
+}
