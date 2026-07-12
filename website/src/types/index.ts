@@ -31,7 +31,7 @@ export interface Todo {
   version: number
   isDeleted: boolean
   comboId?: number
-  parentId?: number
+  parentId?: string
   time: number
   createdAt?: string
   updatedAt?: number

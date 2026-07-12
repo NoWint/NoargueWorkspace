@@ -21,4 +21,7 @@ export {
   ChevronDownIcon,
   MicrophoneIcon as MicIcon,
   QueueIcon as BatchIcon,
+  RefreshIcon,
+  UploadIcon,
+  ImageIcon,
 } from 'tdesign-icons-react'
