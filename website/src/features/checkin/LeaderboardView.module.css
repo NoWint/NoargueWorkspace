@@ -1,0 +1,233 @@
+.screen {
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* Hero */
+.hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.heroLeft { flex: 1; min-width: 0; }
+.hdRow { display: flex; gap: 12px; align-items: flex-start; }
+.hdIc {
+  width: 28px; height: 28px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--mt);
+  display: grid; place-items: center;
+  flex: none;
+}
+.hdIc svg { width: 15px; height: 15px; }
+.title {
+  margin: 4px 0 0;
+  font: 600 24px/1.15 var(--font-sans);
+  letter-spacing: -0.01em;
+  color: var(--fg);
+}
+.song { font-family: var(--font-song); color: var(--primary); font-weight: 600; }
+.meta {
+  margin: 8px 0 0; color: var(--mt); font-size: 13px;
+  display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+}
+.sep { color: var(--border); }
+
+/* Tabs */
+.tabs {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  align-self: flex-start;
+}
+.tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  padding: 0 16px;
+  border: none;
+  background: transparent;
+  color: var(--mt);
+  font: 500 12px/1 var(--font-sans);
+  cursor: pointer;
+}
+.tab:hover { color: var(--fg); }
+.tabAct {
+  background: var(--primary);
+  color: var(--primary-fg);
+}
+.tabAct:hover { color: var(--primary-fg); }
+
+/* Card head */
+.cardHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.cardHeadL { display: flex; gap: 12px; align-items: flex-start; }
+.cardTitle {
+  margin: 4px 0 0;
+  font: 600 14px/1.3 var(--font-sans);
+  color: var(--fg);
+}
+
+/* Podium */
+.podium {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+@media (max-width: 720px) { .podium { grid-template-columns: 1fr; } }
+.podiumItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 14px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  text-align: center;
+}
+.podiumFirst {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+.podiumSecond { border-color: var(--mt3); }
+.podiumThird { border-color: var(--mt3); }
+.podiumRank {
+  font: 600 14px/1 var(--font-mono);
+  color: var(--mt2);
+  letter-spacing: 0.05em;
+}
+.podiumFirst .podiumRank { color: var(--primary); }
+.podiumAv {
+  width: 48px; height: 48px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  display: grid; place-items: center;
+  font: 600 18px/1 var(--font-sans);
+  color: var(--fg);
+  overflow: hidden;
+}
+.podiumAv img { width: 100%; height: 100%; object-fit: cover; }
+.podiumName {
+  font: 500 13px/1.3 var(--font-sans);
+  color: var(--fg);
+  word-break: break-word;
+}
+.podiumValue {
+  font: 600 22px/1 var(--font-sans);
+  color: var(--fg);
+  letter-spacing: -0.01em;
+}
+.podiumFirst .podiumValue { color: var(--primary); }
+.podiumUnit {
+  margin-left: 4px;
+  font: 500 11px/1 var(--font-mono);
+  color: var(--mt);
+}
+
+/* Rank list */
+.rankList { display: flex; flex-direction: column; }
+.rankItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  margin-bottom: 6px;
+}
+.rankItem:last-child { margin-bottom: 0; }
+.rankNo {
+  width: 32px;
+  font: 600 12px/1 var(--font-mono);
+  color: var(--mt2);
+  text-align: center;
+  flex: none;
+}
+.rankNoTop { color: var(--primary); }
+.rankAv {
+  width: 32px; height: 32px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  display: grid; place-items: center;
+  font: 600 13px/1 var(--font-sans);
+  color: var(--fg);
+  overflow: hidden;
+  flex: none;
+}
+.rankAv img { width: 100%; height: 100%; object-fit: cover; }
+.rankMain { flex: 1; min-width: 0; }
+.rankName {
+  font: 500 13px/1.3 var(--font-sans);
+  color: var(--fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rankTitle {
+  margin-top: 3px;
+  font: 500 10.5px/1 var(--font-mono);
+  color: var(--mt2);
+}
+.rankValue {
+  font: 600 18px/1 var(--font-sans);
+  color: var(--fg);
+  letter-spacing: -0.01em;
+  flex: none;
+}
+.rankUnit {
+  margin-left: 3px;
+  font: 500 10.5px/1 var(--font-mono);
+  color: var(--mt);
+}
+
+/* Empty */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 50px 20px;
+  color: var(--mt);
+  text-align: center;
+}
+.emptyIcon {
+  width: 44px; height: 44px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--mt2);
+  display: grid; place-items: center;
+}
+.emptyIcon svg { width: 20px; height: 20px; }
+.emptyTitle {
+  font: 500 14px/1.3 var(--font-sans);
+  color: var(--fg);
+}
+.emptySub {
+  font-size: 12px;
+  color: var(--mt2);
+  max-width: 260px;
+}
+
+/* Foot */
+.cardFoot {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 4px; border-top: 1px solid var(--border);
+}
+.footText {
+  font: 500 10.5px/1 var(--font-mono);
+  color: var(--mt);
+}
