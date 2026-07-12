@@ -118,3 +118,69 @@
 .syncTooltip {
   font-size: 11px;
 }
+
+/* Notification dot on bell */
+.notifyDot {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--destructive);
+}
+
+/* Notification popover panel */
+.notifyPanel {
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.notifyEmpty {
+  padding: 16px 12px;
+  text-align: center;
+  color: var(--mt2);
+  font-size: 12px;
+}
+.notifyRow {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+.notifyTodoId {
+  font: 500 10.5px/1 var(--font-mono);
+  color: var(--fg);
+  word-break: break-all;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.notifyTime {
+  font: 500 10px/1 var(--font-mono);
+  color: var(--mt);
+}
+.notifyStatus {
+  font: 500 10px/1 var(--font-mono);
+  color: var(--mt2);
+  padding: 2px 5px;
+  border: 1px solid var(--border);
+}
+.notifySentTag {
+  color: var(--success);
+  border-color: var(--success);
+}
+.notifyFooter {
+  padding: 8px 12px;
+  text-align: center;
+  color: var(--primary);
+  font-size: 11.5px;
+  cursor: pointer;
+}
+.notifyFooter:hover {
+  color: var(--primary-hi);
+}

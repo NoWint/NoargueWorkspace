@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Popconfirm, message, Image as AntImage } from 'antd'
+import { Popconfirm, message, Image as AntImage, Modal, Input, DatePicker } from 'antd'
+import dayjs from 'dayjs'
 import type { Todo } from '@/types'
 import { todosApi } from '@/api/todos'
 import { useTodoStore } from '@/stores/todos'
 import { useComboStore } from '@/stores/combos'
 import { useTagStore } from '@/stores/tags'
+import { useShareStore } from '@/stores/share'
+import { useNotifyStore } from '@/stores/notify'
 import {
   Button,
   Card,
@@ -13,6 +16,7 @@ import {
   ListLine,
   StatusChip,
   Tag,
+  Toggle,
 } from '@/design/primitives'
 import {
   CheckIcon,
@@ -21,6 +25,8 @@ import {
   ClockIcon,
   TagIcon,
   ImageIcon,
+  ShareIcon,
+  BellIcon,
 } from '@/design/icons'
 import { cn } from '@/lib/utils'
 import { SubtaskList } from './SubtaskList'
@@ -56,6 +62,36 @@ export function TodoDetail() {
   const combos = useComboStore((s) => s.combos)
   const { systemTags, userTags, fetchTags } = useTagStore()
 
+  // Share store
+  const snapshots = useShareStore((s) => s.snapshots)
+  const visitors = useShareStore((s) => s.visitors)
+  const fetchByTodo = useShareStore((s) => s.fetchByTodo)
+  const createShare = useShareStore((s) => s.create)
+  const revokeShare = useShareStore((s) => s.revoke)
+  const fetchVisitors = useShareStore((s) => s.fetchVisitors)
+
+  // Notify store
+  const todoNotifications = useNotifyStore((s) => s.todoNotifications)
+  const fetchByTodoId = useNotifyStore((s) => s.fetchByTodoId)
+  const scheduleNotify = useNotifyStore((s) => s.schedule)
+  const cancelNotify = useNotifyStore((s) => s.cancel)
+
+  // Share modal state
+  const [shareModalOpen, setShareModalOpen] = useState(false)
+  const [visitorsModalOpen, setVisitorsModalOpen] = useState(false)
+  const [creatingShare, setCreatingShare] = useState(false)
+  const [shareForm, setShareForm] = useState({
+    expiresAt: dayjs().add(7, 'day'),
+    maxViews: 100,
+    password: '',
+    remark: '',
+    allowCopy: false,
+    trackVisitors: false,
+  })
+
+  // Notify state
+  const [newNotifyTime, setNewNotifyTime] = useState<dayjs.Dayjs | null>(null)
+
   useEffect(() => {
     fetchTags()
     if (!id) return
@@ -66,7 +102,9 @@ export function TodoDetail() {
       })
       .finally(() => setLoading(false))
     fetchSubtodos(id)
-  }, [id, fetchTags, fetchSubtodos])
+    fetchByTodo(id)
+    fetchByTodoId(id)
+  }, [id, fetchTags, fetchSubtodos, fetchByTodo, fetchByTodoId])
 
   const combo = useMemo(
     () => (todo ? combos.find((c) => c.id === todo.comboId) : undefined),
@@ -338,6 +376,150 @@ export function TodoDetail() {
         {id && <SubtaskList parentId={id} />}
       </Card>
 
+      {/* Share snapshots card */}
+      <Card>
+        <div className={styles.cardHead}>
+          <div className={styles.cardHeadL}>
+            <div className={styles.hdIc}>
+              <ShareIcon />
+            </div>
+            <div>
+              <Eyebrow>SHARE</Eyebrow>
+              <h3 className={styles.cardTitle}>
+                分享 <span className={styles.song}>快照</span>
+              </h3>
+            </div>
+          </div>
+          <Button variant="gh" size="sm" onClick={() => setShareModalOpen(true)}>
+            创建分享
+          </Button>
+        </div>
+        <div className={styles.shareList}>
+          {snapshots.length === 0 && (
+            <div className={styles.emptyHint}>暂无分享快照</div>
+          )}
+          {snapshots.map((s) => (
+            <div key={s.shareId} className={styles.shareItem}>
+              <div className={styles.shareInfo}>
+                <div className={styles.shareId}>{s.shareId.slice(0, 16)}</div>
+                <div className={styles.shareMeta}>
+                  过期: {dayjs(s.expiresAt).format('YYYY-MM-DD HH:mm')} · 浏览: {s.currentViews}/{s.maxViews}
+                </div>
+                {s.remark && <div className={styles.shareRemark}>{s.remark}</div>}
+                <div className={styles.shareStatus}>
+                  {s.revoked ? (
+                    <StatusChip tone="warn">已撤销</StatusChip>
+                  ) : (
+                    <StatusChip tone="ok">活跃</StatusChip>
+                  )}
+                </div>
+              </div>
+              <div className={styles.shareActions}>
+                {!s.revoked && (
+                  <Popconfirm
+                    title="确定撤销此分享吗？"
+                    okText="撤销"
+                    cancelText="取消"
+                    onConfirm={async () => {
+                      await revokeShare(s.shareId)
+                      message.success('已撤销')
+                    }}
+                  >
+                    <Button variant="gh" size="sm">撤销</Button>
+                  </Popconfirm>
+                )}
+                <Button
+                  variant="gh"
+                  size="sm"
+                  onClick={async () => {
+                    await fetchVisitors(s.shareId)
+                    setVisitorsModalOpen(true)
+                  }}
+                >
+                  查看访客
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* Notification card */}
+      <Card>
+        <div className={styles.cardHead}>
+          <div className={styles.cardHeadL}>
+            <div className={styles.hdIc}>
+              <BellIcon />
+            </div>
+            <div>
+              <Eyebrow>NOTIFY</Eyebrow>
+              <h3 className={styles.cardTitle}>
+                通知 <span className={styles.song}>设置</span>
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div className={styles.notifyList}>
+          {(id ? todoNotifications[id] || [] : []).length === 0 && (
+            <div className={styles.emptyHint}>暂无通知</div>
+          )}
+          {(id ? todoNotifications[id] || [] : []).map((n) => (
+            <div key={n.id} className={styles.notifyItem}>
+              <div className={styles.notifyInfo}>
+                <span className={styles.notifyTime}>
+                  {dayjs(n.notifyTime).format('YYYY-MM-DD HH:mm')}
+                </span>
+                <StatusChip tone={n.isSent ? 'ok' : 'default'}>
+                  {n.isSent ? '已发送' : '待发送'}
+                </StatusChip>
+                {n.sentAt && (
+                  <span className={styles.notifySent}>
+                    发送于 {dayjs(n.sentAt).format('YYYY-MM-DD HH:mm')}
+                  </span>
+                )}
+              </div>
+              {!n.isSent && (
+                <Popconfirm
+                  title="确定取消此通知吗？"
+                  okText="取消通知"
+                  cancelText="保留"
+                  onConfirm={async () => {
+                    await cancelNotify(n.id)
+                    if (id) await fetchByTodoId(id)
+                    message.success('已取消')
+                  }}
+                >
+                  <Button variant="gh" size="sm">取消</Button>
+                </Popconfirm>
+              )}
+            </div>
+          ))}
+        </div>
+        <div className={styles.notifyAdd}>
+          <DatePicker
+            showTime
+            format="YYYY-MM-DD HH:mm"
+            value={newNotifyTime}
+            onChange={(v) => setNewNotifyTime(v)}
+            className={styles.picker}
+            placeholder="选择通知时间"
+          />
+          <Button
+            variant="pri"
+            size="sm"
+            disabled={!newNotifyTime || !id}
+            onClick={async () => {
+              if (!newNotifyTime || !id) return
+              await scheduleNotify(id, newNotifyTime.format('YYYY-MM-DD HH:mm'))
+              setNewNotifyTime(null)
+              message.success('通知已设置')
+            }}
+          >
+            设置通知
+          </Button>
+        </div>
+      </Card>
+
       {/* Image gallery card */}
       {todo.images && todo.images.length > 0 && (
         <Card>
@@ -417,6 +599,107 @@ export function TodoDetail() {
           </Popconfirm>
         </div>
       </Card>
+
+      {/* Create share modal */}
+      <Modal
+        title="创建分享快照"
+        open={shareModalOpen}
+        onCancel={() => setShareModalOpen(false)}
+        confirmLoading={creatingShare}
+        okText="创建"
+        cancelText="取消"
+        onOk={async () => {
+          if (!id) return
+          setCreatingShare(true)
+          try {
+            await createShare({
+              todoId: id,
+              expiresAt: shareForm.expiresAt.toISOString(),
+              maxViews: shareForm.maxViews,
+              password: shareForm.password || undefined,
+              remark: shareForm.remark || undefined,
+              allowCopy: shareForm.allowCopy,
+              trackVisitors: shareForm.trackVisitors,
+            })
+            message.success('分享已创建')
+            setShareModalOpen(false)
+            await fetchByTodo(id)
+          } catch {
+            message.error('创建失败')
+          } finally {
+            setCreatingShare(false)
+          }
+        }}
+      >
+        <div className={styles.shareForm}>
+          <div className={styles.formRow}>
+            <label className={styles.formLabel}>过期时间</label>
+            <DatePicker
+              showTime
+              format="YYYY-MM-DD HH:mm"
+              value={shareForm.expiresAt}
+              onChange={(v) => v && setShareForm({ ...shareForm, expiresAt: v })}
+              style={{ width: '100%' }}
+              className={styles.picker}
+            />
+          </div>
+          <div className={styles.formRow}>
+            <label className={styles.formLabel}>最大浏览次数</label>
+            <Input
+              type="number"
+              value={shareForm.maxViews}
+              onChange={(e) => setShareForm({ ...shareForm, maxViews: Number(e.target.value) })}
+              className={styles.input}
+            />
+          </div>
+          <div className={styles.formRow}>
+            <label className={styles.formLabel}>密码保护（可选）</label>
+            <Input
+              value={shareForm.password}
+              onChange={(e) => setShareForm({ ...shareForm, password: e.target.value })}
+              placeholder="留空则无密码"
+              className={styles.input}
+            />
+          </div>
+          <div className={styles.formRow}>
+            <label className={styles.formLabel}>备注</label>
+            <Input
+              value={shareForm.remark}
+              onChange={(e) => setShareForm({ ...shareForm, remark: e.target.value })}
+              className={styles.input}
+            />
+          </div>
+          <div className={styles.formRow}>
+            <label className={styles.formLabel}>允许复制</label>
+            <Toggle on={shareForm.allowCopy} onChange={(v) => setShareForm({ ...shareForm, allowCopy: v })} />
+          </div>
+          <div className={styles.formRow}>
+            <label className={styles.formLabel}>访客追踪</label>
+            <Toggle on={shareForm.trackVisitors} onChange={(v) => setShareForm({ ...shareForm, trackVisitors: v })} />
+          </div>
+        </div>
+      </Modal>
+
+      {/* Visitors modal */}
+      <Modal
+        title="访客列表"
+        open={visitorsModalOpen}
+        onCancel={() => setVisitorsModalOpen(false)}
+        footer={null}
+      >
+        <div className={styles.visitorList}>
+          {visitors.length === 0 && (
+            <div className={styles.emptyHint}>暂无访客记录</div>
+          )}
+          {visitors.map((v) => (
+            <div key={v.id} className={styles.visitorItem}>
+              <span className={styles.visitorIp}>{v.visitorIp}</span>
+              <span className={styles.visitorAction}>{v.action === 'view' ? '查看' : '添加'}</span>
+              <span className={styles.visitorTime}>{dayjs(v.createdAt).format('YYYY-MM-DD HH:mm')}</span>
+            </div>
+          ))}
+        </div>
+      </Modal>
     </div>
   )
 }

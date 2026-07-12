@@ -1,0 +1,219 @@
+.screen {
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* Hero */
+.hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.heroLeft { flex: 1; min-width: 0; }
+.hdRow { display: flex; gap: 12px; align-items: flex-start; }
+.hdIc {
+  width: 28px; height: 28px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--mt);
+  display: grid; place-items: center;
+  flex: none;
+}
+.hdIc svg { width: 15px; height: 15px; }
+.title {
+  margin: 4px 0 0;
+  font: 600 24px/1.15 var(--font-sans);
+  letter-spacing: -0.01em;
+  color: var(--fg);
+}
+.song { font-family: var(--font-song); color: var(--primary); font-weight: 600; }
+
+/* Actions */
+.actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.btnIcon { width: 12px; height: 12px; flex: none; }
+
+/* Post card */
+.postCard {
+  cursor: pointer;
+  outline: none;
+}
+.postCard:focus-visible {
+  background: var(--primary-soft);
+}
+.postHead {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.postAv {
+  width: 36px; height: 36px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  display: grid; place-items: center;
+  font: 600 14px/1 var(--font-sans);
+  color: var(--fg);
+  flex: none;
+  overflow: hidden;
+}
+.postAv img { width: 100%; height: 100%; object-fit: cover; }
+.postHeadMain { flex: 1; min-width: 0; }
+.postName {
+  font: 600 13px/1.3 var(--font-sans);
+  color: var(--fg);
+}
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 5px;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  font: 500 10px/1.4 var(--font-sans);
+  color: #fff;
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.postTime {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font: 500 11px/1 var(--font-mono);
+  color: var(--mt2);
+  flex: none;
+  white-space: nowrap;
+}
+.timeIcon { width: 12px; height: 12px; flex: none; }
+
+.postTitle {
+  margin: 12px 0 0;
+  font: 600 15px/1.4 var(--font-sans);
+  color: var(--fg);
+  word-break: break-word;
+}
+.postBody {
+  margin-top: 6px;
+  font: 400 13px/1.6 var(--font-sans);
+  color: var(--mt);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+/* Image grid */
+.imgGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  margin-top: 12px;
+}
+.imgCell {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+.img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Meta row */
+.postMetaRow {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  font: 500 11px/1 var(--font-mono);
+  color: var(--mt2);
+}
+.metaChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.metaIcon { width: 12px; height: 12px; flex: none; }
+
+/* Footer actions */
+.postFooter {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.actBtn, .actStatic {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 500 12px/1 var(--font-mono);
+  color: var(--mt);
+}
+.actBtn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+.actBtn:hover { color: var(--fg); }
+.actLiked { color: var(--primary); }
+.actLiked:hover { color: var(--primary); }
+.actIcon { width: 14px; height: 14px; flex: none; }
+
+/* Load more */
+.loadMoreRow {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
+}
+.endHint {
+  text-align: center;
+  font: 500 11px/1 var(--font-mono);
+  color: var(--mt3);
+  padding: 8px 0;
+}
+
+/* Empty */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 50px 20px;
+  color: var(--mt);
+  text-align: center;
+}
+.emptyIcon {
+  width: 44px; height: 44px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--mt2);
+  display: grid; place-items: center;
+}
+.emptyIcon svg { width: 20px; height: 20px; }
+.emptyTitle {
+  font: 500 14px/1.3 var(--font-sans);
+  color: var(--fg);
+}
+.emptySub {
+  font-size: 12px;
+  color: var(--mt2);
+  max-width: 260px;
+}

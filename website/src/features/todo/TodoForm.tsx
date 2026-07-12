@@ -41,6 +41,8 @@ export function TodoForm({ mode }: TodoFormProps) {
   const [subtasks, setSubtasks] = useState<{ id?: string; text: string }[]>([])
   const [subtaskInput, setSubtaskInput] = useState('')
   const [images, setImages] = useState<string[]>([])
+  const [locationName, setLocationName] = useState('')
+  const [locationAddress, setLocationAddress] = useState('')
   const fetchSubtodos = useTodoStore((s) => s.fetchSubtodos)
 
   useEffect(() => {
@@ -60,6 +62,7 @@ export function TodoForm({ mode }: TodoFormProps) {
           setSelectedCombo(t.comboId)
           setPriority((t.priority as 'high' | 'medium' | 'low') || 'low')
           setImages(t.images || [])
+          setLocationName(t.locationText || '')
           fetchSubtodos(id).then(() => {
             const subs = useTodoStore.getState().subtaskMap[id] || []
             setSubtasks(subs.map((s) => ({ id: s.id, text: s.text })))
@@ -90,6 +93,11 @@ export function TodoForm({ mode }: TodoFormProps) {
         comboId: selectedCombo,
         priority,
         images,
+        locationText: locationName
+          ? locationAddress
+            ? `${locationName}（${locationAddress}）`
+            : locationName
+          : undefined,
       }
       let mainTodoId: string | undefined
       if (mode === 'create') {
@@ -327,6 +335,23 @@ export function TodoForm({ mode }: TodoFormProps) {
                   <span className={styles.emptyHint}>暂无标签</span>
                 )}
               </div>
+            </div>
+
+            {/* Location */}
+            <div className={styles.section}>
+              <div className={styles.fieldLabel}>位置</div>
+              <Input
+                value={locationName}
+                onChange={(e) => setLocationName(e.target.value)}
+                placeholder="位置名称"
+                className={styles.input}
+              />
+              <Input
+                value={locationAddress}
+                onChange={(e) => setLocationAddress(e.target.value)}
+                placeholder="详细地址（可选）"
+                className={styles.input}
+              />
             </div>
 
             {/* Image attachments */}

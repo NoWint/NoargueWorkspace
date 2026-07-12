@@ -4,6 +4,7 @@ import { useComboStore } from '@/stores/combos'
 import { useTodoStore } from '@/stores/todos'
 import {
   CalendarIcon,
+  CalendarCheckIcon,
   ListIcon,
   ChartIcon,
   StarIcon,
@@ -11,6 +12,9 @@ import {
   PlusIcon,
   TrashIcon,
   ChevronDownIcon,
+  ChatIcon,
+  TagIcon,
+  UserIcon,
 } from '@/design/icons'
 import { cn } from '@/lib/utils'
 import styles from './Sidebar.module.css'
@@ -79,16 +83,39 @@ export function Sidebar() {
           <ChartIcon className={styles.navIcon} />
           <span>统计</span>
         </NavLink>
-        <div className={styles.navItem}>
+        <NavLink to="/star" className={navClass}>
           <StarIcon className={styles.navIcon} />
           <span>收藏</span>
           {starredCount > 0 && <span className={styles.ct}>{starredCount}</span>}
-        </div>
+        </NavLink>
         <NavLink to="/search" className={navClass}>
           <SearchIcon className={styles.navIcon} />
           <span>搜索</span>
         </NavLink>
       </nav>
+
+      {/* Feature navigation */}
+      <div className={styles.comboSection}>
+        <div className={styles.secHead}>
+          <span>功能</span>
+        </div>
+        <NavLink to="/checkin" className={navClass}>
+          <CalendarCheckIcon className={styles.navIcon} />
+          <span>签到</span>
+        </NavLink>
+        <NavLink to="/leaderboard" className={navClass}>
+          <ChartIcon className={styles.navIcon} />
+          <span>排行榜</span>
+        </NavLink>
+        <NavLink to="/community" className={navClass}>
+          <ChatIcon className={styles.navIcon} />
+          <span>社区</span>
+        </NavLink>
+        <NavLink to="/reports" className={navClass}>
+          <ListIcon className={styles.navIcon} />
+          <span>工作报告</span>
+        </NavLink>
+      </div>
 
       <div className={styles.comboSection}>
         <div className={styles.secHead}>
@@ -96,11 +123,11 @@ export function Sidebar() {
           <PlusIcon className={styles.secIcon} />
         </div>
         {allCombos.map((c) => (
-          <div key={c.id} className={styles.comboItem}>
+          <NavLink key={c.id} to={`/combos/${c.id}`} className={styles.comboItem}>
             <span className={styles.dot} style={{ background: c.color }} />
             <span className={styles.comboNm}>{c.name}</span>
             <span className={styles.comboCt}>{comboCount(c.id)}</span>
-          </div>
+          </NavLink>
         ))}
       </div>
 
@@ -109,7 +136,49 @@ export function Sidebar() {
           <TrashIcon className={styles.navIcon} />
           <span>回收站</span>
         </NavLink>
-        <div className={styles.userPill}>
+        <NavLink to="/tags" className={navClass}>
+          <TagIcon className={styles.navIcon} />
+          <span>标签管理</span>
+        </NavLink>
+        <NavLink to="/user-center" className={navClass}>
+          <UserIcon className={styles.navIcon} />
+          <span>用户中心</span>
+        </NavLink>
+
+        {/* More tools */}
+        <div className={styles.toolsSection}>
+          <div className={styles.secHead}>
+            <span>更多工具</span>
+          </div>
+          <NavLink to="/password-generator" className={styles.toolLink}>
+            密码生成器
+          </NavLink>
+          <NavLink to="/eating" className={styles.toolLink}>
+            今天吃什么
+          </NavLink>
+          <NavLink to="/motivation" className={styles.toolLink}>
+            每日激励
+          </NavLink>
+          <NavLink to="/datamanage" className={styles.toolLink}>
+            数据管理
+          </NavLink>
+          <NavLink to="/notice" className={styles.toolLink}>
+            公告
+          </NavLink>
+          <NavLink to="/changelog" className={styles.toolLink}>
+            更新日志
+          </NavLink>
+          <NavLink to="/guide" className={styles.toolLink}>
+            使用指南
+          </NavLink>
+        </div>
+
+        <div
+          className={styles.userPill}
+          onClick={() => navigate('/user-center')}
+          role="button"
+          tabIndex={0}
+        >
           <div className={styles.userAv}>
             {user?.nickname?.[0] || '?'}
           </div>

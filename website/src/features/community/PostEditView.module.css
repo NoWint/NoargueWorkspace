@@ -1,0 +1,184 @@
+.screen {
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* Hero */
+.hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.heroLeft { flex: 1; min-width: 0; }
+.hdRow { display: flex; gap: 12px; align-items: flex-start; }
+.hdIc {
+  width: 28px; height: 28px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--mt);
+  display: grid; place-items: center;
+  flex: none;
+}
+.hdIc svg { width: 15px; height: 15px; }
+.title {
+  margin: 4px 0 0;
+  font: 600 24px/1.15 var(--font-sans);
+  letter-spacing: -0.01em;
+  color: var(--fg);
+}
+.song { font-family: var(--font-song); color: var(--primary); font-weight: 600; }
+
+/* Actions */
+.actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.btnIcon { width: 12px; height: 12px; flex: none; }
+
+/* Fields */
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.fieldGroup + .fieldGroup { margin-top: 16px; }
+.fieldLabel {
+  font: 500 11px/1 var(--font-mono);
+  color: var(--mt2);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.input {
+  background: var(--input) !important;
+  border-color: var(--border) !important;
+  color: var(--fg) !important;
+}
+.input:hover { border-color: var(--mt3) !important; }
+.input:focus { border-color: var(--primary-line) !important; }
+.textarea {
+  background: var(--input) !important;
+  border-color: var(--border) !important;
+  color: var(--fg) !important;
+  font: 400 13px/1.6 var(--font-sans) !important;
+  resize: vertical;
+}
+.textarea:hover { border-color: var(--mt3) !important; }
+.textarea:focus { border-color: var(--primary-line) !important; }
+.locIcon { width: 13px; height: 13px; color: var(--mt); }
+.locRow {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.locRow > * { flex: 1; min-width: 160px; }
+
+/* Chips (combo) */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chipBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--mt);
+  font: 500 12px/1 var(--font-sans);
+  cursor: pointer;
+}
+.chipBtn:hover { border-color: var(--mt3); color: var(--fg); }
+.chipAct {
+  border-color: var(--primary-line);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.chipDot {
+  width: 8px; height: 8px;
+  flex: none;
+  border: 1px solid var(--border);
+}
+.emptyHint {
+  font: 500 12px/1 var(--font-mono);
+  color: var(--mt2);
+}
+
+/* Todo list */
+.todoList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.todoItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--fg);
+  cursor: pointer;
+  text-align: left;
+}
+.todoItem:hover { border-color: var(--mt3); }
+.todoAct {
+  border-color: var(--primary-line);
+  background: var(--primary-soft);
+}
+.todoCheck {
+  width: 16px; height: 16px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  display: grid; place-items: center;
+  flex: none;
+}
+.todoAct .todoCheck {
+  border-color: var(--primary);
+  background: var(--primary);
+}
+.todoCheckIcon { width: 11px; height: 11px; color: var(--primary-fg); }
+.todoText {
+  flex: 1;
+  min-width: 0;
+  font: 500 13px/1.4 var(--font-sans);
+  color: var(--fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Empty */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 60px 20px;
+  color: var(--mt);
+  text-align: center;
+}
+.emptyIcon {
+  width: 44px; height: 44px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--mt2);
+  display: grid; place-items: center;
+}
+.emptyIcon svg { width: 20px; height: 20px; }
+.emptyTitle {
+  font: 500 14px/1.3 var(--font-sans);
+  color: var(--fg);
+}
+.emptySub {
+  font-size: 12px;
+  color: var(--mt2);
+  max-width: 260px;
+}

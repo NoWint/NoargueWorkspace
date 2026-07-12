@@ -111,6 +111,7 @@
   cursor: pointer;
   font-size: 12px;
   color: var(--mt);
+  text-decoration: none;
 }
 .comboItem:hover { color: var(--fg); }
 .dot { width: 8px; height: 8px; border-radius: 2px; flex: none; }
@@ -155,3 +156,19 @@
   display: grid;
   place-items: center;
 }
+
+/* Tools section */
+.toolsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-top: 6px;
+}
+.toolLink {
+  padding: 4px 6px;
+  font-size: 11.5px;
+  color: var(--mt2);
+  text-decoration: none;
+  cursor: pointer;
+}
+.toolLink:hover { color: var(--fg); }
