@@ -1,0 +1,13 @@
+.tag {
+  font: 500 10.5px/1 var(--font-mono);
+  color: var(--mt);
+  white-space: nowrap;
+  padding: 2px 6px;
+  border: 1px solid var(--border);
+}
+
+.default { color: var(--mt); }
+.pri { color: var(--primary); border-color: var(--primary-line); background: var(--primary-soft); }
+.warn { color: var(--warn); }
+.err { color: var(--destructive); }
+.info { color: var(--info); }
