@@ -221,22 +221,39 @@ Page({
 
   onBadgeColorInput(e) {
     const idx = e.currentTarget.dataset.index;
+    let val = e.detail.value;
+    if (val && !val.startsWith('#')) {
+      val = '#' + val;
+    }
     const colors = [...this.data.badgeColors];
-    colors[idx] = e.detail.value;
+    colors[idx] = val;
     this.setData({ badgeColors: colors });
   },
 
+  normalizeColor(c) {
+    if (!c || typeof c !== 'string') return '#00b26a';
+    let h = c.trim();
+    if (!h.startsWith('#')) h = '#' + h;
+    if (/^#[0-9a-fA-F]{3,8}$/.test(h)) return h;
+    return '#00b26a';
+  },
+
   async saveBadges() {
+    const titles = this.data.badgeTitles;
+    const colors = this.data.badgeColors.map(c => this.normalizeColor(c));
+    this.setData({ badgeColors: colors });
     try {
       const result = await adminApi.updateUserBadges(this.data.userId, {
-        badgeTitles: this.data.badgeTitles,
-        badgeColors: this.data.badgeColors
+        badgeTitles: titles,
+        badgeColors: colors
       });
       if (result.success) {
         wx.showToast({ title: '保存成功', icon: 'success' });
+      } else {
+        wx.showToast({ title: result.message || '保存失败', icon: 'none' });
       }
     } catch (err) {
-      wx.showToast({ title: '保存失败', icon: 'none' });
+      wx.showToast({ title: err.message || '保存失败', icon: 'none' });
     }
   }
 });

@@ -79,7 +79,8 @@
         <textarea
           id="contentTextarea"
           class="content-input"
-          model:value="{{form.content}}"
+          value="{{form.content}}"
+          bindinput="onContentInput"
           placeholder="请输入公告内容，支持 Markdown 格式"
           auto-height
           maxlength="-1"

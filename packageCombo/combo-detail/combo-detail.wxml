@@ -116,13 +116,13 @@
     <view wx:if="{{!adminView}}" class="info-row">
       <view class="info-block report-block" bindtap="navigateToReportBoard">
         <view class="section-header">
-          <text class="section-title">汇报 · 日报 & 周报</text>
+          <text class="section-title">汇报 · 日/周报</text>
           <t-icon name="chevron-right" size="32rpx" color="#999" />
         </view>
       </view>
       <view class="info-block posts-block" bindtap="navigateToComboPosts">
         <view class="section-header">
-          <text class="section-title">组内动态</text>
+          <text class="section-title">动态</text>
           <t-icon name="chevron-right" size="32rpx" color="#999" />
         </view>
       </view>
