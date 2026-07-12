@@ -5,28 +5,81 @@
   gap: 20px;
   overflow-y: auto;
   flex: 1 1 auto;
+  min-height: 0;
 }
-.head { display: flex; justify-content: space-between; align-items: flex-end; }
+
+/* Hero header */
+.hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+.heroLeft { flex: 1; min-width: 0; }
+.hdRow { display: flex; gap: 12px; align-items: flex-start; }
+.hdIc {
+  width: 28px; height: 28px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--mt);
+  display: grid; place-items: center;
+  flex: none;
+}
+.hdIc svg { width: 15px; height: 15px; }
 .title {
   margin: 4px 0 0;
   font: 600 24px/1.15 var(--font-sans);
+  letter-spacing: -0.01em;
   color: var(--fg);
 }
-.nav { display: flex; gap: 6px; }
+.song { font-family: var(--font-song); color: var(--primary); font-weight: 600; }
 
+.nav { display: flex; gap: 6px; }
+.btnIcon { width: 12px; height: 12px; flex: none; }
+
+/* Two-column grid */
+.grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+@media (max-width: 1100px) {
+  .grid { grid-template-columns: 1fr; }
+}
+.mainCol { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.sideCol { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+/* Card head */
+.cardHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+}
+.cardHeadL { display: flex; gap: 12px; align-items: flex-start; }
+.cardTitle {
+  margin: 4px 0 0;
+  font: 600 14px/1.3 var(--font-sans);
+  color: var(--fg);
+}
+
+/* Week header */
 .weekHeader {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 4px;
-  margin-bottom: 8px;
 }
 .weekCell {
   font: 500 10px/1 var(--font-mono);
   color: var(--mt3);
   text-align: center;
-  padding: 4px 0;
+  padding: 6px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
+/* Day grid */
 .dayGrid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -42,28 +95,183 @@
   border: 1px solid transparent;
   background: transparent;
   color: var(--fg);
-  font-size: 11.5px;
   cursor: pointer;
   padding: 0;
 }
 .dayCell:hover { background: var(--muted); }
 .outOfMonth { color: var(--mt3); }
-.today { background: var(--primary); color: var(--primary-fg); font-weight: 600; }
-.selected { border-color: var(--primary-line); background: var(--primary-soft); }
-.today.selected { background: var(--primary); }
-.dayNum { font: 500 11.5px/1 var(--font-sans); }
+.outOfMonth:hover { color: var(--mt2); }
+.today {
+  background: var(--primary);
+  color: var(--primary-fg);
+  font-weight: 600;
+}
+.today:hover { background: var(--primary-hi); }
+.selected {
+  border-color: var(--primary-line);
+  background: var(--primary-soft);
+}
+.dayNum {
+  font: 500 11.5px/1 var(--font-sans);
+}
 .dot {
   position: absolute;
   bottom: 4px;
-  width: 3px; height: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px;
+  height: 3px;
   background: var(--primary);
   border-radius: 50%;
 }
-.today .dot { background: var(--primary-fg); }
+.dotToday {
+  background: var(--primary-fg);
+}
 
-.cardHead { display: flex; justify-content: space-between; align-items: flex-start; }
-.cardTitle {
-  margin: 4px 0 0;
-  font: 600 14px/1.3 var(--font-sans);
+/* Todo list */
+.todoList { display: flex; flex-direction: column; }
+
+/* Empty state */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 40px 20px;
+  color: var(--mt);
+  text-align: center;
+}
+.emptyIcon {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--mt2);
+  display: grid;
+  place-items: center;
+}
+.emptyIcon svg { width: 18px; height: 18px; }
+.emptyTitle {
+  font: 500 14px/1.3 var(--font-sans);
   color: var(--fg);
+}
+.emptySub {
+  font-size: 12px;
+  color: var(--mt2);
+  max-width: 260px;
+}
+
+/* Card footer */
+.cardFoot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+.footText {
+  font: 500 10.5px/1 var(--font-mono);
+  color: var(--mt);
+}
+
+/* Mini stats (2-col grid in sidebar) */
+.miniStats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.deltaUp { color: var(--success); }
+.deltaDown { color: var(--destructive); }
+
+/* Side empty */
+.sideEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px 12px;
+  color: var(--mt2);
+  font-size: 12px;
+  text-align: center;
+}
+.sideEmptyIcon {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--mt2);
+  display: grid;
+  place-items: center;
+}
+.sideEmptyIcon svg { width: 14px; height: 14px; }
+
+/* Upcoming list */
+.upcomingList {
+  display: flex;
+  flex-direction: column;
+}
+.upcomingItem {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+.upcomingItem:last-child { border-bottom: 0; }
+.upcomingItem:hover { background: var(--muted); }
+
+.upcomingDate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 0;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+.upcomingDay {
+  font: 600 14px/1 var(--font-sans);
+  color: var(--fg);
+}
+.upcomingMonth {
+  margin-top: 2px;
+  font: 500 9px/1 var(--font-mono);
+  color: var(--mt2);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.upcomingMain { min-width: 0; }
+.upcomingTitle {
+  font-weight: 500;
+  color: var(--fg);
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.upcomingSub {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 3px;
+  color: var(--mt);
+  font-size: 11.5px;
+}
+.upcomingTime {
+  font: 500 10.5px/1 var(--font-mono);
+  color: var(--mt2);
+}
+.upcomingDateStr {
+  font: 500 10px/1 var(--font-mono);
+  color: var(--mt2);
+}
+
+/* On small screens, upcoming list items stretch full width */
+@media (max-width: 720px) {
+  .miniStats { grid-template-columns: 1fr 1fr; }
 }
