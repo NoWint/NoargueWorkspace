@@ -183,7 +183,7 @@ const create = async (req, res) => {
     const users = await query('SELECT todo_limit FROM users WHERE id = ?', [userId]);
     const todoLimit = users[0]?.todo_limit || 100;
     
-        const newTotal = countResult[0].count + 1 + countNestedSubtasks(subtasks);
+      const newTotal = countResult[0].count + 1 + countNestedSubtasks(subtasks);
     if (newTotal > todoLimit) {
       return res.status(400).json({
         success: false,
