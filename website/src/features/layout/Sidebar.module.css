@@ -9,46 +9,120 @@
   font-size: 13px;
   overflow-y: auto;
 }
+.sb::-webkit-scrollbar { width: 6px; }
+.sb::-webkit-scrollbar-thumb { background: var(--mt3); }
+.sb::-webkit-scrollbar-track { background: transparent; }
 
-.brand { display: flex; align-items: center; gap: 8px; padding: 4px 6px; }
-.logo {
+/* Workspace switcher */
+.ws {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  cursor: pointer;
+  color: var(--mt);
+}
+.ws:hover { color: var(--fg); }
+.wsAv {
   width: 18px; height: 18px; border-radius: 999px;
   background: var(--primary); color: var(--primary-fg);
   display: grid; place-items: center;
   font: 600 9px/1 var(--font-sans);
+  flex: none;
 }
-.name { font-weight: 500; font-size: 12.5px; color: var(--fg); }
+.wsNm {
+  font-weight: 500;
+  flex: 1;
+  font-size: 12.5px;
+  color: var(--fg);
+}
+.wsChev {
+  color: var(--mt);
+  flex: none;
+  width: 12px;
+  height: 12px;
+}
 
-.nav { display: flex; flex-direction: column; }
-.nav a, .navItem {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 6px 6px; font-size: 12.5px; color: var(--mt);
-  text-decoration: none; cursor: pointer;
+/* CTA */
+.cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 11px;
+  background: var(--primary);
+  color: var(--primary-fg);
+  cursor: pointer;
+  font: 500 12px/1 var(--font-sans);
 }
-.nav a:hover, .navItem:hover { color: var(--fg); }
-.act { color: var(--fg) !important; }
+.cta:hover { background: var(--primary-hi); }
+.ctaLabel { display: flex; align-items: center; gap: 6px; }
+.ctaIcon { flex: none; width: 12px; height: 12px; }
+.ctaKbd {
+  font: 500 10px/1 var(--font-mono);
+  opacity: 0.7;
+}
+
+/* Nav */
+.nav { display: flex; flex-direction: column; }
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 6px;
+  cursor: pointer;
+  font-size: 12.5px;
+  color: var(--mt);
+  text-decoration: none;
+}
+.navItem:hover { color: var(--fg); }
+.navItem:hover .navIcon { color: var(--mt); }
+.navItem.act { color: var(--fg); }
+.navItem.act .navIcon { color: var(--primary); }
+.navIcon {
+  color: var(--mt2);
+  flex: none;
+  width: 14px;
+  height: 14px;
+}
 .ct {
+  margin-left: auto;
   font: 500 10px/1 var(--font-mono);
   color: var(--mt2);
 }
 
-.comboSection { display: flex; flex-direction: column; gap: 2px; }
+/* Combo section */
+.comboSection { display: flex; flex-direction: column; gap: 0; }
 .secHead {
   font: 500 10px/1 var(--font-mono);
   letter-spacing: 0.08em;
   color: var(--mt2);
   text-transform: uppercase;
   padding: 0 6px 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
 }
+.secIcon { color: var(--mt3); width: 10px; height: 10px; }
 .comboItem {
-  display: grid; grid-template-columns: 10px 1fr auto; gap: 8px;
-  align-items: center; padding: 5px 6px; cursor: pointer;
-  font-size: 12px; color: var(--mt);
+  display: grid;
+  grid-template-columns: 10px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 5px 6px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--mt);
 }
 .comboItem:hover { color: var(--fg); }
-.dot { width: 8px; height: 8px; }
-.comboName { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dot { width: 8px; height: 8px; border-radius: 2px; flex: none; }
+.comboNm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.comboCt {
+  font: 500 10px/1 var(--font-mono);
+  color: var(--mt3);
+}
 
+/* Footer */
 .footer {
   margin-top: auto;
   padding-top: 12px;
@@ -58,17 +132,28 @@
   gap: 8px;
 }
 .userPill {
-  display: flex; align-items: center; gap: 8px;
-  padding: 6px 6px; cursor: pointer; color: var(--mt);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 6px;
+  cursor: pointer;
+  color: var(--mt);
 }
-.avatar {
+.userPill:hover { color: var(--fg); }
+.userAv {
   width: 20px; height: 20px; border-radius: 999px;
   background: var(--primary); color: var(--primary-fg);
   display: grid; place-items: center;
   font: 600 9px/1 var(--font-sans);
+  flex: none;
 }
 .handle { font-size: 12px; font-weight: 500; flex: 1; color: var(--fg); }
 .badge {
-  font: 500 9.5px/1 var(--font-mono);
+  min-width: 28px;
+  height: 20px;
+  padding: 0 6px;
   color: var(--mt3);
+  font: 500 9.5px/1 var(--font-mono);
+  display: grid;
+  place-items: center;
 }
