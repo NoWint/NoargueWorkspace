@@ -1,0 +1,16 @@
+{
+  "usingComponents": {
+    "t-swipe-cell": "tdesign-miniprogram/swipe-cell/swipe-cell",
+    "t-cell": "tdesign-miniprogram/cell/cell",
+    "t-radio": "tdesign-miniprogram/radio/radio",
+    "t-fab": "tdesign-miniprogram/fab/fab",
+    "t-action-sheet": "tdesign-miniprogram/action-sheet/action-sheet",
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-popup": "tdesign-miniprogram/popup/popup",
+    "t-button": "tdesign-miniprogram/button/button"
+  },
+  
+  "navigationStyle": "custom",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark"
+}

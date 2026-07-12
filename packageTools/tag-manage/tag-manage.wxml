@@ -1,0 +1,95 @@
+<view class="container">
+  <view wx:if="{{!isLoggedIn}}" class="login-card">
+    <view class="login-icon">
+      <t-icon name="user" size="48rpx" color="#10b981" />
+    </view>
+    <view class="login-content">
+      <text class="login-title">登录同步标签</text>
+      <text class="login-text">登录后可创建和管理自定义标签</text>
+    </view>
+    <button class="login-btn" bindtap="goLogin">立即登录</button>
+  </view>
+
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">系统标签</text>
+      <text class="section-hint">不可编辑</text>
+    </view>
+    <view class="tag-list">
+      <view class="tag-item" wx:for="{{systemTags}}" wx:key="id">
+        <view class="tag-dot" style="background: {{item.color}}"></view>
+        <text class="tag-name">{{item.name}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">自定义标签</text>
+      <view class="add-btn" bindtap="showAddTag">
+        <t-icon name="add" size="32rpx" color="#00b26a" />
+        <text>添加</text>
+      </view>
+    </view>
+    <view class="tag-list">
+      <view class="tag-item" wx:for="{{userTags}}" wx:key="id">
+        <view class="tag-dot" style="background: {{item.color}}"></view>
+        <text class="tag-name">{{item.name}}</text>
+        <view class="tag-actions">
+          <t-icon name="edit" size="36rpx" color="#666" data-tag="{{item}}" bindtap="editTag" />
+          <t-icon name="delete" size="36rpx" color="#ff4d4f" data-tag="{{item}}" bindtap="deleteTag" />
+        </view>
+      </view>
+      <view wx:if="{{userTags.length === 0}}" class="empty-tip">
+        <t-icon name="tag" size="48rpx" class="empty-icon"></t-icon>
+        <text>暂无标签...</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<t-popup
+  visible="{{showAddModal}}"
+  placement="bottom"
+  bind:visible-change="closeModal"
+>
+  <view class="popup-content">
+    <view class="popup-header">
+      <text class="popup-title">{{editingTag ? '编辑标签' : '添加标签'}}</text>
+      <t-icon name="close" size="40rpx" color="#999" bindtap="closeModal" />
+    </view>
+    
+    <view class="form-item">
+      <text class="label">标签名称</text>
+      <t-input
+        placeholder="输入标签名称"
+        value="{{tagName}}"
+        borderless
+        bind:change="onNameInput"
+        style="--td-input-bg-color: #f8f8f8; --td-input-border-radius: 32rpx"
+        t-class="tag-input"
+      />
+    </view>
+
+    <view class="form-item">
+      <text class="label">标签颜色</text>
+      <view class="color-grid">
+        <view 
+          class="color-item {{tagColor === item ? 'selected' : ''}}" 
+          style="background: {{item}}"
+          wx:for="{{colors}}" 
+          wx:key="*this"
+          data-color="{{item}}"
+          bindtap="selectColor"
+        >
+          <t-icon wx:if="{{tagColor === item}}" name="check" size="32rpx" color="#fff" />
+        </view>
+      </view>
+    </view>
+
+    <view class="popup-actions">
+      <t-button theme="light" size="large" bindtap="closeModal">取消</t-button>
+      <t-button theme="primary" size="large" bindtap="saveTag">保存</t-button>
+    </view>
+  </view>
+</t-popup>

@@ -1,0 +1,56 @@
+.combo-list {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.06);
+  padding: 24rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+.combo-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+.combo-icon {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+  background-color: #f5f5f5;
+}
+.combo-icon-text {
+  font-size: 24rpx;
+  font-weight: 500;
+}
+.combo-body {
+  flex: 1;
+  min-width: 0;
+}
+.combo-name {
+  font-size: 30rpx;
+  color: #333333;
+  font-weight: 500;
+}
+.combo-desc {
+  font-size: 24rpx;
+  color: #bbbbbb;
+  margin-top: 4rpx;
+}
+.combo-arrow {
+  font-size: 36rpx;
+  color: #cccccc;
+  margin-left: 12rpx;
+}
+.empty-state {
+  padding: 60rpx 0;
+  text-align: center;
+  font-size: 28rpx;
+  color: #cccccc;
+}

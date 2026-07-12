@@ -1,0 +1,17 @@
+<view class="starred-list">
+  <view class="star-header">
+    <text>⭐ 收藏的待办</text>
+    <text class="star-count">共 {{items.total || 0}} 条</text>
+  </view>
+  <view wx:if="{{items.todos && items.todos.length > 0}}">
+    <view wx:for="{{items.todos}}" wx:key="id" class="star-item {{item.completed ? 'completed' : ''}}">
+      <view class="star-body">
+        <view class="star-text {{item.completed ? 'done' : ''}}">{{item.text}}</view>
+        <view class="star-meta">{{item.setDate}} {{item.setTime}}</view>
+      </view>
+    </view>
+  </view>
+  <view wx:elif="{{items.todos && items.todos.length === 0}}" class="empty-state">
+    <text>暂无收藏待办</text>
+  </view>
+</view>

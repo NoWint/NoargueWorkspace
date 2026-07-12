@@ -1,0 +1,349 @@
+<view class="container">
+  <view class="fixed-header" id="fixedHeader">
+    <view class="combo-header">
+      <t-icon name="{{combo.icon || 'folder'}}" size="48rpx" color="{{combo.color || '#00b26a'}}" />
+      <text class="combo-name">{{combo.name || '组合详情'}}</text>
+      <text wx:if="{{isShared}}" class="combo-badge">协作</text>
+      <text wx:if="{{adminView}}" class="admin-badge">管理员视图</text>
+      <t-icon 
+        wx:if="{{!adminView && (!isShared || userRole === 'owner')}}" 
+        name="edit" 
+        size="42rpx" 
+        color="#999" 
+        class="edit-icon"
+        bindtap="showEditName"
+      />
+      <t-icon
+        wx:if="{{!adminView && isShared}}" 
+        name="view-list"
+        size="42rpx" 
+        color="#999" 
+        class="edit-icon"
+        bindtap="navigateToCollaboration"
+      />
+    </view>
+
+    <view wx:if="{{combo.description}}" class="description-section">
+      <view class="description-header" bindtap="toggleDescription">
+        <text class="description-label">描述</text>
+        <t-icon name="{{showDescription ? 'chevron-up' : 'chevron-down'}}" size="32rpx" color="#999" />
+      </view>
+      <view wx:if="{{showDescription}}" class="description-content">
+        <text>{{combo.description}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{!adminView && isShared && requests.length > 0 && (userRole === 'owner' || userRole === 'admin')}}" class="requests-section">
+      <view class="section-header">
+        <text class="section-title">待审批 · {{requests.length}}人</text>
+      </view>
+      <view class="request-list">
+        <view class="request-item" wx:for="{{requests}}" wx:key="id">
+          <image class="request-avatar" src="{{item.avatarUrl || '/images/avatar.png'}}" />
+          <view class="request-info">
+            <text class="request-name">{{item.nickname || '用户'}}</text>
+            <text class="request-time">{{item.formattedTime}}</text>
+          </view>
+          <view class="request-actions">
+            <view class="action-btn approve" data-id="{{item.id}}" bindtap="approveRequest">通过</view>
+            <view class="action-btn reject" data-id="{{item.id}}" bindtap="rejectRequest">拒绝</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{!isShared}}" class="info-row single">
+      <view class="info-block stats-block full" bindtap="navigateToStats">
+        <view class="section-header">
+          <text class="section-title">统计</text>
+          <t-icon name="chevron-right" size="32rpx" color="#999" />
+        </view>
+        <view class="stats-preview">
+          <view class="stat-item">
+            <text class="stat-value">{{todos.length}}</text>
+            <text class="stat-label">待办</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-value">{{completedCount}}</text>
+            <text class="stat-label">完成</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-value">{{completionRate}}%</text>
+            <text class="stat-label">完成率</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{isShared}}" class="info-row">
+      <view class="info-block members-block" bindtap="{{adminView ? 'navigateToCollaboration' : 'navigateToCollaboration'}}">
+        <view class="section-header">
+          <text class="section-title">成员 · {{members.length}}人</text>
+          <t-icon wx:if="{{adminView}}" name="chevron-right" size="32rpx" color="#999" />
+        </view>
+        <view class="members-preview">
+          <view class="member-avatar" wx:for="{{members}}" wx:key="id" wx:if="{{index < 4}}">
+            <image src="{{item.avatarUrl || '/images/avatar.png'}}" mode="aspectFill" />
+          </view>
+          <view wx:if="{{members.length > 4}}" class="member-more">+{{members.length - 4}}</view>
+          <view wx:if="{{!adminView && (userRole === 'owner' || userRole === 'admin')}}" class="invite-btn" catchtap="navigateToCollaboration">
+            <t-icon name="add" size="32rpx" color="#fff" />
+          </view>
+        </view>
+      </view>
+      
+      <view class="info-block stats-block" bindtap="navigateToStats">
+        <view class="section-header">
+          <text class="section-title">统计</text>
+          <t-icon name="chevron-right" size="32rpx" color="#999" />
+        </view>
+        <view class="stats-preview">
+          <view class="stat-item">
+            <text class="stat-value">{{myAssignedCount}}</text>
+            <text class="stat-label">被分配</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-value">{{completedCount}}</text>
+            <text class="stat-label">已完成</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-value">{{completionRate}}%</text>
+            <text class="stat-label">完成率</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view wx:if="{{isShared}}" class="info-block report-block" bindtap="navigateToReportBoard">
+      <view class="section-header">
+        <text class="section-title">汇报 · 日报 & 周报</text>
+        <t-icon name="chevron-right" size="32rpx" color="#999" />
+      </view>
+    </view>
+
+    <view class="section-header">
+      <view class="section-title-row">
+        <text class="section-title">待办 · {{isShared ? filteredSharedTodos.length : todos.length}}项</text>
+        <view wx:if="{{isShared}}" class="filter-btn" bindtap="showFilterPopup">
+          <t-icon name="filter" size="36rpx" color="{{filterMode !== 'all' ? '#00b26a' : '#999'}}" />
+          <text class="filter-text" style="color: {{filterMode !== 'all' ? '#00b26a' : '#999'}}">{{filterModeText}}</text>
+        </view>
+      </view>
+      <view wx:if="{{isShared && (userRole === 'owner' || userRole === 'admin')}}" class="view-toggle">
+        <text class="toggle-label">显示整体完成情况</text>
+        <t-switch 
+          value="{{showOverallCompletion}}" 
+          bind:change="toggleViewMode" 
+          size="small"
+        />
+      </view>
+    </view>
+  </view>
+
+  <view class="scrollable-content" style="padding-top: {{fixedHeaderHeight}}px;">
+    <view class="todos-section">
+      <view wx:if="{{!isShared}}" class="todo-list">
+        <block wx:for="{{todos}}" wx:key="time">
+          <view class="todo-item-wrapper" data-priority="{{item.priority}}">
+            <t-swipe-cell class="todo-item {{item.completed ? 'completed' : ''}}">
+                <view class="priority-bar" data-priority="{{item.priority}}"></view>
+                <t-cell
+                title="{{item.text}}"
+                description="{{item.location ? item.location.name : item.remarks}}"
+                note="{{item.formattedDate}}"
+                bordered="{{false}}"
+                data-index="{{index}}"
+                bindtap="navigateToDetail"
+              >
+                <view
+                  wx:if="{{item.completed}}"
+                  class="completed-decorate"
+                >✓</view>
+                <view
+                  slot="right-icon"
+                  style="position:relative;z-index:1000;background:inherit;padding-left:20rpx"
+                  catchtap="stopPropagation"
+                >
+                  <t-radio
+                    checked="{{item.completed}}"
+                    bind:change="toggleTodo"
+                    block="{{false}}"
+                    data-index="{{index}}"
+                    data-component="t-radio"
+                    custom-style="--td-radio-bg-color: transparent;"
+                  />
+                </view>
+              </t-cell>
+              <view slot="right" class="btn-wrapper">
+                <view
+                  class="btn edit-btn"
+                  data-index="{{index}}"
+                  bind:tap="handleSwipeAction"
+                  data-type="edit"
+                >编辑</view>
+                <view
+                  class="btn delete-btn"
+                  data-index="{{index}}"
+                  bind:tap="handleSwipeAction"
+                  data-type="delete"
+                >删除</view>
+              </view>
+            </t-swipe-cell>
+          </view>
+        </block>
+      </view>
+
+      <view wx:if="{{isShared}}" class="todo-list">
+        <block wx:for="{{filteredSharedTodos}}" wx:key="id">
+          <view class="todo-item-wrapper" data-priority="{{item.priority}}">
+            <t-swipe-cell class="todo-item {{showOverallCompletion ? (item.completedAt ? 'completed' : '') : (item.myCompletedAt ? 'completed' : '')}}">
+                <view class="priority-bar" data-priority="{{item.priority}}"></view>
+              <view wx:if="{{item.isStar}}" class="star-badge">
+                <t-icon name="star-filled" size="26rpx" color="#ffffff" />
+              </view>
+              <t-cell
+                title="{{item.text}}"
+                description="{{adminView ? (item.assignType === 'all' ? '全员完成' : item.assignType === 'any' ? '任一完成' : '指定' + item.assignCount + '人') + ' | 进度' + item.completedCount + '/' + item.assignCount + (item.completedCount > 0 ? ' | 已完成: ' + item.completedNames : '') : (showOverallCompletion ? (item.completedAt ? (item.assignType === 'all' ? '全员完成' : item.assignType === 'any' ? '任一完成' : '指定' + item.assignCount + '人') + ' | 完成于' + item.formattedCompletedAt : (item.assignType === 'all' ? '全员完成' : item.assignType === 'any' ? '任一完成' : '指定' + item.assignCount + '人') + ' | 完成进度' + item.completedCount + '/' + item.assignCount + '，占比' + item.progressPercent + '%') : (item.assignType === 'all' ? '全员完成' : item.assignType === 'any' ? '任一完成' : '指定' + item.assignCount + '人') + (item.remarks ? ' | ' + item.remarks : ''))}}"
+                note="{{item.formattedDate}}"
+                bordered="{{false}}"
+                data-id="{{item.id}}"
+                bindtap="navigateToSharedDetail"
+              >
+                <view
+                  wx:if="{{item.assignType === 'specific' && item.assignments.length > 0}}"
+                  class="assignee-info"
+                >
+                  <text class="assignee-text">{{item.assigneeNames}}</text>
+                </view>
+                <view
+                  wx:if="{{item.completedAt}}"
+                  class="completed-decorate"
+                >✓</view>
+                <view
+                  wx:if="{{!adminView && item.shouldShowRadio}}"
+                  slot="right-icon"
+                  style="position:relative;z-index:1000;background:inherit;padding-left:20rpx"
+                  catchtap="stopPropagation"
+                >
+                  <t-radio
+                    checked="{{!!item.myCompletedAt}}"
+                    bind:change="toggleSharedTodo"
+                    block="{{false}}"
+                    data-id="{{item.id}}"
+                    data-index="{{index}}"
+                    data-component="t-radio"
+                    custom-style="--td-radio-bg-color: transparent;"
+                  />
+                </view>
+              </t-cell>
+              <view wx:if="{{!adminView && (userRole === 'owner' || userRole === 'admin')}}" slot="right" class="btn-wrapper">
+                <view
+                  class="btn edit-btn"
+                  data-id="{{item.id}}"
+                  bind:tap="handleSharedSwipeAction"
+                  data-type="edit"
+                >编辑</view>
+                <view
+                  class="btn delete-btn"
+                  data-id="{{item.id}}"
+                  bind:tap="handleSharedSwipeAction"
+                  data-type="delete"
+                >删除</view>
+              </view>
+            </t-swipe-cell>
+          </view>
+        </block>
+      </view>
+
+      <view wx:if="{{(isShared ? filteredSharedTodos.length : todos.length) === 0}}" class="empty-state">
+        <text class="empty-text">暂无待办</text>
+        <text wx:if="{{!isShared || userRole === 'owner' || userRole === 'admin'}}" class="empty-hint">点击右下角添加待办</text>
+      </view>
+    </view>
+
+    <view wx:if="{{!adminView}}" class="combo-actions">
+      <view
+        wx:if="{{!isShared}}"
+        class="delete-combo-btn"
+        bindtap="deleteCombo"
+      >
+        <t-icon name="delete" size="36rpx" color="#ff4d4f" />
+        <text class="delete-text">删除组合</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<t-fab
+  wx:if="{{showBackTop}}"
+  icon="arrow-up"
+  bind:click="onToTop"
+  style="right: 32rpx; bottom: 268rpx;"
+/>
+
+<t-fab
+  wx:if="{{!adminView && (!isShared || userRole === 'owner' || userRole === 'admin')}}"
+  icon="microphone-1"
+  bind:touchstart="touchStart"
+  bind:touchend="touchEnd"
+  style="right: 32rpx; bottom: 150rpx;"
+/>
+
+<!-- 语音识别遮罩 -->
+<view wx:if="{{isRecording}}" class="voice-overlay" catchtouchmove="preventTouchMove">
+  <view class="voice-overlay-inner {{overlayPhase === 'show' ? 'show' : ''}}">
+    <view class="voice-center">
+      <text class="voice-hint {{voiceText ? '' : 'placeholder'}}">{{voiceText || '正在聆听...'}}</text>
+      <text class="voice-hint-tip">识别可能需要几秒钟，松手即可结束</text>
+    </view>
+    <view class="voice-wave">
+      <view wx:for="{{voiceWaveBars}}" wx:key="*this" class="voice-wave-bar" style="left:{{index / 32 * 100}}%;animation-delay:{{index * 0.06}}s;"></view>
+    </view>
+    <view class="voice-glow"></view>
+  </view>
+</view>
+
+<t-fab 
+  wx:if="{{!adminView && (!isShared || userRole === 'owner' || userRole === 'admin')}}"
+  icon="add" 
+  bind:click="addTodoToCombo" 
+  style="right: 32rpx; bottom: 32rpx;"
+/>
+
+<t-popup
+  visible="{{showFilterPopup}}"
+  placement="center"
+  close-on-overlay-click="{{true}}"
+  bind:visible-change="onFilterPopupVisibleChange"
+  z-index="99999"
+>
+  <view class="filter-popup">
+    <view class="filter-popup-header">
+      <text class="filter-popup-title">筛选待办</text>
+      <view class="filter-popup-close" bindtap="hideFilterPopup">
+        <t-icon name="close" size="40rpx" color="#999" />
+      </view>
+    </view>
+    <t-radio-group value="{{filterMode}}" bind:change="onFilterChange">
+      <view class="filter-option" data-value="all" bindtap="onFilterOptionTap">
+        <t-radio value="all" checked="{{filterMode === 'all'}}" label="所有待办" />
+      </view>
+      <view class="filter-option" data-value="my_uncompleted" bindtap="onFilterOptionTap">
+        <t-radio value="my_uncompleted" checked="{{filterMode === 'my_uncompleted'}}" label="我未完成的待办" />
+      </view>
+      <view class="filter-option" data-value="my_completed" bindtap="onFilterOptionTap">
+        <t-radio value="my_completed" checked="{{filterMode === 'my_completed'}}" label="我已完成的待办" />
+      </view>
+      <block wx:if="{{userRole === 'owner' || userRole === 'admin'}}">
+        <view class="filter-option" data-value="my_assigned" bindtap="onFilterOptionTap">
+          <t-radio value="my_assigned" checked="{{filterMode === 'my_assigned'}}" label="我被分配的待办" />
+        </view>
+        <view class="filter-option" data-value="global_uncompleted" bindtap="onFilterOptionTap">
+          <t-radio value="global_uncompleted" checked="{{filterMode === 'global_uncompleted'}}" label="【全局】未完成的待办" />
+        </view>
+        <view class="filter-option" data-value="global_completed" bindtap="onFilterOptionTap">
+          <t-radio value="global_completed" checked="{{filterMode === 'global_completed'}}" label="【全局】已完成的待办" />
+        </view>
+      </block>
+    </t-radio-group>
+  </view>
+</t-popup>

@@ -1,0 +1,196 @@
+<view class="page {{isQrCodeMode ? 'qrcode-mode' : ''}}">
+
+  <!-- ===== Hero ===== -->
+  <view class="hero" wx:if="{{!isQrCodeMode || qrStep === 'need_login' || qrStep === 'setup_profile'}}">
+    <image class="logo" src="https://api.yzjtiantian.cn/uploads/logo/logo.png" mode="aspectFill" />
+    <text class="title">{{isQrCodeMode ? '扫码登录确认' : '时光绿径待办'}}</text>
+    <text class="subtitle">{{isQrCodeMode ? '请先完成微信登录以授权网页端' : '登录后数据云端同步，多设备实时协作'}}</text>
+  </view>
+
+  <!-- ===== 标准登录 ===== -->
+  <block wx:if="{{!isQrCodeMode}}">
+    <view class="login-body">
+      <view class="cmp-section" wx:if="{{qrStep === 'detect'}}">
+        <view class="cmp-label">功能对比</view>
+        <view class="cmp-row">
+          <view class="cmp-col cmp-col--left">
+            <text class="cmp-text-before">本地存储</text>
+            <t-icon name="save" size="32rpx" color="#ccc" />
+          </view>
+          <view class="cmp-arrow"><t-icon name="arrow-right" size="42rpx" color="#ccc" /></view>
+          <view class="cmp-col cmp-col--right">
+            <t-icon name="cloud-upload" size="32rpx" color="#00b26a" />
+            <text class="cmp-text-after">云端同步</text>
+          </view>
+        </view>
+        <view class="cmp-row">
+          <view class="cmp-col cmp-col--left">
+            <text class="cmp-text-before">没有提醒</text>
+            <t-icon name="notification-error" size="32rpx" color="#ccc" />
+          </view>
+          <view class="cmp-arrow"><t-icon name="arrow-right" size="42rpx" color="#ccc" /></view>
+          <view class="cmp-col cmp-col--right">
+            <t-icon name="notification" size="32rpx" color="#00b26a" />
+            <text class="cmp-text-after">微信通知</text>
+          </view>
+        </view>
+        <view class="cmp-row">
+          <view class="cmp-col cmp-col--left">
+            <text class="cmp-text-before">单人模式</text>
+            <t-icon name="user" size="32rpx" color="#ccc" />
+          </view>
+          <view class="cmp-arrow"><t-icon name="arrow-right" size="42rpx" color="#ccc" /></view>
+          <view class="cmp-col cmp-col--right">
+            <t-icon name="usergroup" size="32rpx" color="#00b26a" />
+            <text class="cmp-text-after">多人协作</text>
+          </view>
+        </view>
+        <view class="cmp-row">
+          <view class="cmp-col cmp-col--left">
+            <text class="cmp-text-before">单一设备</text>
+            <t-icon name="mobile" size="32rpx" color="#ccc" />
+          </view>
+          <view class="cmp-arrow"><t-icon name="arrow-right" size="42rpx" color="#ccc" /></view>
+          <view class="cmp-col cmp-col--right">
+            <t-icon name="device" size="32rpx" color="#00b26a" />
+            <text class="cmp-text-after">多端同步</text>
+          </view>
+        </view>
+        <text class="cmp-footer">登录后解锁以上所有功能，数据安全不丢失</text>
+      </view>
+    </view>
+    <view class="login-bottom" wx:if="{{qrStep === 'detect'}}">
+      <view class="agreement">
+        <view class="agreement-checkbox">
+          <t-checkbox checked="{{agreed}}" bind:change="onAgreeChange" borderless="{{true}}" />
+        </view>
+        <text class="agreement-text" catchtap="onTapAgreement">我已阅读并同意</text>
+        <text class="agreement-link" catchtap="showUserAgreement">《用户协议》</text>
+        <text class="agreement-text" catchtap="onTapAgreement">和</text>
+        <text class="agreement-link" catchtap="showPrivacyPolicy">《隐私政策》</text>
+      </view>
+      <button class="login-btn {{agreed ? '' : 'disabled'}}" loading="{{loading}}" bindtap="handleLogin">
+        <t-icon wx:if="{{!loading}}" name="logo-wechat-stroke" size="48rpx" color="#fff" />
+        <text>微信一键登录</text>
+      </button>
+    </view>
+  </block>
+
+  <!-- ===== QR: need_login ===== -->
+  <block wx:if="{{isQrCodeMode && qrStep === 'need_login'}}">
+    <view class="qr-body">
+      <view class="banner banner--info">
+        <t-icon name="info-circle" size="48rpx" color="#2dd4bf" />
+        <view class="banner-body">
+          <text class="banner-title">检测到网页端登录请求</text>
+          <text class="banner-desc">请先登录您的账号，然后授权网页端登录</text>
+        </view>
+      </view>
+    </view>
+    <view class="login-bottom">
+      <view class="agreement">
+        <view class="agreement-checkbox">
+          <t-checkbox checked="{{agreed}}" bind:change="onAgreeChange" borderless="{{true}}" />
+        </view>
+        <text class="agreement-text" catchtap="onTapAgreement">我已阅读并同意</text>
+        <text class="agreement-link" catchtap="showUserAgreement">《用户协议》</text>
+        <text class="agreement-text" catchtap="onTapAgreement">和</text>
+        <text class="agreement-link" catchtap="showPrivacyPolicy">《隐私政策》</text>
+      </view>
+      <button class="login-btn {{agreed ? '' : 'disabled'}}" loading="{{loading}}" bindtap="handleLogin">
+        <t-icon wx:if="{{!loading}}" name="logo-wechat-stroke" size="48rpx" color="#fff" />
+        <text>微信一键登录</text>
+      </button>
+    </view>
+  </block>
+
+  <!-- ===== setup_profile (共用) ===== -->
+  <block wx:if="{{qrStep === 'setup_profile'}}">
+    <view class="qr-body qr-body--center">
+      <view class="banner banner--setup">
+        <t-icon name="user-add" size="48rpx" color="#00b26a" />
+        <view class="banner-body">
+          <text class="banner-title">欢迎加入时光绿径待办！</text>
+          <text class="banner-desc">{{isQrCodeMode ? '设置您的昵称和头像' : '设置昵称和头像，让其他小伙伴认识你吧'}}</text>
+        </view>
+      </view>
+      <view class="profile-setup">
+        <view class="profile-avatar-wrap">
+          <button class="avatar-btn" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
+            <image class="profile-avatar" src="{{profileAvatarUrl || '/assets/default-avatar.png'}}" mode="aspectFill" />
+          </button>
+          <view class="avatar-badge"><t-icon name="camera" size="32rpx" color="#fff" /></view>
+        </view>
+        <input class="nickname-input" type="nickname" placeholder="请输入昵称" value="{{profileNickname}}" bindinput="onInputNickname" bindnicknamereview="onNicknameReview" maxlength="16" adjust-position="{{true}}" />
+        <view class="profile-actions">
+          <button class="btn-secondary" bindtap="skipProfileSetup">跳过</button>
+          <button class="btn-primary" loading="{{loading}}" bindtap="handleSaveProfile">保存并继续</button>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <!-- ===== QR: confirm ===== -->
+  <block wx:if="{{isQrCodeMode && qrStep === 'confirm'}}">
+    <view class="qr-body qr-body--center">
+      <view class="confirm-header">
+        <view class="confirm-icon"><t-icon name="check-circle" size="180rpx" color="#00b26a" /></view>
+        <text class="confirm-title">登录验证成功</text>
+        <text class="confirm-desc">以下账号将用于登录网页端</text>
+      </view>
+      <view class="confirm-user-card">
+        <image class="confirm-avatar" src="{{currentUserInfo.avatarUrl || '/assets/default-avatar.png'}}" mode="aspectFill" />
+        <view class="confirm-user-info">
+          <text class="confirm-nickname">{{currentUserInfo.nickname || '用户'}}</text>
+          <text class="confirm-id">ID: {{currentUserInfo.id}}</text>
+        </view>
+      </view>
+      <view class="banner banner--warn">
+        <t-icon name="info-circle" size="48rpx" color="#faad14" />
+        <view class="banner-body">
+          <text class="banner-title">点击确认后，网页端将登录账号</text>
+        </view>
+      </view>
+    </view>
+    <view class="login-bottom">
+      <button class="login-btn" loading="{{loading}}" bindtap="handleConfirmAuth">确认授权网页端登录</button>
+      <view class="cancel-wrap">
+        <text class="cancel-btn" bindtap="goBackToApp">取消</text>
+      </view>
+    </view>
+  </block>
+
+  <!-- ===== QR: success ===== -->
+  <block wx:if="{{isQrCodeMode && qrStep === 'success'}}">
+    <view class="qr-body qr-body--center">
+      <view class="success-section">
+        <view class="success-icon"><t-icon name="check-circle-filled" size="180rpx" color="#00b26a" /></view>
+        <text class="success-title">授权成功</text>
+        <text class="success-desc">网页端已成功登录，您可以在网页端使用</text>
+      </view>
+    </view>
+    <view class="login-bottom">
+      <button class="login-btn" bindtap="goBackToApp">返回小程序</button>
+    </view>
+  </block>
+
+  <!-- ===== Popups ===== -->
+  <t-popup visible="{{showUserAgreement}}" bind:visible-change="hideUserAgreement" placement="bottom" close-on-overlay-click="{{true}}">
+    <view class="popup">
+      <view class="popup-header">
+        <text class="popup-title">用户协议</text>
+        <view class="popup-close" bindtap="hideUserAgreement"><t-icon name="close" size="40rpx" color="#999" /></view>
+      </view>
+      <scroll-view scroll-y class="popup-body"><t-chat-markdown content="{{userAgreementContent}}" /></scroll-view>
+    </view>
+  </t-popup>
+  <t-popup visible="{{showPrivacyPolicy}}" bind:visible-change="hidePrivacyPolicy" placement="bottom" close-on-overlay-click="{{true}}">
+    <view class="popup">
+      <view class="popup-header">
+        <text class="popup-title">隐私政策</text>
+        <view class="popup-close" bindtap="hidePrivacyPolicy"><t-icon name="close" size="40rpx" color="#999" /></view>
+      </view>
+      <scroll-view scroll-y class="popup-body"><t-chat-markdown content="{{privacyPolicyContent}}" /></scroll-view>
+    </view>
+  </t-popup>
+</view>

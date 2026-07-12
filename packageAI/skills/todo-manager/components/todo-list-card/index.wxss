@@ -1,0 +1,76 @@
+.todo-list {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.06);
+  padding: 24rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+.summary {
+  font-size: 26rpx;
+  color: #999999;
+  margin-bottom: 16rpx;
+  padding: 12rpx 0;
+  border-bottom: 2rpx solid #f0f0f0;
+}
+.todo-item {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+.todo-item.completed .todo-text {
+  text-decoration: line-through;
+  color: #bbbbbb;
+}
+.todo-left {
+  margin-right: 16rpx;
+  padding-top: 4rpx;
+}
+.todo-check {
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 50%;
+  border: 2rpx solid #dddddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.todo-check.checked {
+  background-color: #00b26a;
+  border-color: #00b26a;
+  color: #ffffff;
+  font-size: 24rpx;
+}
+.todo-body {
+  flex: 1;
+  min-width: 0;
+}
+.todo-text {
+  font-size: 30rpx;
+  color: #333333;
+  line-height: 1.4;
+}
+.todo-meta {
+  font-size: 24rpx;
+  color: #bbbbbb;
+  margin-top: 8rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.tag-badge {
+  background-color: #e3f5eb;
+  color: #00b26a;
+  padding: 2rpx 12rpx;
+  border-radius: 8rpx;
+  margin-left: 12rpx;
+  font-size: 22rpx;
+}
+.empty-state {
+  padding: 60rpx 0;
+  text-align: center;
+  font-size: 28rpx;
+  color: #cccccc;
+}

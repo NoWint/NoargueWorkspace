@@ -1,0 +1,16 @@
+function highlight(text, keywords) {
+  if (!text || !keywords) return text;
+  var result = text;
+  var words = keywords.split(' ');
+  for (var i = 0; i < words.length; i++) {
+    var word = words[i];
+    if (!word) continue;
+    var reg = getRegExp(word, 'gi');
+    result = result.replace(reg, '「$&」');
+  }
+  return result;
+}
+
+module.exports = {
+  highlight: highlight
+};

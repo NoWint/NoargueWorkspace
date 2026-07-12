@@ -1,0 +1,31 @@
+export type PartRequired<T, K extends keyof T> = Partial<T> & Required<Pick<T, K>>;
+export type Voidable<T> = T | undefined;
+export type Nullable<T> = T | null;
+export type Callable = (...args: any[]) => any;
+export type PlainObject = NonNullable<unknown>;
+export declare const isDate: (val: unknown) => val is Date;
+export declare const isString: (val: unknown) => val is string;
+export declare const isNumber: (val: unknown) => val is number;
+export declare const isFunction: (val: unknown) => val is Callable;
+export declare const isObject: (val: unknown) => val is Record<any, any>;
+export declare const isPromise: <T = any>(val: unknown) => val is Promise<T>;
+export declare const hasOwn: (val: object, key: string | symbol) => key is keyof typeof val;
+export declare const nonNullable: <T>(val: T) => val is NonNullable<T>;
+export type Union<T> = T extends [infer R, ...infer P] ? R | Union<P> : never;
+export type ArrItem<T> = T extends (infer R)[] ? R : never;
+/** 下划线（snake_case）转小驼峰（lowerCamelCase） */
+export type SnakeToLowerCamel<T extends string, K = Lowercase<T>> = K extends `${infer R}_${infer P}` ? `${R}${Capitalize<SnakeToLowerCamel<P, P>>}` : K;
+/** 小驼峰（lowerCamelCase）转下划线（snake_case） */
+export type LowerCamelToSnake<T extends string, S extends string = '_'> = T extends `${infer R}${infer P}` ? R extends Lowercase<R> ? `${R}${LowerCamelToSnake<P, S>}` : `${S}${Lowercase<R>}${LowerCamelToSnake<P, S>}` : T;
+export declare const camelToSnake: <T extends string>(str: T, separator?: string) => LowerCamelToSnake<T>;
+type AllAwaited<T> = T extends [infer R, ...infer P] ? [Awaited<R>, ...AllAwaited<P>] : T extends Array<infer Q> ? Array<Awaited<Q>> : Awaited<T>;
+export declare const promises: <T extends any[]>(all: T) => Promise<AllAwaited<T>>;
+export declare const values: <T>(obj: Record<string, T>) => T[];
+export declare const notEmptyObject: (val: Record<any, any>) => boolean;
+export declare const omit: <T extends Record<string, any>, K extends keyof T>(obj: T, keys: K[]) => Omit<T, K>;
+export declare const strToStyle: (str: string) => Record<string, string | number>;
+export declare function compareArray(a: Array<any>, b: Array<any>): boolean;
+export declare function compareSame(a: any, b: any): boolean;
+export declare const includes: (arr: Array<string | RegExp>, search: string) => boolean;
+export declare const getStyle: (style: string, key: string) => string | null;
+export {};

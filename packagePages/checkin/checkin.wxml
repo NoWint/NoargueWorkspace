@@ -1,0 +1,110 @@
+<view class="page">
+  <!-- 上半区：签到操作 + 月历 -->
+  <view class="upper-section">
+    <!-- 签到头部 -->
+    <view class="checkin-header">
+      <view class="checkin-left">
+        <view class="streak-row">
+          <t-icon name="task-checked-1" size="52rpx" color="#00b26a" />
+          <text class="streak-num">{{streakDays}}</text>
+          <text class="streak-label">天连签</text>
+        </view>
+        <view class="week-badge">{{yearWeek}}</view>
+        <view class="badge-row" wx:if="{{badgeList.length > 0}}">
+          <view
+            wx:for="{{badgeList}}"
+            wx:key="index"
+            class="badge-item"
+            style="border-color: {{item.color}}; color: {{item.color}}; {{item.flash ? 'animation: flash 0.6s;' : ''}}"
+          >{{item.text}}</view>
+        </view>
+      </view>
+      <view class="checkin-right">
+        <view class="checkin-btn {{checkedIn ? 'checked' : ''}}" bindtap="onCheckin">
+          <t-icon wx:if="{{checkedIn}}" name="check" size="64rpx" color="white" />
+          <text wx:else class="btn-text">签</text>
+        </view>
+        <text class="btn-sub-text">{{checkedIn ? '已签到' : '签到'}}</text>
+      </view>
+    </view>
+
+    <!-- 月历 -->
+    <view class="calendar-section">
+      <view class="calendar-header">
+        <t-icon name="chevron-left" size="32rpx" color="#999" bindtap="prevMonth" />
+        <text class="calendar-title">{{calendarTitle}}</text>
+        <t-icon name="chevron-right" size="32rpx" color="#999" bindtap="nextMonth" />
+      </view>
+      <view class="calendar-grid">
+        <view class="cal-weekday" wx:for="{{['日','一','二','三','四','五','六']}}" wx:key="*this">{{item}}</view>
+        <view
+          wx:for="{{calendarDays}}"
+          wx:key="index"
+          class="cal-day"
+          style="{{item.isToday ? 'border: 2rpx solid #00b26a; background: #e8f8f0;' : ''}} {{item.isChecked ? 'background: #00b26a; color: white; border-radius: 50%;' : ''}} {{!item.isCurrentMonth ? 'color: #ddd;' : ''}}"
+        >
+          {{item.day}}
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 下半区：统计 + 里程碑 -->
+  <view class="lower-section">
+    <!-- 排行榜入口 -->
+    <view class="leaderboard-bar" bindtap="goToLeaderboard">
+      <view class="lb-left">
+        <t-icon name="rank" size="28rpx" color="#00b26a" />
+        <text class="lb-text">签到排行榜</text>
+      </view>
+      <t-icon name="chevron-right" size="28rpx" color="#ccc" />
+    </view>
+
+    <!-- 统计卡片 -->
+    <view class="stats-row">
+      <view class="stat-card">
+        <text class="stat-num">{{totalPoints}}</text>
+        <text class="stat-label">总积分</text>
+      </view>
+      <view class="stat-card">
+        <text class="stat-num">{{monthCount}}</text>
+        <text class="stat-label">本月签到</text>
+      </view>
+      <view class="stat-card">
+        <text class="stat-num">{{totalCheckins}}</text>
+        <text class="stat-label">累计签到</text>
+      </view>
+    </view>
+
+    <!-- 里程碑 -->
+    <view class="milestone-section">
+      <text class="section-title">签到奖励里程碑</text>
+      <view class="milestone-row">
+        <view
+          wx:for="{{milestones}}"
+          wx:key="day"
+          class="milestone-card {{item.achieved ? 'achieved' : ''}}"
+        >
+          <t-icon wx:if="{{item.achieved}}" name="check" size="28rpx" color="#00b26a" />
+          <text class="ms-day">{{item.day}}天</text>
+          <text class="ms-title">{{item.title}}</text>
+          <text class="ms-points">{{item.achieved ? '✓ 已达成' : '+' + item.points + '分'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 积分规则 -->
+    <view class="rules-section">
+      <text class="section-title">积分获取规则</text>
+      <view class="rule-item">• 每日签到 +5 分</view>
+      <view class="rule-item">• 签到当日完成待办额外 +3 分</view>
+      <view class="rule-item">• 连签7天里程碑 +20 分</view>
+      <view class="rule-item">• 连签15天里程碑 +50 分</view>
+      <view class="rule-item">• 连签30天里程碑 +100 分</view>
+      <view class="rule-item">• 连签60天里程碑 +200 分</view>
+      <view class="rule-item">• 分享配置自定义消耗 2 积分</view>
+    </view>
+  </view>
+</view>
+
+<view class="bottom" />

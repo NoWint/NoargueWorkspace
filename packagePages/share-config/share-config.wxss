@@ -1,0 +1,312 @@
+/* Tab bar */
+.tab-bar {
+  display: flex;
+  border-radius: 32rpx;
+  padding: 24rpx;
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 0;
+  font-size: 28rpx;
+  color: #666;
+  border-radius: 32rpx;
+  transition: all 0.2s;
+}
+
+.tab-item.active {
+  background: #ccebda;
+  color: #00b26a;
+  font-weight: 600;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+}
+
+/* Preview card — todo-detail card style */
+.preview-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  margin: 24rpx;
+  height: 33vh;
+  overflow-y: auto;
+}
+
+.todo-title {
+  font-size: 48rpx;
+  font-weight: 600;
+  color: #333;
+  word-break: break-all;
+  line-height: 1.5;
+}
+
+.preview-subtasks {
+  font-size: 32rpx;
+  color: #666;
+  white-space: pre-line;
+  line-height: 1.6;
+  margin-top: 12rpx;
+  display: block;
+}
+
+.preview-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+/* ===== Cards (todo-detail style) ===== */
+.date-info {
+  padding: 25rpx;
+  background: linear-gradient(150deg, #f9f9f9 0%, #f1f1f1 100%);
+  border-radius: 32rpx;
+}
+
+.date-info-priority {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.value {
+  color: #333;
+  font-size: 34rpx;
+  word-break: break-all;
+  line-height: 1.6;
+  display: inline;
+}
+
+/* ===== Priority dot ===== */
+.pd {
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pd.priority-detail-p1 { background: #e34d59; }
+.pd.priority-detail-p2 { background: #2196F3; }
+.pd.priority-detail-p3 { background: #ff9800; }
+.pd.priority-detail-p4 { background: #999; }
+
+/* ===== Tags (todo-detail card style) ===== */
+.tags-info {
+  padding: 25rpx;
+  background: linear-gradient(150deg, #f9f9f9 0%, #f1f1f1 100%);
+  border-radius: 32rpx;
+}
+
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-top: 12rpx;
+}
+
+.tag-badge {
+  display: flex;
+  align-items: center;
+  padding: 12rpx 20rpx;
+  border-radius: 32rpx;
+  border: 2rpx solid;
+}
+
+.tag-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  margin-right: 8rpx;
+}
+
+.tag-text {
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+/* ===== Section header ===== */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.section-header .label {
+  color: #666;
+  font-size: 34rpx;
+  flex-shrink: 0;
+  line-height: 34rpx;
+  margin-right: 0;
+  display: inline;
+}
+
+/* ===== Subtask section card ===== */
+.subtask-section {
+  padding: 25rpx;
+  background: linear-gradient(150deg, #f9f9f9 0%, #f1f1f1 100%);
+  border-radius: 32rpx;
+}
+
+/* ===== Remarks section card ===== */
+.remarks-section {
+  padding: 25rpx;
+  background: linear-gradient(150deg, #f9f9f9 0%, #f1f1f1 100%);
+  border-radius: 32rpx;
+}
+
+.remarks-section .value {
+  display: block;
+  margin-top: 12rpx;
+  white-space: pre-line;
+}
+
+/* ===== Location section card ===== */
+.location-section {
+  padding: 25rpx;
+  background: linear-gradient(150deg, #f9f9f9 0%, #f1f1f1 100%);
+  border-radius: 32rpx;
+}
+
+.location-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+  margin-top: 12rpx;
+}
+
+.loc-name {
+  font-size: 30rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.loc-address {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.4;
+}
+
+/* ===== Preview hint ===== */
+.preview-hint {
+  font-size: 24rpx;
+  color: #999;
+  text-align: center;
+  line-height: 1.5;
+  padding: 8rpx 0;
+}
+
+/* ===== Field visibility picker card (todo-detail notify style) ===== */
+.field-picker-card {
+  margin: 0 24rpx 20rpx;
+  padding: 25rpx;
+  background: linear-gradient(150deg, #f9f9f9 0%, #e8f5e9 100%);
+  border-radius: 32rpx;
+  transition: all 0.3s ease;
+}
+
+.field-picker-card.expanded {
+  background: linear-gradient(150deg, #f5f5f5 0%, #d4edda 100%);
+}
+
+.field-picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.field-picker-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.field-picker-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.field-picker-label {
+  font-size: 34rpx;
+  color: #666;
+  margin-right: 12rpx;
+}
+
+.field-picker-summary {
+  font-size: 28rpx;
+  color: #00b26a;
+  font-weight: 500;
+}
+
+.field-picker-body {
+  --td-checkbox-bg-color: #ffffff00;
+  --td-checkbox-title-line-height: 32rpx;
+  margin-top: 24rpx;
+  border-top: 1rpx solid rgba(0, 0, 0, 0.08);
+}
+
+.field-picker-hint {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 16rpx;
+  text-align: center;
+}
+
+.btn-generate {
+  background: #00b26a;
+  text-align: center;
+  color: #fff;
+  font-size: 32rpx;
+  padding: 18rpx;
+  margin: 40rpx;
+  border-radius: 32rpx;
+}
+
+.btn-generate.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Inline input inside cell */
+.settings-section {
+  border-radius: 32rpx;
+  overflow: hidden;
+}
+
+.t-cell {
+  --td-cell-bg-color: #e3f5eb;
+  --td-cell-height: 128rpx;
+}
+
+.t-input {
+  --td-input-bg-color: #ccebda;
+  border-radius: 32rpx;
+}
+
+.cell-input {
+  width: 100%;
+}
+
+.cell-input-right {
+  text-align: right;
+  color: #333;
+}
+
+.cell-input-small {
+  width: 200rpx;
+  text-align: right;
+}
+
+.switch-inline {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Action section (after generation) */
+.action-section {
+  background: #00b26a;
+  font-size: 32rpx;
+  margin: 36rpx;
+  border-radius: 32rpx;
+}
+
+

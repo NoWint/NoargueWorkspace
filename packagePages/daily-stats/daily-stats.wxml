@@ -1,0 +1,145 @@
+<canvas
+  type="2d"
+  id="reportCanvas"
+  style="width: 750rpx; height: 1800rpx; position: absolute; left: -9999rpx;">
+</canvas>
+
+<view class="container">
+  <!-- 日期选择卡片 -->
+  <view class="card-style date-selector-card">
+    <view class="date-display" bindtap="showDatePicker">
+      <view class="date-info">
+        <text class="date-main">{{selectedDateDisplay}}</text>
+        <text class="date-sub">{{dateWeekday}}</text>
+      </view>
+      <t-icon name="calendar" size="44rpx" color="#00B26A" />
+    </view>
+  </view>
+
+  <!-- t-calendar 组件 -->
+  <t-calendar
+    id="calendar"
+    value="{{selectedDateValue}}"
+    visible="{{showCalendar}}"
+    min-date="{{minDate}}"
+    max-date="{{maxDate}}"
+    format="{{format}}"
+    confirm-btn="确定"
+    bind:confirm="handleCalendarConfirm"
+    bind:close="handleCalendarClose"
+  />
+
+  <!-- 核心数据卡片 -->
+  <view class="card-style stats-card">
+    <view class="stats-header">
+      <text class="stats-title">当日数据概览</text>
+      <t-tag theme="primary" variant="light" size="small">{{selectedDateDisplay}}</t-tag>
+    </view>
+    <view class="stats-grid">
+      <view class="stat-item">
+        <text class="stat-value">{{dayStats.created}}</text>
+        <text class="stat-label">创建待办</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value completed">{{dayStats.completed}}</text>
+        <text class="stat-label">完成待办</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{dayStats.completionRate}}%</text>
+        <text class="stat-label">完成率</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{dayStats.avgTime}}</text>
+        <text class="stat-label">平均耗时</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 时间分布卡片 -->
+  <view class="card-style" wx:if="{{timeDistribution.length > 0}}">
+    <view class="section-title">
+      <t-icon name="time" size="36rpx" color="#00B26A" />
+      <text>创建时间分布</text>
+    </view>
+    <view class="time-distribution">
+      <view class="time-bar-container">
+        <view 
+          wx:for="{{timeDistribution}}" 
+          wx:key="hour"
+          class="time-bar-item"
+          style="height: {{item.count > 0 ? (item.count / maxTimeCount * 100) : 0}}%"
+        >
+          <text class="time-bar-label" wx:if="{{item.count > 0}}">{{item.count}}</text>
+        </view>
+      </view>
+      <view class="time-labels">
+        <text class="time-label">0时</text>
+        <text class="time-label">6时</text>
+        <text class="time-label">12时</text>
+        <text class="time-label">18时</text>
+        <text class="time-label">24时</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 待办列表 -->
+  <view class="card-style" wx:if="{{dayTodos.length > 0}}">
+    <view class="section-title">
+      <t-icon name="view-list" size="36rpx" color="#00B26A" />
+      <text>当日待办 ({{dayTodos.length}})</text>
+    </view>
+    <view class="todo-list">
+      <block wx:for="{{dayTodos}}" wx:key="index" wx:for-item="todo">
+        <view
+          class="todo-item {{todo.completed ? 'completed' : ''}}"
+          data-index="{{index}}"
+          bindtap="navigateToDetail"
+        >
+          <view wx:if="{{todo.isStar}}" class="star-badge">
+            <t-icon name="star-filled" size="26rpx" color="#ffffff" />
+          </view>
+          <t-cell
+            title="{{todo.text}}"
+            description="{{todo.location ? (todo.remarks ? '📍' + todo.location.name + '｜' + todo.remarks : '📍' + todo.location.name) : todo.remarks}}"
+            note="{{todo.setDate}}"
+            bordered="{{false}}"
+            custom-style="width:100%"
+          >
+            <view
+              wx:if="{{todo.completed}}"
+              class="completed-decorate"
+            ></view>
+            <view
+              slot="right-icon"
+              style="position:relative;z-index:1000;background:inherit;padding-left:20rpx"
+            >
+              <t-radio
+                checked="{{todo.completed}}"
+                catch:change="toggleTodo"
+                block="{{false}}"
+                data-index="{{index}}"
+                data-component="t-radio"
+                custom-style="--td-radio-bg-color: transparent;"
+              />
+            </view>
+          </t-cell>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="card-style empty-state" wx:if="{{dayTodos.length === 0}}">
+    <t-icon name="calendar-2" size="120rpx" color="#e0e0e0" />
+    <text class="empty-text">当天暂无待办数据</text>
+    <text class="empty-hint">选择其他日期查看数据</text>
+  </view>
+</view>
+
+<!-- 生成报告按钮 -->
+<t-fab 
+  icon="image" 
+  bind:click="generateReport"
+  style="right: 32rpx; bottom: 32rpx;"
+  text="生成报告"
+/>

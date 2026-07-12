@@ -1,0 +1,166 @@
+{
+  "apis": [
+    {
+      "name": "getCalendar",
+      "description": "查询某个月份的日历数据，展示每天有多少待办。用户问『日历』『这个月』『某月的安排』时调用",
+      "_meta": { "ui": { "componentPath": "components/calendar-card/index" } },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "year": { "type": "number", "description": "年份，如 2026。用户说『今年』时转换成当前年份。不传默认当年" },
+          "month": { "type": "number", "description": "月份，1-12。用户说『这个月』时转换成当前月份。不传默认当月" }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "year": { "type": "number" },
+          "month": { "type": "number" },
+          "days": {
+            "type": "object",
+            "description": "日期到待办摘要的映射，key为日期字符串如2026-06-13"
+          }
+        }
+      }
+    },
+    {
+      "name": "getStats",
+      "description": "获取待办完成情况的统计数据。用户问『统计』『完成率』『进度』『最近怎么样』时调用",
+      "_meta": { "ui": { "componentPath": "components/stats-card/index" } },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "type": "number",
+            "description": "统计最近多少天的数据，范围1-365。用户说『最近一周』传7，『最近一个月』传30。默认7天"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "total": { "type": "number" },
+          "completed": { "type": "number" },
+          "rate": { "type": "number" },
+          "days": { "type": "number" }
+        }
+      }
+    },
+    {
+      "name": "getStarredTodos",
+      "description": "获取所有收藏的待办。用户问『收藏』『星标』『重要的待办』时调用",
+      "_meta": { "ui": { "componentPath": "components/starred-list-card/index" } },
+      "inputSchema": { "type": "object", "properties": {} },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "todos": {
+            "type": "array",
+            "items": { "type": "object", "properties": { "id": { "type": "string" }, "text": { "type": "string" } } }
+          },
+          "total": { "type": "number" }
+        }
+      }
+    },
+    {
+      "name": "getDeletedTodos",
+      "description": "获取回收站中的已删除待办列表。用户问『回收站』『已删除的』『最近删了什么』时调用",
+      "_meta": { "ui": { "componentPath": "components/trash-list/index" } },
+      "inputSchema": { "type": "object", "properties": {} },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "todos": {
+            "type": "array",
+            "items": { "type": "object", "properties": { "id": { "type": "string" }, "text": { "type": "string" } } }
+          },
+          "total": { "type": "number" }
+        }
+      }
+    },
+    {
+      "name": "restoreTodo",
+      "description": "从回收站恢复已删除的待办。用户说『恢复』『还原』时调用。需先调用 getDeletedTodos 获取 todoId",
+      "_meta": {
+        "ui": { "componentPath": "components/restore-card/index" }
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "todoId": {
+            "type": "string",
+            "description": "待办ID，取自上游接口 getDeletedTodos 返回的 id 原值。不要从用户自然语言推断，也不要使用示例值"
+          }
+        },
+        "required": ["todoId"]
+      },
+      "outputSchema": {}
+    },
+    {
+      "name": "getMotivation",
+      "description": "获取每日激励语录。用户说『激励』『鸡汤』『鼓励我』『来句励志的话』时调用",
+      "_meta": {
+        "ui": { "componentPath": "components/motivation-card/index" }
+      },
+      "inputSchema": { "type": "object", "properties": {} },
+      "outputSchema": {
+        "type": "object",
+        "properties": { "quote": { "type": "string" } }
+      }
+    },
+    {
+      "name": "getFoodSuggestion",
+      "description": "随机推荐今天吃什么。用户说『吃什么』『美食推荐』『有啥好吃的』时调用",
+      "_meta": {
+        "ui": { "componentPath": "components/food-card/index" }
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "mealType": {
+            "type": "string",
+            "enum": ["breakfast", "lunch", "dinner", "snack"],
+            "description": "餐型：breakfast=早餐 lunch=午餐 dinner=晚餐 snack=宵夜。用户说『早餐』『午饭』等时转换成对应枚举值。不传则随机推荐"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "mealType": { "type": "string" },
+          "suggestion": { "type": "string" }
+        }
+      }
+    }
+  ],
+  "components": [
+    {
+      "path": "components/calendar-card/index",
+      "relatedPage": "/pages/calendar/calendar"
+    },
+    {
+      "path": "components/stats-card/index",
+      "relatedPage": "/pages/stats/stats"
+    },
+    {
+      "path": "components/trash-list/index",
+      "relatedPage": "/packageTools/trash/trash"
+    },
+    {
+      "path": "components/starred-list-card/index",
+      "relatedPage": "/packageTools/star/star"
+    },
+    {
+      "path": "components/restore-card/index",
+      "relatedPage": "/pages/todo/todo"
+    },
+    {
+      "path": "components/motivation-card/index",
+      "relatedPage": "/packageTools/motivation/motivation"
+    },
+    {
+      "path": "components/food-card/index",
+      "relatedPage": "/packageTools/eating/eating"
+    }
+  ]
+}

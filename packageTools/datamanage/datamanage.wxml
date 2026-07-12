@@ -1,0 +1,70 @@
+<view class="container">
+  <!-- 导出卡片 -->
+  <view class="data-card" wx:if="{{!isShare}}">
+    <view class="card-header">
+      <text class="card-title">数据导出</text>
+      <text class="card-tip">此数据包将作为您数据意外丢失后恢复的唯一凭证</text>
+    </view>
+    
+    <button class="btn primary" bindtap="generateExport">生成数据包</button>
+    
+    <view wx:if="{{exportData}}" class="export-wrapper">
+      <view class="preview-header">
+        <view class="header-actions">
+          <button 
+            class="btn-text" 
+            bindtap="copyData"
+            style="flex:1;margin:0 10rpx; border-radius: 32rpx;"
+          >
+            <image src="/images/copy.png" class="icon-xs"/>复制
+          </button>
+          <button 
+            class="btn-text" 
+            open-type="share"
+            style="flex:1;margin:0 10rpx; border-radius: 32rpx;"
+          >
+            分享
+          </button>
+        </view>
+      </view>
+      <view class="export-preview">
+        <text class="preview-text">{{exportData}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 导入卡片 -->
+  <view class="data-card">
+    <view class="card-header">
+      <text class="card-title">数据恢复</text>
+      <text class="card-tip">请确保数据来源可靠</text>
+    </view>
+    
+    <textarea wx:if="{{!isShare}}" style="width: 642rpx; display: block; box-sizing: border-box; border-radius: 32rpx;" 
+      class="import-input"
+      placeholder="粘贴数据包内容..."
+      placeholder-class="placeholder"
+      bindinput="handleInput"
+      auto-height
+      maxlength="-1"
+    />
+    <view class="export-preview" wx:if="{{isShare}}">
+      <text class="preview-text">{{importData}}</text>
+    </view>
+
+    <view class="action-group">
+      <view class="btn-group">
+        <button 
+          class="btn merge" 
+          bindtap="handleImport" 
+          data-mode="merge"
+          >合并数据</button>
+        <button 
+          class="btn overwrite"
+          bindtap="handleImport" 
+          data-mode="overwrite"
+          >覆盖数据</button>
+      </view>
+    </view>
+  </view>
+</view>

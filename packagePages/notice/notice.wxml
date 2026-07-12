@@ -1,0 +1,21 @@
+<view class="container">
+  <!-- 公告卡片 -->
+  <view 
+    class="notice-card" 
+    wx:for="{{notices}}" 
+    wx:key="index"
+    data-index="{{index}}" 
+  >
+    <view class="notice-header">
+      <text class="notice-title">📢 {{item.title}}</text>
+      <text class="notice-date">{{item.date}}</text>
+    </view>
+    <t-chat-markdown class="notice-content" content="{{item.content}}" bind:click="onContentTap" />
+  </view>
+  
+  <t-action-sheet
+    id="t-action-sheet" 
+    usingCustomNavbar="{{true}}"
+    bind:selected="onCopyActionSheetSelect"
+  />
+</view>

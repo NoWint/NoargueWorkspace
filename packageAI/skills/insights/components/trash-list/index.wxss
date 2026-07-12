@@ -1,0 +1,42 @@
+.trash-list {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.06);
+  padding: 24rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+.summary {
+  font-size: 26rpx;
+  color: #999999;
+  margin-bottom: 16rpx;
+  padding-bottom: 12rpx;
+  border-bottom: 2rpx solid #f0f0f0;
+}
+.trash-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+.todo-text {
+  font-size: 28rpx;
+  color: #999999;
+  flex: 1;
+  min-width: 0;
+}
+.todo-action {
+  font-size: 24rpx;
+  color: #00b26a;
+  padding: 4rpx 16rpx;
+  border: 2rpx solid #00b26a;
+  border-radius: 8rpx;
+  flex-shrink: 0;
+}
+.empty-state {
+  padding: 60rpx 0;
+  text-align: center;
+  font-size: 28rpx;
+  color: #cccccc;
+}

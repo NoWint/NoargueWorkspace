@@ -1,0 +1,122 @@
+@import "../todo/todo.wxss";
+
+/* 顶部栏容器 */
+.top {
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  position: fixed;
+  background: #e3f5eb99;
+  backdrop-filter: blur(20rpx) saturate(180%);
+  -webkit-backdrop-filter: blur(20rpx) saturate(180%);
+}
+
+/* 头部区域 */
+.header {
+  padding: 0 30rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 88rpx;
+}
+
+/* 标题样式 */
+.title {
+  font-size: 50rpx;
+  font-weight: 600;
+  color: #2d3436;
+  flex: 1;
+}
+
+/* 日历容器 - 与todo页面内容区域对齐 */
+.calendar-container {
+  margin-top: 170rpx;
+}
+
+.todo-list {
+}
+
+.todo-text {
+  font-size: 32rpx;
+  color: #333;
+  font-weight: 550;
+  padding: 10rpx 20rpx;
+  border-radius: 12rpx;
+  display: block;
+}
+
+.no-todo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200rpx;
+}
+
+.no-todo-text {
+  color: var(--td-text-color-placeholder, #999);
+  font-size: 28rpx;
+  text-align: center;
+  padding: 40rpx 0;
+}
+
+/* 广告容器样式 */
+.ad-container {
+  margin: 20rpx;
+  background: #ffffff;
+  border-radius: 32rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 8rpx rgba(0,0,0,0.1);
+}
+
+.ad-container ad-custom {
+  width: 100%;
+  display: block;
+}
+
+/* 报告列表样式 */
+.report-list {
+  padding: 0 20rpx 30rpx;
+}
+
+.report-item-wrapper {
+  position: relative;
+  margin-top: 24rpx;
+  border-radius: 32rpx;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.t-tabs {
+  --td-tab-nav-bg-color: #e3f5eb;
+  --td-tab-item-height: 64rpx;
+}
+
+.tab-content {
+}
+
+/* 报告 tab 工具栏 */
+.report-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.report-toolbar-action {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  padding: 8rpx 24rpx;
+  background: #e3f5eb;
+  border-radius: 32rpx;
+}
+
+.report-toolbar-action:active {
+  opacity: 0.7;
+}
+
+.report-toolbar-text {
+  font-size: 28rpx;
+  color: #00b26a;
+  font-weight: 500;
+}

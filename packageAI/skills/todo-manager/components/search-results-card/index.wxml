@@ -1,0 +1,20 @@
+<view class="search-results">
+  <view wx:if="{{items.keyword}}" class="search-header">
+    <text>搜索「{{items.keyword}}」</text>
+    <text class="search-count">共 {{items.total || 0}} 条结果</text>
+  </view>
+  <view wx:if="{{items.todos && items.todos.length > 0}}">
+    <view wx:for="{{items.todos}}" wx:key="id" class="result-item {{item.completed ? 'completed' : ''}}">
+      <view class="result-check {{item.completed ? 'checked' : ''}}">
+        <text wx:if="{{item.completed}}">✓</text>
+      </view>
+      <view class="result-body">
+        <view class="result-text {{item.completed ? 'done' : ''}}">{{item.text}}</view>
+        <view class="result-meta">{{item.setDate}} {{item.setTime}}</view>
+      </view>
+    </view>
+  </view>
+  <view wx:elif="{{items.todos && items.todos.length === 0}}" class="empty-state">
+    <text>未找到匹配的待办</text>
+  </view>
+</view>

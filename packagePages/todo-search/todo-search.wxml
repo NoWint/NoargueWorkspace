@@ -1,0 +1,92 @@
+<wxs src="../../utils/common.wxs" module="hl" />
+
+<!-- 搜索框 -->
+<view class="search-container">
+  <view class="search-box">
+    <t-icon class="search-icon" name="search" size="36rpx" color="#999" />
+    <input 
+      class="search-input" 
+      placeholder="搜索待办事项（空格分隔关键词）" 
+      placeholder-class="placeholder-style"
+      confirm-type="search"
+      value="{{keywordsStr}}"
+      focus="{{true}}"
+      bindinput="onSearchInput"
+      bindconfirm="onSearchConfirm"
+    />
+  </view>
+  <text wx:if="{{searchResults.length > 0}}" class="search-count">找到了 {{searchResults.length}} 项待办，关键词已用“「」”突出显示</text>
+</view>
+
+<!-- 搜索结果列表 -->
+<view class="container">
+  <view class="todo-list">
+    <block wx:if="{{searchResults.length > 0}}">
+      <!-- 复用todo页的列表样式 -->
+      <block wx:for="{{searchResults}}" wx:key="originalIndex" wx:for-item="todo">
+        <view class="todo-item-wrapper" data-priority="{{todo.priority}}">
+        <t-swipe-cell
+          class="todo-item {{todo.completed ? 'completed' : ''}}"
+          data-index="{{index}}"
+        >
+          <!-- 收藏角标 -->
+          <view wx:if="{{todo.isStar}}" class="star-badge">
+            <t-icon name="star-filled" size="26rpx" color="#ffffff" />
+          </view>
+
+          <t-cell
+            title="{{hl.highlight(todo.text, keywordsStr)}}"
+            description="{{todo.description || (todo.location ? (todo.remarks ? '📍' + todo.location.name + '｜' + todo.remarks : '📍' + todo.location.name) : todo.remarks)}}"
+            note="{{todo.friendlyDate || todo.setDate}}"
+            bordered="{{false}}"
+            custom-style="width:100%"
+            bindtap="navigateToDetail"
+            data-index="{{index}}"
+          >
+            <view
+            wx:if="{{todo.completed}}"
+            class="completed-decorate"
+            ></view>
+            <view
+            slot="right-icon"
+            style="position:relative;z-index:1000;background:inherit;padding-left:20rpx"
+            >
+              <t-radio
+                checked="{{todo.completed}}"
+                catch:change="toggleTodo"
+                block="{{false}}"
+                data-index="{{index}}"
+                data-component="t-radio"
+                custom-style="--td-radio-bg-color: transparent;"
+              />
+            </view>
+          </t-cell>
+
+          <view slot="right" class="btn-wrapper">
+            <view class="btn edit-btn column"
+            data-index="{{index}}"
+            bind:tap="handleSwipeAction"
+            data-type="edit">
+            编辑
+            </view>
+            <view class="btn delete-btn column"
+            data-index="{{index}}"
+            bind:tap="handleSwipeAction"
+            data-type="delete">
+            删除
+            </view>
+          </view>
+        </t-swipe-cell>
+        </view>
+      </block>
+    </block>
+    <view wx:else class="empty-tips">没有找到相关待办</view>
+  </view>
+</view>
+
+<t-fab 
+  wx:if="{{showBackTop}}"
+  icon="arrow-up" 
+  bind:click="onToTop"
+  style="right: 32rpx; bottom: 32rpx;"
+/>

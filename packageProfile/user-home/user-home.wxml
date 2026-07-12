@@ -1,0 +1,87 @@
+<!-- 骨架屏 -->
+<view wx:if="{{pageLoading}}" class="skeleton">
+  <view class="skeleton-avatar"></view>
+  <view class="skeleton-line skeleton-name"></view>
+  <view class="skeleton-line skeleton-badge"></view>
+  <view class="skeleton-line skeleton-id"></view>
+  <view class="skeleton-btn-group">
+    <view class="skeleton-btn"></view>
+    <view class="skeleton-btn"></view>
+  </view>
+  <view class="skeleton-section-title"></view>
+  <view class="skeleton-card"></view>
+  <view class="skeleton-card"></view>
+</view>
+
+<!-- 正常内容 -->
+<scroll-view wx:else
+  scroll-y
+  class="scroll-view"
+  style="height: 100vh;"
+  refresher-enabled="{{true}}"
+  refresher-triggered="{{refreshing}}"
+  bind:refresherrefresh="onRefresh"
+  bind:scrolltolower="onLoadMore"
+>
+  <!-- 用户资料头部 -->
+  <view class="profile-header">
+    <view class="avatar-wrapper">
+      <image class="profile-avatar" src="{{user.avatarUrl || '/images/avatar.png'}}" mode="aspectFill" binderror="onAvatarError" bindtap="previewAvatar" />
+    </view>
+    <view class="profile-name">{{user.nickname || '未知用户'}}</view>
+    <view wx:if="{{user.badgeTitles && user.badgeTitles.length > 0}}" class="profile-badges">
+      <block wx:for="{{user.badgeTitles}}" wx:for-item="badge" wx:key="index">
+        <text class="user-badge" style="color: {{user.badgeColors[index]}}; border-color: {{user.badgeColors[index]}}">{{badge}}</text>
+      </block>
+    </view>
+    <view class="profile-id">ID：{{userId}}</view>
+
+    <!-- 按钮组 -->
+    <view class="profile-stat-text">
+      <text>发布了{{user.postCount || 0}}篇帖子 · 注册了{{regDays}}天</text>
+    </view>
+    <view wx:if="{{isSelf}}" class="profile-actions self-actions">
+      <view class="profile-edit-btn" bindtap="goToEditProfile">
+        <text>编辑个人资料</text>
+      </view>
+    </view>
+    <view wx:else class="profile-actions">
+      <view class="action-btn action-btn-placeholder" bindtap="onPlaceholderAction">
+        <text>私信</text>
+      </view>
+      <view class="action-btn action-btn-placeholder" bindtap="onPlaceholderAction">
+        <text>关注</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 帖子列表 -->
+  <view class="posts-section">
+    <view class="section-title">帖子（{{user.postCount || 0}}）</view>
+    <block wx:for="{{posts}}" wx:key="postId">
+      <post-card
+        post="{{item}}"
+        expanded="{{expandedPostId === item.postId}}"
+        todoItems="{{postTodoMap[item.postId] || []}}"
+        bind:tapCard="goToPostDetail"
+        bind:tapImage="previewImage"
+        bind:tapTodoExpand="toggleTodoExpand"
+        bind:tapTodo="goToTodoDetail"
+        bind:tapCombo="handleComboTap"
+        bind:tapLocation="openLocation"
+        bind:toggleLike="toggleLike"
+      />
+    </block>
+    <view wx:if="{{loadingMore}}" class="loading-more">
+      <t-loading loading="{{true}}" size="40rpx" />
+      <text>加载中...</text>
+    </view>
+    <view wx:if="{{!hasMore && posts.length > 0}}" class="no-more">
+      <text>— 没有更多了 —</text>
+    </view>
+    <view wx:if="{{!loading && posts.length === 0}}" class="empty-state">
+      <t-icon name="message" size="100rpx" />
+      <text>暂无帖子</text>
+    </view>
+  </view>
+</scroll-view>

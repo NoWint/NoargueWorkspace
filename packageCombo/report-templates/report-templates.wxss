@@ -1,0 +1,94 @@
+.scroll-area {
+  height: 100vh;
+}
+
+.container {
+  padding: 0 32rpx 160rpx;
+}
+
+.section-list {
+  padding: 20rpx 0;
+}
+
+.t-tabs {
+  --td-tab-nav-bg-color: #e3f5eb;
+  --td-tab-item-disabled-color: #fff;
+  --td-tab-item-height: 64rpx;
+}
+
+/* 模板项 — 对标 report-edit 绿色色点 + 输入框 */
+.template-item {
+  margin-bottom: 32rpx;
+}
+
+.template-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 32rpx;
+  position: relative;
+  margin-bottom: 12rpx;
+}
+
+.template-item-header::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16rpx;
+  height: 16rpx;
+  background: #00b26a;
+  border-radius: 50%;
+}
+
+.item-title {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #333;
+}
+
+.delete-icon {
+  padding: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 输入框 — gray background, no card */
+.item-input {
+  background: #f8f8f8 !important;
+  border-radius: 32rpx !important;
+  padding: 24rpx !important;
+  font-size: 28rpx !important;
+  color: #333 !important;
+}
+
+.empty-hint {
+  text-align: center;
+  padding: 60rpx 0;
+  font-size: 28rpx;
+  color: #ccc;
+}
+
+.add-section-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  margin: 16rpx 0 40rpx;
+  padding: 24rpx 0;
+  border: 2rpx dashed #00b26a;
+  border-radius: 32rpx;
+  background: #fafff5;
+}
+
+.add-text {
+  font-size: 32rpx;
+  color: #00b26a;
+  font-weight: 500;
+}
+
+.bottom-safe {
+  height: 160rpx;
+}

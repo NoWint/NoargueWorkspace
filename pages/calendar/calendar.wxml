@@ -1,0 +1,161 @@
+<!-- 顶部栏 -->
+<view class="top">
+  <view class="header" style="padding-top:{{navBarHeight-22}}px;padding-left:{{menuRight+20}}rpx">
+    <text class="title">日历</text>
+  </view>
+</view>
+
+<view class="calendar-container">
+  <calendar
+    id="calendar"
+    min-date="{{minDate}}"
+    max-date="{{maxDate}}"
+    date="{{today}}"
+    marks="{{marks}}"
+    bindload="handleLoad"
+    bindchange="handleConfirm"
+    bindviewchange="handleViewChange"
+    view="{{calendarView}}"
+    vibrate="{{false}}"
+    style="--wc-primary: #00b26a;--wc-bg-light: #E3F5EB;--wc-checked-bg-light: #CCEDDC;--wc-dot-color-light: #ff8800;--wc-annual-bg-light: #CCEDDC;"
+  />
+</view>
+
+<t-tabs value="{{currentTab}}" bind:change="onTabChange" theme="card">
+  <t-tab-panel label="待办" value="todo">
+    <view class="tab-content">
+      <view class="todo-list" wx:if="{{selectedDate}}">
+        <text class="todo-text">待办 · {{dailyReportTitle || friendlySelectedDate || selectedDate}}</text>
+
+          <block wx:if="{{selectedTodos.length > 0}}">
+          <block wx:for="{{selectedTodos}}" wx:key="index" wx:for-item="todo">
+            <view class="todo-item-wrapper" data-priority="{{todo.priority}}">
+            <t-swipe-cell
+              class="todo-item {{todo.completed ? 'completed' : ''}} {{todo._animate || ''}}"
+              data-index="{{index}}"
+            >
+              <!-- 收藏角标 -->
+              <view wx:if="{{todo.isStar}}" class="star-badge">
+                <t-icon name="star-filled" size="26rpx" color="#ffffff" />
+              </view>
+
+              <t-cell
+                title="{{todo.text}}"
+                description="{{todo.location ? (todo.remarks ? '📍' + todo.location.name + '｜' + todo.remarks : '📍' + todo.location.name) : todo.remarks}}"
+                note="{{todo.setTime}}"
+                bordered="{{false}}"
+                custom-style="width:100%"
+                bindtap="navigateToDetail"
+                data-index="{{index}}"
+              >
+                <view slot="right-icon">
+                  <t-radio
+                    checked="{{todo.completed}}"
+                    catch:change="toggleTodo"
+                    block="{{false}}"
+                    data-index="{{index}}"
+                    data-component="t-radio"
+                    custom-style="--td-radio-bg-color: transparent;"
+                  />
+                </view>
+              </t-cell>
+
+              <view slot="right" class="btn-wrapper">
+                <view class="btn edit-btn column" data-index="{{index}}" bindtap="handleSwipeAction" data-type="edit">编辑</view>
+                <view class="btn delete-btn column" data-index="{{index}}" bindtap="handleSwipeAction" data-type="delete">删除</view>
+              </view>
+            </t-swipe-cell>
+            </view>
+
+            <!-- 第二个位置插入广告 -->
+            <view wx:if="{{index === 1}}" class="ad-container">
+              <ad-custom
+                unit-id="adunit-5ab4dec0a604c6c4"
+                binderror="onAdError"
+              ></ad-custom>
+            </view>
+          </block>
+        </block>
+        <block wx:else>
+          <view class="no-todo-container">
+            <text class="no-todo-text">没有待办哦，快去添加吧～</text>
+          </view>
+        </block>
+      </view>
+    </view>
+  </t-tab-panel>
+  <t-tab-panel label="日报" value="daily">
+    <view class="tab-content">
+      <view class="report-toolbar">
+        <text class="todo-text">日报 · {{dailyReportTitle || friendlySelectedDate || selectedDate}}</text>
+        <view class="report-toolbar-action" bindtap="navigateToPrivateTemplates">
+          <t-icon name="edit-2" size="28rpx" color="#00b26a" />
+          <text class="report-toolbar-text">编辑个人模板</text>
+        </view>
+      </view>
+      <view class="report-list" wx:if="{{selectedDate}}">
+        <block wx:if="{{dailyReports.length > 0}}">
+          <block wx:for="{{dailyReports}}" wx:key="id">
+            <view class="report-item-wrapper">
+            <t-swipe-cell>
+              <t-cell
+                note="{{item.lineCount}} 项内容"
+                title="{{item.summary}}"
+                description="{{item.scopeLabel}}"
+                bordered="{{false}}"
+                bindtap="navigateToReportDetail"
+                data-id="{{item.id}}"
+              />
+              <view slot="right" class="btn-wrapper">
+                <view class="btn edit-btn column" data-id="{{item.id}}" bindtap="handleReportSwipe" data-type="edit">编辑</view>
+                <view class="btn delete-btn column" data-id="{{item.id}}" bindtap="handleReportSwipe" data-type="delete">删除</view>
+              </view>
+            </t-swipe-cell>
+            </view>
+          </block>
+        </block>
+        <block wx:else>
+          <view class="no-todo-container"><text class="no-todo-text">暂无日报</text></view>
+        </block>
+      </view>
+    </view>
+  </t-tab-panel>
+  <t-tab-panel label="周报" value="weekly">
+    <view class="tab-content">
+      <view class="report-toolbar">
+        <text class="todo-text">周报 · {{weeklyReportTitle || friendlySelectedDate || selectedDate}}</text>
+        <view class="report-toolbar-action" bindtap="navigateToPrivateTemplates">
+          <t-icon name="edit-2" size="28rpx" color="#00b26a" />
+          <text class="report-toolbar-text">编辑个人模板</text>
+        </view>
+      </view>
+      <view class="report-list" wx:if="{{selectedDate}}">
+        <block wx:if="{{weeklyReports.length > 0}}">
+          <block wx:for="{{weeklyReports}}" wx:key="id">
+            <view class="report-item-wrapper">
+            <t-swipe-cell>
+              <t-cell
+                note="{{item.lineCount}} 项内容"
+                title="{{item.summary}}"
+                description="{{item.scopeLabel}}"
+                bordered="{{false}}"
+                bindtap="navigateToReportDetail"
+                data-id="{{item.id}}"
+              />
+              <view slot="right" class="btn-wrapper">
+                <view class="btn edit-btn column" data-id="{{item.id}}" bindtap="handleReportSwipe" data-type="edit">编辑</view>
+                <view class="btn delete-btn column" data-id="{{item.id}}" bindtap="handleReportSwipe" data-type="delete">删除</view>
+              </view>
+            </t-swipe-cell>
+            </view>
+          </block>
+        </block>
+        <block wx:else>
+          <view class="no-todo-container"><text class="no-todo-text">暂无周报</text></view>
+        </block>
+      </view>
+    </view>
+  </t-tab-panel>
+</t-tabs>
+
+<t-fab icon="add" bind:click="onFabTap" style="right: 32rpx; bottom: 32rpx;"/>

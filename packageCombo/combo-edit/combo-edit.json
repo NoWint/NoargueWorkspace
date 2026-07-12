@@ -1,0 +1,13 @@
+{
+  "usingComponents": {
+    "t-input": "tdesign-miniprogram/input/input",
+    "t-textarea": "tdesign-miniprogram/textarea/textarea",
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-switch": "tdesign-miniprogram/switch/switch",
+    "t-fab": "tdesign-miniprogram/fab/fab",
+    "t-popup": "tdesign-miniprogram/popup/popup",
+    "t-color-picker": "tdesign-miniprogram/color-picker/color-picker",
+    "t-cell": "tdesign-miniprogram/cell/cell"
+  },
+  "navigationBarTitleText": "创建组合"
+}

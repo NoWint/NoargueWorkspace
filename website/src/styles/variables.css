@@ -1,0 +1,157 @@
+:root {
+  /* 品牌色 */
+  --color-primary: #00b26a;
+  --color-primary-hover: #009a5a;
+  --color-primary-light: rgba(0, 178, 106, 0.08);
+  --color-primary-bg: #e3f5eb;
+
+  /* 语义色 */
+  --color-success: #00b26a;
+  --color-warning: #ff9800;
+  --color-error: #f44336;
+  --color-info: #2196f3;
+
+  /* 背景 */
+  --bg-page: #f7f8fa;
+  --bg-card: #ffffff;
+  --bg-glass: rgba(255, 255, 255, 0.7);
+  --bg-sidebar: rgba(247, 248, 250, 0.85);
+  --bg-hover: rgba(0, 0, 0, 0.04);
+
+  /* 文字 */
+  --text-primary: #1d2129;
+  --text-secondary: #86909c;
+  --text-disabled: #c9cdd4;
+  --text-white: #ffffff;
+
+  /* 边框 */
+  --border-color: #e5e6e8;
+  --border-radius: 8px;
+  --border-radius-lg: 12px;
+
+  /* 圆角阶梯 */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-card: 12px;
+
+  /* 阴影 */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.08);
+
+  /* 阴影增强 */
+  --shadow-card-hover: 0 6px 20px rgba(0, 0, 0, 0.1);
+  --shadow-elevated: 0 8px 30px rgba(0, 0, 0, 0.12);
+
+  /* 毛玻璃 */
+  --glass-blur: blur(20px);
+  --glass-saturate: saturate(180%);
+  --glass-blur-strong: blur(40px);
+  --glass-saturate-strong: saturate(120%);
+
+  /* 液态玻璃背景光斑 */
+  --blob-color-1: rgba(0, 178, 106, 0.15);
+  --blob-color-2: rgba(0, 154, 90, 0.10);
+  --blob-color-3: rgba(33, 150, 243, 0.08);
+
+  /* 字号 */
+  --font-size-xs: 12px;
+  --font-size-sm: 13px;
+  --font-size-base: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+
+  /* 字体系列 */
+  --font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+
+  /* 间距 */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* 布局 */
+  --sidebar-width: 240px;
+  --sidebar-collapsed-width: 64px;
+  --header-height: 56px;
+  --tag-panel-width: 180px;
+
+  /* 动效令牌 */
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 350ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* 页面内边距（响应式） */
+  --page-padding-desktop: 24px;
+  --page-padding-tablet: 16px;
+  --page-padding-mobile: 12px;
+
+  /* z-index 层级 */
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-modal: 300;
+  --z-toast: 400;
+
+  /* ====== TDesign 品牌色覆盖（默认蓝色，改为绿色 #00b26a）====== */
+  --td-brand-color-1: #e8f8f1;
+  --td-brand-color-2: #c2f0da;
+  --td-brand-color-3: #8be4b9;
+  --td-brand-color-4: #4dd696;
+  --td-brand-color-5: #1fc47a;
+  --td-brand-color-6: #00b26a;
+  --td-brand-color-7: #009959;
+  --td-brand-color-8: #007d48;
+  --td-brand-color-9: #006037;
+  --td-brand-color-10: #004225;
+  --td-brand-color: var(--td-brand-color-6);
+
+  /* TDesign 状态色对齐 */
+  --td-success-color: var(--color-success);
+  --td-warning-color: #ff9800;
+  --td-error-color: #f44336;
+}
+
+/* ====== 暗色主题 ====== */
+[data-theme='dark'] {
+  --color-primary: #00d17a;
+  --color-primary-hover: #00b869;
+  --color-primary-light: rgba(0, 209, 122, 0.12);
+  --color-primary-bg: rgba(0, 209, 122, 0.08);
+  --bg-page: #0f0f11;
+  --bg-card: #1c1c1f;
+  --bg-glass: rgba(28, 28, 31, 0.8);
+  --bg-sidebar: rgba(28, 28, 31, 0.9);
+  --bg-hover: rgba(255, 255, 255, 0.06);
+  --text-primary: #e8e8ed;
+  --text-secondary: #98989f;
+  --text-disabled: #63636b;
+  --text-white: #ffffff;
+  --border-color: #2c2c30;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.35);
+  --shadow-card-hover: 0 6px 20px rgba(0, 0, 0, 0.4);
+  --shadow-elevated: 0 8px 30px rgba(0, 0, 0, 0.45);
+
+  --blob-color-1: rgba(0, 209, 122, 0.12);
+  --blob-color-2: rgba(0, 185, 105, 0.08);
+  --blob-color-3: rgba(33, 150, 243, 0.06);
+
+  /* TDesign dark mode color overrides */
+  --td-brand-color-1: rgba(0, 209, 122, 0.08);
+  --td-brand-color-2: rgba(0, 209, 122, 0.15);
+  --td-brand-color-3: rgba(0, 209, 122, 0.25);
+  --td-brand-color-4: rgba(0, 209, 122, 0.35);
+  --td-brand-color-5: rgba(0, 209, 122, 0.45);
+  --td-brand-color-6: #00d17a;
+  --td-brand-color-7: #00b869;
+  --td-brand-color-8: #009f58;
+  --td-brand-color-9: #008647;
+  --td-brand-color-10: #006d36;
+}

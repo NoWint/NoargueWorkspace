@@ -1,0 +1,43 @@
+<view class="changelog-container">
+  <view class="header">
+    <text class="title">更新日志</text>
+    <text class="subtitle">共 {{changelog.length}} 个版本</text>
+  </view>
+  
+  <view class="changelog-list">
+    <view wx:for="{{changelog}}" wx:key="index" class="version-card" bindtap="editItem" data-index="{{index}}">
+      <view class="version-header">
+        <view class="version-badge">
+          <text class="version-text">V{{item.version}}</text>
+        </view>
+        <view class="version-info">
+          <text class="version-date">{{item.date}}</text>
+          <view class="version-count">
+            <t-icon name="bulletpoint" size="24rpx" color="#999" />
+            <text>{{item.content ? item.content.length : 0}} 项更新</text>
+          </view>
+        </view>
+        <view class="version-actions" catchtap="stopPropagation">
+          <button class="action-btn delete" catchtap="deleteItem" data-index="{{index}}">
+            <t-icon name="delete" size="28rpx" color="#f5576c" />
+          </button>
+        </view>
+      </view>
+      <view class="version-preview" wx:if="{{item.content && item.content.length > 0}}">
+        <view wx:for="{{item.content}}" wx:for-item="change" wx:key="index" class="change-item" wx:if="{{index < 3}}">
+          <text class="change-dot">•</text>
+          <text class="change-text">{{change}}</text>
+        </view>
+        <text wx:if="{{item.content.length > 3}}" class="more-hint">还有 {{item.content.length - 3}} 项更新...</text>
+      </view>
+    </view>
+  </view>
+  
+  <view wx:if="{{!loading && changelog.length === 0}}" class="empty-state">
+    <t-icon name="history" size="80rpx" color="#ddd" />
+    <text>暂无更新日志</text>
+    <text class="empty-hint">点击右下角按钮添加版本</text>
+  </view>
+  
+  <t-fab icon="add" bind:click="goToCreate" />
+</view>

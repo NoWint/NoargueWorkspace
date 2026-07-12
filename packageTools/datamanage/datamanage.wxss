@@ -1,0 +1,155 @@
+.container {
+  padding-bottom: 20rpx;
+  /* margin-top: 300rpx; */
+  overflow-y: auto;
+}
+
+/* 统一卡片样式 */
+.data-card {
+  margin: 24rpx;
+  padding: 32rpx;
+  background: #fff;
+  border-radius: 32rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.08);
+}
+
+.card-header {
+  margin-bottom: 32rpx;
+}
+
+.card-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #2d3436;
+}
+
+.card-tip {
+  display: block;
+  font-size: 24rpx;
+  color: #a0a0a0;
+  margin-top: 8rpx;
+}
+
+/* 导出预览区 */
+.export-wrapper {
+  margin-top: 32rpx;
+}
+
+/* 预览头部美化 */
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 0;
+  margin-bottom: 24rpx;
+  border-bottom: 2rpx solid #f0f2f5;
+}
+
+.header-actions {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 20rpx;
+}
+
+.icon-xs {
+  width: 28rpx;
+  height: 28rpx;
+  vertical-align: middle;
+  margin-right: 8rpx;
+}
+
+.export-preview {
+  background: #f8f8f8;
+  border: 2rpx solid #e1e8eb;
+  border-radius: 32rpx;
+  padding: 24rpx;
+}
+
+/* 按钮组样式 */
+.action-group {
+  margin-top: 32rpx;
+}
+
+.btn-group {
+  display: flex;
+  gap: 24rpx;
+  margin-top: 24rpx;
+}
+
+.btn {
+  flex: 1;
+  font-size: 32rpx;
+  transition: all 0.2s;
+}
+
+.btn:active {
+  opacity: 0.9;
+  transform: scale(0.98);
+}
+
+.primary {
+  background: var(--primary-color);
+  color: #fff;
+  border-radius: 32rpx;
+}
+
+.merge {
+  background: #00b26a20;
+  color: var(--primary-color);
+  border-radius: 32rpx;
+}
+
+.overwrite {
+  background: #ff475720;
+  color: #ff4757;
+  border-radius: 32rpx;
+}
+
+/* 响应式调整 */
+@media (max-width: 480px) {
+  .btn-group {
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
+  }
+}
+
+
+/* 导入输入框 */
+.import-input {
+  background: #f8f8f8;
+  border: 2rpx solid #e1e8eb;
+  border-radius: 8rpx;
+  padding: 24rpx;
+  font-size: 28rpx;
+  color: #333;
+  min-height: 200rpx;
+  line-height: 1.4;
+}
+
+/* 预览文本样式 */
+.preview-text {
+  font-size: 26rpx;
+  color: #636e72;
+  line-height: 1.8;
+  word-break: break-all;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* 文本按钮样式 */
+.btn-text {
+  background: #f8f8f8;
+  border: none;
+  color: var(--primary-color);
+  font-size: 28rpx;
+  padding: 15rpx;
+  line-height: 1.5;
+}
+
+.btn-text:active {
+  opacity: 0.7;
+}

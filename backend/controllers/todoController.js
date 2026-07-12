@@ -1,0 +1,1055 @@
+const { query, transaction } = require('../config/database');
+const logger = require('../utils/logger');
+
+const getList = async (req, res) => {
+  const userId = req.user.id;
+  const { page = 1, pageSize = 50, date, completed, includeDeleted, parent_id, search, tagIds, comboId } = req.query;
+  const offset = (page - 1) * pageSize;
+
+  try {
+    let sql = 'SELECT DISTINCT t.* FROM todos t';
+    const countSqlParts = ['SELECT COUNT(DISTINCT t.id) as total FROM todos t'];
+    const params = [];
+    const countParams = [];
+    const conditions = ['t.user_id = ?'];
+    const countConditions = ['t.user_id = ?'];
+    params.push(userId);
+    countParams.push(userId);
+
+    if (includeDeleted !== 'true') {
+      conditions.push('t.is_deleted = 0');
+      countConditions.push('t.is_deleted = 0');
+    }
+
+    if (parent_id !== undefined) {
+      if (parent_id === 'null' || parent_id === '') {
+        conditions.push('t.parent_id IS NULL');
+        countConditions.push('t.parent_id IS NULL');
+      } else {
+        conditions.push('t.parent_id = ?');
+        countConditions.push('t.parent_id = ?');
+        params.push(parent_id);
+        countParams.push(parent_id);
+      }
+    } else if (!search) {
+      // When searching, include subtasks (don't filter parent_id)
+      conditions.push('t.parent_id IS NULL');
+      countConditions.push('t.parent_id IS NULL');
+    }
+
+    if (search) {
+      const trimmed = search.trim();
+      if (!trimmed) {
+        // Whitespace-only search: treat as no search, filter root todos
+        conditions.push('t.parent_id IS NULL');
+        countConditions.push('t.parent_id IS NULL');
+      } else {
+        const kw = trimmed.split(/\s+/).filter(k => k);
+        if (kw.length > 0) {
+          const likeClauses = kw.map(() => '(t.text LIKE ? OR t.remarks LIKE ?)').join(' AND ');
+          conditions.push(`(${likeClauses})`);
+          countConditions.push(`(${likeClauses})`);
+          kw.forEach(k => {
+            const pattern = `%${k}%`;
+            params.push(pattern, pattern);
+            countParams.push(pattern, pattern);
+          });
+        }
+      }
+    }
+
+    if (tagIds) {
+      const ids = tagIds.split(',').map(Number).filter(n => !isNaN(n));
+      if (ids.length > 0) {
+        sql += ' JOIN todo_tags tt ON t.id = tt.todo_id';
+        conditions.push(`tt.tag_id IN (${ids.map(() => '?').join(',')})`);
+        countConditions.push(`EXISTS (SELECT 1 FROM todo_tags tt2 WHERE tt2.todo_id = t.id AND tt2.tag_id IN (${ids.map(() => '?').join(',')}))`);
+        ids.forEach(id => {
+          params.push(id);
+          countParams.push(id);
+        });
+      }
+    }
+
+    if (comboId) {
+      const cid = parseInt(comboId);
+      if (!isNaN(cid)) {
+        conditions.push('t.combo_id = ?');
+        countConditions.push('t.combo_id = ?');
+        params.push(cid);
+        countParams.push(cid);
+      }
+    }
+
+    if (date) {
+      conditions.push('t.set_date = ?');
+      countConditions.push('t.set_date = ?');
+      params.push(date);
+      countParams.push(date);
+    }
+
+    if (completed !== undefined) {
+      if (completed === '0' || completed === 'false') {
+        conditions.push('t.completed = 0');
+        countConditions.push('t.completed = 0');
+      } else {
+        conditions.push('t.completed > 0');
+        countConditions.push('t.completed > 0');
+      }
+    }
+
+    sql += ' WHERE ' + conditions.join(' AND ');
+    sql += ' ORDER BY t.created_at DESC LIMIT ? OFFSET ?';
+    params.push(parseInt(pageSize), parseInt(offset));
+
+    const todos = await query(sql, params);
+
+    const countSql = countSqlParts.join(' ') + ' WHERE ' + countConditions.join(' AND ');
+    const countResult = await query(countSql, countParams);
+    
+    res.json({
+      success: true,
+      todos: todos.map(todo => formatTodo(todo)),
+      total: countResult[0].total,
+      page: parseInt(page),
+      pageSize: parseInt(pageSize)
+    });
+  } catch (err) {
+    logger.todoError('获取列表', '获取待办列表失败', { userId, error: err.message });
+    res.status(500).json({
+      success: false,
+      message: '服务器错误'
+    });
+  }
+};
+
+const getById = async (req, res) => {
+  const userId = req.user.id;
+  const { id } = req.params;
+
+  try {
+    const todos = await query(
+      'SELECT * FROM todos WHERE todo_id = ? AND user_id = ? AND is_deleted = 0',
+      [id, userId]
+    );
+    
+    if (todos.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: '待办不存在'
+      });
+    }
+    
+    const todo = todos[0];
+    
+    const tags = await query(
+      'SELECT t.* FROM tags t JOIN todo_tags tt ON t.id = tt.tag_id WHERE tt.todo_id = ?',
+      [todo.id]
+    );
+    
+    res.json({
+      success: true,
+      todo: {
+        ...formatTodo(todo),
+        tags: tags.map(t => t.id)
+      }
+    });
+  } catch (err) {
+    logger.todoError('获取详情', '获取待办详情失败', { userId, id, error: err.message });
+    res.status(500).json({
+      success: false,
+      message: '服务器错误'
+    });
+  }
+};
+
+const create = async (req, res) => {
+  const userId = req.user.id;
+  const { text, setDate, setTime, remarks, location, isStar, comboId, tagIds, todoId, images, parent_id, priority } = req.body;
+  
+  if (!text || !text.trim()) {
+    return res.status(400).json({
+      success: false,
+      message: '待办内容不能为空'
+    });
+  }
+  
+  try {
+    const countResult = await query(
+      'SELECT COUNT(*) as count FROM todos WHERE user_id = ? AND is_deleted = 0',
+      [userId]
+    );
+    
+    const users = await query('SELECT todo_limit FROM users WHERE id = ?', [userId]);
+    const todoLimit = users[0]?.todo_limit || 100;
+    
+    if (countResult[0].count >= todoLimit) {
+      return res.status(400).json({
+        success: false,
+        message: `已达到待办上限(${todoLimit}个)，可在 更多-右下角 联系客服`
+      });
+    }
+    
+    const finalTodoId = todoId || generateTodoId();
+    const imagesJson = images && images.length > 0 ? JSON.stringify(images) : null;
+    
+    const result = await query(
+      `INSERT INTO todos 
+       (user_id, todo_id, parent_id, text, set_date, set_time, remarks, location_text, is_star, combo_id, images, priority, version, created_at, updated_at) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, NOW(), NOW())`,
+      [
+        userId,
+        finalTodoId,
+        parent_id || null,
+        text.trim(),
+        setDate || null,
+        setTime || null,
+        remarks || null,
+        location ? JSON.stringify(location) : null,
+        isStar ? 1 : 0,
+        comboId || null,
+        imagesJson,
+        priority || 'p2'
+      ]
+    );
+    
+    if (tagIds && tagIds.length > 0) {
+      const tagValues = tagIds.map(tagId => [result.insertId, tagId]);
+      await query(
+        'INSERT INTO todo_tags (todo_id, tag_id) VALUES ?',
+        [tagValues]
+      );
+    }
+    
+    logger.todoInfo('创建', '待办创建成功', { userId, todoId: finalTodoId, text: text.substring(0, 50) });
+
+    const newTodo = await query('SELECT * FROM todos WHERE id = ?', [result.insertId]);
+
+    res.json({
+      success: true,
+      message: '待办创建成功',
+      todo: formatTodo(newTodo[0])
+    });
+  } catch (err) {
+    logger.todoError('创建', '创建待办失败', { userId, error: err.message });
+    res.status(500).json({
+      success: false,
+      message: '服务器错误'
+    });
+  }
+};
+
+const update = async (req, res) => {
+  const userId = req.user.id;
+  const { id } = req.params;
+  const { text, setDate, setTime, remarks, location, isStar, completed, comboId, tagIds, version, images, priority, parent_id } = req.body;
+  
+  try {
+    const todos = await query(
+      'SELECT * FROM todos WHERE todo_id = ? AND user_id = ? AND is_deleted = 0',
+      [id, userId]
+    );
+    
+    if (todos.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: '待办不存在'
+      });
+    }
+    
+    const existingTodo = todos[0];
+    
+    if (version !== undefined && existingTodo.version > version) {
+      return res.status(409).json({
+        success: false,
+        message: '数据版本冲突，请刷新后重试',
+        currentVersion: existingTodo.version,
+        serverData: formatTodo(existingTodo)
+      });
+    }
+    
+    const updateFields = ['version = version + 1'];
+    const updateValues = [];
+    
+    if (text !== undefined) {
+      updateFields.push('text = ?');
+      updateValues.push(text.trim());
+    }
+    if (setDate !== undefined) {
+      updateFields.push('set_date = ?');
+      updateValues.push(setDate);
+    }
+    if (setTime !== undefined) {
+      updateFields.push('set_time = ?');
+      updateValues.push(setTime);
+    }
+    if (remarks !== undefined) {
+      updateFields.push('remarks = ?');
+      updateValues.push(remarks);
+    }
+    if (location !== undefined) {
+      updateFields.push('location_text = ?');
+      updateValues.push(location ? JSON.stringify(location) : null);
+    }
+    if (isStar !== undefined) {
+      updateFields.push('is_star = ?');
+      updateValues.push(isStar ? 1 : 0);
+    }
+    if (completed !== undefined) {
+      updateFields.push('completed = ?');
+      updateValues.push(completed ? Date.now() : 0);
+    }
+    if (comboId !== undefined) {
+      updateFields.push('combo_id = ?');
+      updateValues.push(comboId);
+    }
+    if (priority !== undefined) {
+      updateFields.push('priority = ?');
+      updateValues.push(priority);
+    }
+    if (images !== undefined) {
+      updateFields.push('images = ?');
+      updateValues.push(images && images.length > 0 ? JSON.stringify(images) : null);
+    }
+    if (parent_id !== undefined) {
+      updateFields.push('parent_id = ?');
+      updateValues.push(parent_id || null);
+    }
+    
+    updateFields.push('updated_at = NOW()');
+    updateValues.push(id, userId);
+    
+    await query(
+      `UPDATE todos SET ${updateFields.join(', ')} WHERE todo_id = ? AND user_id = ?`,
+      updateValues
+    );
+    
+    if (tagIds !== undefined) {
+      await query('DELETE FROM todo_tags WHERE todo_id = ?', [id]);
+      
+      if (tagIds.length > 0) {
+        const tagValues = tagIds.map(tagId => [id, tagId]);
+        await query(
+          'INSERT INTO todo_tags (todo_id, tag_id) VALUES ?',
+          [tagValues]
+        );
+      }
+    }
+    
+    const updatedTodo = await query('SELECT * FROM todos WHERE todo_id = ?', [id]);
+    
+    res.json({
+      success: true,
+      message: '待办更新成功',
+      todo: formatTodo(updatedTodo[0])
+    });
+  } catch (err) {
+    logger.todoError('更新', '更新待办失败', { userId, id, error: err.message });
+    res.status(500).json({
+      success: false,
+      message: '服务器错误'
+    });
+  }
+};
+
+const deleteTodo = async (req, res) => {
+  const userId = req.user.id;
+  const { id } = req.params;
+  
+  try {
+    const result = await query(
+      'UPDATE todos SET is_deleted = 1, deleted_at = NOW(), updated_at = NOW(), version = version + 1 WHERE todo_id = ? AND user_id = ?',
+      [id, userId]
+    );
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: '待办不存在'
+      });
+    }
+    
+    logger.todoInfo('删除', '待办删除成功', { userId, id });
+    
+    res.json({
+      success: true,
+      message: '待办删除成功'
+    });
+  } catch (err) {
+    logger.todoError('删除', '删除待办失败', { userId, id, error: err.message });
+    res.status(500).json({
+      success: false,
+      message: '服务器错误'
+    });
+  }
+};
+
+const batchMove = async (req, res) => {
+  const userId = req.user.id;
+  const { todoIds, comboId } = req.body;
+  
+  if (!todoIds || !Array.isArray(todoIds) || todoIds.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: '请选择要移动的待办'
+    });
+  }
+  
+  try {
+    const placeholders = todoIds.map(() => '?').join(',');
+    await query(
+      `UPDATE todos SET combo_id = ?, updated_at = NOW(), version = version + 1 WHERE id IN (${placeholders}) AND user_id = ?`,
+      [comboId, ...todoIds, userId]
+    );
+    
+    logger.todoInfo('批量移动', '待办批量移动成功', { userId, count: todoIds.length, comboId });
+    
+    res.json({
+      success: true,
+      message: '待办移动成功'
+    });
+  } catch (err) {
+    logger.todoError('批量移动', '批量移动待办失败', { userId, error: err.message });
+    res.status(500).json({
+      success: false,
+      message: '服务器错误'
+    });
+  }
+};
+
+const sync = async (req, res) => {
+  const userId = req.user.id;
+  const { localChanges, localDeletedIds, lastSyncAt } = req.body;
+  
+  logger.todoSync('开始同步', { userId, localChangesCount: localChanges?.length, localDeletedIdsCount: localDeletedIds?.length });
+  
+  try {
+    const syncedAt = new Date().toISOString();
+    const cloudChanges = [];
+    const cloudDeletedIds = [];
+    const conflicts = [];
+    
+    if (localChanges && Array.isArray(localChanges) && localChanges.length > 0) {
+      // Collect all todo_ids
+      const todoIds = localChanges.map(t => t.id || generateTodoId());
+
+      // Phase 1: Batch SELECT existing todos (1 query instead of N individual SELECTs)
+      let existingRows = [];
+      let batchSelectFailed = false;
+
+      try {
+        const placeholders = todoIds.map(() => '?').join(',');
+        existingRows = await query(
+          `SELECT * FROM todos WHERE user_id = ? AND todo_id IN (${placeholders})`,
+          [userId, ...todoIds]
+        );
+      } catch (queryErr) {
+        batchSelectFailed = true;
+        logger.dbDebug('todo_id批量查询', '批量查询失败，尝试逐个查询', { userId, error: queryErr.message });
+      }
+
+      const existingMap = new Map(existingRows.map(t => [t.todo_id, t]));
+
+      // Split localChanges into toInsert and toUpdate
+      const toInsertItems = [];
+      const toUpdateItems = [];
+      const fallbackItems = [];
+
+      for (let i = 0; i < localChanges.length; i++) {
+        const localTodo = localChanges[i];
+        const todoId = todoIds[i];
+        const existing = existingMap.get(todoId);
+
+        if (existing) {
+          toUpdateItems.push({ localTodo, serverTodo: existing });
+        } else if (batchSelectFailed) {
+          fallbackItems.push({ localTodo, todoId });
+        } else {
+          toInsertItems.push({ localTodo, todoId });
+        }
+      }
+
+      // Handle fallback items (batch SELECT failed, retry individually by dbId)
+      for (const { localTodo, todoId } of fallbackItems) {
+        try {
+          let existing = [];
+          try {
+            existing = await query(
+              'SELECT * FROM todos WHERE user_id = ? AND todo_id = ?',
+              [userId, todoId]
+            );
+          } catch (retryErr) {
+            logger.dbDebug('todo_id查询', '尝试使用id查询', { userId, dbId: localTodo.dbId });
+            existing = await query(
+              'SELECT * FROM todos WHERE user_id = ? AND id = ?',
+              [userId, localTodo.dbId]
+            );
+          }
+
+          if (existing.length === 0) {
+            toInsertItems.push({ localTodo, todoId });
+          } else {
+            toUpdateItems.push({ localTodo, serverTodo: existing[0] });
+          }
+        } catch (todoErr) {
+          logger.todoError('同步', '处理单个待办错误', { userId, error: todoErr.message, todo: localTodo?.id });
+        }
+      }
+
+      // Phase 2: Batch INSERT all new todos (1 query instead of N individual INSERTs)
+      if (toInsertItems.length > 0) {
+        try {
+          const insertFields = [
+            'user_id', 'todo_id', 'parent_id', 'text', 'set_date', 'set_time',
+            'remarks', 'location_text', 'completed', 'is_star', 'tags', 'images',
+            'combo_id', 'priority', 'version', 'is_deleted', 'deleted_at', 'created_at', 'updated_at'
+          ];
+          const rowPlaceholders = toInsertItems.map(() => '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)').join(',');
+          const insertValues = [];
+
+          for (const { localTodo, todoId } of toInsertItems) {
+            const createdAt = localTodo.time ? new Date(localTodo.time) : new Date();
+            const updatedAt = localTodo.updatedAt ? new Date(localTodo.updatedAt) : createdAt;
+            const tagsJson = localTodo.tags && localTodo.tags.length > 0 ? JSON.stringify(localTodo.tags) : null;
+            const imagesJson = localTodo.images && localTodo.images.length > 0 ? JSON.stringify(localTodo.images) : null;
+
+            insertValues.push(
+              userId, todoId,
+              localTodo.parentId || localTodo.parent_id || null,
+              localTodo.text || '',
+              localTodo.setDate || null,
+              localTodo.setTime || null,
+              localTodo.remarks || null,
+              localTodo.location ? JSON.stringify(localTodo.location) : null,
+              localTodo.completed || 0,
+              localTodo.isStar ? 1 : 0,
+              tagsJson,
+              imagesJson,
+              localTodo.comboId || null,
+              localTodo.priority || 'p2',
+              localTodo.version || 1,
+              localTodo.isDeleted ? 1 : 0,
+              localTodo.deletedAt ? new Date(localTodo.deletedAt) : null,
+              createdAt,
+              updatedAt
+            );
+          }
+
+          await query(
+            `INSERT INTO todos (${insertFields.join(', ')}) VALUES ${rowPlaceholders}`,
+            insertValues
+          );
+        } catch (insertErr) {
+          logger.todoError('批量插入', '批量插入失败，尝试逐个简化插入', { userId, error: insertErr.message, count: toInsertItems.length });
+
+          // Fallback: individual simplified INSERTs for each item
+          for (const { localTodo, todoId } of toInsertItems) {
+            try {
+              const tagsJson = localTodo.tags && localTodo.tags.length > 0 ? JSON.stringify(localTodo.tags) : null;
+              const imagesJson = localTodo.images && localTodo.images.length > 0 ? JSON.stringify(localTodo.images) : null;
+
+              await query(
+                `INSERT INTO todos (user_id, text, set_date, set_time, remarks, completed, is_star, tags, images, parent_id, priority, created_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+                [
+                  userId,
+                  localTodo.text || '',
+                  localTodo.setDate || null,
+                  localTodo.setTime || null,
+                  localTodo.remarks || null,
+                  localTodo.completed || 0,
+                  localTodo.isStar ? 1 : 0,
+                  tagsJson,
+                  imagesJson,
+                  localTodo.parentId || localTodo.parent_id || null,
+                  localTodo.priority || 'p2'
+                ]
+              );
+            } catch (singleInsertErr) {
+              logger.todoError('插入', '简化插入待办失败', { userId, todoId, error: singleInsertErr.message });
+            }
+          }
+        }
+      }
+
+      // Phase 3: Update existing todos (individual UPDATEs, SELECT already done above)
+      for (const { localTodo, serverTodo } of toUpdateItems) {
+        try {
+          const resolved = resolveConflict(localTodo, formatTodo(serverTodo));
+          const resolvedTagsJson = resolved.tags && resolved.tags.length > 0 ? JSON.stringify(resolved.tags) : null;
+          const resolvedImagesJson = resolved.images && resolved.images.length > 0 ? JSON.stringify(resolved.images) : null;
+
+          await query(
+            `UPDATE todos SET
+             text = ?, set_date = ?, set_time = ?, remarks = ?, location_text = ?,
+             completed = ?, is_star = ?, tags = ?, images = ?, priority = ?, parent_id = ?, combo_id = ?, version = ?, updated_at = NOW()
+             WHERE id = ? AND user_id = ?`,
+            [
+              resolved.text,
+              resolved.setDate || null,
+              resolved.setTime || null,
+              resolved.remarks || null,
+              resolved.location ? JSON.stringify(resolved.location) : null,
+              resolved.completed || 0,
+              resolved.isStar ? 1 : 0,
+              resolvedTagsJson,
+              resolvedImagesJson,
+              resolved.priority || 'p2',
+              resolved.parentId || resolved.parent_id || null,
+              resolved.comboId || null,
+              resolved.version || 1,
+              serverTodo.id,
+              userId
+            ]
+          );
+        } catch (updateErr) {
+          logger.todoError('更新', '更新待办失败', { userId, todoId: localTodo.id, error: updateErr.message });
+        }
+      }
+    }
+    
+    if (localDeletedIds && Array.isArray(localDeletedIds) && localDeletedIds.length > 0) {
+      try {
+        const placeholders = localDeletedIds.map(() => '?').join(',');
+        await query(
+          `UPDATE todos SET is_deleted = 1, deleted_at = NOW(), updated_at = NOW() 
+           WHERE todo_id IN (${placeholders}) AND user_id = ?`,
+          [...localDeletedIds, userId]
+        );
+      } catch (deleteErr) {
+        logger.todoError('标记删除', '标记删除失败', { userId, error: deleteErr.message });
+      }
+    }
+    
+    let cloudTodos = [];
+    try {
+      cloudTodos = await query(
+        'SELECT * FROM todos WHERE user_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)',
+        [userId]
+      );
+    } catch (queryErr) {
+      logger.dbError('查询', '查询云端待办失败', { userId, error: queryErr.message });
+      cloudTodos = [];
+    }
+    
+    for (const todo of cloudTodos) {
+      cloudChanges.push(formatTodo(todo));
+    }
+    
+    try {
+      const deletedTodos = await query(
+        'SELECT todo_id, id FROM todos WHERE user_id = ? AND is_deleted = 1',
+        [userId]
+      );
+      
+      for (const todo of deletedTodos) {
+        cloudDeletedIds.push(todo.todo_id || String(todo.id));
+      }
+    } catch (err) {
+      logger.dbError('查询', '查询已删除待办失败', { userId, error: err.message });
+    }
+    
+    try {
+      await query(
+        'UPDATE users SET last_sync_at = NOW() WHERE id = ?',
+        [userId]
+      );
+    } catch (err) {
+      logger.dbError('更新', '更新同步时间失败', { userId, error: err.message });
+    }
+    
+    cleanupDeletedTodos(userId);
+    
+    const todoCount = (localChanges && localChanges.length) || 0;
+    try {
+      await query(
+        'INSERT INTO sync_logs (user_id, action, todo_count, status) VALUES (?, ?, ?, ?)',
+        [userId, 'sync', todoCount, 'success']
+      );
+    } catch (logErr) {
+      logger.dbError('日志', '记录同步日志失败', { userId, error: logErr.message });
+    }
+    
+    logger.todoSync('同步完成', { userId, cloudChangesCount: cloudChanges.length, cloudDeletedIdsCount: cloudDeletedIds.length });
+    
+    res.json({
+      success: true,
+      cloudChanges,
+      cloudDeletedIds,
+      conflicts,
+      syncedAt
+    });
+  } catch (err) {
+    logger.todoError('同步', '同步待办失败', { userId, error: err.message });
+    try {
+      await query(
+        'INSERT INTO sync_logs (user_id, action, todo_count, status) VALUES (?, ?, ?, ?)',
+        [userId, 'sync', 0, 'failed']
+      );
+    } catch (logErr) {
+      logger.dbError('日志', '记录同步日志失败', { userId, error: logErr.message });
+    }
+    res.status(500).json({
+      success: false,
+      message: '服务器错误'
+    });
+  }
+};
+
+const fullSync = async (req, res) => {
+  const userId = req.user.id;
+  
+  try {
+    let cloudTodos = [];
+    let deletedTodos = [];
+    
+    try {
+      cloudTodos = await query(
+        'SELECT * FROM todos WHERE user_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY created_at DESC',
+        [userId]
+      );
+    } catch (err) {
+      logger.dbError('查询', '查询云端待办失败', { userId, error: err.message });
+    }
+    
+    try {
+      deletedTodos = await query(
+        'SELECT todo_id, id FROM todos WHERE user_id = ? AND is_deleted = 1',
+        [userId]
+      );
+    } catch (err) {
+      logger.dbError('查询', '查询已删除待办失败', { userId, error: err.message });
+    }
+    
+    const syncedAt = new Date().toISOString();
+    
+    try {
+      await query(
+        'UPDATE users SET last_sync_at = NOW() WHERE id = ?',
+        [userId]
+      );
+    } catch (err) {
+      logger.dbError('更新', '更新同步时间失败', { userId, error: err.message });
+    }
+    
+    cleanupDeletedTodos(userId);
+    
+    const totalCount = cloudTodos.length + deletedTodos.length;
+    try {
+      await query(
+        'INSERT INTO sync_logs (user_id, action, todo_count, status) VALUES (?, ?, ?, ?)',
+        [userId, 'full_sync', totalCount, 'success']
+      );
+    } catch (logErr) {
+      logger.dbError('日志', '记录同步日志失败', { userId, error: logErr.message });
+    }
+    
+    logger.todoSync('全量同步完成', { userId, totalCount });
+    
+    res.json({
+      success: true,
+      todos: cloudTodos.map(todo => formatTodo(todo)),
+      deletedIds: deletedTodos.map(t => t.todo_id || String(t.id)),
+      syncedAt
+    });
+  } catch (err) {
+    logger.todoError('全量同步', '全量同步失败', { userId, error: err.message });
+    try {
+      await query(
+        'INSERT INTO sync_logs (user_id, action, todo_count, status) VALUES (?, ?, ?, ?)',
+        [userId, 'full_sync', 0, 'failed']
+      );
+    } catch (logErr) {
+      logger.dbError('日志', '记录同步日志失败', { userId, error: logErr.message });
+    }
+    res.status(500).json({
+      success: false,
+      message: '服务器错误'
+    });
+  }
+};
+
+function formatTodo(todo) {
+  let location = null;
+  try {
+    location = todo.location_text ? JSON.parse(todo.location_text) : null;
+  } catch (e) {
+    location = null;
+  }
+  
+  let setDate = todo.set_date;
+  if (setDate) {
+    const dateObj = new Date(setDate);
+    if (!isNaN(dateObj.getTime())) {
+      const year = dateObj.getFullYear();
+      const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+      const day = dateObj.getDate().toString().padStart(2, '0');
+      setDate = `${year}-${month}-${day}`;
+    }
+  }
+  
+  let setTime = todo.set_time;
+  if (setTime && typeof setTime === 'string' && setTime.length > 5) {
+    const timeMatch = setTime.match(/(\d{1,2}):(\d{2})/);
+    if (timeMatch) {
+      const hours = timeMatch[1].padStart(2, '0');
+      const minutes = timeMatch[2].padStart(2, '0');
+      setTime = `${hours}:${minutes}`;
+    }
+  }
+  
+  let tags = [];
+  if (todo.tags) {
+    try {
+      tags = JSON.parse(todo.tags);
+    } catch (e) {
+      tags = [];
+    }
+  }
+  
+  let images = [];
+  if (todo.images) {
+    try {
+      images = JSON.parse(todo.images);
+      if (!Array.isArray(images)) images = [];
+    } catch (e) {
+      images = [];
+    }
+  }
+  
+  return {
+    id: todo.todo_id || String(todo.id),
+    dbId: todo.id,
+    text: todo.text || '',
+    setDate: setDate,
+    setTime: setTime,
+    remarks: todo.remarks,
+    location: location,
+    completed: todo.completed || 0,
+    isStar: todo.is_star === 1,
+    priority: todo.priority || 'p2',
+    time: todo.created_at ? new Date(todo.created_at).getTime() : Date.now(),
+    tags: tags,
+    images: images,
+    comboId: todo.combo_id,
+    parentId: todo.parent_id,
+    version: todo.version || 1,
+    isDeleted: todo.is_deleted === 1,
+    deletedAt: todo.deleted_at ? new Date(todo.deleted_at).getTime() : null,
+    updatedAt: todo.updated_at ? new Date(todo.updated_at).getTime() : null
+  };
+}
+
+function generateTodoId() {
+  return 'todo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+}
+
+async function cleanupDeletedTodos(userId) {
+  try {
+    const result = await query(
+      'DELETE FROM todos WHERE user_id = ? AND is_deleted = 1 AND deleted_at < DATE_SUB(NOW(), INTERVAL 30 DAY)',
+      [userId]
+    );
+    if (result.affectedRows > 0) {
+      logger.todoInfo('清理', '清理已删除待办', { userId, count: result.affectedRows });
+    }
+    return result.affectedRows;
+  } catch (err) {
+    logger.todoError('清理', '清理已删除待办失败', { userId, error: err.message });
+    return 0;
+  }
+}
+
+function resolveConflict(localTodo, serverTodo) {
+  if (localTodo.isDeleted || serverTodo.isDeleted) {
+    return localTodo.isDeleted ? localTodo : serverTodo;
+  }
+  
+  const localUpdatedAt = localTodo.updatedAt || localTodo.time || 0;
+  const serverUpdatedAt = serverTodo.updatedAt || serverTodo.time || 0;
+  
+  return localUpdatedAt > serverUpdatedAt ? localTodo : serverTodo;
+}
+
+const getDeletedList = async (req, res) => {
+  const userId = req.user.id;
+  
+  try {
+    const todos = await query(
+      `SELECT * FROM todos 
+       WHERE user_id = ? AND is_deleted = 1 AND deleted_at > DATE_SUB(NOW(), INTERVAL 30 DAY)
+       ORDER BY deleted_at DESC`,
+      [userId]
+    );
+    
+    res.json({
+      success: true,
+      todos: todos.map(todo => formatTodo(todo))
+    });
+  } catch (err) {
+    logger.todoError('获取已删除', '获取已删除待办列表失败', { userId, error: err.message });
+    res.status(500).json({
+      success: false,
+      message: '服务器错误'
+    });
+  }
+};
+
+const permanentDelete = async (req, res) => {
+  const userId = req.user.id;
+  const { todoId } = req.params;
+  
+  try {
+    const result = await query(
+      'DELETE FROM todos WHERE todo_id = ? AND user_id = ?',
+      [todoId, userId]
+    );
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: '待办不存在'
+      });
+    }
+    
+    logger.todoInfo('永久删除', '待办永久删除', { userId, todoId });
+    
+    res.json({
+      success: true,
+      message: '已永久删除'
+    });
+  } catch (err) {
+    logger.todoError('永久删除', '永久删除待办失败', { userId, todoId, error: err.message });
+    res.status(500).json({
+      success: false,
+      message: '服务器错误'
+    });
+  }
+};
+
+const restoreTodo = async (req, res) => {
+  const userId = req.user.id;
+  const { todoId } = req.params;
+  
+  try {
+    const result = await query(
+      `UPDATE todos 
+       SET is_deleted = 0, deleted_at = NULL, updated_at = NOW(), version = version + 1
+       WHERE todo_id = ? AND user_id = ?`,
+      [todoId, userId]
+    );
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: '待办不存在'
+      });
+    }
+    
+    const [restoredTodo] = await query(
+      'SELECT * FROM todos WHERE todo_id = ? AND user_id = ?',
+      [todoId, userId]
+    );
+    
+    logger.todoInfo('恢复', '待办恢复成功', { userId, todoId });
+    
+    res.json({
+      success: true,
+      todo: formatTodo(restoredTodo)
+    });
+  } catch (err) {
+    logger.todoError('恢复', '恢复待办失败', { userId, todoId, error: err.message });
+    res.status(500).json({
+      success: false,
+      message: '服务器错误'
+    });
+  }
+};
+
+const getTodosBatch = async (req, res) => {
+  const { ids, detail } = req.body;
+  if (!ids || !Array.isArray(ids) || ids.length === 0) {
+    return res.json({ success: true, data: [] });
+  }
+  try {
+    if (detail) {
+      const numericIds = ids.map(id => { const n = Number(id); return isNaN(n) ? -1 : n; });
+      const placeholders = ids.map(() => '?').join(',');
+      const numPlaceholders = numericIds.map(() => '?').join(',');
+      const todos = await query(
+        `SELECT todo_id, id, text, priority, completed, set_date, set_time, remarks, images, location_text, tags FROM todos
+         WHERE (todo_id IN (${placeholders}) OR id IN (${numPlaceholders})) AND is_deleted = 0`,
+        [...ids, ...numericIds]
+      );
+      const result = [];
+      for (const t of todos) {
+        const subtasks = await query(
+          `SELECT id, text, completed, parent_id FROM todos WHERE parent_id = ? AND is_deleted = 0`,
+          [t.todo_id || String(t.id)]
+        );
+        let parsedImages = null;
+        if (t.images) {
+          try { parsedImages = JSON.parse(t.images); } catch (e) { parsedImages = []; }
+        }
+        let parsedLocation = null;
+        if (t.location_text) {
+          try { parsedLocation = JSON.parse(t.location_text); } catch (e) { parsedLocation = t.location_text; }
+        }
+        let parsedTags = null;
+        if (t.tags) {
+          try { parsedTags = JSON.parse(t.tags); } catch (e) { parsedTags = []; }
+        }
+        result.push({
+          id: t.todo_id || String(t.id),
+          text: t.text,
+          priority: t.priority,
+          completed: !!t.completed,
+          setDate: t.set_date || null,
+          setTime: t.set_time || null,
+          remarks: t.remarks || null,
+          images: parsedImages,
+          location: parsedLocation,
+          tags: parsedTags,
+          subtasks: subtasks.map(s => ({
+            id: String(s.id),
+            text: s.text,
+            completed: !!s.completed
+          }))
+        });
+      }
+      return res.json({ success: true, data: result });
+    }
+    const placeholders = ids.map(() => '?').join(',');
+    const numericIds = ids.map(id => { const n = Number(id); return isNaN(n) ? -1 : n; });
+    const todos = await query(
+      `SELECT todo_id, id, text, priority, completed FROM todos
+       WHERE (todo_id IN (${placeholders}) OR id IN (${placeholders})) AND is_deleted = 0`,
+      [...ids, ...numericIds]
+    );
+    res.json({ success: true, data: todos.map(t => ({
+      id: t.todo_id || String(t.id),
+      text: t.text,
+      priority: t.priority,
+      completed: !!t.completed
+    })) });
+  } catch (err) {
+    logger.todoError('批量获取', '批量获取待办失败', { error: err.message });
+    res.status(500).json({ success: false, message: '获取失败' });
+  }
+};
+
+module.exports = {
+  getList,
+  getById,
+  create,
+  update,
+  deleteTodo,
+  batchMove,
+  sync,
+  fullSync,
+  cleanupDeletedTodos,
+  getDeletedList,
+  permanentDelete,
+  restoreTodo,
+  getTodosBatch
+};

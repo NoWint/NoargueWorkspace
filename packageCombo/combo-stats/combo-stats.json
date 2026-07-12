@@ -1,0 +1,12 @@
+{
+  "usingComponents": {
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-progress": "tdesign-miniprogram/progress/progress",
+    "t-tabs": "tdesign-miniprogram/tabs/tabs",
+    "t-tab-panel": "tdesign-miniprogram/tab-panel/tab-panel",
+    "ec-canvas": "../../miniprogram_npm/ec-canvas/ec-canvas"
+  },
+  "navigationBarTitleText": "数据统计",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark"
+}

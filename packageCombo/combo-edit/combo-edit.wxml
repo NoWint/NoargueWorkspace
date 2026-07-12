@@ -1,0 +1,251 @@
+<view class="container">
+  <wxs module="utils">
+  module.exports = {
+    includes: function(arr, val) {
+      if (!arr) return false;
+      if (typeof arr.length === 'undefined') return false;
+      if (arr.length === 0) return false;
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i] == val) return true;
+      }
+      return false;
+    }
+  }
+  </wxs>
+  <view class="form-container">
+    <view style="margin-bottom: 8rpx;">
+      <text class="question-title">组合名称<text class="required">*</text></text>
+      <t-input
+        placeholder="输入组合名称"
+        value="{{name}}"
+        borderless
+        bind:change="onNameInput"
+        style="--td-input-bg-color: #f8f8f8; margin-left: 28rpx; border-radius: 32rpx;"
+      />
+    </view>
+    
+    <view class="form-item" wx:if="{{!editId}}">
+      <view class="switch-row">
+        <view class="switch-info">
+          <text class="label">启用协作模式</text>
+          <text class="hint">与其他用户共享组合内待办</text>
+        </view>
+        <t-switch value="{{isShared}}" bind:change="toggleShared" />
+      </view>
+      <view wx:if="{{isShared}}" class="shared-tip">
+        <t-icon name="info-circle" size="28rpx" color="#00b26a" />
+        <text class="shared-tip-text">创建组合后才可邀请成员加入</text>
+      </view>
+    </view>
+    
+    <view class="form-item">
+      <text class="question-title">组合描述</text>
+      <t-textarea
+        placeholder="可在此添加组合描述"
+        value="{{description}}"
+        bind:change="onDescriptionInput"
+        bordered="{{false}}"
+        maxlength="999"
+        disableDefaultPadding="{{true}}"
+        indicator
+        style="--td-textarea-background-color:#f8f8f8; margin-left: 28rpx; border-radius: 32rpx;"
+      />
+    </view>
+    
+    <view class="form-item">
+      <text class="question-title">组合图标<text class="required">*</text></text>
+      <view class="icon-grid">
+        <view 
+          class="icon-item {{icon === item ? 'selected' : ''}}" 
+          style="{{icon === item ? 'background: ' + color : ''}}"
+          wx:for="{{icons}}" 
+          wx:key="*this"
+          data-icon="{{item}}"
+          bindtap="selectIcon"
+        >
+          <t-icon name="{{item}}" size="48rpx" color="{{icon === item ? '#fff' : '#666'}}" />
+        </view>
+        <view class="icon-item {{iconNotInCommon ? 'selected' : ''}}" style="{{iconNotInCommon ? 'background: ' + color : ''}}" bindtap="showMoreIcons">
+          <t-icon wx:if="{{iconNotInCommon}}" name="{{icon}}" size="48rpx" color="#fff" />
+          <text wx:else class="more-dots">···</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="form-item">
+      <text class="question-title">组合颜色<text class="required">*</text></text>
+      <view class="color-grid">
+        <view 
+          class="color-item {{item === 'custom' ? (colorPickerSelected ? 'selected' : '') : (color === item ? 'selected' : '')}}" 
+          style="{{item !== 'custom' ? 'background: ' + item : ''}}"
+          wx:for="{{colors}}" 
+          wx:key="*this"
+          data-color="{{item}}"
+          bindtap="selectColor"
+        >
+          <view wx:if="{{item === 'custom'}}" class="rainbow-circle"></view>
+          <t-icon wx:if="{{item !== 'custom' && color === item}}" name="check" size="32rpx" color="#fff" />
+          <t-icon wx:if="{{item === 'custom' && colorPickerSelected}}" name="check" size="32rpx" color="#fff" />
+        </view>
+      </view>
+    </view>
+
+    <view class="form-item" wx:if="{{!editId}}">
+      <text class="question-title">选择待办</text>
+      <view class="select-todo-btn" bindtap="showTodoPopup">
+        <t-icon name="add" size="36rpx" color="#00b26a" />
+        <text class="select-text">点击选择要加入组合的待办</text>
+      </view>
+      <text class="hint" wx:if="{{selectedTodoCount > 0}}">已选择 {{selectedTodoCount}} 项待办</text>
+      <text class="hint" wx:else>仅显示未加入其他组合的待办</text>
+    </view>
+
+    <view class="form-item" wx:if="{{isShared}}">
+      <text class="question-title">成员上限</text>
+      <view class="member-limit-display">
+        <text class="limit-value">{{memberLimit}}人</text>
+        <text class="limit-hint">如需扩充，可在"更多"联系客服商讨事宜</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<t-fab icon="check" text="{{editId ? '保存修改' : '创建组合'}}" bindclick="createCombo" />
+
+<t-popup
+  visible="{{popupVisible}}"
+  bind:visible-change="onPopupVisibleChange"
+  placement="center"
+  close-on-overlay-click="{{true}}"
+  z-index="10000"
+  overlay-props="{{ { zIndex: 9999, backgroundColor: 'rgba(0, 0, 0, 0.6)' } }}"
+>
+  <view class="todo-popup-content">
+    <view class="popup-header">
+      <text class="popup-title">选择待办</text>
+      <view class="popup-close" bindtap="hideTodoPopup">
+        <t-icon name="close" size="40rpx" color="#999" />
+      </view>
+    </view>
+    
+    <scroll-view class="popup-scroll" scroll-y>
+      <view wx:if="{{availableTodos.length === 0}}" class="empty-tip">
+        <text>暂无可用待办</text>
+      </view>
+      <view wx:else class="popup-todos">
+        <view 
+          wx:for="{{availableTodos}}" 
+          wx:key="time"
+          class="todo-item-wrapper"
+        >
+          <view class="todo-item {{item.completed ? 'completed' : ''}} {{utils.includes(tempSelectedTodoIds, item.time) ? 'selected' : ''}}">
+            <view wx:if="{{item.isStar}}" class="star-badge">
+              <t-icon name="star-filled" size="26rpx" color="#ffffff" />
+            </view>
+            <t-cell
+              title="{{item.text}}"
+              description="{{item.location ? (item.remarks ? '📍' + item.location.name + '｜' + item.remarks : '📍' + item.location.name) : item.remarks}}"
+              note="{{item.friendlyDate || item.setDate}}"
+              bordered="{{false}}"
+              custom-style="width:100%"
+              data-id="{{item.time}}"
+              bindtap="toggleTodoSelection"
+            >
+              <view wx:if="{{item.completed}}" class="completed-decorate"></view>
+              <view wx:if="{{item.images && item.images.length > 0}}" slot="note" class="todo-images-indicator">
+                <t-icon name="image" size="24rpx" color="#999" />
+                <text class="images-count">{{item.images.length}}</text>
+              </view>
+            </t-cell>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+    
+    <view class="popup-footer">
+      <view class="confirm-btn" bindtap="confirmTodoSelection">
+        <text>确定选择 ({{selectedTodoCount}})</text>
+      </view>
+    </view>
+  </view>
+</t-popup>
+
+<t-popup 
+  visible="{{colorPickerVisible}}" 
+  bind:visible-change="onColorPickerClose"
+  placement="bottom"
+  close-on-overlay-click="{{true}}"
+>
+  <view class="color-picker-popup">
+    <view class="color-picker-header">
+      <text class="color-picker-title">选择颜色</text>
+      <view class="color-picker-close" bindtap="closeColorPicker">
+        <t-icon name="close" size="40rpx" color="#999" />
+      </view>
+    </view>
+    <view class="color-picker-content">
+      <t-color-picker 
+        id="colorPicker"
+        value="{{customColor || '#00B26A'}}"
+        type="multiple"
+        format="HEX"
+        swatchColors=""
+        fixed="{{true}}"
+        bind:change="onColorChange"
+        bind:palette-bar-change="onPaletteBarChange"
+      />
+    </view>
+    <view class="color-picker-footer">
+      <view class="color-preview" style="background: {{customColor || '#00B26A'}}"></view>
+      <text class="color-value">{{customColor || '#00B26A'}}</text>
+      <view class="color-confirm-btn" bindtap="confirmCustomColor">
+        <text>确定</text>
+      </view>
+    </view>
+  </view>
+</t-popup>
+
+<t-popup 
+  visible="{{moreIconVisible}}" 
+  bind:visible-change="onMoreIconVisibleChange"
+  placement="bottom"
+  close-on-overlay-click="{{true}}"
+>
+  <view class="more-icon-popup">
+    <view class="more-icon-header">
+      <text class="more-icon-title">选择图标</text>
+      <view class="more-icon-close" bindtap="hideMoreIcons">
+        <t-icon name="close" size="40rpx" color="#999" />
+      </view>
+    </view>
+    
+    <scroll-view class="category-scroll" scroll-x>
+      <view class="category-tabs">
+        <view 
+          class="category-tab {{currentCategory === item ? 'active' : ''}}"
+          wx:for="{{categoryNames}}"
+          wx:key="*this"
+          data-category="{{item}}"
+          bindtap="selectCategory"
+        >
+          <text>{{item}}</text>
+        </view>
+      </view>
+    </scroll-view>
+    
+    <scroll-view class="more-icon-scroll" scroll-y>
+      <view class="more-icon-grid">
+        <view 
+          class="more-icon-item {{icon === item ? 'selected' : ''}}" 
+          style="{{icon === item ? 'background: ' + color : ''}}"
+          wx:for="{{iconCategories[currentCategory]}}" 
+          wx:key="*this"
+          data-icon="{{item}}"
+          bindtap="selectMoreIcon"
+        >
+          <t-icon name="{{item}}" size="44rpx" color="{{icon === item ? '#fff' : '#666'}}" />
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+</t-popup>

@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "t-cell": "tdesign-miniprogram/cell/cell",
+    "t-badge": "tdesign-miniprogram/badge/badge"
+  },
+  "navigationBarTitleText": "举报管理",
+  "enablePullDownRefresh": false
+}

@@ -1,0 +1,32 @@
+<view class="container">
+  <!-- <view class="qrcode-card">
+    <image 
+      src="https://pic1.imgdb.cn/item/681742df58cb8da5c8dbf26d.png" 
+      mode="widthFix" 
+      show-menu-by-longpress
+      class="qrcode-image"
+      binderror="onImageError"
+    />
+    <text class="support-text">本小程序由作者独立开发，制作不易
+      如果觉得好用，欢迎请作者喝杯咖啡
+      ↑长按识别二维码支持作者↑
+    </text>
+  </view> -->
+
+  <view class="promotion-card">
+    <image 
+      src="https://pic1.imgdb.cn/item/681744ee58cb8da5c8dc0ce0.jpg"
+      mode="widthFix"
+      show-menu-by-longpress
+      class="qrcode-image"
+    />
+    <text class="promotion-text">若您觉得好用，可以向身边人推广
+      长按上方二维码保存
+      或点击下方按钮分享给好友
+    </text>
+    <button 
+      class="share-btn" 
+      open-type="share"
+    >立即分享</button>
+  </view>
+</view>

@@ -1,0 +1,498 @@
+<view class="container">
+  <view class="form-item">
+    <!-- 标题部分 -->
+    <text class="todo-title" bindlongpress="copyTitle" style="{{todo.completed ? 'color: #33ae7d;' : ''}}">{{todo.text}}</text>
+
+    <!-- 创建人员卡片（共享待办或管理员查看时显示） -->
+    <view wx:if="{{(isSharedTodo || adminView || (isShare && creator)) && creator}}" class="date-info creator-info">
+      <view class="section-header">
+        <t-icon name="user" size="32rpx" color="#999" />
+        <text class="label">创建人员</text>
+      </view>
+      <view class="creator-content" catch:tap="goToUserHome" data-user-id="{{creator.id}}" bindlongpress="copyCreator">
+        <image class="creator-avatar" src="{{creator.avatar || '/images/avatar.png'}}" mode="aspectFill" />
+        <text class="creator-name">{{creator.nickname || '未知用户'}}</text>
+      </view>
+    </view>
+
+    <!-- 添加时间显示部分 -->
+    <view class="date-info date-info-priority">
+      <view class="section-header">
+        <t-icon name="add" size="32rpx" color="#999" />
+        <text class="label">创建时间</text>
+      </view>
+      <text class="value" bindlongpress="copyDate" data-target="created">{{formatDateTime}}</text>
+    </view>
+
+    <!-- 日期显示部分 -->
+    <view class="date-info deadline date-info-priority">
+      <view class="section-header">
+        <t-icon name="time" size="32rpx" color="#999" />
+        <text class="label">截止时间</text>
+      </view>
+      <text class="value" bindlongpress="copyDate" data-target="deadline">{{formattedDate}}</text>
+    </view>
+
+    <!-- 通知提醒卡片（管理员查看时隐藏） -->
+    <view wx:if="{{!adminView}}" class="notify-card {{showNotifyConfig ? 'expanded' : ''}}">
+      <view class="notify-header" bindtap="onNotifyCardTap">
+        <view class="notify-header-left">
+          <t-icon name="notification" size="32rpx" color="#999" />
+          <text class="notify-label">待办提醒</text>
+          <view class="notify-time">
+            <text wx:if="{{notification}}">{{notification.formattedTime}}</text>
+            <text wx:else>点击设置</text>
+          </view>
+        </view>
+
+
+        <view class="notify-header-right">
+          <t-icon name="{{showNotifyConfig ? 'chevron-up' : 'chevron-right'}}" size="28rpx" color="#999" />
+        </view>
+      </view>
+
+      <!-- 展开的配置区域 -->
+      <view wx:if="{{showNotifyConfig}}" class="notify-config">
+        <view class="config-section">
+          <text class="section-label">提醒日期</text>
+          <view class="date-offset-options">
+            <view class="offset-option {{notifyDateOffset === '0' ? 'active' : ''}}" data-offset="0" catchtap="onSelectDateOffset">当天</view>
+            <view class="offset-option {{notifyDateOffset === '-1' ? 'active' : ''}}" data-offset="-1" catchtap="onSelectDateOffset">前一天</view>
+            <view class="offset-option {{notifyDateOffset === 'custom' ? 'active' : ''}}" data-offset="custom" catchtap="onSelectDateOffset">前
+              <input class="custom-days-input" type="number" value="{{customDays}}" bindinput="onCustomDaysInput" disabled="{{notifyDateOffset !== 'custom'}}" />
+              天
+            </view>
+          </view>
+        </view>
+
+        <view class="config-section">
+          <text class="section-label">提醒时间</text>
+          <picker value="{{notifyTime}}" mode="time" bindchange="onNotifyTimeChange">
+            <view class="time-picker-field">
+              <text>{{notifyTime || '09:00'}}</text>
+              <t-icon name="time" size="32rpx" color="#999" />
+            </view>
+          </picker>
+          <view class="notify-delay-hint">
+            <text>通知推送可能存在延迟，请以实际为准</text>
+          </view>
+        </view>
+
+        <view class="config-section">
+          <text class="section-label">提醒预览</text>
+          <view class="notify-preview">
+            <text>{{notifyPreviewText}}</text>
+          </view>
+        </view>
+
+        <view class="config-actions">
+          <button wx:if="{{notification}}" class="cancel-notify-btn" catchtap="onCancelNotify">取消提醒</button>
+          <button class="save-notify-btn" catchtap="saveNotification">{{notification ? '修改提醒' : '保存提醒'}}</button>
+        </view>
+      </view>
+    </view>
+
+    <!-- 完成时间显示部分 -->
+    <view wx:if="{{todo.completed}}" class="date-info completed date-info-priority">
+      <view class="section-header">
+        <t-icon name="task-checked-1" size="32rpx" color="#999" />
+        <text class="label">完成时间</text>
+      </view>
+      <text class="value" bindlongpress="copyDate" data-target="completed">{{formatCompletedTime}}</text>
+    </view>
+
+    <view wx:if="{{isSharedTodo && todo.allCompletedAt}}" class="date-info all-completed">
+      <view class="section-header">
+        <t-icon name="check-double" size="32rpx" color="#999" />
+        <text class="label">全员完成</text>
+      </view>
+      <text class="value">{{formatAllCompletedTime}}</text>
+    </view>
+
+    <view wx:if="{{todo.priority}}" class="date-info date-info-priority">
+      <view class="section-header">
+        <t-icon name="flag" size="32rpx" color="#999" />
+        <text class="label">优先等级</text>
+      </view>
+      <view class="pd priority-detail-{{todo.priority}}"></view>
+      <text class="value">{{todo.priority === 'p1' ? '紧急重要' : todo.priority === 'p2' ? '重要不紧急' : todo.priority === 'p3' ? '紧急不重要' : '不紧急不重要'}}</text>
+    </view>
+
+    <!-- 标签显示部分 -->
+    <view wx:if="{{todoTags.length > 0}}" class="tags-info">
+      <view class="section-header">
+        <t-icon name="tag" size="32rpx" color="#999" />
+        <text class="label">标签</text>
+      </view>
+      <view class="tags-list">
+        <view class="tag-badge" wx:for="{{todoTags}}" wx:key="id" style="background: {{item.color}}20; border-color: {{item.color}}">
+          <view class="tag-dot" style="background: {{item.color}}"></view>
+          <text class="tag-text" style="color: {{item.color}}">{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 所属组合显示部分 -->
+    <view wx:if="{{comboInfo}}" class="combo-info">
+      <view class="section-header">
+        <t-icon name="folder" size="32rpx" color="#999" />
+        <text class="label">所属组合</text>
+      </view>
+      <view class="combo-badge" bindtap="navigateToCombo">
+        <t-icon name="{{comboInfo.icon || 'folder'}}" size="32rpx" color="{{comboInfo.color || '#4CAF50'}}" />
+        <text class="combo-text">{{comboInfo.name}}</text>
+        <t-icon name="chevron-right" size="28rpx" color="#999" />
+      </view>
+    </view>
+
+    <!-- 子任务区块（完整交互模式） -->
+    <view wx:if="{{!isShare && !isSharedTodo && !adminView && todo.id}}" class="subtask-section">
+      <view class="subtask-header" bindtap="toggleSubtaskCollapse">
+        <view class="section-header">
+          <t-icon name="tree-list" size="32rpx" color="#999" />
+          <text class="subtask-header-text">子任务 ({{subtaskList.length}})</text>
+        </view>
+        <t-icon name="{{subtaskCollapsed ? 'chevron-right' : 'chevron-down'}}" size="28rpx" color="#999" />
+      </view>
+      <view wx:if="{{!subtaskCollapsed}}" class="subtask-body">
+        <view wx:for="{{subtaskList}}" wx:key="id" class="subtask-row" style="padding-left: {{item._depth * 40 + 24}}rpx">
+          <view class="subtask-checkbox {{item.completed ? 'checked' : ''}}" catchtap="toggleSubtask" data-id="{{item.id}}">
+            <t-icon name="check" size="32rpx" color="#fff" />
+          </view>
+          <view wx:if="{{editingSubtaskId !== item.id}}" class="subtask-text-wrap" catchtap="startEditSubtask" data-id="{{item.id}}">
+            <text class="subtask-text {{item.completed ? 'completed' : ''}}">{{item.text}}</text>
+          </view>
+          <view wx:if="{{editingSubtaskId === item.id}}" class="subtask-edit-wrap">
+            <input class="subtask-edit-input" value="{{editingSubtaskText}}" bindinput="onEditInput" bindconfirm="saveEditSubtask" bindblur="saveEditSubtask" auto-focus />
+          </view>
+          <t-icon name="add" size="28rpx" color="#999" class="subtask-add-btn" catchtap="showAddChildInput" data-id="{{item.id}}" />
+          <t-icon name="delete" size="28rpx" color="#ccc" class="subtask-del-btn" catchtap="deleteSubtask" data-id="{{item.id}}" />
+        </view>
+        <view wx:if="{{addingChildForId}}" class="subtask-child-input" style="padding-left: {{childInputPadding}}rpx">
+          <input class="subtask-input-field" placeholder="输入该层级子任务" value="{{childInputValue}}" bindinput="onChildInput" bindconfirm="createChildSubtask" />
+          <t-icon name="check" size="32rpx" color="#00b26a" catchtap="createChildSubtask" />
+          <t-icon name="close" size="32rpx" color="#999" catchtap="showAddChildInput" data-id="{{addingChildForId}}" />
+        </view>
+        <view class="subtask-add-row">
+          <input class="subtask-add-input" placeholder="添加父级子任务" value="{{subtaskInputValue}}" bindinput="onSubtaskInput" bindconfirm="createSubtask" />
+          <view class="subtask-send-btn {{subtaskHasInput ? 'active' : ''}}" catchtap="createSubtask">
+            <t-icon name="arrow-up" size="36rpx" color="#fff" />
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 子任务区块（只读预览模式：微信分享 / 共享组合 / 管理员视图） -->
+    <view wx:elif="{{subtaskList.length > 0}}" class="subtask-section subtask-readonly">
+      <view class="subtask-header">
+        <view class="section-header">
+          <t-icon name="tree-list" size="32rpx" color="#999" />
+          <text class="subtask-header-text">子任务 ({{subtaskList.length}})</text>
+        </view>
+      </view>
+      <view class="subtask-body">
+        <view wx:for="{{subtaskList}}" wx:key="id" class="subtask-row" style="padding-left: {{item._depth * 40 + 24}}rpx">
+          <view class="subtask-readonly-dot {{item.completed ? 'checked' : ''}}"></view>
+          <text class="subtask-text {{item.completed ? 'completed' : ''}}">{{item.text}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 图片展示部分 -->
+    <view wx:if="{{todo.images && todo.images.length > 0}}" class="images-section">
+      <view class="section-header">
+        <t-icon name="image" size="32rpx" color="#999" />
+        <text class="label">附加图片</text>
+      </view>
+      <view class="todo-images">
+        <view class="images-grid-{{imagesLayout}}">
+          <image
+            wx:for="{{todo.images}}" wx:key="index"
+            src="{{item}}" mode="{{imagesLayout === 'single' ? 'widthFix' : 'aspectFill'}}"
+            class="todo-image" data-index="{{index}}" data-url="{{item}}"
+            bindtap="previewImage" bindlongpress="copyImageUrl"
+          />
+        </view>
+      </view>
+    </view>
+
+    <!-- 备注部分 -->
+    <view wx:if="{{todo.remarks}}" class="remarks">
+      <view class="remarks-header">
+        <view class="section-header">
+          <t-icon name="edit-2" size="32rpx" color="#999" />
+          <text class="label">备注</text>
+        </view>
+        <text class="remark-ifmd">识别Markdown</text>
+        <t-switch defaultValue="{{false}}" bindchange="toggleMarkdown" size="small" slot="note" />
+      </view>
+      <t-chat-markdown wx:if="{{showMarkdown}}" class="remarks-md" content="{{todo.remarks}}" bind:click="onRemarksTap" />
+      <text wx:if="{{!showMarkdown}}" class="value">{{todo.remarks}}</text>
+    </view>
+
+    <view wx:if="{{todo.location}}" class="location-info">
+      <view class="section-header">
+        <t-icon name="location" size="32rpx" color="#999" />
+        <text class="label">位置信息</text>
+      </view>
+      <view class="value" bindlongpress="copyLocation">
+        <text class="name">{{todo.location.name}}</text>
+        <text class="address">{{todo.location.address}}</text>
+        <!-- 地图组件 -->
+        <view class="map-container">
+          <map id="locationMap" longitude="{{todo.location.longitude}}" latitude="{{todo.location.latitude}}" scale="16" markers="{{[{id: 0, ...todo.location, iconPath: '/images/marker.png', width: 30, height: 30}]}}" style="width: 100%; height: 300rpx"></map>
+        </view>
+        <button class="nav-btn" bindtap="navigateToLocation" wx:if="{{todo.location}}">导航到这里</button>
+      </view>
+    </view>
+
+    <!-- 多人待办完成情况展示 -->
+    <view wx:if="{{(isSharedTodo && (userRole === 'owner' || userRole === 'admin')) || adminView}}" class="shared-todo-stats">
+      <view class="date-info date-info-priority">
+        <view class="section-header">
+          <t-icon name="user-setting" size="32rpx" color="#999" />
+          <text class="label">完成模式</text>
+        </view>
+        <text class="value" bindlongpress="copyAssignType">{{assignType === 'all' ? '全员完成' : assignType === 'any' ? '任一完成' : '指定成员'}}{{excludeType ? '（' + (excludeType === 'owner' ? '超管无需完成' : excludeType === 'self' ? '创建者无需完成' : '管理组无需完成') + '）' : ''}}</text>
+      </view>
+
+      <view class="stats-card" bindlongpress="copyProgress">
+        <view class="section-header">
+          <t-icon name="chart-bar" size="32rpx" color="#999" />
+          <text class="label">完成进度</text>
+        </view>
+        <text class="progress-percent">{{completedPercent}}%</text>
+        <view class="progress-container">
+          <view class="progress-bar">
+            <view class="progress-fill" style="width: {{completedPercent}}%"></view>
+          </view>
+          <text class="progress-text">{{completedCount}}/{{totalCount}}</text>
+        </view>
+      </view>
+
+      <view class="stats-card member-list-card">
+        <view class="member-section" bindlongpress="copyMemberList" data-type="completed">
+          <view class="member-section-header">
+            <view class="section-title-wrap">
+              <t-icon name="check-circle" size="32rpx" color="#00b26a" />
+              <text class="section-title">已完成 · {{completedCount}}人</text>
+            </view>
+            <text class="section-percent">占比{{completedPercent}}%</text>
+          </view>
+          <view class="member-list">
+            <view class="member-item completed" wx:for="{{assignments}}" wx:key="userId" wx:if="{{item.completedAt}}">
+              <image class="member-avatar" src="{{item.avatarUrl || '/images/avatar.png'}}" mode="aspectFill"></image>
+              <text class="member-name">{{item.nickname || '用户'}}</text>
+              <text class="member-complete-time">{{item.completedAt}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view wx:if="{{assignType !== 'any'}}" class="member-section" bindlongpress="copyMemberList" data-type="uncompleted">
+          <view class="member-section-header">
+            <view class="section-title-wrap">
+              <t-icon name="error-circle" size="32rpx" color="#999" />
+              <text class="section-title">未完成 · {{uncompletedCount}}人</text>
+            </view>
+            <text class="section-percent">占比{{uncompletedPercent}}%</text>
+          </view>
+          <view class="member-list">
+            <view class="member-item" wx:for="{{assignments}}" wx:key="userId" wx:if="{{!item.completedAt}}">
+              <image class="member-avatar" src="{{item.avatarUrl || '/images/avatar.png'}}" mode="aspectFill"></image>
+              <text class="member-name">{{item.nickname || '用户'}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view wx:if="{{assignType === 'any' && completedCount === 0}}" class="member-section">
+          <view class="member-section-header">
+            <text class="section-title">待完成</text>
+          </view>
+          <view class="member-list">
+            <view class="member-item any-placeholder">
+              <image class="member-avatar" src="/images/avatar.png" mode="aspectFill"></image>
+              <text class="member-name">任一成员</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 广告位 -->
+    <view class="ad-container">
+      <ad-custom unit-id="adunit-d22855c9c19efbd6" bindload="onAdLoad" binderror="onAdError" bindclose="onAdClose" bindhide="onAdHide"></ad-custom>
+    </view>
+  </view>
+</view>
+
+<!-- FAB 按钮组（由 JS _computeFabActions 计算） -->
+<block wx:for="{{fabActions}}" wx:key="id">
+  <t-fab icon="{{item.icon}}" text="{{item.text || ''}}" style="right: {{item.right}}rpx; bottom: {{item.bottom}}rpx;" button-props="{{item.buttonProps}}" data-id="{{item.id}}" bind:click="onFabAction" />
+</block>
+
+<!-- 评论弹窗 -->
+<t-popup visible="{{showCommentPopup}}" placement="bottom" bind:visible-change="onCommentPopupChange" custom-style="border-radius: 32rpx 32rpx 0 0; max-height: 70vh;">
+  <view class="comment-popup">
+    <!-- 头部 -->
+    <view class="comment-header">
+      <text class="comment-title">评论 ({{commentTotal}})</text>
+      <view class="comment-close" bindtap="closeCommentPopup">
+        <t-icon name="close" size="40rpx" color="#999" />
+      </view>
+    </view>
+
+    <!-- 评论列表 -->
+    <scroll-view class="comment-list" scroll-y bindscrolltolower="loadMoreComments" refresher-enabled refresher-triggered="{{commentRefreshing}}" bindrefresherrefresh="refreshComments">
+      <view wx:if="{{comments.length === 0 && !commentLoading}}" class="comment-empty">
+        <t-icon name="chat" size="80rpx" color="#ddd" />
+        <text>暂无评论{{adminView ? '' : '，来说点什么吧~'}}</text>
+      </view>
+
+      <block wx:for="{{comments}}" wx:key="id">
+        <!-- 主评论 -->
+        <view class="comment-item">
+          <view class="comment-avatar-wrapper">
+            <image class="comment-avatar" src="{{item.user.avatar || '/images/avatar.png'}}" mode="aspectFill" />
+            <view wx:if="{{item.comboRole === 'owner'}}" class="avatar-badge owner">超</view>
+            <view wx:elif="{{item.comboRole === 'admin'}}" class="avatar-badge admin">管</view>
+          </view>
+          <view class="comment-body">
+            <view class="comment-meta">
+              <text class="comment-name">{{item.user.nickname || '用户'}}</text>
+              <text wx:if="{{item.todoRole === 'creator'}}" class="todo-role creator">创建者</text>
+              <text wx:elif="{{item.todoRole === 'completed'}}" class="todo-role completed">已完成</text>
+              <text wx:elif="{{item.todoRole === 'uncompleted'}}" class="todo-role uncompleted">未完成</text>
+              <text class="comment-time">{{item.formattedTime}}</text>
+            </view>
+            <text class="comment-content">{{item.content}}</text>
+            <view class="comment-actions">
+              <view wx:if="{{!adminView}}" class="action-btn" bindtap="replyComment" data-comment="{{item}}">
+                <t-icon name="chat" size="28rpx" color="#999" />
+                <text>回复</text>
+              </view>
+              <view wx:if="{{item.canDelete || adminView}}" class="action-btn delete" bindtap="deleteComment" data-id="{{item.id}}">
+                <t-icon name="delete" size="28rpx" color="#ff4d4f" />
+                <text>删除</text>
+              </view>
+            </view>
+
+            <!-- 回复列表 -->
+            <view wx:if="{{item.replies && item.replies.length > 0}}" class="reply-list">
+              <view class="reply-item" wx:for="{{item.replies}}" wx:for-item="reply" wx:key="id">
+                <view class="reply-avatar-wrapper">
+                  <image class="reply-avatar" src="{{reply.user.avatar || '/images/avatar.png'}}" mode="aspectFill" />
+                  <view wx:if="{{reply.comboRole === 'owner'}}" class="avatar-badge-small owner">超</view>
+                  <view wx:elif="{{reply.comboRole === 'admin'}}" class="avatar-badge-small admin">管</view>
+                </view>
+                <view class="reply-body">
+                  <view class="reply-meta">
+                    <text class="reply-name">{{reply.user.nickname || '用户'}}</text>
+                    <text wx:if="{{reply.todoRole === 'creator'}}" class="todo-role-small creator">创建者</text>
+                    <text wx:elif="{{reply.todoRole === 'completed'}}" class="todo-role-small completed">已完成</text>
+                    <text wx:elif="{{reply.todoRole === 'uncompleted'}}" class="todo-role-small uncompleted">未完成</text>
+                    <text wx:if="{{reply.replyToUser}}" class="reply-to">回复 <text class="reply-to-user">{{reply.replyToUser.nickname}}</text></text>
+                    <text class="reply-time">{{reply.formattedTime}}</text>
+                  </view>
+                  <text class="reply-content">{{reply.content}}</text>
+                  <view class="comment-actions">
+                    <view wx:if="{{!adminView}}" class="action-btn" bindtap="replyComment" data-comment="{{item}}" data-reply="{{reply}}">
+                      <t-icon name="chat" size="24rpx" color="#999" />
+                      <text>回复</text>
+                    </view>
+                    <view wx:if="{{reply.canDelete || adminView}}" class="action-btn delete" bindtap="deleteComment" data-id="{{reply.id}}" data-parent-id="{{item.id}}">
+                      <t-icon name="delete" size="24rpx" color="#ff4d4f" />
+                      <text>删除</text>
+                    </view>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </block>
+
+      <view wx:if="{{commentLoading}}" class="comment-loading">
+        <t-loading theme="circular" size="40rpx" />
+      </view>
+
+      <view wx:if="{{!commentHasMore && comments.length > 0}}" class="comment-end">
+        <text>没有更多评论了</text>
+      </view>
+    </scroll-view>
+
+    <!-- 评论输入框 -->
+    <view wx:if="{{!adminView}}" class="comment-input-bar">
+      <view wx:if="{{replyTarget}}" class="reply-target">
+        <text>回复 <text class="reply-target-name">{{replyTarget.user.nickname}}</text></text>
+        <t-icon name="close" size="28rpx" color="#999" bind:click="cancelReply" />
+      </view>
+      <view class="input-wrapper">
+        <input class="comment-input" placeholder="{{replyTarget ? '回复 ' + replyTarget.user.nickname + '...' : '发表评论...'}}" value="{{commentInput}}" bindinput="onCommentInput" bindconfirm="submitComment" maxlength="500" confirm-type="send" />
+        <button class="send-btn {{commentInput.length > 0 ? 'active' : ''}}" bindtap="submitComment">
+          <t-icon name="arrow-up" size="48rpx" color="#fff" />
+        </button>
+      </view>
+    </view>
+  </view>
+</t-popup>
+
+<!-- 分享快照遮罩 -->
+<view wx:if="{{shareOverlay}}" class="share-overlay {{shareOverlay}}">
+  <view class="overlay-content">
+    <t-icon name="lock-on" size="80rpx" color="#00b26a" />
+    <text class="overlay-title" wx:if="{{shareOverlay === 'password'}}">该分享已加密</text>
+    <text class="overlay-title" wx:if="{{shareOverlay === 'exhausted'}}">访问数量已达分享者设置上限</text>
+    <text class="overlay-subtitle" wx:if="{{shareOverlay === 'password'}}">请输入访问密码</text>
+
+    <view wx:if="{{shareOverlay === 'password'}}" class="overlay-input-group">
+      <input class="overlay-input" type="text" password placeholder="" value="{{overlayPassword}}" bindinput="onOverlayPasswordInput" />
+      <view class="overlay-btn-row">
+        <button class="overlay-confirm-btn" catchtap="onOverlayConfirmPassword">确认</button>
+        <button class="overlay-cancel-btn" catchtap="onOverlayGoHome">取消</button>
+      </view>
+      <text wx:if="{{overlayError}}" class="overlay-error">{{overlayError}}</text>
+    </view>
+
+    <view wx:if="{{shareOverlay === 'exhausted'}}" class="overlay-exhausted-actions">
+      <view class="overlay-exhausted-hint">请联系分享者重新分享</view>
+      <button class="overlay-home-btn" catchtap="onOverlayGoHome">返回首页</button>
+    </view>
+  </view>
+</view>
+
+<!-- 访客记录弹窗 -->
+<t-popup visible="{{showVisitorPopup}}" placement="bottom" bind:visible-change="onVisitorPopupChange" custom-style="border-radius: 32rpx 32rpx 0 0; max-height: 70vh;">
+  <view class="visitor-popup">
+    <!-- 头部 -->
+    <view class="visitor-popup-header">
+      <text class="visitor-popup-title">访客记录 ({{visitorList.length}})</text>
+      <view class="visitor-popup-close-btn" bindtap="onCloseVisitorPopup">
+        <t-icon name="close" size="40rpx" color="#999" />
+      </view>
+    </view>
+
+    <!-- 访客列表 -->
+    <scroll-view class="visitor-popup-list" scroll-y>
+      <view wx:if="{{visitorList.length === 0}}" class="visitor-popup-empty">
+        <t-icon name="browse-off" size="80rpx" color="#ddd" />
+        <text>暂无访客记录</text>
+      </view>
+
+      <block wx:for="{{visitorList}}" wx:key="id">
+        <view class="visitor-popup-item">
+          <view class="visitor-popup-user">
+            <t-icon name="person" size="32rpx" color="#999" />
+            <text wx:if="{{item.visitor_nickname}}" class="visitor-popup-name">{{item.visitor_nickname}}</text>
+            <text wx:else class="visitor-popup-name visitor-popup-ip">{{item.visitor_ip}}</text>
+          </view>
+          <view class="visitor-popup-action {{item.action === 'add' ? 'action-add' : 'action-view'}}">
+            {{item.action === 'add' ? '添加' : '查看'}}
+          </view>
+          <text class="visitor-popup-time">{{item.created_at}}</text>
+        </view>
+      </block>
+    </scroll-view>
+  </view>
+</t-popup>
+
+<t-action-sheet id="t-action-sheet" usingCustomNavbar="{{true}}" bind:selected="onCopyActionSheetSelect" />

@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "post-card": "/components/post-card/post-card"
+  },
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#e3f5eb",
+  "navigationBarTitleText": "用户主页"
+}

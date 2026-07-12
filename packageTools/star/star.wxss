@@ -1,0 +1,54 @@
+.container {
+  padding: 30rpx;
+  min-height: 100vh;
+}
+
+.qrcode-card {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 40rpx;
+  box-shadow: var(--card-shadow);
+}
+
+.qrcode-image {
+  width: 80%;
+  margin: 0 auto;
+  display: block;
+}
+
+.support-text {
+  display: block;
+  text-align: center;
+  margin-top: 30rpx;
+  line-height: 1.5;
+  color: #666;
+  font-size: 28rpx;
+  white-space: pre-line;
+}
+
+/* 新增推广卡片样式 */
+.promotion-card {
+    margin-top: 30rpx;
+    background: #fff;
+    border-radius: 32rpx;
+    padding: 40rpx;
+    box-shadow: var(--card-shadow);
+  }
+  
+  .promotion-text {
+    display: block;
+    text-align: center;
+    margin: 30rpx 0;
+    line-height: 1.5;
+    color: #666;
+    font-size: 28rpx;
+    white-space: pre-line;
+  }
+  
+  .share-btn {
+    background: var(--primary-color);
+    color: #fff;
+    border-radius: 32rpx;
+    font-size: 32rpx;
+    padding: 5rpx 0;
+  }

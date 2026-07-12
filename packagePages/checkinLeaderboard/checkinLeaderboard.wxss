@@ -1,0 +1,102 @@
+.my-rank-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #00b26a, #3ddaa0);
+  margin: 20rpx;
+  padding: 24rpx 32rpx;
+  border-radius: 32rpx;
+  color: white;
+}
+
+.tabs {
+  --td-tab-nav-bg-color: #e3f5eb;
+}
+
+.my-label {
+  font-size: 28rpx;
+  opacity: 0.9;
+  margin-right: 12rpx;
+}
+
+.my-rank-num {
+  font-size: 48rpx;
+  font-weight: 700;
+}
+
+.rank-right {
+  text-align: right;
+}
+
+.my-value {
+  font-size: 36rpx;
+  font-weight: 600;
+  margin-right: 12rpx;
+}
+
+.my-title {
+  font-size: 28rpx;
+  opacity: 0.9;
+}
+
+.rank-item {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  margin: 0 20rpx 16rpx;
+  padding: 24rpx 20rpx;
+  border-radius: 32rpx;
+}
+
+.rank-item.me {
+  background: #e8f8f0;
+  border: 2rpx solid #00b26a;
+}
+
+.rank-num {
+  width: 48rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #999;
+  text-align: center;
+}
+
+.rank-num.top {
+  color: #00b26a;
+  font-weight: 600;
+}
+
+.rank-avatar {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  margin: 0 16rpx;
+}
+
+.rank-info {
+  flex: 1;
+}
+
+.rank-name {
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.rank-title {
+  margin-left: 12rpx;
+  font-size: 20rpx;
+  color: #999;
+}
+
+.rank-value {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #00b26a;
+}
+
+.empty {
+  text-align: center;
+  color: #999;
+  padding: 60rpx 0;
+  font-size: 28rpx;
+}

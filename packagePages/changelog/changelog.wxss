@@ -1,0 +1,89 @@
+.container {
+  padding-bottom: 10rpx;
+}
+
+/* 优化日志卡片样式 */
+.log-card {
+  background: linear-gradient(145deg, #ffffff 0%, #EEFBEF 100%);
+  border-radius: 32rpx;
+  margin: 24rpx;
+  padding: 32rpx;
+  box-shadow: 0 8rpx 40rpx rgba(76, 175, 80, 0.08);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.log-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 8rpx;
+  height: 100%;
+  background: var(--primary-color);
+}
+
+.log-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+  padding-bottom: 16rpx;
+  border-bottom: 2rpx solid rgba(0, 178, 106, 0.1);
+}
+
+.date {
+  font-size: 26rpx;
+  color: #95a5a6;
+  background: rgba(0, 178, 106, 0.08);
+  padding: 4rpx 16rpx;
+  border-radius: 8rpx;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.version {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #2d3436;
+  position: relative;
+  padding-left: 40rpx;
+}
+
+.version::before {
+  content: '✨';
+  position: absolute;
+  left: 0;
+  top: 2rpx;
+  font-size: 28rpx;
+}
+
+.date {
+  font-size: 26rpx;
+  color: #95a5a6;
+  background: rgba(0, 178, 106, 0.08);
+  padding: 4rpx 16rpx;
+  border-radius: 8rpx;
+}
+
+.update-item {
+  position: relative;
+  padding-left: 30rpx;
+  font-size: 30rpx;
+  color: #576366;
+  line-height: 1.8;
+}
+
+.update-item::before {
+  content: '•';
+  color: var(--primary-color);
+  font-size: 36rpx;
+  position: absolute;
+  left: 0;
+  top: -15rpx;
+}
+
+.log-card:active {
+  transform: scale(0.98);
+}

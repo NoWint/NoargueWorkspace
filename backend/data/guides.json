@@ -1,0 +1,38 @@
+[
+  {
+    "id": "quickStart",
+    "title": "快速入门",
+    "order": 1,
+    "content": "## 首次使用\n\n欢迎使用时光绿径待办！首次使用时，建议您登录以享受完整功能。\n\n### 登录账号\n1. 进入「更多」页面，点击顶部用户区域[或者这里](/pages/login/login)跳转登录页\n2. 勾选同意用户协议和隐私政策\n3. 点击「微信一键登录」按钮\n4. 完成登录\n\n> 登录后可享受云同步、待办提醒、协作功能等服务\n\n![登录页面](https://api.yzjtiantian.cn/uploads/guide/login.jpg)\n\n### 权限说明\n应用可能需要以下权限：\n- **位置权限**：用于获取天气信息和添加待办地点\n- **麦克风权限**：用于语音创建待办\n\n---\n\n## 界面介绍\n\n### 底部导航栏\n应用底部有四个主要入口：\n\n| 入口 | 功能 |\n|------|------|\n| 待办 | 查看和管理所有待办事项 |\n| 日历 | 日历视图查看每日待办 |\n| 统计 | 查看待办完成情况统计 |\n| 更多 | 设置、数据管理、小工具等 |\n\n### 首页布局\n首页顶部显示当前日期和天气信息，中间是待办列表，右下角有 **+** 按钮用于[添加待办](/pages/add-todo/add-todo)。\n\n![首页布局](https://api.yzjtiantian.cn/uploads/guide/home.jpg)\n\n### 首页三个Tab\n- **全部待办**：显示所有待办事项，点击 **+** 添加待办\n- **私有组合**：显示私有组合列表，点击 **+** 创建组合\n- **共享组合**：显示共享组合列表，点击 **+** 弹出选择（新建/加入）\n\n---\n\n## 创建第一个待办\n\n### 快速创建\n1. 点击首页右下角的 **+** 按钮\n2. 输入待办内容\n3. 点击「完成」即可\n\n### 完整创建\n创建待办时可设置以下信息：\n- **日期时间**：设置截止日期和时间\n- **地点**：添加位置信息，支持导航\n- **标签**：选择标签分类\n- **组合**：归属到某个组合\n- **图片**：最多添加9张图片\n- **备注**：添加详细说明\n\n![创建待办页面](https://api.yzjtiantian.cn/uploads/guide/add_todo.jpg)\n\n> 提示：左滑待办卡片可编辑或删除"
+  },
+  {
+    "id": "todoManage",
+    "title": "待办管理",
+    "order": 2,
+    "content": "## 创建待办\n\n### 文字输入\n在首页点击右下角 **+** 按钮，输入待办内容后点击保存即可。\n\n### 语音创建\n1. 长按输入框右侧的 **麦克风图标**\n2. 说出待办内容\n3. 系统自动识别并填入\n\n> 需要授权麦克风权限\n\n![语音创建待办](https://api.yzjtiantian.cn/uploads/guide/voice_input.jpg)\n\n### 设置日期时间\n点击日期选择器设置截止日期，点击时间选择器设置时间。\n\n### 添加地点\n1. 点击「地点」按钮\n2. 搜索或选择位置\n3. 保存后可一键导航\n\n![添加地点](https://api.yzjtiantian.cn/uploads/guide/location.jpg)\n\n### 选择标签\n点击「标签」按钮，从系统标签或自定义标签中选择。\n\n### 选择组合\n点击「组合」按钮，选择归属的组合（私有组合或共享组合）。\n\n### 添加图片\n点击「+」按钮，最多可上传 9 张图片。\n\n### 添加备注\n在备注输入框中填写详细信息，支持 **Markdown格式** 。\n\n---\n\n## 编辑与删除\n\n### 左滑操作\n在待办列表中，左滑待办项可显示操作按钮：\n- **编辑**：修改待办内容\n- **删除**：删除待办（保留30天）\n\n![左滑操作示意](https://api.yzjtiantian.cn/uploads/guide/swipe.jpg)\n\n### 详情页操作\n点击待办进入详情页，右下角有 **编辑、删除、收藏、分享** 按钮。\n\n---\n\n## 待办操作\n\n### 筛选功能\n点击首页顶部的筛选按钮，可按以下条件筛选：\n- 完成状态（全部/未完成/已完成）\n- 标签分类\n\n### 搜索功能\n在首页顶部搜索框，输入关键词搜索待办。\n\n---\n\n## 标签系统\n\n### 系统标签\n应用内置以下系统标签：\n- 工作\n- 学习\n- 生活\n- 购物\n- 健康\n- 其他\n\n### 自定义标签\n1. 进入[「更多」→「标签管理」](/packageTools/tag-manage/tag-manage)\n2. 点击「+ 添加」按钮\n3. 输入标签名称并选择颜色\n4. 保存即可使用\n\n![标签管理页面](https://api.yzjtiantian.cn/uploads/guide/tag_manage.jpg)\n\n---\n\n## 收藏功能\n\n### 收藏待办\n在待办详情页，点击右下角的 **星星图标** 即可收藏。\n\n### 查看收藏\n收藏的待办会在列表显示星标。"
+  },
+  {
+    "id": "collaboration",
+    "title": "组合协作",
+    "order": 3,
+    "content": "## 私有组合\n\n### 创建组合\n1. 首页切换到「我的组合」标签\n2. 点击 **右下角「+」** 或 **「新建组合」** 或[这里](/packageCombo/combo-edit/combo-edit)\n3. 输入组合名称，选择图标和颜色\n4. 点击创建组合\n\n![创建组合](https://api.yzjtiantian.cn/uploads/guide/create_combo.jpg)\n\n### 添加待办到组合\n创建或编辑待办时，点击「组合」选择目标组合。\n\n### 查看组合详情\n在首页「我的组合」标签下，点击组合卡片进入详情页，可查看组合内所有待办。\n\n---\n\n## 共享组合\n\n### 创建共享组合\n1. 创建组合时开启「共享组合」开关\n2. 设置是否需要审批（开启后成员加入需超管或管理员审批）\n3. 保存后获得 6 位邀请码\n\n![创建共享组合](https://api.yzjtiantian.cn/uploads/guide/create_shared.jpg)\n\n### 邀请成员\n共享组合创建后，在组合详情页可邀请成员：\n- **邀请码**：复制 6 位邀请码发送给他人\n- **二维码**：保存二维码图片分享\n\n![邀请成员](https://api.yzjtiantian.cn/uploads/guide/invite.jpg)\n\n---\n\n## 权限说明\n\n共享组合有三种角色：\n\n| 角色 | 权限说明 |\n|------|---------|\n| 超管(owner) | 最高权限，可管理所有成员、转让权限、设置管理员 |\n| 管理(admin) | 可创建待办、管理普通成员、审批加入申请 |\n| 成员(member) | 只能查看和完成分配给自己的待办 |\n\n> 组合创建者自动成为超管\n\n---\n\n## 待办分配\n\n### 分配类型\n创建共享待办时可选择分配方式：\n\n| 类型 | 说明 |\n|------|------|\n| 全员完成 | 所有成员都需要完成 |\n| 任一完成 | 任一成员完成即可 |\n| 指定成员 | 指定特定成员完成 |\n\n### 免完成设置\n超管/管理员可设置某些人员无需完成：\n- **超管无需完成**：超管不需要完成此待办\n- **创建者无需完成**：待办创建者不需要完成\n- **管理组无需完成**：管理员不需要完成\n\n![待办分配设置](https://api.yzjtiantian.cn/uploads/guide/assign.jpg)\n\n---\n\n## 加入协作\n\n### 输入邀请码\n1. 进入[「更多」→「加入协作」](/packageTools/join-collab/join-collab)\n2. 输入 6 位邀请码\n3. 提交申请\n\n### 扫描二维码\n1. 进入[「更多」→「加入协作」](/packageTools/join-collab/join-collab)\n2. 点击「扫描二维码」按钮\n3. 扫描共享组合二维码\n\n### 审批流程\n如果组合开启了审批机制：\n1. 提交申请后等待超管或管理员审批\n2. 审批通过后即可加入\n\n![加入协作页面](https://api.yzjtiantian.cn/uploads/guide/join_collab.jpg)\n\n---\n\n## 评论功能\n\n### 发表评论\n在共享待办详情页，点击右下角评论图标，可发表评论或回复他人评论。\n\n### 评论角色标识\n评论会显示用户的角色标识：\n- **超**：组合超管\n- **管**：组合管理员\n- **创建者**：待办创建者\n- **已完成/未完成**：完成状态"
+  },
+  {
+    "id": "dataSync",
+    "title": "数据同步",
+    "order": 4,
+    "content": "## 云同步\n\n### 登录同步\n登录后，数据会自动同步到云端，支持多设备访问。\n\n### 自动同步\n每次修改待办后，系统会自动同步到云端（需登录）。\n\n### 手动同步\n在首页下拉刷新页面，可手动触发同步。\n\n---\n\n## 数据导入导出\n\n### 导出数据\n1. 进入[「更多」→「数据管理」](/packageTools/datamanage/datamanage)\n2. 点击「生成数据包」\n3. 复制或分享数据包\n\n> 数据包是 JSON 格式，请妥善保管\n\n### 导入数据\n1. 进入[「更多」→「数据管理」](/packageTools/datamanage/datamanage)\n2. 粘贴数据包内容\n3. 选择「合并数据」或「覆盖数据」\n\n![数据管理页面](https://api.yzjtiantian.cn/uploads/guide/data_manage.jpg)\n\n---\n\n## 回收站\n\n### 查看回收站\n进入[「更多」→「回收站」](/packageTools/trash/trash)，可查看已删除的待办。\n\n### 恢复待办\n在回收站中点击「恢复」按钮，待办将恢复到原位置。\n\n### 永久删除\n点击「永久删除」将彻底删除待办，无法恢复。\n\n> 已删除待办保留 30 天，超期自动清除\n\n![回收站页面](https://api.yzjtiantian.cn/uploads/guide/trash.jpg)\n\n---\n\n## 数据上限\n\n### 默认上限\n| 资源 | 上限 |\n|------|------|\n| 待办事项 | 100 个 |\n| 组合 | 10 个 |\n| 共享组合 | 5 个 |\n\n### 扩展容量\n进入[「更多」→「容量扩展」](/packageTools/motivation/motivation)，观看激励视频广告可增加待办上限，每次增加 10 个。\n\n![数据上限说明](https://api.yzjtiantian.cn/uploads/guide/limit.jpg)"
+  },
+  {
+    "id": "stats",
+    "title": "统计分析",
+    "order": 5,
+    "content": "## 统计概览\n\n进入「统计」页面，可查看待办完成情况概览：\n- 总待办数\n- 已完成数\n- 完成率\n- 平均完成耗时\n\n![统计概览](https://api.yzjtiantian.cn/uploads/guide/stats_overview.jpg)\n\n---\n\n## 趋势图表\n\n### 每日趋势\n折线图展示每日创建和完成的待办数量变化。\n\n### 周/月统计\n点击顶部的时间范围选择器，可切换查看不同周期的统计数据。\n\n![趋势图表](https://api.yzjtiantian.cn/uploads/guide/trend.jpg)\n\n---\n\n## 时间分布\n\n### 时段分析\n柱状图展示一天中各时段的待办分布：\n- 早晨 (6:00-12:00)\n- 下午 (12:00-18:00)\n- 晚上 (18:00-24:00)\n- 凌晨 (0:00-6:00)\n\n![时间分布](https://api.yzjtiantian.cn/uploads/guide/time_dist.jpg)\n\n---\n\n## 位置统计\n\n查看待办位置分布，了解常去地点。\n\n![位置统计](https://api.yzjtiantian.cn/uploads/guide/location_stats.jpg)\n\n---\n\n## 分享报告\n\n点击右下角分享按钮，可生成统计图片分享给好友。\n\n![分享统计报告](https://api.yzjtiantian.cn/uploads/guide/share_stats.jpg)"
+  },
+  {
+    "id": "moreFeatures",
+    "title": "更多功能",
+    "order": 6,
+    "content": "## 天气显示\n\n首页顶部显示当前天气信息，包括：\n- 当前温度\n- 天气状况\n- 空气质量\n\n> 需要授权位置权限获取当地天气\n\n![天气显示](https://api.yzjtiantian.cn/uploads/guide/weather.jpg)\n\n---\n\n## 小工具\n\n### 今天吃什么\n随机推荐美食，解决选择困难症！\n\n1. 选择餐时（早餐/午餐/晚餐/宵夜）\n2. 点击「开始随机」按钮\n3. 查看推荐结果\n\n![今天吃什么](https://api.yzjtiantian.cn/uploads/guide/eating.jpg)\n\n### 密码生成器\n生成安全的随机密码，支持自定义：\n- 密码长度（8-32位）\n- 包含数字\n- 包含小写字母\n- 包含大写字母\n- 包含符号\n- 包含下划线\n\n![密码生成器](https://api.yzjtiantian.cn/uploads/guide/password.jpg)\n\n---\n\n## 用户中心\n\n进入「更多」→ 点击顶部用户区域[或点击这里](/pages/user-center/user-center)可以：\n- 查看登录状态\n- 修改昵称和头像\n- 查看数据统计\n- 查看容量使用情况\n\n![用户中心](https://api.yzjtiantian.cn/uploads/guide/user_center.jpg)\n\n---\n\n## 待办提醒\n\n### 设置提醒\n1. 进入待办详情页\n2. 点击「待办提醒」卡片\n3. 选择提醒日期（当天/前一天/自定义天数）\n4. 选择提醒时间\n5. 点击保存\n\n> 需要登录并授权订阅消息\n\n![待办提醒设置](https://api.yzjtiantian.cn/uploads/guide/notify.jpg)\n\n---\n\n## 容量扩展\n\n进入[「更多」→「容量扩展」](/packageTools/motivation/motivation)，观看激励视频广告可增加待办上限。\n\n每次观看增加 10 个待办上限。\n\n![容量扩展](https://api.yzjtiantian.cn/uploads/guide/limit.jpg)\n\n---\n\n## 更新日志\n\n进入[「更多」→「更新日志」](/pages/changelog/changelog)查看版本更新内容。\n\n![更新日志](https://api.yzjtiantian.cn/uploads/guide/changelog.jpg)\n\n---\n\n## 推广给朋友\n\n进入[「更多」→「推广给朋友」](/packageTools/star/star)，可分享小程序给好友。\n\n---\n\n## 鸣谢\n\n进入[「更多」→「鸣谢」](/packageTools/acknowledge/acknowledge)查看项目贡献者和致谢信息。\n\n![致谢名单](https://api.yzjtiantian.cn/uploads/guide/acknowledge.jpg)\n\n---\n\n## 联系客服\n\n在「更多」页面右下角点击客服按钮，可直接联系客服。"
+  }
+]

@@ -1,0 +1,15 @@
+<view class="container">
+  <view class="changelog-list">
+    <view wx:for="{{changelogList}}" wx:key="version" class="log-card">
+      <view class="log-header">
+        <text class="version">V{{item.version}}</text>
+        <text class="date">{{item.date}}</text>
+      </view>
+      <view class="log-content">
+        <block wx:for="{{item.content}}" wx:key="*this">
+          <text class="update-item">{{item}}\n</text>
+        </block>
+      </view>
+    </view>
+  </view>
+</view>

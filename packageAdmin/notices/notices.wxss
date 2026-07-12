@@ -1,0 +1,153 @@
+.notices-container {
+  padding-bottom: 140rpx;
+  min-height: 100vh;
+}
+
+.header {
+  padding: 30rpx 28rpx;
+  margin-bottom: 8rpx;
+}
+
+.title {
+  display: block;
+  font-size: 48rpx;
+  font-weight: 600;
+  color: #2d3436;
+}
+
+.subtitle {
+  display: block;
+  font-size: 28rpx;
+  color: #666;
+  margin-top: 8rpx;
+}
+
+.notice-list {
+  display: flex;
+  flex-direction: column;
+  margin: 20rpx;
+  gap: 20rpx;
+}
+
+.notice-card {
+  background: #fff;
+  border-radius: 32rpx;
+  padding: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+}
+
+.notice-card:active {
+  background: #fafafa;
+}
+
+.notice-header {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 16rpx;
+}
+
+.notice-icon {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 32rpx;
+  background: linear-gradient(135deg, #eaea66 0%, #96a24b 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notice-icon.version-type {
+  background: linear-gradient(135deg, #00B26A 0%, #3ddaa0 100%);
+}
+
+.notice-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.notice-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #2d3436;
+}
+
+.notice-date {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.notice-preview {
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.6;
+  padding: 16rpx;
+  background: #f8f9fa;
+  border-radius: 32rpx;
+  margin-bottom: 16rpx;
+}
+
+.notice-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notice-meta {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 22rpx;
+  color: #999;
+}
+
+.notice-actions {
+  display: flex;
+  gap: 12rpx;
+}
+
+.action-btn {
+  width: 64rpx;
+  height: 64rpx;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+}
+
+.action-btn::after {
+  border: none;
+}
+
+.action-btn.delete {
+  background: rgba(245, 87, 108, 0.1);
+}
+
+.action-btn:active {
+  opacity: 0.7;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  padding: 120rpx 0;
+  color: #999;
+}
+
+.empty-state text {
+  font-size: 28rpx;
+}
+
+.empty-hint {
+  font-size: 24rpx !important;
+  color: #bbb !important;
+}

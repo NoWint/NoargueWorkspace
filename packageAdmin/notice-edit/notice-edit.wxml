@@ -1,0 +1,116 @@
+<view class="edit-container">
+  <view class="type-selector">
+    <view class="type-option {{noticeType === 'custom' ? 'active' : ''}}" bindtap="selectType" data-type="custom">
+      <t-icon name="edit" size="40rpx" color="{{noticeType === 'custom' ? '#00B26A' : '#999'}}" />
+      <text>自定义公告</text>
+    </view>
+    <view class="type-option {{noticeType === 'version' ? 'active' : ''}}" bindtap="selectType" data-type="version">
+      <t-icon name="history" size="40rpx" color="{{noticeType === 'version' ? '#00B26A' : '#999'}}" />
+      <text>版本更新</text>
+    </view>
+  </view>
+  
+  <view wx:if="{{noticeType === 'custom'}}" class="form-section">
+    <view class="section-title">自定义公告</view>
+    <view class="form-card">
+      <view class="form-item">
+        <text class="form-label">标题 <text class="required">*</text></text>
+        <input class="form-input" value="{{form.title}}" bindinput="onInput" data-field="title" placeholder="请输入公告标题" />
+      </view>
+      <view class="form-item">
+        <text class="form-label">日期</text>
+        <picker mode="date" value="{{form.date}}" bindchange="onDateChange">
+          <view class="picker">{{form.date || '选择日期'}}</view>
+        </picker>
+      </view>
+    </view>
+    
+    <view class="content-section">
+      <view class="content-header">
+        <view class="section-title">公告内容 <text class="required">*</text></view>
+        <view class="view-toggle">
+          <text class="toggle-btn {{viewMode === 'edit' ? 'active' : ''}}" bindtap="toggleView" data-mode="edit">编辑</text>
+          <text class="toggle-btn {{viewMode === 'preview' ? 'active' : ''}}" bindtap="toggleView" data-mode="preview">预览</text>
+        </view>
+      </view>
+      
+      <view wx:if="{{viewMode === 'edit'}}" class="editor-wrapper">
+        <view class="md-toolbar">
+          <view class="toolbar-btn" bindtap="insertMd" data-type="h1">
+            <text class="toolbar-icon">H1</text>
+          </view>
+          <view class="toolbar-btn" bindtap="insertMd" data-type="h2">
+            <text class="toolbar-icon">H2</text>
+          </view>
+          <view class="toolbar-btn" bindtap="insertMd" data-type="h3">
+            <text class="toolbar-icon">H3</text>
+          </view>
+          <view class="toolbar-divider"></view>
+          <view class="toolbar-btn" bindtap="insertMd" data-type="bold">
+            <text class="toolbar-icon">B</text>
+          </view>
+          <view class="toolbar-btn" bindtap="insertMd" data-type="italic">
+            <text class="toolbar-icon">_/_</text>
+          </view>
+          <view class="toolbar-btn" bindtap="insertMd" data-type="strikethrough">
+            <text class="toolbar-icon">-S-</text>
+          </view>
+          <view class="toolbar-divider"></view>
+          <view class="toolbar-btn" bindtap="insertMd" data-type="link">
+            <t-icon name="link" size="36rpx" color="#666" />
+          </view>
+          <view class="toolbar-btn" bindtap="insertMd" data-type="quote">
+            <t-icon name="chat" size="36rpx" color="#666" />
+          </view>
+          <view class="toolbar-btn" bindtap="insertMd" data-type="code">
+            <t-icon name="code" size="36rpx" color="#666" />
+          </view>
+          <view class="toolbar-divider"></view>
+          <view class="toolbar-btn" bindtap="insertMd" data-type="ul">
+            <text class="toolbar-icon">· —</text>
+          </view>
+          <view class="toolbar-btn" bindtap="insertMd" data-type="ol">
+            <text class="toolbar-icon">1.</text>
+          </view>
+          <view class="toolbar-btn" bindtap="insertMd" data-type="hr">
+            <t-icon name="minus" size="36rpx" color="#666" />
+          </view>
+        </view>
+        <textarea
+          id="contentTextarea"
+          class="content-input"
+          model:value="{{form.content}}"
+          placeholder="请输入公告内容，支持 Markdown 格式"
+          auto-height
+          maxlength="-1"
+        />
+      </view>
+      
+      <view wx:else class="preview-wrapper">
+        <t-chat-markdown wx:if="{{form.content}}" class="preview-content" content="{{form.content}}" />
+        <view wx:else class="preview-empty">
+          <t-icon name="file-text" size="80rpx" color="#ddd" />
+          <text>暂无内容，请先编辑</text>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <view wx:if="{{noticeType === 'version'}}" class="form-section">
+    <view class="section-title">版本更新公告</view>
+    <view class="form-card">
+      <view class="form-item">
+        <text class="form-label">版本号 <text class="required">*</text></text>
+        <input class="form-input" value="{{form.version}}" bindinput="onInput" data-field="version" placeholder="如: 4.0.3" />
+      </view>
+    </view>
+    <view class="version-hint">
+      <t-icon name="info-circle" size="28rpx" color="#999" />
+      <text>版本更新公告将自动从更新日志中生成内容，无需手动填写标题和内容</text>
+    </view>
+  </view>
+  
+  <view class="actions">
+    <button class="save-btn" bindtap="save">保存</button>
+  </view>
+</view>

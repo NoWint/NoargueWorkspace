@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "编辑更新日志",
+  "usingComponents": {
+    "t-icon": "tdesign-miniprogram/icon/icon"
+  }
+}

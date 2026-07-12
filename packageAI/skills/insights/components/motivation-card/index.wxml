@@ -1,0 +1,4 @@
+<view class="motivation-card">
+  <view class="motiv-icon">💪</view>
+  <view class="motiv-quote">{{items.quote}}</view>
+</view>

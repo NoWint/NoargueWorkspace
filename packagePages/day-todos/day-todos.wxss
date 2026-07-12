@@ -1,0 +1,87 @@
+@import "../../pages/todo/todo.wxss";
+
+.top {
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  position: fixed;
+  background: #e3f5eb99;
+  backdrop-filter: blur(20rpx) saturate(180%);
+  -webkit-backdrop-filter: blur(20rpx) saturate(180%);
+}
+
+.header {
+  padding: 0 30rpx;
+  display: flex;
+  align-items: center;
+  height: 88rpx;
+}
+
+.header-left {
+  margin-right: 16rpx;
+  display: flex;
+  align-items: center;
+}
+
+.title {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #2d3436;
+  flex: 1;
+}
+
+.content {
+  padding-top: 120rpx;
+  padding-bottom: 250rpx;
+}
+
+.todo-section {
+  padding: 0 20rpx;
+}
+
+.section-title {
+  font-size: 28rpx;
+  color: #999;
+  padding: 20rpx 10rpx 10rpx;
+  display: block;
+}
+
+.todo-item-wrapper {
+  position: relative;
+  margin-bottom: 4rpx;
+}
+
+.star-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 10;
+  width: 36rpx;
+  height: 36rpx;
+  background: #ff8800;
+  border-radius: 0 20rpx 0 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 200rpx;
+}
+
+.empty-text {
+  color: var(--td-text-color-placeholder, #999);
+  font-size: 32rpx;
+  margin-top: 24rpx;
+}
+
+.empty-sub-text {
+  color: var(--td-text-color-placeholder, #ccc);
+  font-size: 26rpx;
+  margin-top: 12rpx;
+}

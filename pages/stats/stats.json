@@ -1,0 +1,9 @@
+{
+  "usingComponents": {
+    "t-fab": "tdesign-miniprogram/fab/fab",
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-tag": "tdesign-miniprogram/tag/tag",
+    "ec-canvas": "../../miniprogram_npm/ec-canvas/ec-canvas"
+  },
+  "navigationStyle": "custom"
+}

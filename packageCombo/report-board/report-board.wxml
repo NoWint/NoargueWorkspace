@@ -1,0 +1,138 @@
+<view class="container">
+
+  <!-- 日历 -->
+  <view class="calendar-wrapper">
+    <calendar
+      id="boardCalendar"
+      customNavBar="{{false}}"
+      style="--wc-primary: #00b26a;--wc-bg-light: #E3F5EB;--wc-checked-bg-light: #CCEDDC;--wc-dot-color-light: #ff8800;--wc-annual-bg-light: #CCEDDC;"
+      bind:load="handleLoad"
+      bind:change="handleDateChange"
+      bind:viewchange="handleViewChange"
+      view="{{calendarView}}"
+      min-date="{{minDate}}"
+      max-date="{{maxDate}}"
+      marks="{{marks}}"
+    />
+  </view>
+
+  <!-- tabs: 日报 / 周报 -->
+  <view class="tabs-wrapper">
+    <t-tabs theme="card" bindchange="onTabChange" value="{{currentTab}}">
+      <t-tab-panel label="日报" value="daily">
+        <view class="tab-content">
+          <view class="report-toolbar">
+            <text class="todo-text">{{boardTitle}}</text>
+            <view class="report-toolbar-actions">
+              <view wx:if="{{isAdmin}}" class="report-toolbar-action" bindtap="navigateToReportTemplates">
+                <t-icon name="edit-2" size="28rpx" color="#00b26a" />
+                <text class="report-toolbar-text">编辑模板</text>
+              </view>
+              <view wx:if="{{isAdmin}}" class="filter-trigger" bindtap="showMemberFilter">
+                <t-icon name="user" size="28rpx" color="#00b26a" />
+                <text class="filter-trigger-text">筛选</text>
+              </view>
+            </view>
+          </view>
+          <block wx:for="{{reports}}" wx:key="id">
+            <view class="report-item-wrapper">
+              <t-swipe-cell>
+                <t-cell
+                  note="{{item.periodLabel || '日报'}}"
+                  title="{{item.summary}}"
+                  description="{{item.nickname || '匿名用户'}} · {{item.lineCount}}项内容"
+                  bordered="{{false}}"
+                  bindtap="navigateToDetail"
+                  data-id="{{item.id}}"
+                />
+                <view wx:if="{{item.isOwnReport}}" slot="right" class="btn-wrapper">
+                  <view class="btn edit-btn column" data-id="{{item.id}}" bindtap="handleReportSwipe" data-type="edit">编辑</view>
+                  <view class="btn delete-btn column" data-id="{{item.id}}" bindtap="handleReportSwipe" data-type="delete">删除</view>
+                </view>
+              </t-swipe-cell>
+            </view>
+          </block>
+          <view wx:if="{{reports.length === 0}}" class="empty-state">
+            <text class="empty-text">暂无汇报</text>
+            <text class="empty-hint">点击右下角按钮添加</text>
+          </view>
+        </view>
+      </t-tab-panel>
+
+      <t-tab-panel label="周报" value="weekly">
+        <view class="tab-content">
+          <view class="report-toolbar">
+            <text class="todo-text">{{boardTitle}}</text>
+            <view class="report-toolbar-actions">
+              <view wx:if="{{isAdmin}}" class="report-toolbar-action" bindtap="navigateToReportTemplates">
+                <t-icon name="edit-2" size="28rpx" color="#00b26a" />
+                <text class="report-toolbar-text">编辑模板</text>
+              </view>
+              <view wx:if="{{isAdmin}}" class="filter-trigger" bindtap="showMemberFilter">
+                <t-icon name="user" size="28rpx" color="#00b26a" />
+                <text class="filter-trigger-text">筛选</text>
+              </view>
+            </view>
+          </view>
+          <block wx:for="{{reports}}" wx:key="id">
+            <view class="report-item-wrapper">
+              <t-swipe-cell>
+                <t-cell
+                  note="{{item.periodLabel || '日报'}}"
+                  title="{{item.summary}}"
+                  description="{{item.nickname || '匿名用户'}} · {{item.lineCount}}项内容"
+                  bordered="{{false}}"
+                  bindtap="navigateToDetail"
+                  data-id="{{item.id}}"
+                />
+                <view wx:if="{{item.isOwnReport}}" slot="right" class="btn-wrapper">
+                  <view class="btn edit-btn column" data-id="{{item.id}}" bindtap="handleReportSwipe" data-type="edit">编辑</view>
+                  <view class="btn delete-btn column" data-id="{{item.id}}" bindtap="handleReportSwipe" data-type="delete">删除</view>
+                </view>
+              </t-swipe-cell>
+            </view>
+          </block>
+          <view wx:if="{{reports.length === 0}}" class="empty-state">
+            <text class="empty-text">暂无汇报</text>
+            <text class="empty-hint">点击右下角按钮添加</text>
+          </view>
+        </view>
+      </t-tab-panel>
+    </t-tabs>
+  </view>
+
+  <!-- 成员筛选弹窗 -->
+  <t-popup
+    visible="{{showFilterPopup}}"
+    placement="center"
+    close-on-overlay-click="{{true}}"
+    bind:visible-change="onFilterPopupVisibleChange"
+    z-index="99999"
+  >
+    <view class="filter-popup">
+      <view class="filter-popup-header">
+        <text class="filter-popup-title">筛选成员</text>
+        <view class="filter-popup-close" bindtap="hideMemberFilter">
+          <t-icon name="close" size="40rpx" color="#999" />
+        </view>
+      </view>
+      <t-radio-group value="{{selectedMemberId}}" bind:change="onMemberFilterChange">
+        <view class="filter-option" data-value="0" bindtap="onFilterOptionTap">
+          <t-radio value="0" checked="{{selectedMemberId === '0'}}" label="全部成员" />
+        </view>
+        <block wx:for="{{members}}" wx:key="id">
+          <view class="filter-option" data-value="{{item.id}}" bindtap="onFilterOptionTap">
+            <t-radio
+              value="{{item.id}}"
+              checked="{{selectedMemberId === item.id}}"
+              label="{{item.nickname || item.username || '用户'}}"
+            />
+          </view>
+        </block>
+      </t-radio-group>
+    </view>
+  </t-popup>
+
+  <!-- 添加汇报 FAB -->
+  <t-fab icon="add" bind:click="onFabTap" style="right: 32rpx; bottom: 32rpx;" />
+</view>

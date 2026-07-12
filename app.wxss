@@ -1,0 +1,24 @@
+page {
+  font-size: 28rpx;
+  background: #e3f5eb;
+  --td-brand-color: #00b26a;
+  --td-brand-color-light: #e0f2ec;
+  --td-button-light-active-bg-color: #c4dcd4;
+  --td-primary-color-8: #008550;
+}
+
+/* 卡片通用样式 */
+.card-style {
+  margin: 20rpx;
+  padding: 30rpx;
+  border-radius: 32rpx;
+  box-shadow: 0 8rpx 40rpx rgba(0,0,0,0.1);
+  background: #fff;
+}
+
+page {
+  --primary-color: #00b26a;
+  --primary-color-rgb: 0, 178, 106;
+  --secondary-color: #f0faf5;
+  --card-shadow: 0 8rpx 40rpx rgba(0,0,0,0.1);
+}

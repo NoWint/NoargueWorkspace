@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "签到打卡",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-button": "tdesign-miniprogram/button/button",
+    "t-cell": "tdesign-miniprogram/cell/cell",
+    "t-popup": "tdesign-miniprogram/popup/popup"
+  }
+}

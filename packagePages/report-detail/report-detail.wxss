@@ -1,0 +1,287 @@
+.form-item {
+  padding-bottom: 160rpx;
+}
+
+.container {
+  padding: 30rpx;
+  padding-top: 25rpx;
+}
+
+/* ===== Loading ===== */
+.loading-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 200rpx;
+}
+
+.loading-spinner {
+  width: 48rpx;
+  height: 48rpx;
+  border: 4rpx solid #e0e0e0;
+  border-top-color: #00b26a;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  margin-top: 16rpx;
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* ===== Empty ===== */
+.empty-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 200rpx;
+}
+
+.empty-text {
+  margin-top: 16rpx;
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* ===== Big Title (像 todo-detail 一样放大加粗) ===== */
+.report-title {
+  font-size: 48rpx;
+  font-weight: 600;
+  line-height: 1.5;
+  color: #333;
+  word-break: break-all;
+  margin-bottom: 30rpx;
+}
+
+/* ===== Card ===== */
+.date-info {
+  margin-top: 20rpx;
+  margin-bottom: 20rpx;
+  padding: 25rpx;
+  background: linear-gradient(150deg, #f9f9f9 0%, #f1f1f1 100%);
+  border-radius: 32rpx;
+}
+
+.date-info.deadline {
+  background: linear-gradient(150deg, #f9f9f9 0%, #f6f0c5 100%);
+}
+
+.date-info-priority {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.creator-info {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.creator-info .section-header {
+  margin-bottom: 0;
+}
+
+.creator-content {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.creator-avatar {
+  width: 42rpx;
+  height: 42rpx;
+  border-radius: 50%;
+  border: 2rpx solid #fff;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.1);
+}
+
+.creator-name {
+  font-size: 30rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.label {
+  color: #666;
+  font-size: 34rpx;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+  line-height: 34rpx;
+}
+
+.value {
+  color: #333;
+  font-size: 34rpx;
+  word-break: break-all;
+  line-height: 1.6;
+  text-indent: 0;
+  display: inline;
+}
+
+.scope-badge {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+/* ===== Section Cards ===== */
+.sections-area {
+  margin-top: 24rpx;
+}
+
+.section-card {
+  background: linear-gradient(150deg, #f9f9f9 0%, #f1f1f1 100%);
+  border-radius: 32rpx;
+  display: flex;
+  overflow: hidden;
+  margin-bottom: 16rpx;
+}
+
+.section-color-tag {
+  width: 8rpx;
+  flex-shrink: 0;
+}
+
+.section-body {
+  flex: 1;
+  padding: 24rpx;
+}
+
+.section-title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16rpx;
+}
+
+.section-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
+
+.section-line {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.bullet-dot {
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.line-text {
+  font-size: 28rpx;
+  color: #444;
+  line-height: 1.6;
+  word-break: break-all;
+}
+
+.section-empty {
+  padding: 20rpx 0 8rpx;
+  text-align: center;
+  font-size: 28rpx;
+  color: #bbb;
+}
+
+/* ===== Section Header: 统一卡片图标+标签排布 ===== */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  margin-bottom: 12rpx;
+}
+
+.section-header .label {
+  margin-right: 0;
+  margin-bottom: 0;
+  display: inline;
+}
+
+/* flex row 布局下 section-header 无需底部间距 */
+.date-info-priority .section-header {
+  margin-bottom: 0;
+}
+
+/* ===== Copy Popup ===== */
+.copy-popup-content {
+  width: 560rpx;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(24rpx) saturate(180%);
+  -webkit-backdrop-filter: blur(24rpx) saturate(180%);
+  border-radius: 32rpx;
+  overflow: hidden;
+  border: 1rpx solid rgba(255, 255, 255, 0.3);
+}
+
+.copy-popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx 32rpx 20rpx;
+}
+
+.copy-popup-title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.copy-popup-close {
+  padding: 8rpx;
+}
+
+.copy-popup-scroll {
+  max-height: 600rpx;
+  padding: 0 24rpx;
+  box-sizing: border-box;
+}
+
+.copy-popup-item {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 24rpx 20rpx;
+  margin-bottom: 8rpx;
+  background: #f8f8f8;
+  border-radius: 24rpx;
+  transition: all 0.2s ease;
+}
+
+.copy-popup-item:active {
+  transform: scale(0.97);
+}
+
+.copy-popup-item.checked {
+  background: #e3f5eb;
+}
+
+.copy-popup-item-text {
+  flex: 1;
+  font-size: 30rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.copy-popup-item-count {
+  font-size: 24rpx;
+  color: #999;
+  flex-shrink: 0;
+}
+
+.copy-popup-footer {
+  padding: 24rpx 32rpx;
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom, 0rpx));
+}

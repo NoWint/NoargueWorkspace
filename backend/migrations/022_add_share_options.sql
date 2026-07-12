@@ -1,0 +1,7 @@
+ALTER TABLE share_snapshots
+  ADD COLUMN password VARCHAR(64) DEFAULT NULL AFTER revoked,
+  ADD COLUMN max_views INT DEFAULT NULL AFTER password,
+  ADD COLUMN current_views INT NOT NULL DEFAULT 0 AFTER max_views,
+  ADD COLUMN remark VARCHAR(255) DEFAULT NULL AFTER current_views,
+  ADD COLUMN allow_copy TINYINT(1) NOT NULL DEFAULT 1 AFTER remark,
+  ADD COLUMN track_visitors TINYINT(1) NOT NULL DEFAULT 0 AFTER allow_copy;

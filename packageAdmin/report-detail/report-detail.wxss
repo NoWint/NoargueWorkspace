@@ -1,0 +1,79 @@
+.detail-container {
+  border-radius: 32rpx;
+  padding: 20rpx;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 20rpx 24rpx;
+  margin-bottom: 12rpx;
+  border-radius: 32rpx;
+  background: #fff;
+  font-size: 28rpx;
+}
+
+.label { color: #999; }
+.value { color: #333; }
+.status-0 { color: #ff9800; }
+.status-1 { color: #4caf50; }
+.status-2 { color: #999; }
+
+.section-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-top: 24rpx;
+  margin-left: 12rpx;
+}
+
+.content-box {
+  background: #fff;
+  padding: 24rpx;
+  border-radius: 32rpx;
+  font-size: 32rpx;
+  color: #444;
+  line-height: 1.2;
+}
+
+.process-area {
+  margin-top: 30rpx;
+}
+
+.process-buttons {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 20rpx;
+}
+
+.delete-btn {
+  flex: 1;
+  text-align: center;
+  background: #ff4d4f;
+  border-radius: 32rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #fff;
+  padding: 12rpx;
+}
+
+.reject-btn {
+  flex: 1;
+  text-align: center;
+  background: #c2b740;
+  border-radius: 32rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #fff;
+  padding: 12rpx;
+}
+
+.note-input {
+  width: 100%;
+  min-height: 120rpx;
+  background: #fff;
+  border-radius: 32rpx;
+  padding: 20rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+}

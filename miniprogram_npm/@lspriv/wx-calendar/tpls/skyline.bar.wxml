@@ -1,0 +1,1 @@
+<vertical-drag-gesture-handler worklet:ongesture="workletDragGesture" worklet:should-response-on-move="workletDragGesture"><view class="wc__b wc-F wc-AE"><view class="wc-F"><view class="wc__bci"><view class="wc__bcib" id="control_1"></view></view><view class="wc__bci"><view class="wc__bcib" id="control_2"></view></view></view></view></vertical-drag-gesture-handler>

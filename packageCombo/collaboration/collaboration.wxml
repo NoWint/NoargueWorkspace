@@ -1,0 +1,145 @@
+<view class="container">
+  <view class="combo-header">
+    <t-icon name="{{combo.icon || 'folder'}}" size="48rpx" color="{{combo.color || '#00b26a'}}" />
+    <text class="combo-name">{{combo.name || '协作组'}}</text>
+    <text wx:if="{{adminView}}" class="admin-badge">管理员视图</text>
+  </view>
+
+  <view wx:if="{{combo.description}}" class="description-section">
+    <view class="description-header" bindtap="toggleDescription">
+      <text class="description-label">描述</text>
+      <t-icon name="{{showDescription ? 'chevron-up' : 'chevron-down'}}" size="32rpx" color="#999" />
+    </view>
+    <view wx:if="{{showDescription}}" class="description-content">
+      <text>{{combo.description}}</text>
+    </view>
+  </view>
+
+  <view wx:if="{{!adminView && (userRole === 'owner' || userRole === 'admin')}}" class="share-section">
+    <view class="share-card">
+      <text class="share-title">邀请成员</text>
+      
+      <view class="share-content">
+        <view class="qrcode-wrapper">
+          <image 
+            class="qrcode-image" 
+            src="{{qrCodeUrl}}" 
+            mode="widthFix"
+            show-menu-by-longpress="{{true}}"
+          />
+        </view>
+
+        <view class="share-info">
+          <view class="share-code-display">
+            <text class="share-code-label">邀请码</text>
+            <text class="share-code">{{shareCode}}</text>
+            <t-icon name="copy" size="34rpx" color="#fff" bindtap="copyShareCode"/>
+          </view>
+          
+          <view class="share-mode-section">
+            <t-radio-group value="{{shareMode}}" borderless bind:change="onShareModeChange">
+              <view class="share-mode-options">
+                <t-radio value="approval" label="需要审批" />
+                <t-radio value="auto" label="直接加入" />
+              </view>
+            </t-radio-group>
+          </view>
+          
+          <view class="share-tip-box">
+            <text class="share-tip-text">选择模式并分享邀请</text>
+          </view>
+          
+        </view>
+      </view>
+      <view class="share-actions">
+        <button class="share-btn" bindtap="saveQrCode">
+          <text>保存二维码</text>
+        </button>
+        <button class="share-btn primary" open-type="share">
+          <text>转发邀请</text>
+        </button>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{requests.length > 0 && !adminView && (userRole === 'owner' || userRole === 'admin')}}" class="requests-section">
+    <view class="section-header">
+      <text class="section-title">待审批申请 · {{requests.length}}</text>
+    </view>
+    <view class="request-list">
+      <view class="request-item" wx:for="{{requests}}" wx:key="id">
+        <image class="request-avatar" src="{{item.avatarUrl || '/images/avatar.png'}}" />
+        <view class="request-info">
+          <text class="request-name">{{item.nickname || '用户'}}</text>
+          <text class="request-time">{{item.formattedTime}}</text>
+        </view>
+        <view class="request-actions">
+          <view class="action-btn approve" data-id="{{item.id}}" bindtap="approveRequest">通过</view>
+          <view class="action-btn reject" data-id="{{item.id}}" bindtap="rejectRequest">拒绝</view>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <view wx:if="{{userRole === 'owner'}}" class="owner-section">
+    <view class="section-header">
+      <text class="section-title">超管设置</text>
+    </view>
+    <view class="setting-list">
+      <view wx:if="{{!adminView}}" class="setting-item">
+        <text class="setting-label">成员上限</text>
+        <text class="setting-value">{{combo.memberLimit || combo.member_limit || 50}}人</text>
+      </view>
+      <view wx:if="{{!adminView}}" class="setting-item" bindtap="showTransferOwner">
+        <text class="setting-label">转让超管</text>
+        <t-icon name="chevron-right" size="32rpx" color="#3c3c3c" />
+      </view>
+      <view wx:if="{{!adminView}}" class="setting-item danger" bindtap="dissolveCombo">
+        <text class="setting-label">{{adminView ? '解散协作组' : '解散协作组'}}</text>
+        <t-icon name="chevron-right" size="32rpx" color="#ff4d4f" />
+      </view>
+      <view wx:if="{{!adminView}}" class="setting-item danger" bindtap="leaveCombo">
+        <text class="setting-label">退出组合</text>
+        <t-icon name="chevron-right" size="32rpx" color="#ff4d4f" />
+      </view>
+    </view>
+  </view>
+  
+  <view wx:if="{{!adminView && userRole !== 'owner'}}" class="members-section">
+    <view class="section-header">
+      <text class="section-title">其他操作</text>
+    </view>
+    <view class="setting-list">
+      <view class="setting-item danger" bindtap="leaveCombo">
+        <text class="setting-label">退出组合</text>
+        <t-icon name="chevron-right" size="32rpx" color="#ff4d4f" />
+      </view>
+    </view>
+  </view>
+
+  <view class="members-section">
+    <view class="section-header">
+      <text class="section-title">成员列表 · {{members.length}}人</text>
+    </view>
+    <view class="member-list">
+      <view class="member-item" wx:for="{{members}}" wx:key="id">
+        <image class="member-avatar" src="{{item.avatarUrl || '/images/avatar.png'}}" />
+        <view class="member-info">
+          <text class="member-name">{{item.nickname || '用户'}}</text>
+          <text class="member-role">{{item.role === 'owner' ? '超管' : item.role === 'admin' ? '管理员' : '成员'}}</text>
+        </view>
+        <view wx:if="{{!adminView && userRole === 'owner' && item.role !== 'owner'}}" class="member-actions">
+          <view class="action-text" data-id="{{item.id}}" data-role="{{item.role === 'admin' ? 'member' : 'admin'}}" bindtap="setRole">{{item.role === 'admin' ? '移除管理' : '设为管理'}}</view>
+          <view class="action-text danger" data-id="{{item.id}}" bindtap="removeMember">移除成员</view>
+        </view>
+        <view wx:elif="{{!adminView && userRole === 'admin' && item.role === 'member'}}" class="member-actions">
+          <view class="action-text danger" data-id="{{item.id}}" bindtap="removeMember">移除</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <t-share id="tShare" visible="{{false}}" />
+
+<canvas type="2d" id="qrcode-canvas" style="position: absolute; left: -9999px; width: 200px; height: 200px;"></canvas>
+</view>

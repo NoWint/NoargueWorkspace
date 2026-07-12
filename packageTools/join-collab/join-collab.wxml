@@ -1,0 +1,193 @@
+<view class="container" bindtap="hideKeyboard">
+  <view wx:if="{{isFromShare}}" class="back-home-bar">
+    <t-button 
+      theme="light"
+      size="small"
+      bindtap="goHome"
+      icon="home"
+    >
+      返回首页
+    </t-button>
+  </view>
+  
+  <view class="input-section" catchtap="showKeyboardPanel">
+    <text class="title">输入邀请码</text>
+    <text class="subtitle">向组合超管/管理获取6位邀请码，或扫描二维码</text>
+    
+    <view class="code-box-container">
+      <view 
+        class="code-box {{showKeyboard && shareCode.length === index ? 'focused' : ''}} {{item ? 'filled' : ''}}" 
+        wx:for="{{codeChars}}" 
+        wx:key="index"
+      >
+        <text class="code-char">{{item}}</text>
+        <view wx:if="{{showKeyboard && shareCode.length === index}}" class="cursor"></view>
+      </view>
+    </view>
+    
+    <view class="action-btns">
+      <view class="scan-btn" catchtap="scanQrCode">
+        <t-icon name="scan" size="36rpx" color="#fff" />
+        <text>扫描二维码</text>
+      </view>
+      <view class="query-btn {{shareCode.length === 6 ? 'active' : ''}}" catchtap="onSearch">
+        <t-icon name="search" size="36rpx" color="{{shareCode.length === 6 ? '#999' : '#fff'}}" />
+        <text>查询</text>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{comboInfo}}" class="result-section" catchtap="hideKeyboard">
+    <view class="combo-card">
+      <view class="combo-icon" style="background: {{comboInfo.color || '#00b26a'}}">
+        <t-icon name="{{comboInfo.icon || 'folder'}}" size="48rpx" color="#fff" />
+      </view>
+      <view class="combo-info">
+        <text class="combo-name">{{comboInfo.name}}</text>
+        <text class="combo-meta">{{comboInfo.memberCount || 0}}人 · {{comboInfo.todoCount || 0}}项待办</text>
+      </view>
+    </view>
+
+    <view class="owner-info">
+      <image class="owner-avatar" src="{{comboInfo.ownerAvatar || '/images/avatar.png'}}" />
+      <text class="owner-name">创建者: {{comboInfo.ownerName || '未知'}}</text>
+    </view>
+
+    <view wx:if="{{comboInfo.isMember}}" class="joined-tip">
+      <t-icon name="check-circle-filled" size="40rpx" color="#00b26a" />
+      <text>您已是该组成员</text>
+    </view>
+
+    <view wx:elif="{{comboInfo.memberFull && !comboInfo.isMember}}" class="full-tip">
+      <t-icon name="error-circle-filled" size="40rpx" color="#ff4d4f" />
+      <text>该组合成员已满</text>
+    </view>
+
+    <view wx:elif="{{comboInfo.hasPendingRequest}}" class="pending-tip">
+      <t-icon name="time-filled" size="40rpx" color="#faad14" />
+      <text>申请审批中，请耐心等待</text>
+    </view>
+
+    <view wx:elif="{{comboInfo.hasRejectedRequest}}" class="rejected-tip">
+      <t-icon name="close-circle-filled" size="40rpx" color="#ff4d4f" />
+      <text>您的申请已被拒绝</text>
+    </view>
+
+    <t-button 
+      wx:if="{{comboInfo.isMember}}"
+      theme="primary"
+      class="request-button"
+      size="large"
+      block
+      bindtap="navigateToCombo"
+    >
+      进入组合
+    </t-button>
+
+    <t-button 
+      wx:elif="{{comboInfo.memberFull && !comboInfo.isMember}}"
+      theme="light"
+      class="request-button"
+      size="large"
+      block
+      disabled
+    >
+      成员已满，无法加入
+    </t-button>
+
+    <t-button 
+      wx:elif="{{comboInfo.hasPendingRequest}}"
+      theme="light"
+      class="request-button"
+      size="large"
+      block
+      disabled
+    >
+      等待审批中
+    </t-button>
+
+    <t-button 
+      wx:elif="{{comboInfo.hasRejectedRequest}}"
+      theme="primary"
+      class="request-button"
+      size="large"
+      block
+      bindtap="sendRequest"
+    >
+      重新申请
+    </t-button>
+
+    <t-button 
+      wx:else
+      theme="primary"
+      class="request-button"
+      size="large"
+      block
+      bindtap="sendRequest"
+    >
+      申请加入
+    </t-button>
+  </view>
+
+  <view class="tips-section" catchtap="hideKeyboard">
+    <text class="tips-title">💡 提示</text>
+    <text class="tips-item">1、邀请码由组合超管/管理提供</text>
+    <text class="tips-item">2、申请后需等待超管/管理审批</text>
+    <text class="tips-item">3、通过分享卡片加入无需审批</text>
+  </view>
+
+  <!-- 自定义键盘 -->
+  <view class="keyboard-mask {{showKeyboard ? 'show' : ''}}" catchtap="hideKeyboard"></view>
+  <view class="custom-keyboard {{showKeyboard ? 'show' : ''}}" catchtap>
+    <view class="keyboard-row">
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="1">1</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="2">2</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="3">3</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="4">4</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="5">5</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="6">6</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="7">7</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="8">8</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="9">9</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="0">0</view>
+    </view>
+    <view class="keyboard-row">
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="Q">Q</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="W">W</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="E">E</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="R">R</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="T">T</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="Y">Y</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="U">U</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="I">I</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="O">O</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="P">P</view>
+    </view>
+    <view class="keyboard-row">
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="A">A</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="S">S</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="D">D</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="F">F</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="G">G</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="H">H</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="J">J</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="K">K</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="L">L</view>
+      <view class="keyboard-key delete-key" bindtap="onDelete">
+        <t-icon name="swap-left" size="40rpx" />
+      </view>
+    </view>
+    <view class="keyboard-row">
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="Z">Z</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="X">X</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="C">C</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="V">V</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="B">B</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="N">N</view>
+      <view class="keyboard-key" bindtap="onKeyInput" data-key="M">M</view>
+      <view class="keyboard-key search-key {{shareCode.length >= 6 ? 'active' : ''}}" bindtap="onSearch">
+        查询
+      </view>
+    </view>
+  </view>
+</view>

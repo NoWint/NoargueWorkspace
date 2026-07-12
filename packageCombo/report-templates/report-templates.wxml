@@ -1,0 +1,66 @@
+<scroll-view class="scroll-area" scroll-y>
+
+  <view class="container">
+
+    <t-tabs value="{{currentType}}" bind:change="onTypeChange">
+      <t-tab-panel label="日报模板" value="daily">
+        <view class="section-list">
+          <view class="template-item" wx:for="{{dailySections}}" wx:key="key" data-index="{{index}}">
+            <view class="template-item-header">
+              <text class="item-title">段落名称</text>
+              <view class="delete-icon" data-type="daily" data-index="{{index}}" bindtap="deleteSection">
+                <t-icon name="delete" size="32rpx" color="#ff4d4f" />
+              </view>
+            </view>
+            <t-input
+              class="item-input"
+              value="{{item.title}}"
+              placeholder="输入段落名称"
+              data-type="daily"
+              data-index="{{index}}"
+              bind:change="onSectionTitleInput"
+            />
+          </view>
+          <view wx:if="{{dailySections.length === 0}}" class="empty-hint">
+            <text>暂无日报段落，点击下方添加</text>
+          </view>
+        </view>
+        <view class="add-section-btn" data-type="daily" bindtap="addSection">
+          <t-icon name="add" size="36rpx" color="#00b26a" />
+          <text class="add-text">添加新段落</text>
+        </view>
+      </t-tab-panel>
+      <t-tab-panel label="周报模板" value="weekly">
+        <view class="section-list">
+          <view class="template-item" wx:for="{{weeklySections}}" wx:key="key" data-index="{{index}}">
+            <view class="template-item-header">
+              <text class="item-title">段落名称</text>
+              <view class="delete-icon" data-type="weekly" data-index="{{index}}" bindtap="deleteSection">
+                <t-icon name="delete" size="32rpx" color="#ff4d4f" />
+              </view>
+            </view>
+            <t-input
+              class="item-input"
+              value="{{item.title}}"
+              placeholder="输入段落名称"
+              data-type="weekly"
+              data-index="{{index}}"
+              bind:change="onSectionTitleInput"
+            />
+          </view>
+          <view wx:if="{{weeklySections.length === 0}}" class="empty-hint">
+            <text>暂无周报段落，点击下方添加</text>
+          </view>
+        </view>
+        <view class="add-section-btn" data-type="weekly" bindtap="addSection">
+          <t-icon name="add" size="36rpx" color="#00b26a" />
+          <text class="add-text">添加新段落</text>
+        </view>
+      </t-tab-panel>
+    </t-tabs>
+
+    <view class="bottom-safe"></view>
+  </view>
+</scroll-view>
+
+<t-fab icon="check" text="完成" bind:click="saveTemplates" style="right: 32rpx; bottom: 32rpx;" />

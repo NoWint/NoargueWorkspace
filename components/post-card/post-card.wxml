@@ -1,0 +1,78 @@
+<view class="post-card" data-post-id="{{post.postId}}" bind:tap="onTapCard">
+  <view class="post-header" catch:tap="onTapAuthor" data-user-id="{{post.user.id}}">
+    <image class="post-avatar" src="{{post.user.avatar || '/images/avatar.png'}}" mode="aspectFill" binderror="onAvatarError" />
+    <view class="post-user-info">
+      <view class="nickname-row">
+        <text class="post-nickname">{{post.user.nickname}}</text>
+        <block wx:for="{{post.user.badgeTitles || []}}" wx:for-item="badge" wx:key="index">
+          <text class="user-badge" style="color: {{post.user.badgeColors[index]}}; border-color: {{post.user.badgeColors[index]}}">{{badge}}</text>
+        </block>
+      </view>
+      <view class="time-row">
+        <text class="post-time">{{post.createdAtDisplay}}</text>
+        <text wx:if="{{post.ipProvince}}" class="post-ip">IP属地 · {{post.ipProvince}}</text>
+      </view>
+    </view>
+  </view>
+  <view class="post-title">{{post.title}}</view>
+  <view wx:if="{{post.body}}" class="{{renderMarkdown ? 'post-body-full' : 'post-body'}}" catch:tap="noop">
+    <t-chat-markdown
+      wx:if="{{renderMarkdown}}"
+      content="{{post.body}}"
+      bind:click="onBodyMarkdownClick"
+    />
+    <text wx:else>{{displayBody}}</text>
+  </view>
+  <view wx:if="{{post.images && post.images.length > 0}}" class="post-images">
+    <view class="grid-{{post.images.length === 1 ? 'single' : (post.images.length === 2 ? 'double' : 'triple')}}">
+      <image
+        wx:for="{{post.images}}" wx:key="*this"
+        src="{{item}}" mode="{{post.images.length === 1 ? 'widthFix' : 'aspectFill'}}"
+        class="post-image" catch:tap="onTapImage" data-url="{{item}}"
+      />
+    </view>
+  </view>
+  <view wx:if="{{post.location}}" class="location-card" catch:tap="onTapLocation" data-lat="{{post.location.latitude}}" data-lng="{{post.location.longitude}}" data-name="{{post.location.name || post.location}}">
+    <t-icon name="location" size="28rpx" color="#00b26a" />
+    <text class="location-text">{{post.location.name || post.location.address || post.location.text || post.location}}</text>
+  </view>
+  <view wx:if="{{post.todoIds && post.todoIds.length > 0 || post.shareCode}}" class="post-tags">
+    <view wx:if="{{post.todoIds && post.todoIds.length > 0}}" class="tag-card" catch:tap="onTapTodoExpand" data-post-id="{{post.postId}}">
+      <view class="tag-card-header">
+        <t-icon name="check-circle" size="28rpx" color="#00b26a" />
+        <text class="tag-card-title">{{post.todoIds.length}}个待办</text>
+        <t-icon name="{{expanded ? 'chevron-up' : 'chevron-down'}}" size="28rpx" color="#999" />
+      </view>
+      <view wx:if="{{expanded}}" class="tag-card-body">
+        <block wx:if="{{todoItems && todoItems.length > 0}}">
+          <block wx:for="{{todoItems}}" wx:for-item="todoItem" wx:key="id">
+            <view class="todo-mini-item" catch:tap="onTapTodo" data-todo-id="{{todoItem.id}}" data-creator-name="{{post.user.nickname}}" data-creator-avatar="{{post.user.avatar}}" data-creator-id="{{post.user.id}}" data-post-id="{{post.postId}}" hover-class="tap-active">
+              <view class="todo-mini-dot" data-priority="{{todoItem.priority}}"></view>
+              <text class="todo-mini-text">{{todoItem.text}}</text>
+            </view>
+          </block>
+        </block>
+        <view wx:else class="tag-card-empty">加载中...</view>
+      </view>
+    </view>
+    <view wx:if="{{post.shareCode}}" class="tag-item tag-combo" catch:tap="onTapCombo" data-code="{{post.shareCode}}">
+      <t-icon name="user-add" size="28rpx" color="#00b26a" />
+      <text wx:if="{{post.shareComboName}}">分享了组合：{{post.shareComboName}}</text>
+      <text wx:else>加入组合</text>
+    </view>
+  </view>
+  <view wx:if="{{showStats}}" class="post-stats-row">
+    <view class="stat-item" catch:tap="onTapDetail" data-post-id="{{post.postId}}">
+      <t-icon name="chat" size="28rpx" />
+      <text>{{post.commentsCount || 0}}</text>
+    </view>
+    <view class="stat-item {{post.isLiked ? 'liked' : ''}}" catch:tap="onToggleLike" data-post-id="{{post.postId}}">
+      <t-icon name="{{post.isLiked ? 'heart-filled' : 'heart'}}" size="28rpx" />
+      <text>{{post.likesCount || 0}}</text>
+    </view>
+    <view class="stat-item">
+      <t-icon name="browse" size="28rpx" />
+      <text>{{post.viewsCount || 0}}</text>
+    </view>
+  </view>
+</view>

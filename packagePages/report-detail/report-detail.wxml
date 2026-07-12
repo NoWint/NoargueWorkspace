@@ -1,0 +1,126 @@
+<view class="container">
+  <view class="form-item">
+    <!-- 加载态 -->
+    <view wx:if="{{!loaded}}" class="loading-area">
+      <view class="loading-spinner" />
+      <text class="loading-text">加载中...</text>
+    </view>
+
+    <!-- 空态 -->
+    <view wx:if="{{loaded && !report}}" class="empty-area">
+      <t-icon name="file" size="80rpx" color="#ddd" />
+      <text class="empty-text">报告不存在</text>
+    </view>
+
+    <block wx:if="{{loaded && report}}">
+      <!-- 大标题：类型 · 日期 · 周数 -->
+      <text class="report-title">{{friendlyDate}}</text>
+
+      <!-- 归属 -->
+      <view class="date-info date-info-priority">
+        <view class="section-header">
+          <t-icon name="data" size="32rpx" color="#999" />
+          <text class="label">报告归属</text>
+        </view>
+        <view class="scope-badge">
+          <t-icon wx:if="{{report.scope === 'private'}}" name="lock-on" size="32rpx" color="#00b26a" />
+          <t-icon wx:else name="user-group" size="32rpx" color="#00b26a" />
+          <text class="value">{{report.scope === 'private' ? '个人报告' : comboName || '团队报告'}}</text>
+        </view>
+      </view>
+
+      <!-- 创建人员 -->
+      <view wx:if="{{creator}}" class="date-info creator-info">
+        <view class="section-header">
+          <t-icon name="user" size="32rpx" color="#999" />
+          <text class="label">创建人员</text>
+        </view>
+        <view class="creator-content" catch:tap="goToUserHome" data-user-id="{{creator.id}}" bindlongpress="copyCreator">
+          <image class="creator-avatar" src="{{creator.avatar || '/images/avatar.png'}}" mode="aspectFill" />
+          <text class="creator-name">{{creator.nickname || '未知用户'}}</text>
+        </view>
+      </view>
+
+      <!-- 创建时间 -->
+      <view class="date-info date-info-priority">
+        <view class="section-header">
+          <t-icon name="add" size="32rpx" color="#999" />
+          <text class="label">创建时间</text>
+        </view>
+        <text class="value">{{formattedCreatedAt || '-'}}</text>
+      </view>
+
+      <!-- 更新时间 -->
+      <view class="date-info date-info-priority">
+        <view class="section-header">
+          <t-icon name="upload" size="32rpx" color="#999" />
+          <text class="label">更新时间</text>
+        </view>
+        <text class="value">{{formattedUpdatedAt || '-'}}</text>
+      </view>
+
+      <!-- 报告内容区块 -->
+      <view class="sections-area">
+        <view class="section-card" wx:for="{{sections}}" wx:key="key" wx:for-index="idx">
+          <view class="section-color-tag" style="background: {{sectionColors[idx % sectionColors.length]}}" />
+          <view class="section-body">
+            <text class="section-title">{{item.title || '未命名区块'}}</text>
+            <view wx:if="{{item.lines && item.lines.length > 0}}" class="section-lines">
+              <view class="section-line" wx:for="{{item.lines}}" wx:key="*this">
+                <view class="bullet-dot" style="background: {{sectionColors[idx % sectionColors.length]}}" />
+                <text class="line-text">{{item}}</text>
+              </view>
+            </view>
+            <view wx:else class="section-empty">
+              <text>暂无记录</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </block>
+  </view>
+</view>
+
+<!-- 复制内容弹窗 -->
+<t-popup
+  visible="{{showCopyPopup}}"
+  placement="center"
+  close-on-overlay-click="{{true}}"
+  bind:visible-change="onCopyPopupVisibleChange"
+>
+  <view class="copy-popup-content">
+    <view class="copy-popup-header">
+      <text class="copy-popup-title">复制内容</text>
+      <view class="copy-popup-close" bindtap="closeCopyPopup">
+        <t-icon name="close" size="40rpx" color="#999" />
+      </view>
+    </view>
+    <scroll-view scroll-y class="copy-popup-scroll">
+      <view
+        class="copy-popup-item {{checkedSections[item.key] ? 'checked' : ''}}"
+        wx:for="{{sections}}"
+        wx:key="key"
+        data-key="{{item.key}}"
+        bindtap="onCheckboxChange"
+      >
+        <t-icon
+          name="{{checkedSections[item.key] ? 'check-circle-filled' : 'circle'}}"
+          size="36rpx"
+          color="{{checkedSections[item.key] ? '#00b26a' : '#ccc'}}"
+        />
+        <text class="copy-popup-item-text">{{item.title}}</text>
+        <text class="copy-popup-item-count">{{item.lines.length}}项</text>
+      </view>
+    </scroll-view>
+    <view class="copy-popup-footer">
+      <t-button theme="primary" bindtap="copyCheckedContent">复制选中内容</t-button>
+    </view>
+  </view>
+</t-popup>
+
+<!-- FAB 组 -->
+<view wx:if="{{canEdit}}">
+  <t-fab wx:if="{{canDelete}}" icon="delete" bind:click="deleteReport" style="right: 248rpx; bottom: 32rpx;" />
+  <t-fab icon="file-copy" bind:click="toggleCopyPopup" style="right: 144rpx; bottom: 32rpx;" />
+  <t-fab icon="edit-1" text="编辑" bind:click="navigateToEdit" style="right: 32rpx; bottom: 32rpx;" />
+</view>

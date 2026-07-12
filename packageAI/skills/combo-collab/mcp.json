@@ -1,0 +1,149 @@
+{
+  "apis": [
+    {
+      "name": "listCombos",
+      "description": "获取用户的组合列表，支持筛选私有或共享。用户问『我的组合』『共享组合』『文件夹』时调用",
+      "_meta": {
+        "ui": { "componentPath": "components/combo-card/index" }
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["private", "shared"],
+            "description": "筛选类型：private=只返回私有组合，shared=只返回共享组合。不传返回全部"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "combos": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "number" },
+                "name": { "type": "string" },
+                "is_shared": { "type": "number" },
+                "todo_count": { "type": "number" }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "getComboDetail",
+      "description": "查看指定组合的详情，包含组合内的共享待办列表。用户说『查看xx组合』时调用。需先调用 listCombos 获取 comboId",
+      "_meta": {
+        "ui": { "componentPath": "components/shared-todo-card/index" }
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "comboId": {
+            "type": "number",
+            "description": "组合ID，取自上游接口 listCombos 返回的 id 原值。不要从用户自然语言推断，也不要使用示例值。上下文无可用 comboId 时，应先调 listCombos"
+          }
+        },
+        "required": ["comboId"]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "shared_todos": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "number" },
+                "text": { "type": "string" },
+                "set_date": { "type": "string" },
+                "assign_type": { "type": "string" }
+              }
+            }
+          },
+          "members": { "type": "array" }
+        }
+      }
+    },
+    {
+      "name": "completeSharedTodo",
+      "description": "完成或取消完成共享组合中的待办。需先调用 getComboDetail 获取共享待办列表",
+      "_meta": {
+        "ui": { "componentPath": "components/complete-shared-card/index" }
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "comboId": {
+            "type": "number",
+            "description": "组合ID，取自上游接口 listCombos 返回的 id 原值"
+          },
+          "todoId": {
+            "type": "number",
+            "description": "共享待办ID，取自上游接口 getComboDetail 返回的 shared_todos[].id 原值。不要从用户自然语言推断"
+          },
+          "completed": {
+            "type": "boolean",
+            "description": "true=完成，false=取消完成"
+          }
+        },
+        "required": ["comboId", "todoId", "completed"]
+      },
+      "outputSchema": {}
+    },
+    {
+      "name": "listMembers",
+      "description": "查看共享组合的成员列表。用户问『谁在xx组合』『组合成员』时调用。需先调用 listCombos 获取 comboId",
+      "_meta": { "ui": { "componentPath": "components/member-list-card/index" } },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "comboId": {
+            "type": "number",
+            "description": "组合ID，取自上游接口 listCombos 返回的 id 原值"
+          }
+        },
+        "required": ["comboId"]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "members": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "nickname": { "type": "string" },
+                "role": { "type": "string" }
+              }
+            }
+          },
+          "comboId": { "type": "number" }
+        }
+      }
+    }
+  ],
+  "components": [
+    {
+      "path": "components/combo-card/index",
+      "relatedPage": "/packageCombo/combo-detail/combo-detail"
+    },
+    {
+      "path": "components/shared-todo-card/index",
+      "relatedPage": "/packageCombo/combo-detail/combo-detail"
+    },
+    {
+      "path": "components/member-list-card/index",
+      "relatedPage": "/packageCombo/collaboration/collaboration"
+    },
+    {
+      "path": "components/complete-shared-card/index",
+      "relatedPage": "/packageCombo/combo-detail/combo-detail"
+    }
+  ]
+}

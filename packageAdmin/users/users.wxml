@@ -1,0 +1,72 @@
+<view class="users-container">
+  <view class="header">
+    <text class="title">用户管理</text>
+    <text class="subtitle">共 {{total}} 位用户</text>
+  </view>
+  
+  <view class="search-bar">
+    <view class="search-input-wrap">
+      <t-icon name="search" size="32rpx" color="#999" />
+      <input 
+        class="search-input" 
+        placeholder="搜索用户昵称" 
+        value="{{searchText}}"
+        bindinput="onSearchInput"
+        bindconfirm="onSearch"
+      />
+    </view>
+    <button class="search-btn" bindtap="onSearch">搜索</button>
+  </view>
+  
+  <view class="user-list">
+    <view 
+      wx:for="{{users}}" 
+      wx:key="id" 
+      class="user-card"
+      bindtap="goToUserDetail"
+      data-id="{{item.id}}"
+    >
+      <view class="user-header">
+        <image class="user-avatar" src="{{item.avatar_url || '/images/avatar.png'}}" />
+        <view class="user-basic">
+          <text class="user-name">{{item.nickname || '未设置昵称'}}</text>
+          <text class="user-id">ID: {{item.id}}</text>
+        </view>
+        <view class="arrow-wrap">
+          <t-icon name="chevron-right" size="32rpx" color="#ccc" />
+        </view>
+      </view>
+      <view class="user-stats">
+        <view class="stat-badge todo">
+          <t-icon name="check-circle" size="24rpx" color="#00B26A" />
+          <text>{{item.todo_count || 0}} 待办</text>
+        </view>
+        <view class="stat-badge combo">
+          <t-icon name="folder" size="24rpx" color="#f5576c" />
+          <text>{{item.combo_count || 0}} 组合</text>
+        </view>
+        <view class="stat-badge limit">
+          <t-icon name="setting" size="24rpx" color="#667eea" />
+          <text>上限 {{item.todo_limit || 100}}</text>
+        </view>
+      </view>
+      <view class="user-footer">
+        <text class="register-time">注册于 {{item.created_at}}</text>
+      </view>
+    </view>
+  </view>
+  
+  <view wx:if="{{loading}}" class="loading">
+    <t-loading theme="circular" size="40rpx" />
+    <text>加载中...</text>
+  </view>
+  
+  <view wx:if="{{!hasMore && users.length > 0}}" class="no-more">
+    <text>— 已加载全部 —</text>
+  </view>
+  
+  <view wx:if="{{!loading && users.length === 0}}" class="empty">
+    <t-icon name="user" size="80rpx" color="#ccc" />
+    <text>暂无用户数据</text>
+  </view>
+</view>

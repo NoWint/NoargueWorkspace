@@ -1,0 +1,44 @@
+<view class="container">
+  <view class="header" bindtap="openDrawer">
+    <view class="header-left">
+      <t-icon name="view-list" size="48rpx" color="#333" />
+      <text class="header-title">{{currentCategory.label}}</text>
+    </view>
+    <text class="header-hint">点击切换分类</text>
+  </view>
+  
+  <scroll-view 
+    class="content-area" 
+    scroll-y 
+    scroll-top="{{scrollTop}}"
+    scroll-with-animation
+  >
+    <view class="section-content">
+      <t-chat-markdown content="{{currentCategory.content}}" bind:click="onContentTap" />
+    </view>
+    
+    <view class="bottom-placeholder"></view>
+  </scroll-view>
+</view>
+
+<t-drawer
+  visible="{{drawerVisible}}"
+  placement="left"
+  items="{{drawerItems}}"
+  using-custom-navbar
+  bind:overlay-click="onOverlayClick"
+  bind:item-click="onItemClick"
+  bind:close="onDrawerClose"
+/>
+
+<t-fab 
+  icon="arrow-up" 
+  style="right: 32rpx; bottom: 32rpx;" 
+  bind:click="scrollToTop"
+/>
+
+<t-action-sheet
+  id="t-action-sheet" 
+  usingCustomNavbar="{{true}}"
+  bind:selected="onCopyActionSheetSelect"
+/>

@@ -1,0 +1,342 @@
+<view class="combo-stats-page">
+  <view wx:if="{{tabs.length > 1}}" class="tab-container">
+    <view class="tab-list">
+      <view 
+        wx:for="{{tabs}}" 
+        wx:key="key" 
+        class="tab-item {{activeTab === item.key ? 'active' : ''}}"
+        data-tab="{{item.key}}"
+        bindtap="onTabChange"
+      >
+        <text class="tab-text">{{item.name}}</text>
+        <view wx:if="{{activeTab === item.key}}" class="tab-indicator"></view>
+      </view>
+    </view>
+  </view>
+
+  <scroll-view scroll-y class="stats-scroll">
+    <view class="stats-content">
+      <view wx:if="{{activeTab === 'global' && isAdmin}}" class="global-view">
+        <view class="hero-card">
+          <view class="hero-main">
+            <view class="hero-ring">
+              <view class="ring-container">
+                <ec-canvas id="completionChart" ec="{{completionChart}}" canvas-id="completionCanvas"></ec-canvas>
+              </view>
+            </view>
+            <view class="hero-info">
+              <view class="hero-stat">
+                <text class="hero-value">{{globalStats.totalCount}}</text>
+                <text class="hero-label">总待办</text>
+              </view>
+              <view class="hero-stat">
+                <text class="hero-value success">{{globalStats.completedCount}}</text>
+                <text class="hero-label">已完成</text>
+              </view>
+            </view>
+          </view>
+          <view class="hero-badges">
+            <view class="badge-item warning" wx:if="{{globalStats.overdueCount > 0}}">
+              <t-icon name="error-circle" size="28rpx" />
+              <text>{{globalStats.overdueCount}} 逾期</text>
+            </view>
+            <view class="badge-item primary">
+              <t-icon name="time" size="28rpx" />
+              <text>平均耗时 {{globalStats.avgDuration}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="quick-stats">
+          <view class="quick-item">
+            <view class="quick-icon today">
+              <t-icon name="calendar" size="36rpx" color="#fff" />
+            </view>
+            <view class="quick-data">
+              <text class="quick-value">{{globalStats.todayCreated}}</text>
+              <text class="quick-label">今日新建</text>
+            </view>
+          </view>
+          <view class="quick-item">
+            <view class="quick-icon success">
+              <t-icon name="check-circle" size="36rpx" color="#fff" />
+            </view>
+            <view class="quick-data">
+              <text class="quick-value">{{globalStats.todayCompleted}}</text>
+              <text class="quick-label">今日完成</text>
+            </view>
+          </view>
+          <view class="quick-item">
+            <view class="quick-icon week">
+              <t-icon name="chart-line" size="36rpx" color="#fff" />
+            </view>
+            <view class="quick-data">
+              <text class="quick-value">{{globalStats.weekCompleted}}</text>
+              <text class="quick-label">本周完成</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="section-card">
+          <view class="section-title">
+            <t-icon name="chart-pie" size="32rpx" color="#00B26A" />
+            <text>状态分布</text>
+          </view>
+          <view class="status-section">
+            <view class="status-ring">
+              <ec-canvas id="statusChart" ec="{{statusChart}}" canvas-id="statusCanvas"></ec-canvas>
+            </view>
+            <view class="status-legend">
+              <view class="legend-row">
+                <view class="legend-dot success"></view>
+                <text class="legend-text">已完成</text>
+                <text class="legend-count">{{globalStats.completedCountFull}}</text>
+              </view>
+              <view class="legend-row">
+                <view class="legend-dot warning"></view>
+                <text class="legend-text">进行中</text>
+                <text class="legend-count">{{globalStats.inProgressCount}}</text>
+              </view>
+              <view class="legend-row">
+                <view class="legend-dot gray"></view>
+                <text class="legend-text">未开始</text>
+                <text class="legend-count">{{globalStats.notStartedCount}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="section-card">
+          <view class="section-title">
+            <t-icon name="user-group" size="32rpx" color="#26c6da" />
+            <text>分配类型</text>
+          </view>
+          <view class="assign-grid">
+            <view class="assign-item">
+              <view class="assign-ring specific">
+                <text class="assign-num">{{globalStats.specificAssignCount}}</text>
+              </view>
+              <text class="assign-label">指定人</text>
+            </view>
+            <view class="assign-item">
+              <view class="assign-ring any">
+                <text class="assign-num">{{globalStats.anyAssignCount}}</text>
+              </view>
+              <text class="assign-label">任何人</text>
+            </view>
+            <view class="assign-item">
+              <view class="assign-ring exclude">
+                <text class="assign-num">{{globalStats.excludeAssignCount}}</text>
+              </view>
+              <text class="assign-label">排除模式</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="section-card" wx:if="{{globalStats.memberStats.length > 0}}">
+          <view class="section-title">
+            <t-icon name="user" size="32rpx" color="#f5a623" />
+            <text>成员贡献榜</text>
+          </view>
+          <view class="member-list">
+            <view class="member-item" wx:for="{{globalStats.memberStats}}" wx:key="id">
+              <view class="member-rank {{index < 3 ? 'top' : ''}}">{{index + 1}}</view>
+              <image class="member-avatar" src="{{item.avatarUrl || '/images/avatar.png'}}" mode="aspectFill" />
+              <view class="member-info">
+                <view class="member-header">
+                  <text class="member-name">{{item.nickname}}</text>
+                  <view class="member-badge" wx:if="{{index === 0}}">MVP</view>
+                </view>
+                <view class="member-stats">
+                  <text class="stat-text">创建 {{item.createdCount}}</text>
+                  <text class="stat-divider">|</text>
+                  <text class="stat-text">完成 {{item.myCompletedCount}}</text>
+                </view>
+                <view class="member-progress">
+                  <view class="progress-track">
+                    <view class="progress-fill" style="width: {{item.rate}}%"></view>
+                  </view>
+                  <text class="progress-text">{{item.rate}}%</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="section-card">
+          <view class="section-title">
+            <t-icon name="chart-line" size="32rpx" color="#00B26A" />
+            <text>近7天趋势</text>
+          </view>
+          <view class="trend-chart">
+            <view class="trend-y-axis">
+              <text class="y-label">{{globalStats.weeklyTrendMax || 5}}</text>
+              <text class="y-label">0</text>
+            </view>
+            <view class="trend-bars-container">
+              <view class="trend-item" wx:for="{{globalStats.weeklyTrend}}" wx:key="date">
+                <view class="trend-bar-group">
+                  <view class="trend-bar create" style="height: {{item.createdCount * 30}}rpx"></view>
+                  <view class="trend-bar complete" style="height: {{item.completedCount * 30}}rpx"></view>
+                </view>
+                <text class="trend-label">{{item.dayLabel}}</text>
+              </view>
+            </view>
+          </view>
+          <view class="trend-legend">
+            <view class="legend-item">
+              <view class="legend-dot create"></view>
+              <text>新建</text>
+            </view>
+            <view class="legend-item">
+              <view class="legend-dot complete"></view>
+              <text>完成</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="section-card">
+          <view class="section-title">
+            <t-icon name="time" size="32rpx" color="#26c6da" />
+            <text>创建时间分布</text>
+          </view>
+          <view class="time-chart">
+            <view class="time-bar" wx:for="{{globalStats.createTimeDistribution}}" wx:key="hour" wx:if="{{item.count > 0}}">
+              <text class="time-label">{{item.hour}}:00</text>
+              <view class="time-bar-track">
+                <view class="time-bar-fill create" style="width: {{item.percent}}%"></view>
+              </view>
+              <text class="time-count">{{item.count}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view wx:if="{{activeTab === 'personal'}}" class="personal-view">
+        <view class="hero-card personal">
+          <view class="hero-main">
+            <view class="hero-ring-small">
+              <view class="ring-value">
+                <text class="ring-num">{{personalStats.myCompletionRate}}</text>
+                <text class="ring-unit">%</text>
+              </view>
+              <text class="ring-label">完成率</text>
+            </view>
+            <view class="hero-stats-grid">
+              <view class="hero-stat-item">
+                <text class="stat-value">{{personalStats.assignedCount}}</text>
+                <text class="stat-label">{{isShared ? '分配给我' : '待办'}}</text>
+              </view>
+              <view class="hero-stat-item">
+                <text class="stat-value success">{{personalStats.myCompletedCount}}</text>
+                <text class="stat-label">已完成</text>
+              </view>
+              <view class="hero-stat-item">
+                <text class="stat-value warning">{{personalStats.myOverdueCount}}</text>
+                <text class="stat-label">逾期</text>
+              </view>
+            </view>
+          </view>
+          <view wx:if="{{personalStats.streak > 0}}" class="streak-banner">
+            <t-icon name="fire" size="32rpx" color="#ff6b35" />
+            <text>连续完成 {{personalStats.streak}} 天</text>
+          </view>
+        </view>
+
+        <view class="quick-stats">
+          <view class="quick-item">
+            <view class="quick-icon today">
+              <t-icon name="check-circle" size="36rpx" color="#fff" />
+            </view>
+            <view class="quick-data">
+              <text class="quick-value">{{personalStats.todayCompleted}}</text>
+              <text class="quick-label">今日完成</text>
+            </view>
+          </view>
+          <view class="quick-item">
+            <view class="quick-icon week">
+              <t-icon name="chart-line" size="36rpx" color="#fff" />
+            </view>
+            <view class="quick-data">
+              <text class="quick-value">{{personalStats.weekCompleted}}</text>
+              <text class="quick-label">本周完成</text>
+            </view>
+          </view>
+        </view>
+
+        <view wx:if="{{isShared}}" class="section-card">
+          <view class="section-title">
+            <t-icon name="add-circle" size="32rpx" color="#26c6da" />
+            <text>我的创建</text>
+          </view>
+          <view class="create-stats">
+            <view class="create-item">
+              <text class="create-value">{{personalStats.createdCount}}</text>
+              <text class="create-label">创建待办</text>
+            </view>
+            <view class="create-divider"></view>
+            <view class="create-item">
+              <text class="create-value success">{{personalStats.createdCompletedCount}}</text>
+              <text class="create-label">已完成</text>
+            </view>
+            <view class="create-divider"></view>
+            <view class="create-item">
+              <text class="create-value primary">{{personalStats.createdCompletionRate}}%</text>
+              <text class="create-label">完成率</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="section-card">
+          <view class="section-title">
+            <t-icon name="chart-line" size="32rpx" color="#00B26A" />
+            <text>{{isShared ? '我的近7天' : '近7天趋势'}}</text>
+          </view>
+          <view class="trend-chart personal">
+            <view class="trend-bars-container single">
+              <view class="trend-item" wx:for="{{personalStats.myWeeklyTrend}}" wx:key="date">
+                <view class="trend-bar-single" style="height: {{item.completedCount * 30}}rpx">
+                  <text wx:if="{{item.completedCount > 0}}" class="bar-tooltip">{{item.completedCount}}</text>
+                </view>
+                <text class="trend-label">{{item.dayLabel}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="section-card">
+          <view class="section-title">
+            <t-icon name="time" size="32rpx" color="#f5a623" />
+            <text>{{isShared ? '我的完成时间' : '完成时间分布'}}</text>
+          </view>
+          <view class="time-chart">
+            <view class="time-bar" wx:for="{{personalStats.myCompleteTimeDistribution}}" wx:key="hour" wx:if="{{item.count > 0}}">
+              <text class="time-label">{{item.hour}}:00</text>
+              <view class="time-bar-track">
+                <view class="time-bar-fill personal" style="width: {{item.percent}}%"></view>
+              </view>
+              <text class="time-count">{{item.count}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="section-card">
+          <view class="section-title">
+            <t-icon name="history" size="32rpx" color="#26c6da" />
+            <text>创建时间分布</text>
+          </view>
+          <view class="time-chart">
+            <view class="time-bar" wx:for="{{personalStats.myCreateTimeDistribution}}" wx:key="hour" wx:if="{{item.count > 0}}">
+              <text class="time-label">{{item.hour}}:00</text>
+              <view class="time-bar-track">
+                <view class="time-bar-fill create" style="width: {{item.percent}}%"></view>
+              </view>
+              <text class="time-count">{{item.count}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+    </view>
+  </scroll-view>
+</view>

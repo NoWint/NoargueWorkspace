@@ -1,0 +1,577 @@
+<view class="top">
+  <view class="header" style="padding-top:{{navBarHeight-44}}px;padding-left:{{menuRight+20}}rpx">
+    <text class="title">我的待办（{{todos.length}}）</text>
+    <view 
+      class="action-group" 
+      style="right:{{menuRight + menuWidth + 10}}px"
+    >
+      <t-icon 
+        name="clear"
+        class="clear-btn"
+        size="40rpx"
+        color="#000"
+        bindtap="showClearOptions"
+        wx:if="{{todos.length > 0}}"
+      />
+    </view>
+  </view>
+
+  <view class="search-container">
+    <view class="search-box" bindtap="onSearchConfirm">
+      <t-icon class="search-icon" name="search" size="36rpx" color="#999" />
+      <text class="search-text">搜索待办事项</text>
+    </view>
+  </view>
+</view>
+
+<view class="container">
+  <view
+    class="weather-card weather-{{weather.bgClass || 'default'}}"
+    bindtap="showWeather"
+  >
+    <view class="weather-bg-glow"></view>
+    <view class="weather-card-content">
+      <view class="weather-icon-area">
+        <t-icon name="{{weather.iconName || 'sunny'}}" size="64rpx" color="#ffffff" />
+      </view>
+      <view class="weather-info-area">
+        <text class="temperature">{{weather.temperature || '--'}}<text class="temp-unit">℃</text></text>
+        <text class="weather-text">{{weather.text || ''}}</text>
+      </view>
+      <view class="weather-meta-area">
+        <view class="location">
+          <t-icon name="location" size="28rpx" color="rgba(255,255,255,0.85)" />
+          <text class="city">{{weather.city || '未知'}}</text>
+        </view>
+        <text class="update-time">更新于 {{weather.last_update || '未知'}}</text>
+      </view>
+    </view>
+  </view>
+      
+  <view class="custom-notice" bindtap="navigateToNotice">
+    <view class="notice-content">
+      <t-icon name="notification" size="36rpx" color="#2dd4bf" />
+      <view class="notice-text-area">
+        <text class="notice-text">{{latestNoticeTitle}}</text>
+      </view>
+      <view class="notice-action">
+        <view wx:if="{{_hasNewNotice}}" class="notice-new-dot" />
+        <t-icon name="chevron-right" size="32rpx" color="#94a3b8" />
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{showTagDropdown}}" class="dropdown-mask" catchtouchmove="preventTouchMove" bindtap="hideTagDropdown"></view>
+
+  <view class="tab-container">
+    <view class="tab-dropdown-wrapper">
+      <view 
+        class="tab-item dropdown-trigger {{currentTab === 'all' ? 'active' : ''}}" 
+        bindtap="toggleTagDropdown"
+      >
+        <text>{{currentTagName}}</text>
+        <t-icon name="caret-down-small" size="28rpx" style="margin-left: 8rpx;" />
+      </view>
+      <view wx:if="{{showTagDropdown}}" class="dropdown-menu" style="top: {{dropdownTop}}px;">
+        <view 
+          class="dropdown-item {{currentTagFilter === 'all' ? 'selected' : ''}}" 
+          data-filter="all"
+          catchtap="selectTagFilter"
+        >全部待办</view>
+        <view 
+          class="dropdown-item {{currentTagFilter === 'completed' ? 'selected' : ''}}" 
+          data-filter="completed"
+          catchtap="selectTagFilter"
+        >已完成</view>
+        <view 
+          class="dropdown-item {{currentTagFilter === 'uncompleted' ? 'selected' : ''}}" 
+          data-filter="uncompleted"
+          catchtap="selectTagFilter"
+        >待完成</view>
+        <view class="dropdown-divider"></view>
+        <view class="dropdown-group-label">优先级</view>
+        <view class="dropdown-item {{currentTagFilter === 'p1' ? 'selected' : ''}}" data-filter="p1" catchtap="selectTagFilter">
+          <view class="tag-color-dot priority-dot p1"></view>
+          <text>紧急重要</text>
+        </view>
+        <view class="dropdown-item {{currentTagFilter === 'p2' ? 'selected' : ''}}" data-filter="p2" catchtap="selectTagFilter">
+          <view class="tag-color-dot priority-dot p2"></view>
+          <text>重要不紧急</text>
+        </view>
+        <view class="dropdown-item {{currentTagFilter === 'p3' ? 'selected' : ''}}" data-filter="p3" catchtap="selectTagFilter">
+          <view class="tag-color-dot priority-dot p3"></view>
+          <text>紧急不重要</text>
+        </view>
+        <view class="dropdown-item {{currentTagFilter === 'p4' ? 'selected' : ''}}" data-filter="p4" catchtap="selectTagFilter">
+          <view class="tag-color-dot priority-dot p4"></view>
+          <text>不紧急不重要</text>
+        </view>
+        <view class="dropdown-divider"></view>
+        <view class="dropdown-group-label">标签</view>
+        <view 
+          class="dropdown-item {{currentTagFilter === 'none' ? 'selected' : ''}}" 
+          data-filter="none"
+          catchtap="selectTagFilter"
+        >未分类</view>
+        <view 
+          class="dropdown-item {{currentTagFilter == item.id || currentTagFilter === String(item.id) ? 'selected' : ''}}" 
+          wx:for="{{allTags}}" 
+wx:key="*this"
+          data-filter="{{item.id}}"
+          catchtap="selectTagFilter"
+        >
+          <view class="tag-color-dot" style="background: {{item.color}}"></view>
+          <text>{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+    <view 
+      class="tab-item {{currentTab === 'combos' ? 'active' : ''}}" 
+      data-tab="combos"
+      bindtap="switchTab"
+    >我的组合</view>
+    <view 
+      class="tab-item {{currentTab === 'shared' ? 'active' : ''}}" 
+      data-tab="shared"
+      bindtap="switchTab"
+    >共享组合</view>
+  </view>
+
+  <view wx:if="{{currentTab === 'all'}}" class="todo-list">
+    <block wx:for="{{todos}}" wx:key="time" wx:for-item="todo">
+      <view
+        class="todo-item-wrapper"
+        data-index="{{index}}"
+      >
+        <t-swipe-cell
+          class="todo-item {{todo.completed ? 'completed' : ''}} {{todo._animate || ''}} {{isDragging && currentIndex === index ? 'dragging' : ''}}"
+          data-index="{{index}}"
+          bindlongpress="onCellLongPress"
+        >
+          <view class="priority-bar" data-priority="{{todo.priority}}"></view>
+          <view wx:if="{{todo.isStar}}" class="star-badge">
+            <t-icon name="star-filled" size="26rpx" color="#ffffff" />
+          </view>
+          <t-cell
+            title="{{todo.text}}"
+            description="{{todo.location ? (todo.remarks ? '📍' + todo.location.name + '｜' + todo.remarks : '📍' + todo.location.name) : todo.remarks}}"
+            note="{{todo.friendlyDate || todo.setDate}}"
+            bordered="{{false}}"
+            custom-style="width:100%"
+            bindtap="navigateToDetail"
+            data-id="{{todo.id}}"
+          >
+            <view
+              wx:if="{{todo.completed}}"
+              class="completed-decorate"
+            ></view>
+            <view
+              slot="right-icon"
+              style="position:relative;z-index:1000;background:inherit;padding-left:20rpx"
+            >
+              <t-radio
+                checked="{{todo.completed}}"
+                catch:change="toggleTodo"
+                block="{{false}}"
+                data-index="{{index}}"
+                data-component="t-radio"
+                custom-style="--td-radio-bg-color: transparent;"
+              />
+            </view>
+          </t-cell>
+          <view slot="right" class="btn-wrapper">
+            <view
+              class="btn edit-btn column"
+              data-index="{{index}}"
+              bind:tap="handleSwipeAction"
+              data-type="edit"
+            >
+              编辑
+            </view>
+            <view
+              class="btn delete-btn column"
+              data-index="{{index}}"
+              bind:tap="handleSwipeAction"
+              data-type="delete"
+            >
+              删除
+            </view>
+          </view>
+        </t-swipe-cell>
+      </view>
+
+      <view wx:if="{{index === 3}}" class="ad-container">
+        <ad-custom
+          unit-id="adunit-5ab4dec0a604c6c4"
+          binderror="onAdError"
+        ></ad-custom>
+      </view>
+    </block>
+  <!-- 复制弹窗 -->
+  <t-popup
+    visible="{{_showCopyPopup}}"
+    placement="center"
+    usingCustomNavbar="{{true}}"
+    bind:visible-change="onCopyCancel"
+    custom-style="border-radius: 32rpx; overflow: hidden;"
+  >
+    <view class="copy-popup">
+      <view class="copy-popup-title">复制待办</view>
+      <input class="copy-popup-input" value="{{_copyInputValue}}" bindinput="onCopyInput" placeholder="请输入待办名称" />
+      <view class="copy-popup-options">
+        <view class="copy-popup-checkbox-label" bindtap="onCopyKeepCompletedChange">
+          <view class="pseudo-checkbox {{_copyKeepCompleted ? 'checked' : ''}}">
+            <t-icon wx:if="{{_copyKeepCompleted}}" name="check" size="28rpx" color="#fff" />
+          </view>
+          <text>保留完成状态</text>
+        </view>
+        <view class="copy-popup-checkbox-label" bindtap="onCopyKeepStarChange">
+          <view class="pseudo-checkbox {{_copyKeepStar ? 'checked' : ''}}">
+            <t-icon wx:if="{{_copyKeepStar}}" name="check" size="28rpx" color="#fff" />
+          </view>
+          <text>保留收藏状态</text>
+        </view>
+      </view>
+      <view class="copy-popup-buttons">
+        <view class="copy-popup-btn copy-popup-btn-cancel" bindtap="onCopyCancel">取消</view>
+        <view class="copy-popup-btn copy-popup-btn-confirm" bindtap="onCopyConfirm">确认复制</view>
+      </view>
+    </view>
+  </t-popup>
+
+
+  </view>
+
+  <view wx:if="{{currentTab === 'combos'}}" class="combo-list">
+    <view 
+      class="combo-card {{item.isShared ? 'shared' : ''}}" 
+      wx:for="{{combos}}" 
+      wx:key="id"
+      data-id="{{item.id}}"
+      bindtap="{{item.isShared ? 'navigateToSharedCombo' : 'navigateToCombo'}}"
+    >
+      <view class="combo-icon" style="background: {{item.color || (item.isShared ? '#00b26a' : '#4CAF50')}}">
+        <t-icon name="{{item.icon || (item.isShared ? 'user-group' : 'folder')}}" size="48rpx" color="#fff" />
+      </view>
+      <view class="combo-info">
+        <text class="combo-name">{{item.name}}</text>
+        <text class="combo-count">{{item.todoCount || 0}}个待办{{item.isShared ? ' · ' + (item.memberCount || 1) + '人' : ''}}</text>
+      </view>
+      <view wx:if="{{item.isShared}}" class="role-badge">{{item.userRole === 'owner' ? '超管' : item.userRole === 'admin' ? '管理' : '成员'}}</view>
+      <t-icon name="chevron-right"/>
+    </view>
+    
+    <view class="combo-card add-combo" bindtap="createNewCombo">
+      <view class="combo-icon add-icon">
+        <t-icon name="add" size="48rpx" color="#00b26a" />
+      </view>
+      <view class="combo-info">
+        <text class="combo-name">新建组合</text>
+        <text class="combo-count">将待办归类整理</text>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{currentTab === 'shared'}}" class="combo-list">
+    <view 
+      class="combo-card shared" 
+      wx:for="{{sharedCombos}}" 
+      wx:key="id"
+      data-id="{{item.id}}"
+      bindtap="navigateToSharedCombo"
+    >
+      <view class="combo-icon" style="background: {{item.color || '#2196F3'}}">
+        <t-icon name="{{item.icon || 'user-group'}}" size="48rpx" color="#fff" />
+      </view>
+      <view class="combo-info">
+        <text class="combo-name">{{item.name}}</text>
+        <text class="combo-count">{{item.todoCount || 0}}个待办 · {{item.memberCount || 1}}人</text>
+      </view>
+      <view class="role-badge">{{item.role === 'owner' ? '超管' : item.role === 'admin' ? '管理' : '成员'}}</view>
+      <t-icon name="chevron-right"/>
+    </view>
+    
+    <view class="combo-card add-combo shared-create" bindtap="createNewSharedCombo">
+      <view class="combo-icon add-icon shared">
+        <t-icon name="folder-add" size="48rpx" color="#10b981" />
+      </view>
+      <view class="combo-info">
+        <text class="combo-name">新建共享组合</text>
+        <text class="combo-count">创建多人协作待办组</text>
+      </view>
+      <t-icon name="chevron-right"/>
+    </view>
+    
+    <view class="combo-card add-combo" bindtap="navigateToJoinCollab">
+      <view class="combo-icon add-icon">
+        <t-icon name="user-add" size="48rpx" color="#2196F3" />
+      </view>
+      <view class="combo-info">
+        <text class="combo-name">加入协作</text>
+        <text class="combo-count">输入邀请码或扫描二维码加入共享组</text>
+      </view>
+      <t-icon name="chevron-right"/>
+    </view>
+  </view>
+</view>
+
+<t-fab 
+  wx:if="{{showBackTop}}"
+  icon="arrow-up" 
+  bind:click="onToTop"
+  style="right: 32rpx; bottom: 268rpx;"
+/>
+
+<t-fab 
+  icon="microphone-1" 
+  bind:touchstart="touchStart" 
+  bind:touchend="touchEnd"
+  style="right: 32rpx; bottom: 150rpx;"
+/>
+
+<!-- 语音识别遮罩 -->
+<view wx:if="{{isRecording}}" class="voice-overlay" catchtouchmove="preventTouchMove">
+  <view class="voice-overlay-inner {{overlayPhase === 'show' ? 'show' : ''}}">
+    <view class="voice-center">
+      <text class="voice-hint {{voiceText ? '' : 'placeholder'}}">{{voiceText || '正在聆听...'}}</text>
+      <text class="voice-hint-tip">识别可能需要几秒钟，松手即可结束</text>
+    </view>
+    <view class="voice-wave">
+      <view wx:for="{{voiceWaveBars}}" wx:key="*this" class="voice-wave-bar" style="left:{{index / 32 * 100}}%;animation-delay:{{index * 0.06}}s;"></view>
+    </view>
+    <view class="voice-glow"></view>
+  </view>
+</view>
+
+<t-fab
+  icon="add"
+  bind:click="navigateToAdd" 
+  style="right: 32rpx; bottom: 32rpx;"
+/>
+
+<t-action-sheet
+  id="t-action-sheet" 
+  visible="{{showClearActionSheet}}"
+  usingCustomNavbar="{{true}}"
+  bind:selected="onClearActionSheetSelect"
+/>
+
+<t-popup
+  visible="{{showLoginPopup}}"
+  placement="center"
+  usingCustomNavbar="{{true}}"
+  bind:visible-change="hideLoginPopup"
+  custom-style="border-radius: 32rpx; overflow: hidden;"
+>
+  <view class="login-popup">
+    <view class="login-popup-header">
+      <t-icon name="user-circle" size="80rpx" color="#00b26a" />
+    </view>
+    <view class="login-popup-title">需要登录</view>
+    <view class="login-popup-desc">该功能需要登录后才能使用，请先登录您的账号</view>
+    <view class="login-popup-actions">
+      <t-button 
+        theme="light" 
+        variant="outline"
+        bindtap="hideLoginPopup"
+        custom-style="flex: 1; margin-right: 16rpx;--td-button-border-radius: 32rpx;"
+      >取消</t-button>
+      <t-button 
+        theme="primary"
+        bindtap="goToLogin"
+        custom-style="flex: 1;--td-button-border-radius: 32rpx;"
+      >去登录</t-button>
+    </view>
+  </view>
+</t-popup>
+
+<t-popup
+  visible="{{showInvitePopup}}"
+  placement="center"
+  usingCustomNavbar="{{true}}"
+  bind:visible-change="hideInvitePopup"
+  custom-style="border-radius: 32rpx; overflow: hidden;"
+>
+  <view class="invite-popup" wx:if="{{inviteComboInfo}}">
+    <view class="invite-popup-header">
+      <text class="invite-popup-header-title">邀请你加入</text>
+    </view>
+    <view class="invite-popup-content">
+      <view class="invite-combo-icon" style="background: {{inviteComboInfo.color || '#00b26a'}}">
+        <t-icon name="{{inviteComboInfo.icon || 'user-group'}}" size="64rpx" color="#fff" />
+      </view>
+      <view class="invite-combo-name">{{inviteComboInfo.name}}</view>
+      <view class="invite-combo-info" wx:if="{{inviteComboInfo.description}}">
+        <text>{{inviteComboInfo.description}}</text>
+      </view>
+      <view class="invite-combo-meta">
+        <view class="meta-item">
+          <t-icon name="user-group" size="28rpx" color="#999" />
+          <text>{{inviteComboInfo.memberCount || 1}}人</text>
+        </view>
+        <view class="meta-item" wx:if="{{inviteComboInfo.todoCount}}">
+          <t-icon name="check-circle" size="28rpx" color="#999" />
+          <text>{{inviteComboInfo.todoCount}}个待办</text>
+        </view>
+      </view>
+    </view>
+    <view class="invite-popup-actions">
+      <block wx:if="{{inviteComboInfo.isMember}}">
+        <t-button 
+          theme="light"
+          block
+          bindtap="handleJoinCombo"
+          custom-style="--td-button-border-radius: 32rpx;"
+        >立即进入</t-button>
+      </block>
+      <block wx:elif="{{inviteComboInfo.memberFull}}">
+        <t-button 
+          theme="light"
+          block
+          disabled
+          custom-style="--td-button-border-radius: 32rpx;"
+        >成员已满</t-button>
+      </block>
+      <block wx:elif="{{inviteComboInfo.hasPendingRequest}}">
+        <t-button 
+          theme="light"
+          block
+          disabled
+          custom-style="--td-button-border-radius: 32rpx;"
+        >等待审批中</t-button>
+      </block>
+      <block wx:else>
+        <t-button 
+          theme="primary"
+          block
+          loading="{{isJoining}}"
+          bindtap="handleJoinCombo"
+          custom-style="--td-button-border-radius: 32rpx;"
+        >{{inviteAutoJoin ? '立即加入' : '申请加入'}}</t-button>
+      </block>
+    </view>
+    <view class="invite-popup-close" bindtap="hideInvitePopup">
+      <t-icon name="close" size="32rpx" color="#999" />
+    </view>
+  </view>
+</t-popup>
+
+<t-popup
+  visible="{{showApprovalPopup}}"
+  placement="center"
+  usingCustomNavbar="{{true}}"
+  bind:visible-change="hideApprovalPopup"
+  custom-style="border-radius: 32rpx; overflow: hidden;"
+>
+  <view class="approval-popup">
+    <view class="approval-popup-header">
+      <text class="approval-popup-title">待审批申请</text>
+      <text class="approval-popup-count">共{{totalApprovalCount}}人</text>
+      <view class="approval-popup-close" bindtap="hideApprovalPopup">
+        <t-icon name="close" size="32rpx" color="#999" />
+      </view>
+    </view>
+    
+    <scroll-view scroll-y class="approval-scroll">
+      <block wx:for="{{approvalGroups}}" wx:key="id">
+        <view class="approval-group">
+          <view class="approval-group-header">
+            <view class="group-combo-icon" style="background: {{item.combo.color || '#00b26a'}}">
+              <t-icon name="{{item.combo.icon || 'user-group'}}" size="32rpx" color="#fff" />
+            </view>
+            <view class="group-combo-info">
+              <text class="group-combo-name">{{item.combo.name}}</text>
+              <text class="group-combo-id">ID: {{item.combo.id}}</text>
+            </view>
+            <text class="group-request-count">{{item.requests.length}}人待审批</text>
+          </view>
+          
+          <view class="approval-list">
+            <view class="approval-item" wx:for="{{item.requests}}" wx:for-item="request" wx:key="id">
+              <image class="approval-avatar" src="{{request.avatarUrl || request.avatar_url || '/images/avatar.png'}}" />
+              <view class="approval-user-info">
+                <text class="approval-user-name">{{request.nickname || '用户'}}</text>
+                <text class="approval-time">{{request.formattedTime}}</text>
+              </view>
+              <view class="approval-actions">
+                <view class="action-btn approve" data-combo-id="{{item.combo.id}}" data-id="{{request.id}}" bindtap="approveRequest">通过</view>
+                <view class="action-btn reject" data-combo-id="{{item.combo.id}}" data-id="{{request.id}}" bindtap="rejectRequest">拒绝</view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </block>
+    </scroll-view>
+  </view>
+</t-popup>
+
+<block wx:if="{{showCardAction}}">
+  <!-- 遮罩 -->
+  <view class="card-action-overlay {{_overlayShow ? 'overlay-show' : ''}}" catchtouchmove="preventTouchMove" bindtap="closeCardAction"></view>
+
+  <!-- 原地克隆 cell（t-cell，无 swipe/radio） -->
+  <view
+    class="card-action-cell-clone todo-item-wrapper"
+    style="top:{{_actionCardTop}}px;left:{{_actionCardLeft}}px;width:{{_actionCardWidth}}px;"
+  >
+    <t-swipe-cell
+      class="todo-item {{actionTodo.completed ? 'completed' : ''}}"
+    >
+      <view class="priority-bar" data-priority="{{actionTodo.priority}}"></view>
+      <view wx:if="{{actionTodo.isStar}}" class="star-badge">
+        <t-icon name="star-filled" size="26rpx" color="#ffffff" />
+      </view>
+      <t-cell
+        title="{{actionTodo.text}}"
+        description="{{actionTodo.location ? (actionTodo.remarks ? '📍' + actionTodo.location.name + '｜' + actionTodo.remarks : '📍' + actionTodo.location.name) : actionTodo.remarks}}"
+        note="{{actionTodo.friendlyDate || actionTodo.setDate}}"
+        bordered="{{false}}"
+        custom-style="width:100%"
+        bindtap="navigateToDetail"
+        data-id="{{actionTodo.id}}"
+      >
+        <view
+          wx:if="{{actionTodo.completed}}"
+          class="completed-decorate"
+        ></view>
+        <view
+          slot="right-icon"
+          style="position:relative;z-index:1000;background:inherit;padding-left:20rpx"
+        >
+          <t-radio
+            checked="{{actionTodo.completed}}"
+            catch:change="toggleTodo"
+            block="{{false}}"
+            data-index="{{index}}"
+            data-component="t-radio"
+            custom-style="--td-radio-bg-color: transparent;"
+          />
+        </view>
+      </t-cell>
+    </t-swipe-cell>
+  </view>
+
+  <!-- 操作菜单 -->
+  <view
+    class="card-action-menu {{_actionMenuDir}} {{_actionMenuShow ? 'show' : ''}}"
+    style="{{_actionMenuStyle}}"
+    catchtap=""
+  >
+    <view class="menu-btn" data-action="copy" bindtap="onCardActionTap">
+      <t-icon name="copy" size="40rpx" color="#fff" />
+      <text class="menu-label">复制</text>
+    </view>
+    <view class="menu-btn" data-action="share" bindtap="onCardActionTap">
+      <t-icon name="share" size="40rpx" color="#fff" />
+      <text class="menu-label">分享</text>
+    </view>
+    <view class="menu-btn" data-action="edit" bindtap="onCardActionTap">
+      <t-icon name="edit" size="40rpx" color="#fff" />
+      <text class="menu-label">编辑</text>
+    </view>
+    <view class="menu-btn" data-action="delete" bindtap="onCardActionTap">
+      <t-icon name="delete" size="40rpx" color="#fff" />
+      <text class="menu-label">删除</text>
+    </view>
+  </view>
+</block>

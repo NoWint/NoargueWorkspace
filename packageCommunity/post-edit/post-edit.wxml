@@ -1,0 +1,273 @@
+<view class="top">
+  <view class="header" style="padding-top:{{navBarHeight-44}}px;padding-left:{{menuRight+20}}rpx">
+    <view class="header-left" bindtap="goBack">
+      <t-icon name="chevron-left" size="48rpx" color="#2d3436" />
+    </view>
+    <text class="title">{{editMode ? '编辑帖子' : '发帖'}}</text>
+    <view class="action-group" style="right:{{menuRight + menuWidth + 10}}px">
+      <button class="publish-btn" disabled="{{!canPublish}}" loading="{{submitting}}" bindtap="handleSubmit">
+        {{editMode ? '更新' : '发布'}}
+      </button>
+    </view>
+  </view>
+</view>
+
+<view class="edit-container">
+  <view class="user-row">
+    <image class="user-avatar" src="{{userInfo.avatarUrl || userInfo.avatar || '/images/avatar.png'}}" mode="aspectFill" binderror="onAvatarError" />
+    <text class="user-nickname">{{userInfo.nickname || '用户'}}</text>
+  </view>
+
+  <input class="title-input" placeholder="标题" value="{{title}}" bind:input="onTitleInput" maxlength="100" />
+  <textarea
+    class="content-textarea"
+    placeholder="说点什么..."
+    model:value="{{body}}"
+    bind:input="onBodyInput"
+    maxlength="2000"
+    auto-height
+    show-confirm-bar="{{false}}"
+  />
+
+  <view class="word-count">
+    <text>{{body.length}}/2000</text>
+  </view>
+
+  <!-- @提及用户卡片 -->
+  <view wx:if="{{showMentionCard}}" class="mention-card" catch:tap="openMentionListPopup">
+    <view class="mention-card-row">
+      <t-icon name="user" size="28rpx" color="#00b26a" />
+      <text class="mention-card-text">你提到了 <text class="mention-count">{{mentionCount}}</text> 位用户</text>
+      <t-icon name="chevron-right" size="28rpx" color="#999" />
+    </view>
+    <view class="mention-card-hint">继续输入 @ 以查找更多用户</view>
+  </view>
+
+  <!-- @用户选择面板（固定定位，不遮键盘） -->
+  <view wx:if="{{showAtPopup}}" class="at-suggestions" style="top:{{navBarHeight + 80}}rpx">
+    <view class="at-suggestions-header">
+      <text class="at-suggestions-title">提及用户</text>
+      <view class="at-suggestions-close" catch:tap="closeAtPopup">
+        <t-icon name="close" size="32rpx" color="#999" />
+      </view>
+    </view>
+    <scroll-view class="at-suggestions-scroll" scroll-y wx:if="{{atSearchResults.length > 0}}">
+      <view
+        class="at-user-item"
+        wx:for="{{atSearchResults}}" wx:key="id"
+        catch:tap="selectMentionUser"
+        data-id="{{item.id}}"
+        data-nickname="{{item.nickname}}"
+        data-avatar="{{item.avatar}}"
+      >
+        <image class="at-user-avatar" src="{{item.avatar || '/images/avatar.png'}}" mode="aspectFill" />
+        <view class="at-user-info">
+          <text class="at-user-name">{{item.nickname}}</text>
+          <text class="at-user-id">ID: {{item.id}}</text>
+        </view>
+      </view>
+    </scroll-view>
+    <view wx:else class="at-suggestions-empty">
+      <text wx:if="{{!atKeyword}}">输入昵称搜索用户</text>
+      <text wx:else>未找到匹配的用户</text>
+    </view>
+  </view>
+
+  <view class="upload-section">
+    <t-upload
+      mediaType="{{['image']}}"
+      class="image-upload"
+      source="{{imageSource}}"
+      max="{{9}}"
+      files="{{fileList}}"
+      gridConfig="{{gridConfig}}"
+      config="{{uploadConfig}}"
+      draggable="{{true}}"
+      bind:add="handleImageAdd"
+      bind:remove="handleImageRemove"
+      bind:click="handleImageClick"
+    />
+    <view class="image-source-switch" wx:if="{{fileList.length < 9}}">
+      <text class="switch-label">从聊天记录选择</text>
+      <t-switch value="{{imageSource === 'messageFile'}}" bind:change="toggleImageSource" size="small" />
+    </view>
+  </view>
+
+  <view class="picker-row" wx:if="{{!location}}" bind:tap="pickLocation">
+    <t-icon name="location" size="38rpx" color="#999" />
+    <text class="picker-placeholder">添加位置</text>
+  </view>
+  <view wx:if="{{location}}" class="picker-row picker-row-selected" catch:tap="pickLocation">
+    <t-icon name="location" size="32rpx" color="#00b26a" />
+    <text class="picker-value">{{location.text}}</text>
+    <view class="picker-clear" catch:tap="clearLocation">
+      <t-icon name="close" size="28rpx" color="#999" />
+    </view>
+  </view>
+
+  <view class="picker-row" wx:if="{{selectedTodoIds.length === 0}}" bind:tap="showPicker" data-type="todo">
+    <t-icon name="check-circle" size="38rpx" color="#999" />
+    <text class="picker-placeholder">关联待办</text>
+  </view>
+  <view class="picker">
+    <view wx:if="{{selectedTodoIds.length > 0}}" class="picker-row picker-row-selected">
+      <view class="selected-todos-header" catch:tap="toggleSelectedTodosExpand">
+        <t-icon name="checklist" size="32rpx" color="#00b26a" />
+        <text class="picker-value">已关联 {{selectedTodoIds.length}} 个待办</text>
+        <t-icon name="{{selectedTodosExpanded ? 'chevron-up' : 'chevron-down'}}" size="28rpx" color="#999" />
+      </view>
+      <view class="picker-clear" catch:tap="clearSelectedTodos">
+        <t-icon name="close" size="28rpx" color="#999" />
+      </view>
+    </view>
+    <view wx:if="{{selectedTodoIds.length > 0 && selectedTodosExpanded}}" class="selected-todos-body">
+      <block wx:for="{{selectedTodoIds}}" wx:for-item="todoId" wx:key="*this">
+        <view class="selected-todo-mini-item">
+          <view class="selected-todo-mini-dot" data-priority="{{selectedTodoPriorities[todoId]}}"></view>
+          <text class="selected-todo-mini-text">{{selectedTodoTexts[todoId] || '待办'}}</text>
+          <view class="selected-todo-remove" catch:tap="removeSelectedTodo" data-id="{{todoId}}">
+            <t-icon name="close" size="24rpx" color="#999" />
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <view class="picker-row" wx:if="{{!selectedComboCode}}" bind:tap="showPicker" data-type="combo">
+    <t-icon name="add" size="38rpx" color="#999" />
+    <text class="picker-placeholder">选择组合</text>
+  </view>
+  <view wx:if="{{selectedComboCode}}" class="picker-row picker-row-selected" bind:tap="showPicker" data-type="combo">
+    <t-icon name="user-group" size="32rpx" color="#00b26a" />
+    <text class="picker-value">邀请加入"{{selectedComboName}}"</text>
+    <view class="picker-clear" catch:tap="clearSelectedCombo">
+      <t-icon name="close" size="28rpx" color="#999" />
+    </view>
+  </view>
+</view>
+
+<!-- 统一选择弹窗（待办/组合共用） -->
+<t-popup
+  visible="{{showPicker}}"
+  bind:visible-change="onPickerVisibleChange"
+  placement="bottom"
+  close-on-overlay-click="{{true}}"
+  usingCustomNavbar="{{true}}"
+>
+  <view wx:if="{{pickerType === 'todo'}}" class="picker-popup">
+    <view class="popup-header">
+      <text class="popup-title">选择待办</text>
+      <view class="popup-close" catch:tap="hidePicker">
+        <t-icon name="close" size="40rpx" color="#999" />
+      </view>
+    </view>
+    <view class="picker-search-bar">
+      <t-icon name="search" size="28rpx" color="#999" />
+      <input class="picker-search-input" placeholder="搜索待办..." value="{{todoSearchKeyword}}" bind:input="onTodoSearch" />
+    </view>
+    <scroll-view class="picker-scroll" scroll-y>
+      <block wx:for="{{filteredTodos}}" wx:key="id">
+        <view class="todo-item {{item.completed ? 'completed' : ''}}">
+          <view class="priority-bar" data-priority="{{item.priority}}"></view>
+          <view wx:if="{{item.isStar}}" class="star-badge">
+            <t-icon name="star-filled" size="26rpx" color="#ffffff" />
+          </view>
+          <t-cell
+            title="{{item.text}}"
+            description="{{item.location ? (item.remarks ? item.location.name + ' | ' + item.remarks : item.location.name) : item.remarks}}"
+            note="{{item.friendlyDate || item.setDate}}"
+            bordered="{{false}}"
+            custom-style="width:100%"
+            catch:tap="toggleTodoSelect"
+            data-id="{{item.id}}"
+          >
+            <view slot="right-icon" class="picker-checkbox-wrapper">
+              <view class="picker-checkbox {{selectedMap[item.id] ? 'checked' : ''}}">
+                <t-icon wx:if="{{selectedMap[item.id]}}" name="check" size="28rpx" color="#fff" />
+              </view>
+            </view>
+          </t-cell>
+        </view>
+      </block>
+      <view wx:if="{{filteredTodos.length === 0}}" class="picker-empty">
+        <text>{{todoSearchKeyword ? '没有找到匹配的待办' : '暂无待办'}}</text>
+      </view>
+    </scroll-view>
+    <view class="picker-footer">
+      <text class="picker-count">已选 {{temporarySelectedIds.length}} 项</text>
+      <button class="picker-confirm-btn" catch:tap="confirmTodoSelection">确定</button>
+    </view>
+  </view>
+
+  <view wx:if="{{pickerType === 'combo'}}" class="picker-popup">
+    <view class="popup-header">
+      <text class="popup-title">分享共享组合（仅显示有权分享）</text>
+      <view class="popup-close" catch:tap="hidePicker">
+        <t-icon name="close" size="40rpx" color="#999" />
+      </view>
+    </view>
+    <view class="picker-search-bar">
+      <t-icon name="search" size="28rpx" color="#999" />
+      <input class="picker-search-input" placeholder="搜索组合..." value="{{comboSearchKeyword}}" bind:input="onComboSearch" />
+    </view>
+    <scroll-view class="picker-scroll" scroll-y>
+      <block wx:for="{{filteredAllPickerCombos}}" wx:key="id">
+        <view
+          class="combo-option {{temporarySelectedComboId === item.id ? 'selected' : ''}}"
+          catch:tap="selectTemporaryCombo"
+          data-id="{{item.id}}"
+        >
+          <view class="combo-icon-small" style="background: {{item.color || '#4CAF50'}}">
+            <t-icon name="{{item.icon || 'folder'}}" size="36rpx" color="#fff" />
+          </view>
+          <view class="combo-info-text">
+            <text class="combo-name-text">{{item.name}}</text>
+            <text class="combo-count-text">{{item.todoCount || 0}}个待办</text>
+          </view>
+          <t-icon wx:if="{{temporarySelectedComboId === item.id}}" name="check" size="36rpx" color="#00b26a" />
+        </view>
+      </block>
+      <view wx:if="{{filteredAllPickerCombos.length === 0}}" class="picker-empty">
+        <text>{{comboSearchKeyword ? '没有找到匹配的组合' : '暂无可邀请的组合'}}</text>
+      </view>
+    </scroll-view>
+    <view class="picker-footer" style="justify-content:flex-end">
+      <button class="picker-confirm-btn" catch:tap="confirmComboSelection">确定</button>
+    </view>
+  </view>
+</t-popup>
+
+<!-- @提及用户列表（只读弹窗） -->
+<t-popup
+  visible="{{showMentionListPopup}}"
+  bind:visible-change="onMentionListClose"
+  placement="bottom"
+  close-on-overlay-click="{{true}}"
+>
+  <view class="mention-list-popup">
+    <view class="mention-list-header">
+      <text class="mention-list-title">提及的用户</text>
+      <view class="mention-list-close" catch:tap="closeMentionListPopup">
+        <t-icon name="close" size="36rpx" color="#999" />
+      </view>
+    </view>
+    <scroll-view class="mention-list-scroll" scroll-y>
+      <view
+        class="mention-list-item"
+        wx:for="{{currentMentions}}" wx:key="userId"
+        catch:tap="goToMentionUser"
+        data-userid="{{item.userId}}"
+      >
+        <image class="mention-list-avatar" src="{{item.avatar || '/images/avatar.png'}}" mode="aspectFill" />
+        <view class="mention-list-info">
+          <text class="mention-list-name">{{item.nickname}}</text>
+          <text class="mention-list-id">ID: {{item.userId}}</text>
+        </view>
+        <t-icon name="chevron-right" size="28rpx" color="#ccc" />
+      </view>
+    </scroll-view>
+    <view wx:if="{{currentMentions.length === 0}}" class="mention-list-empty">
+      <text>暂无提及的用户</text>
+    </view>
+  </view>
+</t-popup>

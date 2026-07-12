@@ -1,0 +1,10 @@
+{
+  "usingComponents": {
+    "t-drawer": "tdesign-miniprogram/drawer/drawer",
+    "t-chat-markdown": "tdesign-miniprogram/chat-markdown/chat-markdown",
+    "t-fab": "tdesign-miniprogram/fab/fab",
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-action-sheet": "tdesign-miniprogram/action-sheet/action-sheet"
+  },
+  "navigationBarTitleText": "使用指南"
+}

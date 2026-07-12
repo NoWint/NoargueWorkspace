@@ -1,0 +1,57 @@
+<view class="edit-container">
+  <view class="version-header">
+    <view class="version-badge">
+      <text class="version-label">V</text>
+      <input class="version-input" value="{{form.version}}" bindinput="onInput" data-field="version" placeholder="4.0.3" />
+    </view>
+    <view class="date-picker" bindtap="showDatePicker">
+      <t-icon name="calendar" size="32rpx" color="#666" />
+      <text>{{form.date || '选择日期'}}</text>
+    </view>
+    <picker mode="date" value="{{form.date}}" bindchange="onDateChange" id="datePicker" class="hidden-picker">
+      <view></view>
+    </picker>
+  </view>
+  
+  <view class="content-section">
+    <view class="section-header">
+      <view class="section-title">
+        <t-icon name="bulletpoint" size="28rpx" color="#00B26A" />
+        <text>更新内容</text>
+        <text class="count-badge">{{form.content.length}} 项</text>
+      </view>
+      <button class="add-btn" bindtap="addContentItem">
+        <t-icon name="add" size="28rpx" color="#fff" />
+        <text>添加</text>
+      </button>
+    </view>
+    
+    <view class="content-list">
+      <view wx:for="{{form.content}}" wx:key="index" class="content-item">
+        <view class="item-number">{{index + 1}}</view>
+        <input 
+          class="item-input" 
+          value="{{item}}" 
+          bindinput="onContentInput" 
+          data-index="{{index}}"
+          placeholder="输入更新内容..."
+        />
+        <button class="remove-btn" bindtap="removeContentItem" data-index="{{index}}">
+          <t-icon name="close" size="24rpx" color="#999" />
+        </button>
+      </view>
+    </view>
+    
+    <view wx:if="{{form.content.length === 0}}" class="empty-hint">
+      <t-icon name="info-circle" size="32rpx" color="#ccc" />
+      <text>点击上方"添加"按钮创建更新条目</text>
+    </view>
+  </view>
+  
+  <view class="actions">
+    <button class="save-btn" bindtap="save">
+      <t-icon name="check" size="32rpx" color="#fff" />
+      <text>保存</text>
+    </button>
+  </view>
+</view>

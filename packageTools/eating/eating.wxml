@@ -1,0 +1,101 @@
+<view class="container">
+  <view class="header-section">
+    <view class="header-icon">
+      <text class="header-emoji">🍽️</text>
+    </view>
+    <text class="header-title">今天吃什么</text>
+    <text class="header-subtitle">让选择困难症不再困扰你</text>
+  </view>
+
+  <view class="stats-card">
+    <view class="stats-main">
+      <text class="stats-number">{{totalCount}}</text>
+      <text class="stats-label">种美食</text>
+    </view>
+    <view class="stats-divider"></view>
+    <view class="meal-stats">
+      <view class="meal-stat-item" wx:for="{{mealStats}}" wx:key="type">
+        <text class="meal-stat-label">{{item.type}}</text>
+        <text class="meal-stat-number">{{item.count}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="meal-selector">
+    <view 
+      class="meal-tab {{selectedMeal === item.name ? 'active' : ''}}" 
+      wx:for="{{mealTypes}}" 
+      wx:key="name"
+      data-index="{{index}}"
+      bindtap="handleMealSelect"
+    >
+      <text class="meal-tab-icon">{{item.icon}}</text>
+      <text class="meal-tab-text">{{item.name}}</text>
+    </view>
+  </view>
+
+  <view class="result-card" wx:if="{{todayFood}}">
+    <view class="result-header">
+      <view class="meal-type-tag">{{selectedMeal}}</view>
+      <view class="refresh-icon" bindtap="pickRandomFood">
+        <t-icon name="refresh" size="40rpx" />
+      </view>
+    </view>
+    <view class="food-content">
+      <text class="food-emoji">{{selectedMeal === '早餐' ? '🌅' : selectedMeal === '午餐' ? '☀️' : selectedMeal === '晚餐' ? '🌙' : '🌃'}}</text>
+      <text class="food-name">{{todayFood}}</text>
+      <text class="food-tip">就决定是你了！</text>
+    </view>
+  </view>
+
+  <view class="empty-card" wx:else>
+    <view class="empty-content">
+      <text class="empty-emoji">🤔</text>
+      <text class="empty-text">点击下方按钮开始选择</text>
+    </view>
+  </view>
+
+  <view class="history-section" wx:if="{{recentHistory.length > 0}}">
+    <view class="history-header">
+      <text class="history-title">最近选择</text>
+      <view class="history-count" bindtap="showFullHistory">{{historyList.length}}条记录</view>
+    </view>
+    <scroll-view class="history-scroll" scroll-x>
+      <view class="history-badge" wx:for="{{recentHistory}}" wx:key="index">
+        <text class="badge-text">{{item}}</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="tips-card">
+    <view class="tips-header">
+      <t-icon name="info-circle" size="36rpx" color="#00b26a" />
+      <text class="tips-title">小贴士</text>
+    </view>
+    <view class="tips-content">
+      <view class="tip-item">
+        <t-icon name="check-circle-filled" size="28rpx" color="#10b981" />
+        <text>所有菜品均为精选推荐</text>
+      </view>
+      <view class="tip-item">
+        <t-icon name="check-circle-filled" size="28rpx" color="#10b981" />
+        <text>历史记录仅保存在本地</text>
+      </view>
+      <view class="tip-item">
+        <t-icon name="check-circle-filled" size="28rpx" color="#10b981" />
+        <text>点击统计卡片可查看全部菜品</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="action-buttons">
+    <button class="action-btn secondary" bindtap="handleShowAllFoods">
+      <t-icon name="view-list" size="40rpx" color="#00b26a" />
+      <text>全部菜品</text>
+    </button>
+    <button class="action-btn primary" bindtap="pickRandomFood">
+      <t-icon name="refresh" size="40rpx" color="#fff" />
+      <text>随机选择</text>
+    </button>
+  </view>
+</view>

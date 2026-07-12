@@ -1,0 +1,56 @@
+<view class="detail-container">
+  <view class="info-row">
+    <text class="label">举报者</text>
+    <text class="value">{{report.reporterNickname}}</text>
+  </view>
+  <view class="info-row">
+    <text class="label">举报类型</text>
+    <text class="value">{{report.targetType === 'post' ? '帖子' : '评论'}}</text>
+  </view>
+  <view class="info-row">
+    <text class="label">举报原因</text>
+    <text class="value">{{report.reason}}</text>
+  </view>
+  <view class="info-row">
+    <text class="label">举报时间</text>
+    <text class="value">{{report._createdAtDisplay}}</text>
+  </view>
+  <view wx:if="{{report.processedAt}}" class="info-row">
+    <text class="label">处理时间</text>
+    <text class="value">{{report._processedAtDisplay}}</text>
+  </view>
+  <view class="info-row">
+    <text class="label">状态</text>
+    <text class="value status-{{report.status}}">{{report.statusText}}</text>
+  </view>
+
+  <view class="section-title">被举报内容</view>
+  <view class="content-box">
+    <text>{{report.targetContent || '无内容'}}</text>
+  </view>
+
+  <view wx:if="{{report.detail}}" class="section-title">补充说明</view>
+  <view wx:if="{{report.detail}}" class="content-box">
+    <text>{{report.detail}}</text>
+  </view>
+
+  <!-- Processing area (only for pending) -->
+  <view wx:if="{{report.status === 0}}" class="process-area">
+    <view class="section-title">处理操作</view>
+    
+    <textarea
+      class="note-input"
+      placeholder="处理备注（可选）"
+      model:value="{{resultNote}}"
+    />
+    <view class="process-buttons">
+      <view class="delete-btn" bind:tap="processReport" data-action="delete">删除内容</view>
+      <view class="reject-btn" bind:tap="processReport" data-action="reject">驳回举报</view>
+    </view>
+  </view>
+
+  <view wx:if="{{report.resultNote}}" class="section-title">处理备注</view>
+  <view wx:if="{{report.resultNote}}" class="content-box">
+    <text>{{report.resultNote}}</text>
+  </view>
+</view>

@@ -1,0 +1,570 @@
+<view class="admin-container">
+  <!-- 今日数据卡片 -->
+  <view class="card-style stats-card">
+    <view class="stats-header">
+      <text class="stats-title">今日数据</text>
+      <t-tag theme="primary" variant="light" size="small">实时</t-tag>
+    </view>
+    <view class="stats-grid-main">
+      <view class="stat-item-main" bindtap="showStatDetail" data-key="todayNewUsers" data-label="新增用户" data-has-detail="true">
+        <view class="stat-icon today-user">
+          <t-icon name="user-add" size="40rpx" color="#fff" />
+        </view>
+        <text class="stat-value">{{stats.todayNewUsers || 0}}</text>
+        <text class="stat-label">新增用户</text>
+      </view>
+      <view class="stat-item-main" bindtap="showStatDetail" data-key="todayNewTodos" data-label="新增待办" data-has-detail="true">
+        <view class="stat-icon today-todo">
+          <t-icon name="add-circle" size="40rpx" color="#fff" />
+        </view>
+        <text class="stat-value">{{stats.todayNewTodos || 0}}</text>
+        <text class="stat-label">新增待办</text>
+      </view>
+      <view class="stat-item-main" bindtap="showStatDetail" data-key="todaySyncCount" data-label="同步次数" data-has-detail="true">
+        <view class="stat-icon today-sync">
+          <t-icon name="refresh" size="40rpx" color="#fff" />
+        </view>
+        <text class="stat-value">{{stats.todaySyncCount || 0}}</text>
+        <text class="stat-label">同步次数</text>
+      </view>
+      <view class="stat-item-main" bindtap="showStatDetail" data-key="activeUsers7Days" data-label="7日活跃" data-has-detail="true">
+        <view class="stat-icon today-active">
+          <t-icon name="user-checked" size="40rpx" color="#fff" />
+        </view>
+        <text class="stat-value">{{stats.activeUsers7Days || 0}}</text>
+        <text class="stat-label">7日活跃</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 核心数据卡片 -->
+  <view class="card-style stats-card">
+    <view class="stats-header">
+      <text class="stats-title">核心数据</text>
+    </view>
+    <view class="stats-grid-main">
+      <view class="stat-item-main" bindtap="showStatDetail" data-key="userCount" data-label="用户总数" data-has-detail="true">
+        <view class="stat-icon user">
+          <t-icon name="user" size="40rpx" color="#fff" />
+        </view>
+        <text class="stat-value">{{stats.userCount || 0}}</text>
+        <text class="stat-label">用户总数</text>
+      </view>
+      <view class="stat-item-main" bindtap="showStatDetail" data-key="todoCount" data-label="待办总数" data-has-detail="true">
+        <view class="stat-icon todo">
+          <t-icon name="check-circle" size="40rpx" color="#fff" />
+        </view>
+        <text class="stat-value">{{stats.todoCount || 0}}</text>
+        <text class="stat-label">待办总数</text>
+      </view>
+      <view class="stat-item-main" bindtap="showStatDetail" data-key="comboCount" data-label="组合总数" data-has-detail="true">
+        <view class="stat-icon combo">
+          <t-icon name="folder" size="40rpx" color="#fff" />
+        </view>
+        <text class="stat-value">{{stats.comboCount || 0}}</text>
+        <text class="stat-label">组合总数</text>
+      </view>
+      <view class="stat-item-main" bindtap="showStatDetail" data-key="sharedComboCount" data-label="共享组合" data-has-detail="true">
+        <view class="stat-icon shared">
+          <t-icon name="link" size="40rpx" color="#fff" />
+        </view>
+        <text class="stat-value">{{stats.sharedComboCount || 0}}</text>
+        <text class="stat-label">共享组合</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 待办分析卡片 -->
+  <view class="card-style stats-card">
+    <view class="stats-header">
+      <text class="stats-title">待办分析</text>
+    </view>
+    <view class="stats-grid-sub">
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="completedTodoCount" data-label="已完成" data-has-detail="true">
+        <text class="stat-value-sub">{{stats.completedTodoCount || 0}}</text>
+        <text class="stat-label">已完成</text>
+      </view>
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="completionRate" data-label="完成率" data-has-detail="false">
+        <text class="stat-value-sub highlight">{{stats.completionRate || 0}}%</text>
+        <text class="stat-label">完成率</text>
+      </view>
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="starredTodoCount" data-label="已收藏" data-has-detail="true">
+        <text class="stat-value-sub">{{stats.starredTodoCount || 0}}</text>
+        <text class="stat-label">已收藏</text>
+      </view>
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="deletedTodoCount" data-label="已删除" data-has-detail="true">
+        <text class="stat-value-sub">{{stats.deletedTodoCount || 0}}</text>
+        <text class="stat-label">已删除</text>
+      </view>
+    </view>
+    <view class="stats-grid-sub">
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="todoWithLocation" data-label="有地点" data-has-detail="true">
+        <text class="stat-value-sub">{{stats.todoWithLocation || 0}}</text>
+        <text class="stat-label">有地点</text>
+      </view>
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="todoWithImages" data-label="有图片" data-has-detail="true">
+        <text class="stat-value-sub">{{stats.todoWithImages || 0}}</text>
+        <text class="stat-label">有图片</text>
+      </view>
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="avgTodosPerUser" data-label="人均待办" data-has-detail="false">
+        <text class="stat-value-sub">{{stats.avgTodosPerUser || 0}}</text>
+        <text class="stat-label">人均待办</text>
+      </view>
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="activeUsers30Days" data-label="30日活跃" data-has-detail="true">
+        <text class="stat-value-sub">{{stats.activeUsers30Days || 0}}</text>
+        <text class="stat-label">30日活跃</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 协作数据卡片 -->
+  <view class="card-style stats-card">
+    <view class="stats-header">
+      <text class="stats-title">协作数据</text>
+    </view>
+    <view class="stats-grid-sub">
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="memberCount" data-label="成员总数" data-has-detail="true">
+        <text class="stat-value-sub">{{stats.memberCount || 0}}</text>
+        <text class="stat-label">成员总数</text>
+      </view>
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="sharedTodoCount" data-label="共享待办" data-has-detail="true">
+        <text class="stat-value-sub">{{stats.sharedTodoCount || 0}}</text>
+        <text class="stat-label">共享待办</text>
+      </view>
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="assignmentCount" data-label="分配记录" data-has-detail="true">
+        <text class="stat-value-sub">{{stats.assignmentCount || 0}}</text>
+        <text class="stat-label">分配记录</text>
+      </view>
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="pendingRequests" data-label="待审批" data-has-detail="true">
+        <text class="stat-value-sub warn">{{stats.pendingRequests || 0}}</text>
+        <text class="stat-label">待审批</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 评论数据卡片 -->
+  <view class="card-style stats-card">
+    <view class="stats-header">
+      <text class="stats-title">评论数据</text>
+    </view>
+    <view class="stats-grid-sub">
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="todayNewComments" data-label="今日新增" data-has-detail="true">
+        <text class="stat-value-sub highlight">{{stats.todayNewComments || 0}}</text>
+        <text class="stat-label">今日新增</text>
+      </view>
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="todayNewMainComments" data-label="今日评论" data-has-detail="true">
+        <text class="stat-value-sub">{{stats.todayNewMainComments || 0}}</text>
+        <text class="stat-label">今日评论</text>
+      </view>
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="todayNewReplies" data-label="今日回复" data-has-detail="true">
+        <text class="stat-value-sub">{{stats.todayNewReplies || 0}}</text>
+        <text class="stat-label">今日回复</text>
+      </view>
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="commentCount" data-label="评论总数" data-has-detail="true">
+        <text class="stat-value-sub">{{stats.commentCount || 0}}</text>
+        <text class="stat-label">评论总数</text>
+      </view>
+    </view>
+    <view class="stats-grid-sub">
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="mainCommentCount" data-label="评论数" data-has-detail="true">
+        <text class="stat-value-sub">{{stats.mainCommentCount || 0}}</text>
+        <text class="stat-label">评论数</text>
+      </view>
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="replyCount" data-label="回复数" data-has-detail="true">
+        <text class="stat-value-sub">{{stats.replyCount || 0}}</text>
+        <text class="stat-label">回复数</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 系统数据卡片 -->
+  <view class="card-style stats-card">
+    <view class="stats-header">
+      <text class="stats-title">系统数据</text>
+    </view>
+    <view class="stats-grid-sub">
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="tagCount" data-label="标签" data-has-detail="true">
+        <text class="stat-value-sub">{{stats.tagCount || 0}}</text>
+        <text class="stat-label">标签</text>
+      </view>
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="notificationCount" data-label="通知" data-has-detail="true">
+        <text class="stat-value-sub">{{stats.notificationCount || 0}}</text>
+        <text class="stat-label">通知</text>
+      </view>
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="pendingNotificationCount" data-label="待发送" data-has-detail="true">
+        <text class="stat-value-sub">{{stats.pendingNotificationCount || 0}}</text>
+        <text class="stat-label">待发送</text>
+      </view>
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="syncLogCount" data-label="同步日志" data-has-detail="true">
+        <text class="stat-value-sub">{{stats.syncLogCount || 0}}</text>
+        <text class="stat-label">同步日志</text>
+      </view>
+    </view>
+    <view class="stats-grid-sub">
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="syncSuccessRate" data-label="同步成功率" data-has-detail="false">
+        <text class="stat-value-sub highlight">{{stats.syncSuccessRate || 0}}%</text>
+        <text class="stat-label">同步成功率</text>
+      </view>
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="notificationSuccessRate" data-label="通知成功率" data-has-detail="false">
+        <text class="stat-value-sub highlight">{{stats.notificationSuccessRate || 0}}%</text>
+        <text class="stat-label">通知成功率</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 用户分析卡片 -->
+  <view class="card-style stats-card">
+    <view class="stats-header">
+      <text class="stats-title">用户分析</text>
+    </view>
+    <view class="stats-grid-sub">
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="nextDayRetention" data-label="次日留存" data-has-detail="false">
+        <text class="stat-value-sub highlight">{{stats.nextDayRetention || 0}}%</text>
+        <text class="stat-label">次日留存</text>
+      </view>
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="sevenDayRetention" data-label="7日留存" data-has-detail="false">
+        <text class="stat-value-sub">{{stats.sevenDayRetention || 0}}%</text>
+        <text class="stat-label">7日留存</text>
+      </view>
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="thirtyDayRetention" data-label="30日留存" data-has-detail="false">
+        <text class="stat-value-sub">{{stats.thirtyDayRetention || 0}}%</text>
+        <text class="stat-label">30日留存</text>
+      </view>
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="userTodoDistribution" data-label="待办分布" data-has-detail="true">
+        <text class="stat-value-sub">{{stats.userTodoDistribution.length || 0}}</text>
+        <text class="stat-label">待办分布</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 标签分析卡片 -->
+  <view class="card-style stats-card">
+    <view class="stats-header">
+      <text class="stats-title">标签分析</text>
+    </view>
+    <view class="stats-grid-sub">
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="tagUsageTop10" data-label="标签排行" data-has-detail="true">
+        <text class="stat-value-sub">{{stats.tagUsageTop10.length || 0}}</text>
+        <text class="stat-label">标签排行</text>
+      </view>
+      <view class="stat-item-sub" bindtap="showStatDetail" data-key="tagCompletionRate" data-label="标签完成率" data-has-detail="true">
+        <text class="stat-value-sub">{{stats.tagCompletionRate.length || 0}}</text>
+        <text class="stat-label">标签完成率</text>
+      </view>
+    </view>
+    <view class="tag-rank-list" wx:if="{{stats.tagUsageTop10.length > 0}}">
+      <view class="tag-rank-item" wx:for="{{stats.tagUsageTop10}}" wx:key="id">
+        <view class="tag-rank-dot" style="background: {{item.color || '#00B26A'}}"></view>
+        <text class="tag-rank-name">{{item.name}}</text>
+        <text class="tag-rank-count">{{item.usage_count}}次</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 时段分析卡片 -->
+  <view class="card-style stats-card">
+    <view class="stats-header">
+      <text class="stats-title">创建时段</text>
+      <t-tag theme="primary" variant="light" size="small">最近7天</t-tag>
+    </view>
+    <view class="hourly-chart" wx:if="{{stats.todoHourlyDistribution.length > 0}}">
+      <view class="hourly-bar" wx:for="{{stats.todoHourlyDistribution}}" wx:key="hour">
+        <view class="hourly-bar-fill" style="height: {{item.count > 0 && stats.peakHours[0] ? (item.count / stats.peakHours[0].count * 100) : 0}}%"></view>
+        <text class="hourly-label" wx:if="{{item.hour % 6 === 0}}">{{item.hourLabel}}</text>
+      </view>
+    </view>
+    <view class="peak-hours" wx:if="{{stats.peakHours.length > 0}}">
+      <text class="peak-title">高峰时段：</text>
+      <text class="peak-item" wx:for="{{stats.peakHours}}" wx:key="hour">{{item.hourLabel}} ({{item.count}})</text>
+    </view>
+  </view>
+  
+  <!-- 交叉分析卡片 -->
+  <view class="card-style stats-card">
+    <view class="stats-header">
+      <text class="stats-title">交叉分析</text>
+    </view>
+    <view class="cross-analysis" wx:if="{{stats.notificationEffectData}}">
+      <view class="cross-item">
+        <text class="cross-label">有通知待办完成率</text>
+        <text class="cross-value {{stats.notificationEffectData.difference >= 0 ? 'positive' : 'negative'}}">{{stats.notificationEffectData.withNotify.rate}}%</text>
+      </view>
+      <view class="cross-item">
+        <text class="cross-label">无通知待办完成率</text>
+        <text class="cross-value">{{stats.notificationEffectData.withoutNotify.rate}}%</text>
+      </view>
+      <view class="cross-diff {{stats.notificationEffectData.difference >= 0 ? 'positive' : 'negative'}}">
+        <text>通知效果：{{stats.notificationEffectData.difference >= 0 ? '+' : ''}}{{stats.notificationEffectData.difference}}%</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 功能入口 -->
+  <view class="card-style menu-card">
+    <view class="stats-header">
+      <text class="stats-title">功能管理</text>
+    </view>
+    <t-cell-group theme="card" class="menu-group">
+      <t-cell title="用户管理" url="/packageAdmin/users/users" hover arrow>
+        <t-icon name="user" size="40rpx" color="#00B26A" slot="left-icon" />
+      </t-cell>
+      <t-cell title="公告管理" url="/packageAdmin/notices/notices" hover arrow>
+        <t-icon name="notification" size="40rpx" color="#00B26A" slot="left-icon" />
+      </t-cell>
+      <t-cell title="更新日志" url="/packageAdmin/changelog/changelog" hover arrow>
+        <t-icon name="bulletpoint" size="40rpx" color="#00B26A" slot="left-icon" />
+      </t-cell>
+      <t-cell title="举报管理" url="/packageAdmin/reports/reports" hover arrow>
+        <t-icon name="flag" size="40rpx" color="#00B26A" slot="left-icon" />
+      </t-cell>
+    </t-cell-group>
+  </view>
+  
+  <!-- 详情弹出层 -->
+  <t-popup visible="{{popupVisible}}" placement="bottom" bind:visible-change="onPopupVisibleChange">
+    <view class="popup-content">
+      <view class="popup-header">
+        <text class="popup-title">{{popupData.label}}</text>
+        <view class="popup-close" bindtap="closePopup">
+          <t-icon name="close" size="32rpx" color="#999" />
+        </view>
+      </view>
+      
+      <view wx:if="{{popupData.desc}}" class="popup-desc">
+        <t-icon name="info-circle" size="38rpx" color="#00b26a" />
+        <text>{{popupData.desc}}</text>
+      </view>
+      
+      <view wx:if="{{popupLoading}}" class="popup-loading">
+        <t-loading theme="circular" size="40rpx" />
+        <text>加载中...</text>
+      </view>
+      
+      <view wx:elif="{{!popupData.hasDetail}}" class="popup-body">
+        <view class="popup-value">{{popupData.value}}</view>
+        <view class="popup-desc">该统计项为计算值，无详细数据</view>
+      </view>
+      
+      <view wx:elif="{{popupData.list.length === 0}}" class="popup-empty">
+        <t-icon name="info-circle" size="60rpx" color="#ddd" />
+        <text>暂无数据</text>
+      </view>
+      
+      <scroll-view wx:elif="{{popupData.type === 'user'}}" scroll-y class="popup-list">
+        <view wx:for="{{popupData.list}}" wx:key="id" class="detail-item user-item clickable" bindtap="navigateToUserDetail" data-id="{{item.id}}">
+          <image class="user-avatar" src="{{item.avatar_url || '/images/avatar.png'}}" />
+          <view class="user-info">
+            <text class="user-name">{{item.nickname || '未设置昵称'}}（ID: {{item.id}}）</text>
+            <text class="user-meta">{{item.last_sync || item.created_at}}</text>
+          </view>
+          <text wx:if="{{item.todo_count}}" class="user-count">{{item.todo_count}} 待办</text>
+        </view>
+      </scroll-view>
+      
+      <scroll-view wx:elif="{{popupData.type === 'todo'}}" scroll-y class="popup-list">
+        <view wx:for="{{popupData.list}}" wx:key="id" class="detail-item todo-item clickable" bindtap="navigateToTodoDetail" data-item="{{item}}">
+          <view class="todo-status {{item.completed ? 'done' : ''}}">
+            <t-icon name="{{item.completed ? 'check-circle-filled' : 'circle'}}" size="32rpx" color="{{item.completed ? '#00B26A' : '#ccc'}}" />
+          </view>
+          <view class="todo-info">
+            <text class="todo-text">{{item.text}}</text>
+            <text class="todo-meta">{{item.user_name || '未知'}}（ID: {{item.user_id}}）| {{item.set_date}}</text>
+          </view>
+        </view>
+      </scroll-view>
+      
+      <scroll-view wx:elif="{{popupData.type === 'combo'}}" scroll-y class="popup-list">
+        <view wx:for="{{popupData.list}}" wx:key="id" class="detail-item combo-item clickable" bindtap="navigateToComboDetail" data-item="{{item}}">
+          <view class="combo-icon" style="background: {{item.color || '#4CAF50'}}">
+            <t-icon name="{{item.icon || 'folder'}}" size="28rpx" color="#fff" />
+          </view>
+          <view class="combo-info">
+            <text class="combo-name">{{item.name}}（ID: {{item.id}}）</text>
+            <text class="combo-meta">{{item.creator_name || '未知'}} | {{item.member_count || 0}} 成员</text>
+          </view>
+          <t-tag wx:if="{{item.is_shared}}" theme="primary" size="small">共享</t-tag>
+        </view>
+      </scroll-view>
+      
+      <scroll-view wx:elif="{{popupData.type === 'tag'}}" scroll-y class="popup-list">
+        <view wx:for="{{popupData.list}}" wx:key="id" class="detail-item tag-item">
+          <view class="tag-dot" style="background: {{item.color || '#00B26A'}}"></view>
+          <view class="tag-info">
+            <text class="tag-name">{{item.name}}</text>
+            <text class="tag-meta">{{item.user_name || '未知'}}（ID: {{item.user_id}}）| 使用 {{item.usage_count || 0}} 次</text>
+          </view>
+        </view>
+      </scroll-view>
+      
+      <scroll-view wx:elif="{{popupData.type === 'notification'}}" scroll-y class="popup-list">
+        <view wx:for="{{popupData.list}}" wx:key="id" class="detail-item notification-item">
+          <view class="notification-status {{item.is_sent ? 'sent' : 'pending'}}">
+            <t-icon name="{{item.is_sent ? 'check-circle' : 'time'}}" size="32rpx" color="{{item.is_sent ? '#00B26A' : '#ff9800'}}" />
+          </view>
+          <view class="notification-info">
+            <text class="notification-text">{{item.todo_text || '待办已删除'}}</text>
+            <text class="notification-meta">{{item.user_name}}（ID: {{item.user_id}}）| {{item.notify_time}}</text>
+          </view>
+        </view>
+      </scroll-view>
+      
+      <scroll-view wx:elif="{{popupData.type === 'sync'}}" scroll-y class="popup-list">
+        <view wx:for="{{popupData.list}}" wx:key="id" class="detail-item sync-item">
+          <view class="sync-status {{item.status}}">
+            <t-icon name="{{item.status === 'success' ? 'check-circle' : 'close-circle'}}" size="32rpx" color="{{item.status === 'success' ? '#00B26A' : '#f5576c'}}" />
+          </view>
+          <view class="sync-info">
+            <text class="sync-user">{{item.user_name || '未知用户'}}（ID: {{item.user_id}}）</text>
+            <text class="sync-meta">{{item.action === 'upload' ? '上传' : item.action === 'download' ? '下载' : item.action === 'merge' ? '合并' : item.action === 'sync' ? '同步' : item.action === 'full_sync' ? '全量同步' : item.action}} | {{item.todo_count}}条 | {{item.created_at}}</text>
+          </view>
+        </view>
+      </scroll-view>
+      
+      <scroll-view wx:elif="{{popupData.type === 'member'}}" scroll-y class="popup-list">
+        <view wx:for="{{popupData.list}}" wx:key="id" class="detail-item member-item clickable" bindtap="navigateToUserDetail" data-id="{{item.user_id}}">
+          <view class="member-role {{item.role}}">
+            <t-icon name="{{item.role === 'owner' ? 'user-circle' : 'user'}}" size="32rpx" color="{{item.role === 'owner' ? '#f5576c' : '#667eea'}}" />
+          </view>
+          <view class="member-info">
+            <text class="member-name">{{item.user_name || '未知'}}（ID: {{item.user_id}}）</text>
+            <text class="member-meta">{{item.combo_name}}（ID: {{item.combo_id}}）| {{item.role === 'owner' ? '创建者' : item.role === 'admin' ? '管理员' : '成员'}}</text>
+          </view>
+        </view>
+      </scroll-view>
+      
+      <scroll-view wx:elif="{{popupData.type === 'sharedTodo'}}" scroll-y class="popup-list">
+        <view wx:for="{{popupData.list}}" wx:key="id" class="detail-item shared-todo-item clickable" bindtap="navigateToSharedTodoDetail" data-item="{{item}}">
+          <view class="shared-todo-icon">
+            <t-icon name="link" size="32rpx" color="#667eea" />
+          </view>
+          <view class="shared-todo-info">
+            <text class="shared-todo-text">{{item.text}}</text>
+            <text class="shared-todo-meta">{{item.creator_name}}（ID: {{item.user_id}}）| {{item.combo_name}}（ID: {{item.combo_id}}）</text>
+          </view>
+          <t-tag wx:if="{{item.assign_type === 'all'}}" theme="primary" size="small">全员</t-tag>
+          <t-tag wx:else theme="warning" size="small">指定</t-tag>
+        </view>
+      </scroll-view>
+      
+      <scroll-view wx:elif="{{popupData.type === 'assignment'}}" scroll-y class="popup-list">
+        <view wx:for="{{popupData.list}}" wx:key="id" class="detail-item assignment-item clickable" bindtap="navigateToSharedTodoDetail" data-item="{{item}}">
+          <view class="assignment-status {{item.completed_at ? 'done' : ''}}">
+            <t-icon name="{{item.completed_at ? 'check-circle-filled' : 'circle'}}" size="32rpx" color="{{item.completed_at ? '#00B26A' : '#ccc'}}" />
+          </view>
+          <view class="assignment-info">
+            <text class="assignment-text">{{item.todo_text || '待办已删除'}}</text>
+            <text class="assignment-meta">分配给: {{item.user_name || '未知'}}（ID: {{item.user_id}}）</text>
+          </view>
+        </view>
+      </scroll-view>
+      
+      <scroll-view wx:elif="{{popupData.type === 'request'}}" scroll-y class="popup-list">
+        <view wx:for="{{popupData.list}}" wx:key="id" class="detail-item request-item">
+          <view class="request-icon">
+            <t-icon name="user-add" size="32rpx" color="#ff9800" />
+          </view>
+          <view class="request-info">
+            <text class="request-user">{{item.user_name || '未知用户'}}（ID: {{item.user_id}}）</text>
+            <text class="request-meta">申请加入: {{item.combo_name}}（ID: {{item.combo_id}}）</text>
+          </view>
+        </view>
+      </scroll-view>
+      
+      <scroll-view wx:elif="{{popupData.type === 'comment'}}" scroll-y class="popup-list">
+        <view wx:for="{{popupData.list}}" wx:key="id" class="detail-item comment-item">
+          <view class="comment-icon">
+            <t-icon name="{{item.parent_id ? 'chat' : 'comment'}}" size="32rpx" color="{{item.parent_id ? '#667eea' : '#00B26A'}}" />
+          </view>
+          <view class="comment-info">
+            <text class="comment-text">{{item.content}}</text>
+            <text class="comment-meta">{{item.user_name || '未知'}}（ID: {{item.user_id}}）| {{item.combo_name || '未知组合'}}</text>
+            <text class="comment-time">{{item.created_at}}</text>
+            <text wx:if="{{item.parent_id}}" class="comment-reply">回复评论ID: {{item.parent_id}}</text>
+            <text wx:if="{{item.reply_to_name}}" class="comment-reply-to">回复: {{item.reply_to_name}}</text>
+          </view>
+          <view class="comment-actions">
+            <view class="action-delete" bindtap="deleteComment" data-id="{{item.id}}" data-content="{{item.content}}">
+              <t-icon name="delete" size="36rpx" color="#ff4d4f" />
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+      
+      <scroll-view wx:elif="{{popupData.type === 'tagUsage'}}" scroll-y class="popup-list">
+        <view wx:for="{{popupData.list}}" wx:key="id" class="detail-item tag-usage-item">
+          <view class="tag-rank-num">{{index + 1}}</view>
+          <view class="tag-dot" style="background: {{item.color || '#00B26A'}}"></view>
+          <view class="tag-info">
+            <text class="tag-name">{{item.name}}</text>
+            <text class="tag-meta">{{item.is_system ? '系统标签' : '自定义标签'}} | 使用 {{item.usage_count || 0}} 次</text>
+          </view>
+        </view>
+      </scroll-view>
+      
+      <scroll-view wx:elif="{{popupData.type === 'distribution'}}" scroll-y class="popup-list">
+        <view wx:for="{{popupData.list}}" wx:key="range" class="detail-item distribution-item">
+          <view class="distribution-bar">
+            <view class="distribution-fill" style="width: {{item.percent}}%"></view>
+          </view>
+          <view class="distribution-info">
+            <text class="distribution-range">{{item.range}}</text>
+            <text class="distribution-count">{{item.count}}人 ({{item.percent}}%)</text>
+          </view>
+        </view>
+      </scroll-view>
+      
+      <scroll-view wx:elif="{{popupData.type === 'tagCompletion'}}" scroll-y class="popup-list">
+        <view wx:for="{{popupData.list}}" wx:key="id" class="detail-item tag-completion-item">
+          <view class="tag-dot" style="background: {{item.color || '#00B26A'}}"></view>
+          <view class="tag-info">
+            <text class="tag-name">{{item.name}}</text>
+            <text class="tag-meta">总数: {{item.total}} | 完成: {{item.completed}}</text>
+          </view>
+          <view class="completion-rate {{item.rate >= 50 ? 'high' : 'low'}}">{{item.rate}}%</view>
+        </view>
+      </scroll-view>
+      
+      <scroll-view wx:elif="{{popupData.type === 'memberRole'}}" scroll-y class="popup-list">
+        <view wx:for="{{popupData.list}}" wx:key="roleKey" class="detail-item member-role-item">
+          <view class="role-icon {{item.roleKey}}">
+            <t-icon name="{{item.roleKey === 'owner' ? 'user-circle' : item.roleKey === 'admin' ? 'user-setting' : 'user'}}" size="32rpx" color="{{item.roleKey === 'owner' ? '#f5576c' : item.roleKey === 'admin' ? '#667eea' : '#00B26A'}}" />
+          </view>
+          <view class="role-info">
+            <text class="role-name">{{item.role}}</text>
+            <text class="role-count">{{item.count}}人</text>
+          </view>
+        </view>
+      </scroll-view>
+      
+      <scroll-view wx:elif="{{popupData.type === 'assignType'}}" scroll-y class="popup-list">
+        <view wx:for="{{popupData.list}}" wx:key="typeKey" class="detail-item assign-type-item">
+          <view class="assign-icon">
+            <t-icon name="{{item.typeKey === 'all' ? 'group' : item.typeKey === 'any' ? 'usergroup' : 'user'}}" size="32rpx" color="#667eea" />
+          </view>
+          <view class="assign-info">
+            <text class="assign-name">{{item.type}}</text>
+            <text class="assign-meta">{{item.count}}个 ({{item.percent}}%)</text>
+          </view>
+        </view>
+      </scroll-view>
+      
+      <scroll-view wx:elif="{{popupData.type === 'syncAction'}}" scroll-y class="popup-list">
+        <view wx:for="{{popupData.list}}" wx:key="actionKey" class="detail-item sync-action-item">
+          <view class="sync-action-icon">
+            <t-icon name="{{item.actionKey === 'upload' ? 'upload' : item.actionKey === 'download' ? 'download' : item.actionKey === 'merge' ? 'merge-cells' : item.actionKey === 'full_sync' ? 'refresh' : 'swap'}}" size="32rpx" color="#667eea" />
+          </view>
+          <view class="sync-action-info">
+            <text class="sync-action-name">{{item.action}}</text>
+            <text class="sync-action-meta">{{item.count}}次 ({{item.percent}}%)</text>
+          </view>
+        </view>
+      </scroll-view>
+      
+      <scroll-view wx:else scroll-y class="popup-list">
+        <view wx:for="{{popupData.list}}" wx:key="id" class="detail-item generic-item">
+          <text class="generic-text">{{item.text || item.name || item.nickname || '未知'}}{{item.id ? '（ID: ' + item.id + '）' : ''}}</text>
+        </view>
+      </scroll-view>
+    </view>
+  </t-popup>
+</view>

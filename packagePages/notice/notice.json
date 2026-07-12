@@ -1,0 +1,9 @@
+{
+  "usingComponents": {
+    "t-chat-markdown": "tdesign-miniprogram/chat-markdown/chat-markdown",
+    "t-action-sheet": "tdesign-miniprogram/action-sheet/action-sheet"
+  },
+  "navigationBarTitleText": "公告",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark"
+}

@@ -1,0 +1,67 @@
+.container {
+  padding-bottom: 10rpx;
+}
+
+/* 与changelog保持一致的卡片样式 */
+.notice-card {
+  background: linear-gradient(105deg, #ffffff 0%, #EEFBEF 100%);
+  border-radius: 32rpx;
+  margin: 24rpx;
+  padding: 32rpx;
+  box-shadow: 0 8rpx 40rpx rgba(var(--primary-color-rgb), 0.08);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.notice-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 8rpx;
+  height: 100%;
+  background: var(--primary-color);
+}
+
+.notice-header {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 24rpx;
+  padding-bottom: 16rpx;
+  border-bottom: 2rpx solid rgba(var(--primary-color-rgb), 0.1);
+}
+
+.notice-title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #2d3436;
+  flex: 1;
+}
+
+.notice-date {
+  font-size: 26rpx;
+  color: #95a5a6;
+  background: rgba(var(--primary-color-rgb), 0.08);
+  padding: 4rpx 16rpx;
+  border-radius: 8rpx;
+}
+
+.notice-content {
+  color: #576366;
+  font-size: 30rpx;
+  line-height: 1.5;
+}
+
+.notice-content .t-chat-md__p {
+  margin: 0 0 16rpx 0;
+}
+
+.notice-content .t-chat-md__a {
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+
+.notice-card:active {
+  transform: scale(0.98);
+}

@@ -1,0 +1,5 @@
+<view class="op-card" wx:if="{{result}}">
+  <view class="op-icon warn"><text>🗑</text></view>
+  <view class="op-title warn">已移至回收站</view>
+  <view class="op-desc">30天后自动清理</view>
+</view>

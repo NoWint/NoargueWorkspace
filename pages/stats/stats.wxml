@@ -1,0 +1,158 @@
+<canvas
+  type="2d"
+  id="shareCanvas"
+  style="width: 750rpx; height: 2200rpx; position: absolute; left: -9999rpx">
+</canvas>
+
+<!-- 顶部栏 -->
+<view class="top">
+  <view class="header" style="padding-top:{{navBarHeight-44}}px;padding-left:{{menuRight+20}}rpx">
+    <text class="title">统计</text>
+  </view>
+</view>
+
+<view class="container">
+  <!-- 核心数据卡片 -->
+  <view class="card-style stats-card">
+    <view class="stats-header">
+      <text class="stats-title">数据概览</text>
+      <t-tag theme="primary" variant="light" size="small">全部</t-tag>
+    </view>
+    <view class="stats-grid">
+      <view class="stat-item">
+        <text class="stat-value">{{total}}</text>
+        <text class="stat-label">总待办</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value completed">{{completed}}</text>
+        <text class="stat-label">已完成</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{progress}}%</text>
+        <text class="stat-label">完成率</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{avgCompletionTime}}</text>
+        <text class="stat-label">平均耗时</text>
+      </view>
+    </view>
+    
+    <!-- 每日统计入口 -->
+    <view class="daily-stats-entry" bindtap="navigateToDailyStats">
+      <view class="entry-content">
+        <view class="entry-icon">
+          <t-icon name="calendar" size="40rpx" color="#00B26A" />
+        </view>
+        <view class="entry-text">
+          <text class="entry-title">每日统计</text>
+          <text class="entry-desc">查看某天的详细数据与分析</text>
+        </view>
+      </view>
+      <t-icon name="chevron-right" size="36rpx" color="#ccc" />
+    </view>
+  </view>
+  
+  <!-- 完成情况概览图表 -->
+  <view class="card-style">
+    <view class="section-title">
+      <t-icon name="chart-pie" size="36rpx" color="#00B26A" />
+      <text>完成情况概览</text>
+    </view>
+    <view class="chart-container">
+      <ec-canvas id="overviewChart" ec="{{overviewChart}}" canvas-id="overviewCanvas"></ec-canvas>
+    </view>
+  </view>
+
+  <!-- 广告位1 -->
+  <view class="card-style ad-card">
+    <ad-custom
+      unit-id="adunit-c09a0a62e8e3c14a"
+      binderror="onAdError"
+    ></ad-custom>
+  </view>
+
+  <!-- 每日待办趋势图表 -->
+  <view class="card-style">
+    <view class="section-title">
+      <t-icon name="chart-line" size="36rpx" color="#00B26A" />
+      <text>每日待办趋势</text>
+    </view>
+    <view class="chart-container">
+      <ec-canvas id="trendChart" ec="{{trendChart}}" canvas-id="trendCanvas"></ec-canvas>
+    </view>
+  </view>
+
+  <!-- 创建时间分布图表 -->
+  <view class="card-style">
+    <view class="section-title">
+      <t-icon name="time" size="36rpx" color="#00B26A" />
+      <text>创建时间分布</text>
+    </view>
+    <view class="chart-container">
+      <ec-canvas id="timeChart" ec="{{timeChart}}" canvas-id="timeCanvas"></ec-canvas>
+    </view>
+  </view>
+
+  <!-- 广告位2 -->
+  <view class="card-style ad-card">
+    <ad-custom
+      unit-id="adunit-5ab4dec0a604c6c4"
+      binderror="onAdError"
+    ></ad-custom>
+  </view>
+
+  <!-- 完成时间分布图表 -->
+  <view class="card-style">
+    <view class="section-title">
+      <t-icon name="check-circle" size="36rpx" color="#00B26A" />
+      <text>完成时间分布</text>
+    </view>
+    <view class="chart-container">
+      <ec-canvas id="completeTimeChart" ec="{{completeTimeChart}}" canvas-id="completeTimeCanvas"></ec-canvas>
+    </view>
+  </view>
+  
+  <!-- 位置分布统计 -->
+  <view class="card-style">
+    <view class="section-title">
+      <t-icon name="location" size="36rpx" color="#00B26A" />
+      <text>位置分布</text>
+    </view>
+    <view class="bar-chart">
+      <view 
+        wx:for="{{locationStats}}"
+        wx:key="name"
+        class="bar-item"
+      >
+        <view class="bar-container">
+          <view 
+            class="bar completed" 
+            style="width: {{locationTotal > 0 ? (item.count / locationTotal * 100) : 0}}%"
+          >
+            <text class="location-label">{{item.name}}（{{item.count}}）</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <map 
+      wx:if="{{locationMarkers.length}}"
+      id="locationMap"
+      style="width: 100%; height: 500rpx; overflow: hidden; border-radius: 16rpx"
+      latitude="{{mapCenter.latitude}}"
+      longitude="{{mapCenter.longitude}}"
+      markers="{{locationMarkers}}"
+      include-points="{{locationPoints}}"
+    ></map>
+
+    <text wx:if="{{!locationMarkers.length}}" class="empty-tip">暂无位置数据</text>
+  </view>
+</view>
+
+<t-fab 
+  wx:if="{{!isShare}}"
+  icon="image" 
+  bind:click="generateShareImage"
+  style="right: 32rpx; bottom: 32rpx;"
+  text="生成报告"
+/>

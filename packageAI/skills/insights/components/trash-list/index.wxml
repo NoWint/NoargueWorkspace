@@ -1,0 +1,19 @@
+<view class="trash-list">
+  <view class="summary">回收站共 {{items.total || 0}} 条</view>
+  <view wx:if="{{items.todos && items.todos.length > 0}}">
+    <view
+      wx:for="{{items.todos}}"
+      wx:key="id"
+      class="trash-item"
+      data-id="{{item.id}}"
+      data-text="{{item.text}}"
+      bind:tap="onTapRestore"
+    >
+      <view class="todo-text">{{item.text}}</view>
+      <view class="todo-action">点击恢复</view>
+    </view>
+  </view>
+  <view wx:elif="{{items.todos && items.todos.length === 0}}" class="empty-state">
+    <text>回收站是空的</text>
+  </view>
+</view>

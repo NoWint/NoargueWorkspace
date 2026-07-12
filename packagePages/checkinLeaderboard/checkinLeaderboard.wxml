@@ -1,0 +1,40 @@
+<view>
+  <!-- 自己的排名卡片 -->
+  <view class="my-rank-card" wx:if="{{myRank.rank}}">
+    <view class="rank-left">
+      <text class="my-label">我的排名</text>
+      <text class="my-rank-num">#{{myRank.rank}}</text>
+    </view>
+    <view class="rank-right">
+      <text class="my-value">{{myRank.value}}{{tabType === 'streak' ? '天' : '分'}}</text>
+      <text class="my-title" wx:if="{{myRank.title}}">{{myRank.title}}</text>
+    </view>
+  </view>
+
+  <t-tabs class="tabs" value="{{tabType}}" bind:change="onTabChange">
+    <t-tab-panel label="连签排行" value="streak">
+      <view wx:for="{{leaderList}}" wx:key="rank" class="rank-item {{item.isMe ? 'me' : ''}}">
+        <text class="rank-num {{item.rank <= 3 ? 'top' : ''}}">{{item.rank}}</text>
+        <image class="rank-avatar" src="{{item.avatarUrl || '../../images/avatar.png'}}" />
+        <view class="rank-info">
+          <text class="rank-name">{{item.nickname}}</text>
+          <text class="rank-title" wx:if="{{item.title}}">{{item.title}}</text>
+        </view>
+        <text class="rank-value">{{item.value}} 天</text>
+      </view>
+      <view wx:if="{{leaderList.length === 0}}" class="empty">暂无数据</view>
+    </t-tab-panel>
+
+    <t-tab-panel label="积分排行" value="total">
+      <view wx:for="{{leaderList}}" wx:key="rank" class="rank-item {{item.isMe ? 'me' : ''}}">
+        <text class="rank-num {{item.rank <= 3 ? 'top' : ''}}">{{item.rank}}</text>
+        <image class="rank-avatar" src="{{item.avatarUrl || '../../images/avatar.png'}}" />
+        <view class="rank-info">
+          <text class="rank-name">{{item.nickname}}</text>
+        </view>
+        <text class="rank-value">{{item.value}} 分</text>
+      </view>
+      <view wx:if="{{leaderList.length === 0}}" class="empty">暂无数据</view>
+    </t-tab-panel>
+  </t-tabs>
+</view>

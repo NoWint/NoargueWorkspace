@@ -1,0 +1,262 @@
+<wxs module="utils">
+module.exports = {
+  includes: function(arr, val) {
+    if (!arr) return false;
+    if (typeof arr.length === 'undefined') return false;
+    if (arr.length === 0) return false;
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i] == val) return true;
+    }
+    return false;
+  }
+}
+</wxs>
+
+<scroll-view class="scroll-area" scroll-y>
+
+  <view class="container">
+
+  <!-- 大标题（展示当前日期/周数） -->
+  <text class="page-title">{{targetDateHint}}</text>
+
+  <text class="question-title">报告时间</text>
+
+  <!-- 日期/周数选择器（像 add-todo picker-field 一样） -->
+  <view wx:if="{{reportType === 'daily'}}" class="picker-field" bindtap="showCalendar">
+    <text class="picker-field-text">{{targetDateHint || '请选择日期'}}</text>
+    <t-icon name="calendar" size="32rpx" color="#999" />
+  </view>
+  <view wx:else class="picker-field">
+    <picker mode="selector" range="{{weekOptions}}" value="{{weekIndex}}" bindchange="onWeekChange" class="picker-native">
+      <view class="picker-inner">
+        <text class="picker-field-text">{{weekOptions[weekIndex] || '请选择周数'}}</text>
+        <t-icon name="chevron-down" size="32rpx" color="#999" />
+      </view>
+    </picker>
+  </view>
+
+  <t-calendar
+    id="dateCalendar"
+    value="{{calendarValue}}"
+    visible="{{showCalendar}}"
+    min-date="{{minDate}}"
+    max-date="{{maxDate}}"
+    confirm-btn="确定"
+    bind:confirm="handleCalendarConfirm"
+    bind:close="handleCalendarClose"
+  />
+
+  <view wx:if="{{reportType === 'weekly' && !reportId}}" class="weekly-hint">
+    <t-icon name="info-circle" color="#00b26a" size="32rpx"/>
+    <text class="weekly-hint-text">一周从周日开始，本周为第{{reportWeek}}周</text>
+  </view>
+
+  <!-- 汇报到选择器 -->
+  <view class="form-item">
+    <text class="question-title">汇报到</text>
+    <view class="combo-selector" bindtap="showComboPicker">
+      <view class="selected-combo">
+        <text class="combo-name-text">{{selectedComboName}}</text>
+      </view>
+      <t-icon name="chevron-down" size="32rpx" color="#ccc" />
+    </view>
+  </view>
+
+  <!-- 区块列表 -->
+  <view class="sections-container">
+    <view class="form-item" wx:for="{{sections}}" wx:key="_rk" wx:for-index="sectionIndex" data-section-index="{{sectionIndex}}">
+
+      <!-- 区块标题 -->
+      <text class="question-title">{{item.title}}</text>
+
+      <!-- 行列表 -->
+      <view class="lines-container">
+        <view class="line-item" wx:for="{{item.lines}}" wx:key="id" wx:for-index="lineIndex" data-section-index="{{sectionIndex}}" data-line-index="{{lineIndex}}">
+          <textarea
+            class="line-textarea"
+            value="{{item.text}}"
+            auto-height
+            placeholder="输入内容..."
+            maxlength="500"
+            data-section="{{sectionIndex}}"
+            data-line="{{lineIndex}}"
+            bindinput="onLineInput"
+          />
+          <view class="line-actions">
+            <view class="line-action-btn delete-btn" bindtap="deleteLine" data-section="{{sectionIndex}}" data-line="{{lineIndex}}">
+              <t-icon name="close" size="32rpx" color="#ff4d4f" />
+            </view>
+            <view class="line-action-btn todo-btn" bindtap="addLineToTodo" data-section="{{sectionIndex}}" data-line="{{lineIndex}}">
+              <t-icon name="add" size="24rpx" color="#00b26a" />
+              <text class="todo-btn-text">到待办</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 区块操作按钮 -->
+      <view class="section-actions">
+        <view class="section-action-btn primary" bindtap="addLine" data-section="{{sectionIndex}}">
+          <t-icon name="add" size="28rpx" color="#00b26a" />
+          <text class="action-text">添加新条目</text>
+        </view>
+        <view wx:if="{{!isPlanSection(item.key)}}" class="section-action-btn" bindtap="importFromTodos" data-section="{{sectionIndex}}">
+          <t-icon name="download" size="28rpx" color="#00b26a" />
+          <text class="action-text">从待办导入</text>
+        </view>
+      </view>
+
+    </view>
+  </view>
+
+  <!-- 底部安全区域 -->
+  <view class="bottom-safe"></view>
+
+  </view>
+</scroll-view>
+
+<!-- 保存 FAB -->
+<t-fab icon="check" text="完成" bind:click="saveReport" style="right: 32rpx; bottom: 32rpx;" />
+
+<!-- 组合选择 Popup -->
+<t-popup
+  visible="{{showComboPicker}}"
+  bind:visible-change="onComboPickerVisibleChange"
+  placement="bottom"
+  close-on-overlay-click="{{true}}"
+  z-index="11000"
+  overlay-props="{{ { zIndex: 10999 } }}"
+>
+  <view class="combo-picker-content">
+    <view class="popup-header">
+      <text class="popup-title">选择汇报组合</text>
+      <view class="popup-close" bindtap="hideComboPicker">
+        <t-icon name="close" size="40rpx" color="#999" />
+      </view>
+    </view>
+
+    <scroll-view class="popup-scroll" scroll-y>
+      <!-- 私人 -->
+      <view wx:if="{{_privateCompatible !== false}}" class="picker-section">
+        <text class="section-label">私人</text>
+        <view
+          class="picker-option {{!selectedComboId && !isSharedCombo ? 'selected' : ''}}"
+          data-private="1"
+          bindtap="selectPrivateCombo"
+        >
+          <view class="option-icon" style="background: #00b26a">
+            <t-icon name="lock-on" size="36rpx" color="#fff" />
+          </view>
+          <view class="option-info">
+            <text class="option-name">不绑定组合</text>
+            <text class="option-desc">仅自己可见，不归属任何组合</text>
+          </view>
+          <t-icon wx:if="{{!selectedComboId && !isSharedCombo}}" name="check" size="36rpx" color="#00b26a" />
+        </view>
+      </view>
+
+      <!-- 共享组合 -->
+      <view wx:if="{{sharedCombos.length > 0}}" class="picker-section">
+        <text class="section-label">共享组合</text>
+        <view
+          class="picker-option {{selectedComboId === item.id && isSharedCombo ? 'selected' : ''}}"
+          wx:for="{{sharedCombos}}"
+          wx:key="id"
+          wx:if="{{!_compatibleComboIds || utils.includes(_compatibleComboIds, item.id)}}"
+          data-id="{{item.id}}"
+          data-name="{{item.name}}"
+          data-shared="1"
+          bindtap="selectCombo"
+        >
+          <view class="option-icon" style="background: {{item.color || '#2196F3'}}">
+            <t-icon name="{{item.icon || 'user-group'}}" size="36rpx" color="#fff" />
+          </view>
+          <view class="option-info">
+            <text class="option-name">{{item.name}}</text>
+            <text class="option-desc">{{item.todoCount || 0}}个待办 · {{item.memberCount || 1}}人</text>
+          </view>
+          <t-icon wx:if="{{selectedComboId === item.id && isSharedCombo}}" name="check" size="36rpx" color="#00b26a" />
+        </view>
+      </view>
+
+      <view wx:if="{{sharedCombos.length === 0 && _privateCompatible === false}}" class="empty-combos">
+        <text>{{_filteredComboCount === 0 ? '没有兼容的组合模板' : '暂无共享组合'}}</text>
+      </view>
+    </scroll-view>
+  </view>
+</t-popup>
+
+<!-- 待办导入 Popup -->
+<t-popup
+  visible="{{showImportPopup}}"
+  bind:visible-change="onImportPopupVisibleChange"
+  placement="bottom"
+  close-on-overlay-click="{{true}}"
+  z-index="11000"
+  overlay-props="{{ { zIndex: 10999 } }}"
+>
+  <view class="import-popup-content">
+    <view class="popup-header">
+      <text class="popup-title">从待办导入</text>
+      <view class="popup-close" bindtap="hideImportPopup">
+        <t-icon name="close" size="40rpx" color="#999" />
+      </view>
+    </view>
+
+    <view class="import-search-area">
+      <t-input
+        placeholder="搜索待办..."
+        value="{{importSearchKeyword}}"
+        borderless
+        bind:change="onImportSearchInput"
+        style="--td-input-bg-color: #f8f8f8"
+      >
+        <t-icon slot="prefix-icon" name="search" size="32rpx" color="#999" />
+      </t-input>
+    </view>
+
+    <scroll-view class="import-scroll" scroll-y>
+      <!-- 已完成 -->
+      <view wx:if="{{importTodos.completed.length > 0}}" class="import-section">
+        <text class="import-section-title">已完成（{{importTodos.completed.length}}）</text>
+        <view
+          class="import-todo-item {{utils.includes(selectedImportTodos, item._key) ? 'selected' : ''}}"
+          wx:for="{{importTodos.completed}}"
+          wx:key="_key"
+          data-key="{{item._key}}"
+          bindtap="toggleImportTodo"
+        >
+          <view class="import-todo-text">{{item.text}}</view>
+          <t-icon wx:if="{{utils.includes(selectedImportTodos, item._key)}}" name="check-circle-filled" size="36rpx" color="#00b26a" />
+          <t-icon wx:else name="circle" size="36rpx" color="#ccc" />
+        </view>
+      </view>
+
+      <!-- 未完成 -->
+      <view wx:if="{{importTodos.uncompleted.length > 0}}" class="import-section">
+        <text class="import-section-title">未完成（{{importTodos.uncompleted.length}}）</text>
+        <view
+          class="import-todo-item {{utils.includes(selectedImportTodos, item._key) ? 'selected' : ''}}"
+          wx:for="{{importTodos.uncompleted}}"
+          wx:key="_key"
+          data-key="{{item._key}}"
+          bindtap="toggleImportTodo"
+        >
+          <view class="import-todo-text">{{item.text}}</view>
+          <t-icon wx:if="{{utils.includes(selectedImportTodos, item._key)}}" name="check-circle-filled" size="36rpx" color="#00b26a" />
+          <t-icon wx:else name="circle" size="36rpx" color="#ccc" />
+        </view>
+      </view>
+
+      <view wx:if="{{importTodos.completed.length === 0 && importTodos.uncompleted.length === 0}}" class="empty-combos">
+        <text>暂无待办</text>
+      </view>
+    </scroll-view>
+
+    <view class="import-confirm-area">
+      <t-button block theme="primary" bindtap="confirmImport">
+        导入（{{selectedImportTodos.length}}条）
+      </t-button>
+    </view>
+  </view>
+</t-popup>

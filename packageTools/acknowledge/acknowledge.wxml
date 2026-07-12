@@ -1,0 +1,66 @@
+<view class="container">
+  <view class="header-section">
+    <view class="header-icon">
+      <t-icon name="heart-filled" size="80rpx" color="#00b26a" />
+    </view>
+    <text class="header-title">致谢名单</text>
+    <text class="header-subtitle">感谢每一位贡献者的付出</text>
+  </view>
+
+  <view class="intro-card">
+    <view class="intro-item">
+      <t-icon name="lightbulb" size="36rpx" color="#faad14" />
+      <text>提供创意灵感和功能建议</text>
+    </view>
+    <view class="intro-item">
+      <t-icon name="bug" size="36rpx" color="#ff4d4f" />
+      <text>参与测试并反馈优化建议</text>
+    </view>
+    <view class="intro-item">
+      <t-icon name="sound" size="36rpx" color="#1890ff" />
+      <text>协助推广让更多人受益</text>
+    </view>
+    <view class="intro-item">
+      <t-icon name="refresh" size="36rpx" color="#00b26a" />
+      <text>持续支持项目迭代更新</text>
+    </view>
+  </view>
+
+  <view class="contributors-section">
+    <text class="section-title">贡献者们</text>
+    
+    <view class="contributors-list">
+      <view 
+        wx:for="{{contributors}}" 
+        wx:key="index" 
+        class="contributor-card {{item.isAuthor ? 'author-card' : ''}}"
+      >
+        <view class="avatar-wrapper">
+          <image src="{{item.avatar}}" class="contributor-avatar" mode="aspectFill" />
+          <view wx:if="{{item.isAuthor}}" class="author-badge">作者</view>
+        </view>
+        
+        <view class="contributor-info">
+          <text class="contributor-name">{{item.name}}</text>
+          
+          <view class="contribution-tags">
+            <text 
+              wx:for="{{item.contributions}}" 
+              wx:for-item="contribution"
+              wx:key="*this" 
+              class="contribution-tag"
+            >{{contribution}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="footer-section">
+    <view class="footer-divider"></view>
+    <text class="footer-text">如果您有好的建议，欢迎联系客服反馈</text>
+    <text class="footer-thanks">感谢您的支持与信任！</text>
+  </view>
+</view>
+
+<t-fab icon="service" button-props="{{serviceFab}}" />

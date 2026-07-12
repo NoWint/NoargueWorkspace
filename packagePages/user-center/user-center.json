@@ -1,0 +1,7 @@
+{
+  "usingComponents": {
+    "t-icon": "tdesign-miniprogram/icon/icon"
+  },
+  "navigationBarTitleText": "个人中心",
+  "enablePullDownRefresh": true
+}

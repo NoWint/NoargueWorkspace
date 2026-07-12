@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "公告管理",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-tag": "tdesign-miniprogram/tag/tag",
+    "t-fab": "tdesign-miniprogram/fab/fab"
+  }
+}

@@ -1,0 +1,16 @@
+<view class="stats-card">
+  <view class="stat-header">统计概览（近 {{items.days || 7}} 天）</view>
+  <view class="stat-row">
+    <text class="stat-label">总待办</text>
+    <text class="stat-value">{{items.total || 0}}</text>
+  </view>
+  <view class="stat-row">
+    <text class="stat-label">已完成</text>
+    <text class="stat-value">{{items.completed || 0}}</text>
+  </view>
+  <view class="stat-row">
+    <text class="stat-label">完成率</text>
+    <text class="stat-value rate">{{items.rate || 0}}%</text>
+  </view>
+
+</view>

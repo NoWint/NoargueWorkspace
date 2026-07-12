@@ -1,0 +1,9 @@
+<view class="op-card" wx:if="{{result}}">
+  <view class="op-icon {{result.isError ? 'error' : 'success'}}">
+    <text wx:if="{{!result.isError}}">✎</text>
+    <text wx:else>✕</text>
+  </view>
+  <view class="op-title {{result.isError ? 'error' : 'success'}}">
+    {{result.isError ? '编辑失败' : '已更新'}}
+  </view>
+</view>

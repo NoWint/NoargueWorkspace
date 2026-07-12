@@ -1,0 +1,113 @@
+/* 顶部栏容器 */
+.top {
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  position: fixed;
+  background: #e3f5eb99;
+  backdrop-filter: blur(20rpx) saturate(180%);
+  -webkit-backdrop-filter: blur(20rpx) saturate(180%);
+}
+
+/* 头部区域 */
+.header {
+  padding: 0 30rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 88rpx;
+}
+
+/* 标题样式 */
+.title {
+  font-size: 50rpx;
+  font-weight: 600;
+  color: #2d3436;
+  flex: 1;
+}
+
+.container {
+  margin-top: 168rpx;
+  padding-bottom: 280rpx;
+}
+
+/* 新增用户信息样式 */
+.user-info {
+  padding: 32rpx;
+  margin: 16rpx 8rpx 0;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.user-info:active {
+  transform: scale(0.98);
+}
+
+.user-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  margin-right: 30rpx;
+  border: 4rpx solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4rpx 12rpx rgba(76, 175, 80, 0.2);
+  background: #f0f0f0;
+}
+
+.user-name {
+  font-size: 42rpx;
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.user-name-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.logged-in-badge {
+  font-size: 22rpx;
+  color: #00b26a;
+  background: #f0fdf4;
+  padding: 4rpx 12rpx;
+  border-radius: 16rpx;
+  border: 1rpx solid #00b26a;
+}
+
+.user-text {
+  flex: 1;
+}
+
+.user-status {
+  margin-top: 8rpx;
+}
+
+.user-id {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.logged-in {
+  font-size: 26rpx;
+  color: #00b26a;
+  background: #f0fdf4;
+  padding: 4rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+.not-logged {
+  font-size: 26rpx;
+  color: #999;
+}
+
+.tools-card {
+  overflow: hidden;
+  border-radius: 32rpx;
+}
+
+.card {
+  overflow: hidden;
+  padding-bottom: 32rpx;
+}

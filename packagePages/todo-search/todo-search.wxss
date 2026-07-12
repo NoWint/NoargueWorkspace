@@ -1,0 +1,43 @@
+@import "../../pages/todo/todo.wxss";
+.search-input {
+  flex: 1;
+}
+
+.empty-tips {
+  text-align: center;
+  color: #999;
+  padding: 40rpx;
+  font-size: 28rpx;
+}
+
+.search-container {
+  padding-top: 8rpx;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  background: #e3f5eb99;
+  backdrop-filter: blur(20rpx) saturate(180%);
+  -webkit-backdrop-filter: blur(20rpx) saturate(180%);
+}
+
+.search-count {
+  display: block;
+  font-size: 27rpx;
+  color: #666;
+  padding: 15rpx 16rpx;
+  text-align: left;
+}
+
+.container {
+  padding-top: 148rpx;
+  padding-bottom: 400rpx;
+  overflow-y: auto;
+}
+
+.highlight {
+  color: #e64340;
+  font-weight: 500;
+}
+

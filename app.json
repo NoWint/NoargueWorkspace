@@ -1,0 +1,168 @@
+{
+  "usingComponents": {},
+  "pages": [
+    "pages/todo/todo",
+    "pages/calendar/calendar",
+    "pages/community-home/community-home",
+    "pages/stats/stats",
+    "pages/more/more"
+  ],
+  "subPackages": [
+    {
+      "root": "packageAdmin",
+      "name": "admin",
+      "pages": [
+        "index/index",
+        "users/users",
+        "user-detail/user-detail",
+        "notices/notices",
+        "notice-edit/notice-edit",
+        "changelog/changelog",
+        "changelog-edit/changelog-edit",
+        "reports/reports",
+        "report-detail/report-detail"
+      ]
+    },
+    {
+      "root": "packageCombo",
+      "name": "combo",
+      "pages": [
+        "combo-edit/combo-edit",
+        "combo-detail/combo-detail",
+        "collaboration/collaboration",
+        "combo-stats/combo-stats",
+        "report-board/report-board",
+        "report-templates/report-templates"
+      ]
+    },
+    {
+      "root": "packageTools",
+      "name": "tools",
+      "pages": [
+        "eating/eating",
+        "password-generator/password-generator",
+        "motivation/motivation",
+        "star/star",
+        "acknowledge/acknowledge",
+        "join-collab/join-collab",
+        "trash/trash",
+        "datamanage/datamanage",
+        "tag-manage/tag-manage"
+      ]
+    },
+    {
+      "root": "packagePages",
+      "name": "pages",
+      "pages": [
+        "add-todo/add-todo",
+        "changelog/changelog",
+        "daily-stats/daily-stats",
+        "day-todos/day-todos",
+        "guide/guide",
+        "login/login",
+        "notice/notice",
+        "todo-detail/todo-detail",
+        "share-config/share-config",
+        "todo-search/todo-search",
+        "user-center/user-center",
+        "checkin/checkin",
+        "checkinLeaderboard/checkinLeaderboard",
+        "report-detail/report-detail",
+        "report-edit/report-edit"
+      ]
+    },
+    {
+      "root": "packageCommunity",
+      "name": "community",
+      "pages": [
+        "post-detail/post-detail",
+        "post-edit/post-edit"
+      ]
+    },
+    {
+      "root": "packageProfile",
+      "name": "profile",
+      "pages": [
+        "user-home/user-home"
+      ]
+    }
+  ],
+  "preloadRule": {
+    "pages/todo/todo": {
+      "network": "all",
+      "packages": ["combo", "pages", "profile"]
+    },
+    "pages/community-home/community-home": {
+      "network": "all",
+      "packages": ["community", "pages", "profile"]
+    },
+    "pages/more/more": {
+      "network": "all",
+      "packages": ["tools"]
+    }
+  },
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "时光绿径待办",
+    "navigationBarBackgroundColor": "#e3f5eb",
+    "backgroundColorTop": "#e3f5eb",
+    "backgroundColorBottom": "#e3f5eb"
+  },
+  "tabBar": {
+    "color": "#666",
+    "selectedColor": "#00b26a",
+    "backgroundColor": "#fff",
+    "list": [
+      {
+        "pagePath": "pages/todo/todo",
+        "text": "待办",
+        "iconPath": "images/todo.png",
+        "selectedIconPath": "images/todo-active.png"
+      },
+      {
+        "pagePath": "pages/calendar/calendar",
+        "text": "日历",
+        "iconPath": "images/calendar.png",
+        "selectedIconPath": "images/calendar-active.png"
+      },
+      {
+        "pagePath": "pages/community-home/community-home",
+        "text": "社区",
+        "iconPath": "images/community.png",
+        "selectedIconPath": "images/community-active.png"
+      },
+      {
+        "pagePath": "pages/stats/stats",
+        "text": "统计",
+        "iconPath": "images/stats.png",
+        "selectedIconPath": "images/stats-active.png"
+      },
+      {
+        "pagePath": "pages/more/more",
+        "text": "更多",
+        "iconPath": "images/more.png",
+        "selectedIconPath": "images/more-active.png"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents",
+  "permission": {
+    "scope.userLocation": {
+      "desc": "需要获取您的位置以选择待办地点、获取当地天气信息"
+    }
+  },
+  "requiredPrivateInfos": [
+    "chooseLocation",
+    "getLocation"
+  ],
+  "useExtendedLib": {
+    "weui": true
+  },
+"plugins": {
+    "WechatSI": {
+      "version": "0.3.7",
+      "provider": "wx069ba97219f66d99"
+    }
+  }
+}

@@ -1,0 +1,400 @@
+.container {
+  padding: 20rpx;
+  padding-bottom: 500rpx;
+}
+
+.back-home-bar {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 20rpx;
+  padding-left: 10rpx;
+}
+
+.input-section {
+  background: linear-gradient(135deg, #3ddaa0 0%, #12b086 100%);
+  border-radius: 32rpx;
+  padding: 40rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 12rpx 30rpx rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #fff;
+  display: block;
+  text-align: center;
+  margin-bottom: 12rpx;
+}
+
+.subtitle {
+  font-size: 28rpx;
+  color: rgba(255,255,255,0.8);
+  display: block;
+  text-align: center;
+  margin-bottom: 40rpx;
+}
+
+.code-box-container {
+  display: flex;
+  justify-content: center;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.code-box {
+  width: 72rpx;
+  height: 88rpx;
+  background: rgba(255,255,255,0.9);
+  border: 2rpx solid rgba(255,255,255,0.5);
+  border-radius: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+.code-box.focused {
+  border-color: #fff;
+  background: #fff;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.15);
+}
+
+.code-box.filled {
+  background: #fff;
+  border-color: #fff;
+}
+
+.code-char {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #00b26a;
+}
+
+.cursor {
+  width: 4rpx;
+  height: 48rpx;
+  background: #12b086;
+  animation: blink 1s infinite;
+}
+
+.scan-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  padding: 20rpx 32rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 32rpx;
+  transition: all 0.2s ease;
+  flex: 1;
+}
+
+.scan-btn:active {
+  transform: scale(0.95);
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.scan-btn text {
+  font-size: 28rpx;
+  color: #fff;
+  font-weight: 500;
+}
+
+.action-btns {
+  display: flex;
+  gap: 20rpx;
+  margin-top: 24rpx;
+}
+
+.query-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  padding: 20rpx 32rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 32rpx;
+  transition: all 0.2s ease;
+  flex: 1;
+}
+
+.query-btn:active {
+  transform: scale(0.95);
+}
+
+.query-btn.active {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.query-btn.active:active {
+  background: #fff;
+}
+
+.query-btn text {
+  font-size: 28rpx;
+  color: #fff;
+  font-weight: 500;
+}
+
+.query-btn.active text {
+  color: #12b086;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.result-section {
+  background: linear-gradient(135deg, #f6ffed 0%, #e8f8f0 100%);
+  border-radius: 32rpx;
+  padding: 32rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 4rpx 20rpx rgba(45, 212, 191, 0.12);
+  border-left: 6rpx solid #2dd4bf;
+}
+
+.combo-card {
+  display: flex;
+  align-items: center;
+  padding: 18rpx;
+  background: #fff;
+  border-radius: 32rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.06);
+}
+
+.combo-icon {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+}
+
+.combo-info {
+  flex: 1;
+}
+
+.combo-name {
+  font-size: 34rpx;
+  font-weight: 500;
+  color: #333;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.combo-meta {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.owner-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24rpx;
+  padding: 16rpx;
+  background: #fff;
+  border-radius: 32rpx;
+}
+
+.owner-avatar {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  margin-right: 16rpx;
+}
+
+.owner-name {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.joined-tip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24rpx;
+  background: #fff;
+  border-radius: 32rpx;
+  margin-bottom: 24rpx;
+}
+
+.joined-tip text {
+  font-size: 28rpx;
+  color: #00b26a;
+  margin-left: 12rpx;
+}
+
+.full-tip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24rpx;
+  background: #fff;
+  border-radius: 32rpx;
+  margin-bottom: 24rpx;
+}
+
+.full-tip text {
+  font-size: 28rpx;
+  color: #ff4d4f;
+  margin-left: 12rpx;
+}
+
+.pending-tip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24rpx;
+  background: #fff;
+  border-radius: 32rpx;
+  margin-bottom: 24rpx;
+}
+
+.pending-tip text {
+  font-size: 28rpx;
+  color: #faad14;
+  margin-left: 12rpx;
+}
+
+.rejected-tip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24rpx;
+  background: #fff;
+  border-radius: 32rpx;
+  margin-bottom: 24rpx;
+}
+
+.rejected-tip text {
+  font-size: 28rpx;
+  color: #ff4d4f;
+  margin-left: 12rpx;
+}
+
+
+.request-button {
+  --td-button-border-radius: 32rpx;
+}
+
+.tips-section {
+  background: #ffffff;
+  border-radius: 32rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  border-left: 6rpx solid #2dd4bf;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.06);
+}
+
+.tips-title {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #333333;
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.tips-item {
+  font-size: 28rpx;
+  color: #666;
+  display: block;
+  margin-bottom: 12rpx;
+  line-height: 1.6;
+}
+
+/* 自定义键盘样式 */
+.keyboard-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.keyboard-mask.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.custom-keyboard {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #f5f5f5;
+  border-radius: 24rpx 24rpx 0 0;
+  padding: 20rpx 16rpx 40rpx;
+  z-index: 101;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.custom-keyboard.show {
+  transform: translateY(0);
+}
+
+.keyboard-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16rpx;
+}
+
+.keyboard-key {
+  width: 64rpx;
+  height: 80rpx;
+  background: #fff;
+  border-radius: 12rpx;
+  margin: 0 6rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #333;
+  box-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
+  transition: all 0.15s ease;
+}
+
+.keyboard-key:active {
+  background: #e5e5e5;
+  transform: scale(0.95);
+}
+
+.delete-key {
+  width: 88rpx;
+  background: #ff9500;
+  color: #fff;
+}
+
+.delete-key:active {
+  background: #e68600;
+}
+
+.search-key {
+  width: 160rpx;
+  background: #ccc;
+  color: #999;
+  font-size: 32rpx;
+}
+
+.search-key.active {
+  background: linear-gradient(135deg, #3ddaa0 0%, #12b086 100%);
+  color: #fff;
+}
+
+.search-key.active:active {
+  background: linear-gradient(135deg, #2cc98f 0%, #0f9f78 100%);
+}

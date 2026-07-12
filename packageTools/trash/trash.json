@@ -1,0 +1,7 @@
+{
+  "usingComponents": {
+    "t-icon": "tdesign-miniprogram/icon/icon"
+  },
+  "navigationBarTitleText": "回收站",
+  "enablePullDownRefresh": true
+}

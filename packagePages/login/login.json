@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "登录",
+  "usingComponents": {
+    "t-checkbox": "tdesign-miniprogram/checkbox/checkbox",
+    "t-popup": "tdesign-miniprogram/popup/popup",
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-chat-markdown": "tdesign-miniprogram/chat-markdown/chat-markdown"
+  }
+}

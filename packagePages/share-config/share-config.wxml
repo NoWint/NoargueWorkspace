@@ -1,0 +1,205 @@
+<view class="page">
+  <!-- Tab bar -->
+  <view class="tab-bar" wx:if="{{!shareGenerated}}">
+    <view class="tab-item active">分享好友</view>
+    <view
+      class="tab-item"
+      catch:tap="onPublishToCommunity"
+    >分享到社区</view>
+  </view>
+
+  <!-- ============ 分享好友 ============ -->
+  <view class="tab-content">
+    <!-- Preview card -->
+    <view class="preview-card" wx:if="{{todo}}">
+      <text class="todo-title">{{todo.text}}</text>
+
+      <!-- 子任务 -->
+      <view wx:if="{{subtaskSummary && fieldVisibility.subtask}}" class="subtask-section">
+        <view class="section-header">
+          <t-icon name="tree-list" size="32rpx" color="#999" />
+          <text class="label">子任务</text>
+        </view>
+        <text class="preview-subtasks">{{subtaskSummary}}</text>
+      </view>
+
+      <!-- 标签 -->
+      <view wx:if="{{tagList.length > 0 && fieldVisibility.tags}}" class="tags-info">
+        <view class="section-header">
+          <t-icon name="tag" size="32rpx" color="#999" />
+          <text class="label">标签</text>
+        </view>
+        <view class="tags-list">
+          <view class="tag-badge" wx:for="{{tagList}}" wx:key="id" style="background: {{item.color}}20; border-color: {{item.color}}">
+            <view class="tag-dot" style="background: {{item.color}}"></view>
+            <text class="tag-text" style="color: {{item.color}}">{{item.name}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="preview-meta">
+        <view wx:if="{{dateText && fieldVisibility.date}}" class="date-info date-info-priority">
+          <view class="section-header">
+            <t-icon name="time" size="32rpx" color="#999" />
+            <text class="label">截止时间</text>
+          </view>
+          <text class="value">{{dateText}}</text>
+        </view>
+        <view wx:if="{{priorityText && fieldVisibility.priority}}" class="date-info date-info-priority">
+          <view class="section-header">
+            <t-icon name="flag" size="32rpx" color="#999" />
+            <text class="label">优先等级</text>
+          </view>
+          <view class="pd priority-detail-{{todo.priority}}"></view>
+          <text class="value">{{priorityText}}</text>
+        </view>
+      </view>
+
+      <!-- 备注 -->
+      <view wx:if="{{todo.remarks && fieldVisibility.remarks}}" class="remarks-section">
+        <view class="section-header">
+          <t-icon name="edit-2" size="32rpx" color="#999" />
+          <text class="label">备注</text>
+        </view>
+        <text class="value">{{todo.remarks}}</text>
+      </view>
+
+      <!-- 位置信息 -->
+      <view wx:if="{{todo.location && todo.location.name && fieldVisibility.location}}" class="location-section">
+        <view class="section-header">
+          <t-icon name="pin" size="32rpx" color="#999" />
+          <text class="label">位置信息</text>
+        </view>
+        <view class="location-content">
+          <text class="loc-name">{{todo.location.name}}</text>
+          <text wx:if="{{todo.location.address}}" class="loc-address">{{todo.location.address}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- Preview hint -->
+    <view class="preview-hint">上方为分享卡片预览框，溢出预览框的内容将不能在聊天中显示</view>
+    
+    <!-- Field visibility picker (参照 todo-detail 通知卡片样式) -->
+    <view class="field-picker-card {{showFieldPicker ? 'expanded' : ''}}" wx:if="{{!shareGenerated}}">
+      <view class="field-picker-header" bindtap="onFieldPickerTap">
+        <view class="field-picker-header-left">
+          <t-icon name="layers" size="32rpx" color="#999" />
+          <text class="field-picker-label">显示字段</text>
+          <text class="field-picker-summary">{{fieldPickerSummary}}</text>
+        </view>
+        <view class="field-picker-header-right">
+          <t-icon name="{{showFieldPicker ? 'chevron-up' : 'chevron-right'}}" size="28rpx" color="#999" />
+        </view>
+      </view>
+      <view wx:if="{{showFieldPicker}}" class="field-picker-body">
+        <t-checkbox-group value="{{fieldPickerValue}}" bind:change="onFieldVisibilityChange">
+          <t-checkbox
+            wx:for="{{fieldPickerOptions}}" wx:key="key"
+            label="{{item.label}}"
+            value="{{item.key}}"
+          >
+            <t-icon slot="prefix" name="{{item.icon}}" size="32rpx" color="#999" />
+          </t-checkbox>
+        </t-checkbox-group>
+        <view class="field-picker-hint">选中的字段将在预览卡片中显示</view>
+      </view>
+    </view>
+
+    <!-- Settings (before generation) -->
+    <view wx:if="{{!shareGenerated}}" class="settings-section">
+      <!-- 1. 有效期 -->
+      <t-cell title="有效期" arrow bind:tap="onExpiryTap">
+        <view slot="note">
+          <text wx:for="{{expiryOptions}}" wx:key="value">
+            <text wx:if="{{item.value === settings.expiry}}">{{item.label}}</text>
+          </text>
+        </view>
+      </t-cell>
+
+      <!-- 2. 访问密码 -->
+      <t-cell title="访问密码">
+        <t-input
+          slot="note"
+          class="cell-input"
+          placeholder="设置密码（可选）"
+          value="{{settings.password}}"
+          bind:change="onPasswordChange"
+        />
+      </t-cell>
+
+      <!-- 3. 最大次数 -->
+      <t-cell title="最大次数">
+        <t-input
+          slot="note"
+          class="cell-input-right"
+          placeholder="不限"
+          type="digit"
+          value="{{settings.maxViews}}"
+          bind:change="onMaxViewsChange"
+        />
+      </t-cell>
+
+      <!-- 4. 备注 -->
+      <t-cell title="备注">
+        <t-input
+          slot="note"
+          class="cell-input"
+          placeholder="分享描述（可选）"
+          value="{{settings.remark}}"
+          bind:change="onRemarkChange"
+        />
+      </t-cell>
+
+      <!-- 5. 允许复制 -->
+      <t-cell title="允许复制">
+        <t-switch
+          slot="note"
+          class="switch-inline"
+          checked="{{settings.allowCopy}}"
+          bind:change="onAllowCopyChange"
+        />
+      </t-cell>
+
+      <!-- 6. 访客记录 -->
+      <t-cell title="访客记录">
+        <t-switch
+          slot="note"
+          class="switch-inline"
+          checked="{{settings.trackVisitors}}"
+          bind:change="onTrackVisitorsChange"
+        />
+      </t-cell>
+
+      <!-- Generate button -->
+      <view
+        class="btn-generate {{pointsInsufficient ? 'disabled' : ''}}"
+        bind:tap="onGenerateShareCard"
+      >{{pointsCostDisplay ? '生成分享卡片' + pointsCostDisplay : '生成分享卡片'}}</view>
+    </view>
+
+    <!-- Actions (after generation) -->
+    <view wx:if="{{shareGenerated}}" class="action-section">
+      <t-button
+        block
+        size="large"
+        theme="primary"
+        open-type="share"
+        data-channel="share"
+      >{{settingsDirty ? '分享给朋友（消耗2积分）' : '分享给朋友'}}</t-button>
+    </view>
+  </view>
+
+  <!-- ============ Expiry Picker (shared) ============ -->
+  <t-picker
+    visible="{{expiryVisible}}"
+    value="{{[settings.expiry]}}"
+    bind:confirm="onExpiryConfirm"
+    bind:cancel="onExpiryCancel"
+    confirm-btn="确认"
+    cancel-btn="取消"
+    title="选择有效期"
+  >
+    <t-picker-item options="{{expiryOptions}}" />
+  </t-picker>
+</view>

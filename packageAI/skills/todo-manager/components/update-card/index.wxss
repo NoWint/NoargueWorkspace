@@ -1,0 +1,38 @@
+.op-card {
+  background: #fff;
+  border-radius: 16rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.08);
+  padding: 32rpx 24rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.op-icon {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  margin-bottom: 16rpx;
+}
+.op-icon.success {
+  background-color: #e3f5eb;
+  color: #00b26a;
+}
+.op-icon.error {
+  background-color: #fff3e0;
+  color: #ff9800;
+}
+.op-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  margin-bottom: 8rpx;
+}
+.op-title.success {
+  color: #00b26a;
+}
+.op-title.error {
+  color: #ff9800;
+}

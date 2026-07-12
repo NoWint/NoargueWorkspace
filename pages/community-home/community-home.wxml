@@ -1,0 +1,104 @@
+<view class="top">
+  <view class="header" style="padding-top:{{navBarHeight-44}}px;padding-left:{{menuRight+20}}rpx">
+    <text class="title">社区</text>
+    <view class="header-right" bindtap="goToUserCenter" wx:if="{{isLoggedIn}}">
+      <image class="header-avatar" src="{{avatarUrl || '../../images/avatar.png'}}" />
+      <text class="header-nickname">{{nickname || '用户'}}</text>
+    </view>
+    <view class="action-group" style="right:{{menuRight + menuWidth + 10}}px">
+      <t-icon name="search" size="40rpx" color="#000" bindtap="onSearch" />
+    </view>
+  </view>
+</view>
+
+<scroll-view
+  scroll-y
+  scroll-top="{{scrollTop}}"
+  class="scroll-view"
+  style="height: calc(100vh - 170rpx);"
+  bind:scroll="onScroll"
+  bind:scrolltolower="onLoadMore"
+  refresher-enabled="{{true}}"
+  refresher-triggered="{{refreshing}}"
+  bind:refresherrefresh="onRefresh"
+>
+  <!-- 签到卡片 -->
+  <view class="checkin-card" wx:if="{{isLoggedIn}}" bindtap="goToCheckin">
+    <view class="card-header">
+      <view class="card-left">
+        <t-icon name="task-checked-1" size="48rpx" color="#00b26a" />
+        <text class="card-streak-num" wx:if="{{checkinData.streakDays > 0}}">{{checkinData.streakDays}}</text>
+        <text class="card-streak-label" wx:if="{{checkinData.streakDays > 0}}">天连签</text>
+      </view>
+      <view class="card-right">
+        <text class="card-week">{{yearWeek}}</text>
+      </view>
+    </view>
+
+    <!-- Badge 行 -->
+    <view class="card-badges" wx:if="{{checkinData.streakDays > 0}}">
+      <text class="badge-tag" wx:for="{{badgeList}}" wx:key="index" style="border-color:{{item.color}};color:{{item.color}}">{{item.text}}</text>
+    </view>
+
+    <!-- 签到按钮区域 -->
+    <view class="card-action">
+      <view class="card-week-row">
+        <view class="weekday" wx:for="{{weekDays}}" wx:key="index">
+          <text class="weekday-label">{{item.label}}</text>
+          <view class="weekday-dot {{item.status}}">
+            <t-icon wx:if="{{item.status === 'checked'}}" name="check" size="42rpx" color="white" />
+            <text wx:else>{{item.display}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="card-checkin-btn {{checkinData.checkedIn ? 'checked' : ''}}" catch:tap="onCardCheckin">
+        <t-icon wx:if="{{checkinData.checkedIn}}" name="check" size="48rpx" color="white" />
+        <text wx:else class="checkin-btn-text">签</text>
+      </view>
+    </view>
+
+    <!-- 排行榜入口 -->
+    <view class="card-footer" catch:tap="goToLeaderboard">
+      <text class="leaderboard-link">排行榜 ></text>
+    </view>
+  </view>
+
+  <!-- 加载失败占位 -->
+  <view class="checkin-card" wx:elif="{{isLoggedIn && checkinError}}" catch:tap="loadCheckinData">
+    <text class="error-hint">签到数据加载失败，点击重试</text>
+  </view>
+
+  <view class="feed-list">
+    <block wx:for="{{postList}}" wx:key="postId">
+      <post-card
+        post="{{item}}"
+        renderMarkdown="{{true}}"
+        expanded="{{expandedPostId === item.postId}}"
+        todoItems="{{postTodoMap[item.postId] || []}}"
+        bind:tapAuthor="onPostTapAuthor"
+        bind:tapCard="goToDetail"
+        bind:tapDetail="goToDetail"
+        bind:tapImage="previewImage"
+        bind:tapTodoExpand="toggleTodoExpand"
+        bind:tapTodo="goToTodoDetail"
+        bind:tapCombo="handleComboTap"
+        bind:tapLocation="openLocation"
+        bind:toggleLike="toggleLike"
+      />
+    </block>
+    <view wx:if="{{loadingMore}}" class="loading-more">
+      <t-loading loading="{{true}}" size="40rpx" />
+      <text>加载中...</text>
+    </view>
+    <view wx:if="{{!hasMore && postList.length > 0}}" class="no-more">
+      <text>— 没有更多了 —</text>
+    </view>
+    <view wx:if="{{!loading && postList.length === 0}}" class="empty-state">
+      <t-icon name="message" size="100rpx" />
+      <text>暂无帖子，快来发布第一条吧</text>
+    </view>
+  </view>
+</scroll-view>
+
+<t-fab wx:if="{{showBackTop}}" icon="arrow-up" bind:click="onToTop" style="right: 32rpx; bottom: 150rpx;" />
+<t-fab icon="add" bind:click="goToEdit" style="right: 32rpx; bottom: 32rpx;" />

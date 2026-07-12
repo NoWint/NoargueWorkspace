@@ -1,0 +1,78 @@
+.member-list {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.06);
+  padding: 24rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+.member-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 28rpx;
+  color: #333333;
+  font-weight: 500;
+  margin-bottom: 16rpx;
+  padding-bottom: 12rpx;
+  border-bottom: 2rpx solid #f0f0f0;
+}
+.member-count {
+  font-size: 24rpx;
+  color: #999999;
+  font-weight: normal;
+}
+.member-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 14rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+.member-avatar {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  background-color: #e3f5eb;
+  color: #00b26a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  font-weight: 500;
+  flex-shrink: 0;
+  margin-right: 16rpx;
+}
+.member-info {
+  flex: 1;
+  min-width: 0;
+}
+.member-name {
+  font-size: 28rpx;
+  color: #333333;
+}
+.member-role-badge {
+  font-size: 22rpx;
+  padding: 4rpx 14rpx;
+  border-radius: 8rpx;
+  flex-shrink: 0;
+}
+.member-role-badge.owner {
+  background-color: #fff3e0;
+  color: #ff9800;
+}
+.member-role-badge.admin {
+  background-color: #e3f5eb;
+  color: #00b26a;
+}
+.member-role-badge.member {
+  background-color: #f5f5f5;
+  color: #999999;
+}
+.empty-state {
+  padding: 60rpx 0;
+  text-align: center;
+  font-size: 28rpx;
+  color: #cccccc;
+}

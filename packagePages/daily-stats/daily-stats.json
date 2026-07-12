@@ -1,0 +1,12 @@
+{
+  "usingComponents": {
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-calendar": "tdesign-miniprogram/calendar/calendar",
+    "t-cell": "tdesign-miniprogram/cell/cell",
+    "t-cell-group": "tdesign-miniprogram/cell-group/cell-group",
+    "t-tag": "tdesign-miniprogram/tag/tag",
+    "t-fab": "tdesign-miniprogram/fab/fab",
+    "t-radio": "tdesign-miniprogram/radio/radio"
+  },
+  "navigationBarTitleText": "每日统计"
+}

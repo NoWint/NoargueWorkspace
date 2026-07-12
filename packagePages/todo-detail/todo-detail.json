@@ -1,0 +1,15 @@
+{
+  "usingComponents": {
+    "t-fab": "tdesign-miniprogram/fab/fab",
+    "t-chat-markdown": "tdesign-miniprogram/chat-markdown/chat-markdown",
+    "t-action-sheet": "tdesign-miniprogram/action-sheet/action-sheet",
+    "t-switch": "tdesign-miniprogram/switch/switch",
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-grid": "tdesign-miniprogram/grid/grid",
+    "t-grid-item": "tdesign-miniprogram/grid-item/grid-item",
+    "t-popup": "tdesign-miniprogram/popup/popup",
+    "t-loading": "tdesign-miniprogram/loading/loading"
+  },
+  "navigationBarTitleText": "待办详情",
+  "enablePullDownRefresh": true
+}

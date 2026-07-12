@@ -1,0 +1,170 @@
+.users-container {
+  padding-bottom: 100rpx;
+  min-height: 100vh;
+}
+
+.header {
+  padding: 30rpx 28rpx;
+  margin-bottom: 8rpx;
+}
+
+.title {
+  display: block;
+  font-size: 48rpx;
+  font-weight: 600;
+  color: #2d3436;
+}
+
+.subtitle {
+  display: block;
+  font-size: 28rpx;
+  color: #666;
+  margin-top: 8rpx;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin: 20rpx;
+  padding: 20rpx;
+  background: #fff;
+  border-radius: 32rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+}
+
+.search-input-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 16rpx 20rpx;
+  background: #f5f5f5;
+  border-radius: 32rpx;
+}
+
+.search-input {
+  flex: 1;
+  font-size: 28rpx;
+}
+
+.search-btn {
+  padding: 12rpx 24rpx;
+  background: linear-gradient(135deg, #00B26A 0%, #3ddaa0 100%);
+  color: #fff;
+  font-size: 24rpx;
+  border-radius: 32rpx;
+  border: none;
+}
+
+.search-btn::after {
+  border: none;
+}
+
+.user-list {
+  display: flex;
+  flex-direction: column;
+  margin: 20rpx;
+  gap: 20rpx;
+}
+
+.user-card {
+  background: #fff;
+  border-radius: 32rpx;
+  padding: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+}
+
+.user-header {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.user-avatar {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  background: #f0f0f0;
+}
+
+.user-basic {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.user-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #2d3436;
+}
+
+.user-id {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.arrow-wrap {
+  padding: 10rpx;
+}
+
+.user-stats {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.stat-badge {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  padding: 10rpx 16rpx;
+  background: #f8f9fa;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.stat-badge.todo {
+  background: rgba(0, 178, 106, 0.1);
+  color: #00B26A;
+}
+
+.stat-badge.combo {
+  background: rgba(245, 87, 108, 0.1);
+  color: #f5576c;
+}
+
+.stat-badge.limit {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+}
+
+.user-footer {
+  margin-top: 16rpx;
+}
+
+.register-time {
+  font-size: 22rpx;
+  color: #bbb;
+}
+
+.loading, .no-more, .empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  padding: 60rpx 0;
+  color: #999;
+  font-size: 26rpx;
+}
+
+.empty {
+  padding: 120rpx 0;
+}

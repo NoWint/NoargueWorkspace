@@ -1,0 +1,239 @@
+{
+  "apis": [
+    {
+      "name": "createTodo",
+      "description": "创建一条新的待办事项。用户表达『添加』『新建』『创建』『记一下』等意图时调用",
+      "_meta": {
+        "ui": { "componentPath": "components/todo-form-card/index" }
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "待办内容，必填。例如『买牛奶』『提交周报』。用户未说出具体内容时，主动询问用户要记录什么"
+          },
+          "setDate": {
+            "type": "string",
+            "description": "日期，YYYY-MM-DD 格式。例如『2026-06-13』。用户说『今天』『明天』『下周一』时需转换成具体日期。未指定时传空字符串，后端默认当天"
+          },
+          "setTime": {
+            "type": "string",
+            "description": "时间，HH:MM 格式。例如『14:30』。用户说『下午两点半』时需转换成『14:30』。未指定时传空字符串，后端默认12:00"
+          },
+          "remarks": {
+            "type": "string",
+            "description": "备注说明，可留空；例如详细地址、注意事项等补充信息"
+          },
+          "tags": {
+            "type": "array",
+            "items": { "type": "number" },
+            "description": "标签ID数组，如 [1,2]。1=工作 2=学习 3=生活 4=健康 5=购物 6=其他。用户未指定时传空数组"
+          }
+        },
+        "required": ["text"]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "text": { "type": "string" },
+          "setDate": { "type": "string" },
+          "setTime": { "type": "string" },
+          "completed": { "type": "boolean" },
+          "tags": { "type": "array", "items": { "type": "number" } }
+        }
+      }
+    },
+    {
+      "name": "listTodos",
+      "description": "查询待办列表，支持按条件筛选。用户问『我的待办』『今天有什么』『未完成的』等时调用",
+      "_meta": {
+        "ui": { "componentPath": "components/todo-list-card/index" }
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "筛选日期，YYYY-MM-DD 格式。例如『2026-06-13』。用户说『今天』『明天』时需转换成具体日期。不传则返回所有待办"
+          },
+          "completed": {
+            "type": "boolean",
+            "description": "筛选完成状态：true=只看已完成，false=只看未完成。不传返回全部"
+          },
+          "tagId": {
+            "type": "number",
+            "description": "按标签ID筛选。1=工作 2=学习 3=生活 4=健康 5=购物 6=其他。不传返回全部"
+          },
+          "isStar": {
+            "type": "boolean",
+            "description": "是否只显示收藏的待办（isStar=true）。不传返回全部"
+          },
+          "keyword": {
+            "type": "string",
+            "description": "按关键词搜索 text 和 remarks 字段。例如『买』『周报』。不传返回全部"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "todos": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "text": { "type": "string" },
+                "setDate": { "type": "string" },
+                "setTime": { "type": "string" },
+                "completed": { "type": "boolean" },
+                "tags": { "type": "array", "items": { "type": "number" } }
+              }
+            }
+          },
+          "total": { "type": "number" },
+          "completedCount": { "type": "number" }
+        }
+      }
+    },
+    {
+      "name": "completeTodo",
+      "description": "切换待办的完成/未完成状态。用户说『完成』『标记完成』『取消完成』时调用。需先调用 listTodos 获取 todoId",
+      "_meta": {
+        "ui": { "componentPath": "components/complete-card/index" }
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "todoId": {
+            "type": "string",
+            "description": "待办ID，取自上游接口 listTodos 返回的 id 字段原值。不要从用户自然语言推断，也不要使用示例值。上下文无可用 todoId 时，应先调 listTodos"
+          },
+          "completed": {
+            "type": "boolean",
+            "description": "true=标记完成，false=取消完成"
+          }
+        },
+        "required": ["todoId", "completed"]
+      },
+      "outputSchema": {}
+    },
+    {
+      "name": "updateTodo",
+      "description": "编辑已有的待办事项。用户说『修改』『编辑』『改一下』时调用。需先调用 listTodos 获取 todoId",
+      "_meta": {
+        "ui": { "componentPath": "components/update-card/index" }
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "todoId": {
+            "type": "string",
+            "description": "待办ID，取自上游接口 listTodos 返回的 id 字段原值。不要从用户自然语言推断，也不要使用示例值"
+          },
+          "text": {
+            "type": "string",
+            "description": "新的待办内容。不传则不修改"
+          },
+          "setDate": {
+            "type": "string",
+            "description": "新的日期，YYYY-MM-DD 格式。不传则不修改"
+          },
+          "setTime": {
+            "type": "string",
+            "description": "新的时间，HH:MM 格式。不传则不修改"
+          },
+          "remarks": {
+            "type": "string",
+            "description": "新的备注。不传则不修改"
+          }
+        },
+        "required": ["todoId"]
+      },
+      "outputSchema": {}
+    },
+    {
+      "name": "deleteTodo",
+      "description": "删除待办事项（软删除，进入回收站）。用户说『删除』『移除』时调用。需先调用 listTodos 获取 todoId",
+      "_meta": {
+        "ui": { "componentPath": "components/delete-card/index" }
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "todoId": {
+            "type": "string",
+            "description": "待办ID，取自上游接口 listTodos 返回的 id 字段原值。不要从用户自然语言推断，也不要使用示例值"
+          }
+        },
+        "required": ["todoId"]
+      },
+      "outputSchema": {}
+    },
+    {
+      "name": "searchTodos",
+      "description": "搜索待办事项。用户说『搜索』『查找』『找一下』『有没有关于』时调用",
+      "_meta": { "ui": { "componentPath": "components/search-results-card/index" } },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "keyword": {
+            "type": "string",
+            "description": "搜索关键词，匹配待办文本和备注。例如『买』『工作』『周报』。用户未说出具体关键词时，主动询问用户想搜索什么"
+          }
+        },
+        "required": ["keyword"]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "keyword": { "type": "string" },
+          "todos": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "text": { "type": "string" },
+                "setDate": { "type": "string" }
+              }
+            }
+          },
+          "total": { "type": "number" }
+        }
+      }
+    }
+  ],
+  "components": [
+    {
+      "path": "components/todo-list-card/index",
+      "relatedPage": "/pages/todo/todo"
+    },
+    {
+      "path": "components/todo-card/index",
+      "relatedPage": "/packagePages/todo-detail/todo-detail"
+    },
+    {
+      "path": "components/todo-form-card/index",
+      "relatedPage": "/packagePages/add-todo/add-todo"
+    },
+    {
+      "path": "components/search-results-card/index",
+      "relatedPage": "/packagePages/todo-search/todo-search"
+    },
+    {
+      "path": "components/complete-card/index",
+      "relatedPage": "/pages/todo/todo"
+    },
+    {
+      "path": "components/update-card/index",
+      "relatedPage": "/pages/todo/todo"
+    },
+    {
+      "path": "components/delete-card/index",
+      "relatedPage": "/packageTools/trash/trash"
+    }
+  ]
+}

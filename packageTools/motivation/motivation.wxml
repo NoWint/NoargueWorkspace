@@ -1,0 +1,38 @@
+<view class="container">
+  <view class="header">
+    <text class="title">增加待办上限</text>
+    <text class="desc">观看广告即可增加待办数量上限</text>
+  </view>
+
+  <view class="limit-section">
+    <text class="limit-num">{{todoLimit}}</text>
+    <text class="limit-unit">个待办</text>
+  </view>
+
+  <view class="rule-card">
+    <view class="rule-item">
+      <t-icon name="play-circle" size="40rpx" color="#00b26a" />
+      <text class="rule-text">观看完整广告视频</text>
+    </view>
+    <view class="rule-arrow">
+      <t-icon name="arrow-down" size="32rpx" color="#ccc" />
+    </view>
+    <view class="rule-item">
+      <t-icon name="add-circle" size="40rpx" color="#00b26a" />
+      <text class="rule-text">待办上限 +10</text>
+    </view>
+  </view>
+
+  <block wx:if="{{adLoaded}}">
+    <button class="watch-btn" bindtap="watchAd" loading="{{loading}}">
+      <t-icon name="play-circle" size="44rpx" color="#fff" />
+      <text class="btn-text">观看广告</text>
+    </button>
+  </block>
+  <block wx:else>
+    <view class="no-ad-tip">
+      <t-icon name="time" size="48rpx" color="#ccc" />
+      <text class="no-ad-text">广告加载中，请稍后再试</text>
+    </view>
+  </block>
+</view>

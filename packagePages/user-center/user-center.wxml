@@ -1,0 +1,146 @@
+<view class="container">
+  <!-- ========== 未登录态 ========== -->
+  <view wx:if="{{!isLoggedIn}}" class="login-section">
+    <view class="login-decor">
+      <view class="decor-circle decor-c1"></view>
+      <view class="decor-circle decor-c2"></view>
+      <view class="decor-circle decor-c3"></view>
+    </view>
+    <view class="login-card">
+      <view class="login-avatar-ring">
+        <image class="login-avatar" src="https://api.yzjtiantian.cn/uploads/logo/logo.png" />
+      </view>
+      <text class="login-title">时光绿径待办</text>
+      <text class="login-desc">记录你的每日足迹，让成长清晰可见</text>
+      <button class="login-btn" bindtap="handleLogin">
+        <t-icon name="logo-wechat-stroke" size="36rpx" color="#fff" />
+        <text>微信一键登录</text>
+      </button>
+      <text class="login-hint">登录后可同步数据、参与协作</text>
+    </view>
+  </view>
+
+  <!-- ========== 已登录态 ========== -->
+  <view wx:else class="user-section">
+    <view class="greeting-row">
+      <t-icon name="{{greetingIcon}}" size="52rpx" color="#00b26a"/>
+      <text class="greeting-text">{{timeGreeting}}，</text>
+    </view>
+
+    <view class="daily-motto">{{dailyMotto}}</view>
+
+    <!-- 个人资料卡片 -->
+    <view class="profile-card">
+      <view class="profile-content">
+        <view class="profile-top">
+          <button class="avatar-wrapper" open-type="chooseAvatar" bind:chooseavatar="chooseAvatar">
+            <view class="avatar-ring">
+              <image class="user-avatar" src="{{avatarUrl || '/images/avatar.png'}}" />
+            </view>
+            <view class="avatar-edit-badge">
+              <t-icon name="edit-1" size="24rpx" color="#fff" />
+            </view>
+          </button>
+          <view class="profile-info">
+            <view class="name-row">
+              <text wx:if="{{nickname}}" class="user-nickname">{{nickname}}</text>
+              <text wx:else class="user-nickname placeholder" bindtap="startEditNickname">点击设置昵称</text>
+              <view class="name-edit-btn" bindtap="startEditNickname">
+                <t-icon name="edit-1" size="30rpx" color="#00b26a" />
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 昵称编辑态 -->
+        <view wx:if="{{isEditing}}" class="nickname-edit-bar">
+          <view class="nickname-edit-inner">
+            <input
+              class="nickname-input"
+              type="nickname"
+              value="{{tempNickname}}"
+              bindinput="onNicknameInput"
+              bindblur="onNicknameBlur"
+              placeholder="请输入昵称"
+              maxlength="20"
+              focus="{{true}}"
+            />
+            <view class="edit-actions">
+              <text class="edit-btn cancel" bindtap="cancelEdit">取消</text>
+              <text class="edit-btn confirm" bindtap="confirmEdit">确定</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 数据概览卡片 -->
+    <view class="stats-card">
+      <view class="stats-row stats-row-top">
+        <view class="stats-item">
+          <text class="stats-value">{{regDays}}</text>
+          <text class="stats-label">已加入天数</text>
+        </view>
+        <view class="stats-divider"></view>
+        <view class="stats-item">
+          <text class="stats-value">{{streakDays}}</text>
+          <text class="stats-label">连续坚持</text>
+        </view>
+        <view class="stats-divider"></view>
+        <view class="stats-item">
+          <text class="stats-value">{{todoCount}}<text class="stats-limit">/{{todoLimit}}</text></text>
+          <text class="stats-label">待办事项</text>
+        </view>
+      </view>
+      <view class="stats-row-sep"></view>
+      <view class="stats-row">
+        <view class="stats-item">
+          <text class="stats-value">{{comboCount}}<text class="stats-limit">/{{comboLimit}}</text></text>
+          <text class="stats-label">我的组合</text>
+        </view>
+        <view class="stats-divider"></view>
+        <view class="stats-item">
+          <text class="stats-value">{{collabCount}}<text class="stats-limit">/{{collabLimit}}</text></text>
+          <text class="stats-label">共享组合</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 账号信息（可折叠） -->
+    <view class="collapse-section">
+      <view class="collapse-header" bindtap="toggleInfo">
+        <view class="collapse-header-left">
+          <t-icon name="personal-information" size="28rpx" color="#999" />
+          <text class="collapse-title">账号信息</text>
+        </view>
+        <t-icon name="{{showInfo ? 'chevron-up' : 'chevron-down'}}" size="28rpx" color="#ccc" />
+      </view>
+      <view wx:if="{{showInfo}}" class="collapse-body">
+        <view class="info-row">
+          <text class="info-label">用户 ID</text>
+          <view class="info-value-wrap" bindtap="copyUserId" data-value="{{userId}}">
+            <text class="info-value">{{userId || '未获取'}}</text>
+            <t-icon name="copy" size="24rpx" color="#ccc" />
+          </view>
+        </view>
+        <view class="info-divider"></view>
+        <view class="info-row">
+          <text class="info-label">OPENID</text>
+          <view class="info-value-wrap" bindtap="copyOpenid" data-value="{{openid}}">
+            <text class="info-value openid">{{openid || '未获取'}}</text>
+            <t-icon name="copy" size="24rpx" color="#ccc" />
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 退出登录 -->
+    <view class="logout-section">
+      <view class="logout-btn" bindtap="handleLogout" hover-class="logout-hover">
+        <t-icon name="logout" size="32rpx" color="#e34d59" />
+        <text class="logout-text">退出登录</text>
+      </view>
+    </view>
+
+  </view>
+</view>

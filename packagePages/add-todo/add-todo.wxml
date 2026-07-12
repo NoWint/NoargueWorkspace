@@ -1,0 +1,340 @@
+<wxs module="utils">
+module.exports = {
+  includes: function(arr, val) {
+    if (!arr) return false;
+    if (typeof arr.length === 'undefined') return false;
+    if (arr.length === 0) return false;
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i] == val) return true;
+    }
+    return false;
+  }
+}
+</wxs>
+
+<view wx:if="{{isVoiceMode}}" class="voice-tip">
+  <image src="../../images/todo-active.png" class="voice-icon"/>
+  <text class="tip-text">语音识别已完成，可继续完善其他信息</text>
+</view>
+<view wx:elif="{{isFromReport}}" class="voice-tip">
+  <image src="../../images/todo-active.png" class="voice-icon"/>
+  <text class="tip-text">从日报导入，可继续完善其他信息</text>
+</view>
+<view wx:elif="{{isEditMode}}" class="voice-tip">
+  <image src="../../images/todo-active.png" class="voice-icon"/>
+  <text class="tip-text">编辑已有待办，可修改各项信息</text>
+</view>
+
+<view class="container">
+  <view class="form-container">
+    <view class="form-item">
+      <text class="question-title">待办内容<text class="required">*</text></text>
+      <t-input
+        style="--td-input-bg-color: #f8f8f8"
+        placeholder="请输入待办内容"
+        value="{{inputValue}}"
+        borderless
+        bind:change="handleInputChange"
+        data-field="inputValue"
+      />
+    </view>
+
+    <view class="form-item">
+      <text class="question-title">截止时间<text class="required">*</text></text>
+      <view class="deadline">
+        <view class="picker-field" bindtap="showCalendar">
+          <text>{{setDate || '请选择日期'}}</text>
+          <t-icon name="calendar"></t-icon>
+        </view>
+        <picker
+          mode="time"
+          value="{{setTime}}"
+          bindchange="bindTimeChange">
+          <view class="picker-field">
+            {{setTime || '请选择时间'}}
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <t-calendar
+      id="calendar"
+      value="{{value}}"
+      visible="{{showCalendar}}"
+      min-date="{{minDate}}"
+      max-date="{{maxDate}}"
+      format="{{format}}"
+      confirm-btn="确定"
+      bind:confirm="handleCalendarConfirm"
+      bind:close="handleCalendarClose"
+    />
+
+    <view class="form-item">
+      <text class="question-title">地点</text>
+      <view class="picker-field" bindtap="chooseLocation">
+        {{location ? location.name + ' - ' + location.address : '点击选择位置'}}
+      </view>
+      <view wx:if="{{location}}" class="clear-combo" bindtap="clearLocation">清除地点</view>
+    </view>
+
+    <view class="form-item">
+      <text class="question-title">优先等级</text>
+      <view class="priority-grid">
+        <view class="quadrant {{priority === 'p1' ? 'active' : ''}}" data-priority="p1" bindtap="setPriority">
+          <view class="priority-row"><view class="priority-dot dot-p1"></view><text class="ql">紧急重要</text></view>
+          <text class="qd">马上做</text>
+        </view>
+        <view class="quadrant {{priority === 'p2' ? 'active' : ''}}" data-priority="p2" bindtap="setPriority">
+          <view class="priority-row"><view class="priority-dot dot-p2"></view><text class="ql">重要不紧急</text></view>
+          <text class="qd">计划做（默认）</text>
+        </view>
+        <view class="quadrant {{priority === 'p3' ? 'active' : ''}}" data-priority="p3" bindtap="setPriority">
+          <view class="priority-row"><view class="priority-dot dot-p3"></view><text class="ql">紧急不重要</text></view>
+          <text class="qd">快速处理</text>
+        </view>
+        <view class="quadrant {{priority === 'p4' ? 'active' : ''}}" data-priority="p4" bindtap="setPriority">
+          <view class="priority-row"><view class="priority-dot dot-p4"></view><text class="ql">不紧急不重要</text></view>
+          <text class="qd">可做可不做</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="form-item">
+      <text class="question-title">标签</text>
+      <view class="tags-container">
+        <view 
+          class="tag-item {{utils.includes(selectedTags, item.id) ? 'selected' : ''}}" 
+          style="--tag-color: {{item.color}}"
+          wx:for="{{tags}}" 
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="toggleTag"
+        >
+          <view class="tag-dot" style="background: {{item.color}}"></view>
+          <text>{{item.name}}</text>
+        </view>
+      </view>
+      <view class="manage-link" bindtap="navigateToTagManage">管理标签</view>
+    </view>
+
+    <view class="form-item">
+      <text class="question-title">附加图片</text>
+      <view class="image-upload-tip">图片由第三方图床托管，图片连续60天未访问将被自动清理</view>
+      <t-upload
+        class="image-upload"
+        mediaType="{{['image']}}"
+        source="{{imageSource}}"
+        max="{{9}}"
+        files="{{fileList}}"
+        gridConfig="{{gridConfig}}"
+        config="{{uploadConfig}}"
+        draggable="{{true}}"
+        addBtn="{{true}}"
+        bind:add="handleImageAdd"
+        bind:remove="handleImageRemove"
+        bind:click="handleImageClick"
+        bind:drop="handleImageDrop"
+      />
+      <view class="image-source-switch" wx:if="{{fileList.length < 9}}">
+        <text class="switch-label">从聊天记录选择</text>
+        <t-switch 
+          value="{{imageSource === 'messageFile'}}" 
+          bind:change="toggleImageSource"
+          size="small"
+        />
+      </view>
+    </view>
+
+    <view class="form-item">
+      <text class="question-title">所属组合</text>
+      <view class="combo-selector" bindtap="showComboSelector">
+        <view wx:if="{{selectedCombo}}" class="selected-combo">
+          <view class="combo-icon-small" style="background: {{selectedCombo.color || '#4CAF50'}}">
+            <t-icon name="{{selectedCombo.icon || 'folder'}}" size="32rpx" color="#fff" />
+          </view>
+          <text class="combo-name-text">{{selectedCombo.name}}</text>
+          <text wx:if="{{isSharedCombo}}" class="shared-badge">共享</text>
+        </view>
+        <view wx:else class="no-combo">
+          <text class="placeholder-text">点击选择组合（可选）</text>
+        </view>
+        <t-icon name="chevron-right" size="32rpx" color="#ccc" />
+      </view>
+      <view wx:if="{{selectedCombo}}" class="clear-combo" bindtap="clearCombo">清除组合</view>
+    </view>
+
+    <view wx:if="{{isSharedCombo}}" class="form-item">
+      <text class="question-title">完成方式</text>
+      <view class="assign-type-selector">
+        <view 
+          class="type-option {{assignType === 'all' ? 'active' : ''}}" 
+          data-type="all"
+          bindtap="setAssignType"
+        >全员完成</view>
+        <view 
+          class="type-option {{assignType === 'any' ? 'active' : ''}}" 
+          data-type="any"
+          bindtap="setAssignType"
+        >任一完成</view>
+        <view 
+          class="type-option {{assignType === 'specific' ? 'active' : ''}}" 
+          data-type="specific"
+          bindtap="setAssignType"
+        >指定成员</view>
+      </view>
+    </view>
+
+    <view wx:if="{{isSharedCombo && (assignType === 'all' || assignType === 'any') && (userRole === 'owner' || userRole === 'admin')}}" class="form-item">
+      <text class="question-title">免完成设置</text>
+      <view class="exclude-options">
+        <view 
+          wx:if="{{userRole === 'admin'}}"
+          class="exclude-option {{excludeType === 'owner' ? 'selected' : ''}}" 
+          data-type="owner"
+          bindtap="toggleExcludeType"
+        >
+          <view class="exclude-radio {{excludeType === 'owner' ? 'checked' : ''}}"></view>
+          <text>超管无需完成</text>
+        </view>
+        <view 
+          wx:if="{{userRole === 'owner'}}"
+          class="exclude-option {{excludeType === 'self' ? 'selected' : ''}}" 
+          data-type="self"
+          bindtap="toggleExcludeType"
+        >
+          <view class="exclude-radio {{excludeType === 'self' ? 'checked' : ''}}"></view>
+          <text>自己（超管）无需完成</text>
+        </view>
+        <view 
+          wx:if="{{userRole === 'admin'}}"
+          class="exclude-option {{excludeType === 'self' ? 'selected' : ''}}" 
+          data-type="self"
+          bindtap="toggleExcludeType"
+        >
+          <view class="exclude-radio {{excludeType === 'self' ? 'checked' : ''}}"></view>
+          <text>自己无需完成</text>
+        </view>
+        <view 
+          class="exclude-option {{excludeType === 'admins' ? 'selected' : ''}}" 
+          data-type="admins"
+          bindtap="toggleExcludeType"
+        >
+          <view class="exclude-radio {{excludeType === 'admins' ? 'checked' : ''}}"></view>
+          <text>管理组（包括超管）无需完成</text>
+        </view>
+        <view 
+          class="exclude-option {{excludeType === '' ? 'selected' : ''}}" 
+          data-type=""
+          bindtap="toggleExcludeType"
+        >
+          <view class="exclude-radio {{excludeType === '' ? 'checked' : ''}}"></view>
+          <text>不设置（全员需完成）</text>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{isSharedCombo && assignType === 'specific' && members.length > 0}}" class="form-item">
+      <text class="question-title">选择完成人</text>
+      <view class="member-select-list">
+        <view 
+          class="member-select-item {{utils.includes(selectedMembers, item.id) ? 'selected' : ''}}" 
+          wx:for="{{members}}" 
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="toggleMemberSelect"
+        >
+          <image class="member-avatar-small" src="{{item.avatarUrl || '/images/avatar.png'}}" />
+          <text class="member-name">{{item.nickname || '用户'}}</text>
+          <t-icon 
+            wx:if="{{utils.includes(selectedMembers, item.id)}}" 
+            name="check" 
+            size="32rpx" 
+            color="#00b26a" 
+          />
+        </view>
+      </view>
+    </view>
+
+    <view class="form-item">
+      <text class="question-title">备注</text>
+      <t-textarea
+        placeholder="可在此添加备注信息"
+        value="{{remarks}}"
+        bind:change="handleRemarksChange"
+        bordered="{{false}}"
+        maxlength="999"
+        disableDefaultPadding="{{true}}"
+        indicator
+        style="--td-textarea-background-color:#f8f8f8"
+      />
+    </view>
+  </view>
+</view>
+
+<t-fab icon="check" text="完成" bindclick="addTodo"/>
+
+<t-popup
+  visible="{{showComboPopup}}"
+  bind:visible-change="onComboPopupVisibleChange"
+  placement="bottom"
+  close-on-overlay-click="{{true}}"
+  z-index="10000"
+  overlay-props="{{ { zIndex: 9999 } }}"
+>
+  <view class="combo-popup-content">
+    <view class="popup-header">
+      <text class="popup-title">选择组合</text>
+      <view class="popup-close" bindtap="hideComboPopup">
+        <t-icon name="close" size="40rpx" color="#999" />
+      </view>
+    </view>
+    
+    <scroll-view class="popup-scroll" scroll-y>
+      <view wx:if="{{combos.length > 0}}" class="combo-section">
+        <text class="section-label">私有组合</text>
+        <view 
+          class="combo-option {{selectedCombo && selectedCombo.id === item.id && !isSharedCombo ? 'selected' : ''}}" 
+          wx:for="{{combos}}" 
+          wx:key="id"
+          data-combo="{{item}}"
+          data-shared="0"
+          bindtap="selectCombo"
+        >
+          <view class="combo-icon-small" style="background: {{item.color || '#4CAF50'}}">
+            <t-icon name="{{item.icon || 'folder'}}" size="36rpx" color="#fff" />
+          </view>
+          <view class="combo-info-text">
+            <text class="combo-name-text">{{item.name}}</text>
+            <text class="combo-count-text">{{item.todoCount || 0}}个待办</text>
+          </view>
+          <t-icon wx:if="{{selectedCombo && selectedCombo.id === item.id && !isSharedCombo}}" name="check" size="36rpx" color="#00b26a" />
+        </view>
+      </view>
+      
+      <view wx:if="{{sharedCombos.length > 0}}" class="combo-section">
+        <text class="section-label">共享组合（仅显示有权限新建待办的组合）</text>
+        <view 
+          class="combo-option {{selectedCombo && selectedCombo.id === item.id && isSharedCombo ? 'selected' : ''}}" 
+          wx:for="{{sharedCombos}}" 
+          wx:key="id"
+          data-combo="{{item}}"
+          data-shared="1"
+          bindtap="selectCombo"
+        >
+          <view class="combo-icon-small" style="background: {{item.color || '#2196F3'}}">
+            <t-icon name="{{item.icon || 'user-group'}}" size="36rpx" color="#fff" />
+          </view>
+          <view class="combo-info-text">
+            <text class="combo-name-text">{{item.name}}</text>
+            <text class="combo-count-text">{{item.todoCount || 0}}个待办 · {{item.memberCount || 1}}人</text>
+          </view>
+          <t-icon wx:if="{{selectedCombo && selectedCombo.id === item.id && isSharedCombo}}" name="check" size="36rpx" color="#00b26a" />
+        </view>
+      </view>
+      
+      <view wx:if="{{combos.length === 0 && sharedCombos.length === 0}}" class="empty-combos">
+        <text>暂无组合，请先创建组合</text>
+      </view>
+    </scroll-view>
+  </view>
+</t-popup>

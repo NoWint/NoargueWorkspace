@@ -1,0 +1,138 @@
+<view class="top">
+  <view class="header" style="padding-top:{{navBarHeight-44}}px;padding-left:{{menuRight+20}}rpx">
+    <text class="title">更多</text>
+  </view>
+</view>
+
+<view class="container">
+  <view class="user-info" bindtap="handleUserTap">
+    <image 
+      class="user-avatar" 
+      src="{{isLoggedIn && avatarUrl ? avatarUrl : '../../images/avatar.png'}}"
+    />
+    <view class="user-text">
+      <view class="user-name-row">
+        <text class="user-name">{{isLoggedIn ? (nickname || '时光绿径用户') : '点击登录'}}</text>
+        <text wx:if="{{isLoggedIn}}" class="logged-in-badge">已登录</text>
+      </view>
+      <view class="user-status">
+        <text wx:if="{{isLoggedIn}}" class="user-id">ID: {{userId || '-'}}</text>
+        <text wx:else class="not-logged">登录后可同步数据</text>
+      </view>
+    </view>
+    <t-icon name="chevron-right" size="40rpx" color="#ccc" />
+  </view>
+
+  <view class="card" wx:if="{{isAdmin}}">
+    <t-cell-group theme="card">
+      <t-cell
+        title="后台管理" 
+        url="/packageAdmin/index/index" 
+        leftIcon="setting-1" hover arrow 
+      />
+      <t-cell
+        title="用户管理"
+        url="/packageAdmin/users/users"
+        left-icon="user" hover arrow
+      />
+      <t-cell
+        title="公告管理"
+        url="/packageAdmin/notices/notices"
+        left-icon="notification" hover arrow
+      />
+      <t-cell
+        title="更新日志"
+        url="/packageAdmin/changelog/changelog"
+        left-icon="bulletpoint" hover arrow
+      />
+      <t-cell
+        title="举报管理"
+        bindtap="goToMyReports"
+        leftIcon="flag" hover arrow
+      />
+    </t-cell-group>
+  </view>
+
+  <view class="card">
+    <t-cell-group theme="card">
+      <t-cell
+        title="签到打卡"
+        url="/packagePages/checkin/checkin"
+        leftIcon="check-circle-filled" hover arrow
+        note="{{totalPoints >= 0 ? totalPoints + ' 积分' : ''}}"
+      />
+      <t-cell
+        title="日报/周报模板"
+        url="/packageCombo/report-templates/report-templates?combo_id=0"
+        leftIcon="edit" hover arrow
+      />
+    </t-cell-group>
+  </view>
+
+  <view class="card">
+    <t-cell-group theme="card">
+      <t-cell 
+        title="加入协作" 
+        bindtap="navigateToJoinCollab"
+        leftIcon="user-add" hover arrow 
+      />
+      <t-cell 
+        title="标签管理" 
+        url="/packageTools/tag-manage/tag-manage" 
+        leftIcon="hashtag" hover arrow 
+      />
+      <t-cell 
+        title="数据管理" 
+        url="/packageTools/datamanage/datamanage" 
+        leftIcon="data" hover arrow 
+      />
+      <t-cell
+        title="容量扩展"
+        url="/packageTools/motivation/motivation"
+        leftIcon="folder-add" hover arrow
+      />
+      <t-cell
+        title="回收站"
+        url="/packageTools/trash/trash"
+        leftIcon="delete" hover arrow
+        note="{{deletedCount > 0 ? deletedCount + ' 项' : ''}}"
+      />
+    </t-cell-group>
+  </view>
+
+  <view class="card">
+    <t-cell-group theme="card">
+      <t-cell 
+        title="使用指南" 
+        url="/packagePages/guide/guide" 
+        leftIcon="book-open" hover arrow 
+      />
+      <t-cell 
+        title="更新日志" 
+        url="/packagePages/changelog/changelog" 
+        leftIcon="bulletpoint" hover arrow 
+        note="{{latestVersion ? 'V' + latestVersion : ''}}"
+      />
+      <t-cell 
+        title="鸣谢" 
+        url="/packageTools/acknowledge/acknowledge" 
+        leftIcon="heart" hover arrow 
+      />
+      <t-cell 
+        title="推广给朋友" 
+        url="/packageTools/star/star" 
+        leftIcon="share-1" hover arrow 
+      />
+    </t-cell-group>
+  </view>
+
+  <view class="tools-card">
+    <t-grid column="{{4}}" hover="{{true}}" theme="card">
+      <t-grid-item t-class-image="image" text="今天吃什么" icon="rice" url="/packageTools/eating/eating"/>
+      <t-grid-item t-class-image="image" text="密码生成器" icon="lock-on" url="/packageTools/password-generator/password-generator"/>
+      <!-- <t-grid-item t-class-image="image" text="智能助手" image="/images/ai.png" url="/pages/ai-chat/ai-chat"/> -->
+    </t-grid>
+  </view>
+
+  <t-fab icon="service" style="right: 32rpx; bottom: 32rpx;" button-props="{{serviceFab}}" />
+</view>

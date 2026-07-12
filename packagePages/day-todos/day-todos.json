@@ -1,0 +1,11 @@
+{
+  "usingComponents": {
+    "t-swipe-cell": "tdesign-miniprogram/swipe-cell/swipe-cell",
+    "t-radio": "tdesign-miniprogram/radio/radio",
+    "t-cell": "tdesign-miniprogram/cell/cell",
+    "t-fab": "tdesign-miniprogram/fab/fab",
+    "t-icon": "tdesign-miniprogram/icon/icon"
+  },
+  "navigationBarTitleText": "日期待办",
+  "navigationStyle": "custom"
+}

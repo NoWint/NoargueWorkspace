@@ -1,0 +1,61 @@
+<view class="top">
+  <view class="header" style="padding-top:{{navBarHeight-22}}px;padding-left:{{menuRight+20}}rpx">
+    <view class="header-left" bindtap="onGoBack">
+      <t-icon name="chevron-left" size="48rpx" color="#2d3436" />
+    </view>
+    <text class="title">{{friendlyDate || selectedDate}}</text>
+  </view>
+</view>
+
+<view class="content">
+  <block wx:if="{{todos.length > 0}}">
+    <view class="todo-section">
+      <text class="section-title">待办事项</text>
+      <block wx:for="{{todos}}" wx:key="index" wx:for-item="todo">
+        <view class="todo-item-wrapper" data-priority="{{todo.priority}}">
+          <t-swipe-cell
+            class="todo-item {{todo.completed ? 'completed' : ''}}"
+            data-index="{{index}}"
+          >
+            <view wx:if="{{todo.isStar}}" class="star-badge">
+              <t-icon name="star-filled" size="26rpx" color="#ffffff" />
+            </view>
+            <t-cell
+              title="{{todo.text}}"
+              description="{{todo.location ? (todo.remarks ? '📍' + todo.location.name + '｜' + todo.remarks : '📍' + todo.location.name) : todo.remarks}}"
+              note="{{todo.setTime}}"
+              bordered="{{false}}"
+              custom-style="width:100%"
+              bindtap="navigateToDetail"
+              data-index="{{index}}"
+            >
+              <view slot="right-icon">
+                <t-radio
+                  checked="{{todo.completed}}"
+                  catch:change="toggleTodo"
+                  block="{{false}}"
+                  data-index="{{index}}"
+                  data-component="t-radio"
+                  custom-style="--td-radio-bg-color: transparent;"
+                />
+              </view>
+            </t-cell>
+            <view slot="right" class="btn-wrapper">
+              <view class="btn edit-btn column" data-index="{{index}}" bindtap="handleSwipeAction" data-type="edit">编辑</view>
+              <view class="btn delete-btn column" data-index="{{index}}" bindtap="handleSwipeAction" data-type="delete">删除</view>
+            </view>
+          </t-swipe-cell>
+        </view>
+      </block>
+    </view>
+  </block>
+  <block wx:else>
+    <view class="empty-container">
+      <t-icon name="time" size="96rpx" color="#ccc" />
+      <text class="empty-text">这一天没有待办</text>
+      <text class="empty-sub-text">点击下方按钮添加待办</text>
+    </view>
+  </block>
+</view>
+
+<t-fab icon="add" bind:click="navigateToAdd" style="right: 32rpx; bottom: 32rpx;" />
