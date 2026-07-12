@@ -1,0 +1,10 @@
+.line {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.line:last-child { border-bottom: 0; padding-bottom: 0; }

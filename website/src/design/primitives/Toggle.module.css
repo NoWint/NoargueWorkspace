@@ -1,0 +1,24 @@
+.toggle {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+.core {
+  display: flex;
+  align-items: center;
+  width: 32px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--accent);
+  padding: 2px;
+}
+.knob {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: var(--card);
+  transition: margin 0.2s;
+}
+.on .core { background: var(--primary); }
+.on .knob { margin-left: auto; }

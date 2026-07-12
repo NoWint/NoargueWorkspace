@@ -1,0 +1,22 @@
+.stat {
+  padding: 14px;
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+.label {
+  font: 500 10px/1 var(--font-mono);
+  color: var(--mt2);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.value {
+  margin-top: 8px;
+  font: 600 22px/1 var(--font-sans);
+  color: var(--fg);
+}
+.acc { color: var(--primary); }
+.delta {
+  margin-top: 4px;
+  font: 500 10.5px/1 var(--font-mono);
+  color: var(--mt);
+}
