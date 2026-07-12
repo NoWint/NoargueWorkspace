@@ -110,6 +110,31 @@ export function StatsView() {
     return { total, completed, rate, streak }
   }, [activeTodos, range])
 
+  // Sparkline data: last 30 days (for top stats)
+  const sparkData = useMemo(() => {
+    const days: string[] = []
+    const d = new Date()
+    for (let i = 29; i >= 0; i--) {
+      const cur = new Date(d)
+      cur.setDate(d.getDate() - i)
+      days.push(formatDate(cur))
+    }
+    const dailyCompleted = days.map((date) =>
+      activeTodos.filter((t) => t.setDate === date && t.completed).length,
+    )
+    const dailyRate = days.map((date) => {
+      const dayTodos = activeTodos.filter((t) => t.setDate === date)
+      if (dayTodos.length === 0) return 0
+      return Math.round(
+        (dayTodos.filter((t) => t.completed).length / dayTodos.length) * 100,
+      )
+    })
+    const dailyTotal = days.map((date) =>
+      activeTodos.filter((t) => t.setDate === date).length,
+    )
+    return { dailyCompleted, dailyRate, dailyTotal }
+  }, [activeTodos])
+
   // ---- 1. Completion trend (line) ----
   const trendOption = useMemo(() => {
     const days = rangeDays(range)
@@ -334,17 +359,24 @@ export function StatsView() {
 
       {/* Stats */}
       <div className={styles.stats}>
-        <Stat label="总待办" value={stats.total} delta="所选范围" />
+        <Stat
+          label="总待办"
+          value={stats.total}
+          delta="所选范围"
+          spark={sparkData.dailyTotal}
+        />
         <Stat
           label="已完成"
           value={stats.completed}
           accent
           delta={<span className={styles.deltaUp}>已完成</span>}
+          spark={sparkData.dailyCompleted}
         />
         <Stat
           label="完成率"
           value={<>{stats.rate}<span className={styles.pctSign}>%</span></>}
           delta="目标 80%"
+          spark={sparkData.dailyRate}
         />
         <Stat label="连续天数" value={stats.streak} accent delta="连续打卡" />
       </div>
