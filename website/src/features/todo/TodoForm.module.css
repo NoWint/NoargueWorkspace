@@ -349,3 +349,56 @@
   height: 7px;
   flex: none;
 }
+
+/* Subtasks */
+.subtaskList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.subtaskItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.subtaskText {
+  flex: 1;
+  font-size: 12.5px;
+  color: var(--fg);
+}
+
+.subtaskRemove {
+  color: var(--mt2);
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+  font-size: 14px;
+  padding: 2px 4px;
+}
+
+.subtaskRemove:hover {
+  color: var(--destructive);
+}
+
+.subtaskInput {
+  height: 30px;
+  border: 1px solid var(--border);
+  background: var(--input);
+  color: var(--fg);
+  font-size: 13px;
+  padding: 0 10px;
+  outline: none;
+}
+
+.subtaskInput:focus {
+  border-color: var(--primary-line);
+}
+
+.subtaskInput::placeholder {
+  color: var(--mt2);
+}

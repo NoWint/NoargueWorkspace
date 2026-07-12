@@ -11,6 +11,7 @@ import { Button, Card, Eyebrow, Tag } from '@/design/primitives'
 import { PlusIcon, CheckIcon, ClockIcon, TagIcon } from '@/design/icons'
 import { todayStr, cn } from '@/lib/utils'
 import styles from './TodoForm.module.css'
+import { ImageUploader } from './ImageUploader'
 
 interface TodoFormProps {
   mode: 'create' | 'edit'
@@ -37,6 +38,10 @@ export function TodoForm({ mode }: TodoFormProps) {
   const [loading, setLoading] = useState(false)
   const [textValue, setTextValue] = useState('')
   const [priority, setPriority] = useState<'high' | 'medium' | 'low'>('low')
+  const [subtasks, setSubtasks] = useState<{ id?: string; text: string }[]>([])
+  const [subtaskInput, setSubtaskInput] = useState('')
+  const [images, setImages] = useState<string[]>([])
+  const fetchSubtodos = useTodoStore((s) => s.fetchSubtodos)
 
   useEffect(() => {
     fetchTags()
@@ -54,6 +59,11 @@ export function TodoForm({ mode }: TodoFormProps) {
           setSelectedTags(t.tags || [])
           setSelectedCombo(t.comboId)
           setPriority((t.priority as 'high' | 'medium' | 'low') || 'low')
+          setImages(t.images || [])
+          fetchSubtodos(id).then(() => {
+            const subs = useTodoStore.getState().subtaskMap[id] || []
+            setSubtasks(subs.map((s) => ({ id: s.id, text: s.text })))
+          })
         }
       })
     } else {
@@ -79,13 +89,43 @@ export function TodoForm({ mode }: TodoFormProps) {
         tags: selectedTags,
         comboId: selectedCombo,
         priority,
+        images,
       }
+      let mainTodoId: string | undefined
       if (mode === 'create') {
-        await createTodo(data)
+        const created = await createTodo(data)
+        mainTodoId = created.id
         message.success('创建成功')
       } else if (id) {
         await updateTodo(id, data)
+        mainTodoId = id
         message.success('更新成功')
+      }
+      // Handle subtasks
+      if (mainTodoId) {
+        if (mode === 'edit') {
+          await fetchSubtodos(mainTodoId)
+          const existing = useTodoStore.getState().subtaskMap[mainTodoId] || []
+          const keptIds = new Set(subtasks.filter((s) => s.id).map((s) => s.id))
+          for (const ex of existing) {
+            if (!keptIds.has(ex.id)) {
+              await useTodoStore.getState().deleteTodo(ex.id)
+            }
+          }
+          for (const sub of subtasks) {
+            if (sub.id) {
+              const orig = existing.find((s) => s.id === sub.id)
+              if (orig && orig.text !== sub.text) {
+                await useTodoStore.getState().updateTodo(sub.id, { text: sub.text })
+              }
+            }
+          }
+        }
+        for (const sub of subtasks) {
+          if (!sub.id) {
+            await createTodo({ text: sub.text, parentId: mainTodoId })
+          }
+        }
       }
       navigate('/')
     } catch (err) {
@@ -286,6 +326,47 @@ export function TodoForm({ mode }: TodoFormProps) {
                 {allTags.length === 0 && (
                   <span className={styles.emptyHint}>暂无标签</span>
                 )}
+              </div>
+            </div>
+
+            {/* Image attachments */}
+            <div className={styles.section}>
+              <div className={styles.fieldLabel}>图片附件</div>
+              <ImageUploader images={images} onChange={setImages} />
+            </div>
+
+            {/* Subtasks */}
+            <div className={styles.section}>
+              <div className={styles.fieldLabel}>子任务</div>
+              <div className={styles.subtaskList}>
+                {subtasks.map((s, i) => (
+                  <div key={i} className={styles.subtaskItem}>
+                    <span className={styles.subtaskText}>{s.text}</span>
+                    <button
+                      type="button"
+                      className={styles.subtaskRemove}
+                      onClick={() => setSubtasks(subtasks.filter((_, idx) => idx !== i))}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+                <input
+                  className={styles.subtaskInput}
+                  placeholder="添加子任务，回车确认"
+                  value={subtaskInput}
+                  onChange={(e) => setSubtaskInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      const text = subtaskInput.trim()
+                      if (text) {
+                        setSubtasks([...subtasks, { text }])
+                        setSubtaskInput('')
+                      }
+                    }
+                  }}
+                />
               </div>
             </div>
 
