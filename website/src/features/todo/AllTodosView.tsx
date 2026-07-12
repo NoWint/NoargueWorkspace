@@ -4,7 +4,7 @@ import { useComboStore } from '@/stores/combos'
 import { Card, Eyebrow, Stat } from '@/design/primitives'
 import { ListIcon, PlusIcon } from '@/design/icons'
 import { useNavigate } from 'react-router-dom'
-import { todayStr, cn } from '@/lib/utils'
+import { todayStr, formatDate, cn } from '@/lib/utils'
 import { TodoItem } from './TodoItem'
 import styles from './AllTodosView.module.css'
 
@@ -46,6 +46,29 @@ export function AllTodosView() {
       (t) => !t.completed && t.setDate && t.setDate < today,
     ).length
     return { total, completed, uncompleted, overdue }
+  }, [activeTodos])
+
+  // Sparkline data: last 7 days
+  const sparkData = useMemo(() => {
+    const days: string[] = []
+    const d = new Date()
+    for (let i = 6; i >= 0; i--) {
+      const cur = new Date(d)
+      cur.setDate(d.getDate() - i)
+      days.push(formatDate(cur))
+    }
+    const dailyTotal = days.map((date) =>
+      activeTodos.filter((t) => t.setDate === date).length,
+    )
+    const dailyCompleted = days.map((date) =>
+      activeTodos.filter((t) => t.setDate === date && t.completed).length,
+    )
+    const dailyOverdue = days.map((date) =>
+      activeTodos.filter(
+        (t) => !t.completed && t.setDate && t.setDate < date,
+      ).length,
+    )
+    return { dailyTotal, dailyCompleted, dailyOverdue }
   }, [activeTodos])
 
   // Combo counts (based on all active todos)
@@ -97,18 +120,26 @@ export function AllTodosView() {
 
       {/* Stats */}
       <div className={styles.stats}>
-        <Stat label="总数" value={stats.total} delta="全部待办" />
+        <Stat
+          label="总数"
+          value={stats.total}
+          delta="全部待办"
+          spark={sparkData.dailyTotal}
+        />
         <Stat
           label="已完成"
           value={stats.completed}
           accent
           delta={<span className={styles.deltaUp}>已完成</span>}
+          spark={sparkData.dailyCompleted}
         />
         <Stat label="未完成" value={stats.uncompleted} delta="进行中" />
         <Stat
           label="逾期"
           value={stats.overdue}
+          warn
           delta={<span className={styles.deltaDown}>需处理</span>}
+          spark={sparkData.dailyOverdue}
         />
       </div>
 
