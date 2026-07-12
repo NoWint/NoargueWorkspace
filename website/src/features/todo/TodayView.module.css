@@ -146,3 +146,27 @@
 
 /* Tags */
 .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* Tag active state */
+.tagActive {
+  cursor: pointer;
+}
+
+/* Filter status indicator */
+.filterStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border: 1px solid var(--primary-line);
+  background: var(--primary-soft);
+  color: var(--primary-hi);
+  font: 500 10.5px/1.4 var(--font-mono);
+  margin-left: 8px;
+}
+
+.filterStatusX {
+  cursor: pointer;
+  font: 600 12px/1 var(--font-sans);
+  padding: 0 2px;
+}

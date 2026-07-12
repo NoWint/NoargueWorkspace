@@ -54,6 +54,7 @@ export function TodayView() {
   const fetchCombos = useComboStore((s) => s.fetchCombos)
   const { systemTags, userTags, fetchTags } = useTagStore()
   const [filter, setFilter] = useState<FilterKey>('all')
+  const [activeTagId, setActiveTagId] = useState<number | null>(null)
 
   useEffect(() => {
     fetchTodos()
@@ -74,10 +75,14 @@ export function TodayView() {
   const remaining = totalCount - completedCount
 
   const filteredTodos = useMemo(() => {
-    if (filter === 'uncompleted') return todayTodos.filter((t) => !t.completed)
-    if (filter === 'completed') return todayTodos.filter((t) => t.completed)
-    return todayTodos
-  }, [todayTodos, filter])
+    let result = todayTodos
+    if (filter === 'uncompleted') result = result.filter((t) => !t.completed)
+    if (filter === 'completed') result = result.filter((t) => t.completed)
+    if (activeTagId !== null) {
+      result = result.filter((t) => t.tags?.includes(activeTagId))
+    }
+    return result
+  }, [todayTodos, filter, activeTagId])
 
   // Week progress (Sunday-based, matching existing logic)
   const weekStart = new Date()
@@ -122,6 +127,36 @@ export function TodayView() {
       d.setDate(d.getDate() - 1)
     }
     return s
+  }, [activeTodos])
+
+  // Sparkline data: last 7 days
+  const sparkData = useMemo(() => {
+    const days: string[] = []
+    const d = new Date()
+    for (let i = 6; i >= 0; i--) {
+      const cur = new Date(d)
+      cur.setDate(d.getDate() - i)
+      days.push(formatDate(cur))
+    }
+    const dailyCounts = days.map((date) =>
+      activeTodos.filter((t) => t.setDate === date).length,
+    )
+    const dailyCompleted = days.map((date) =>
+      activeTodos.filter((t) => t.setDate === date && t.completed).length,
+    )
+    const dailyOverdue = days.map((date) =>
+      activeTodos.filter(
+        (t) => !t.completed && t.setDate && t.setDate < date,
+      ).length,
+    )
+    const dailyRate = days.map((date) => {
+      const dayTodos = activeTodos.filter((t) => t.setDate === date)
+      if (dayTodos.length === 0) return 0
+      return Math.round(
+        (dayTodos.filter((t) => t.completed).length / dayTodos.length) * 100,
+      )
+    })
+    return { dailyCounts, dailyCompleted, dailyOverdue, dailyRate }
   }, [activeTodos])
 
   // Mini calendar
@@ -221,17 +256,31 @@ export function TodayView() {
 
       {/* Stats */}
       <div className={styles.stats}>
-        <Stat label="今日待办" value={totalCount} delta={`${completedCount} 已完成`} />
-        <Stat label="本周完成" value={weekCompleted} accent delta={weekDeltaEl} />
+        <Stat
+          label="今日待办"
+          value={totalCount}
+          delta={`${completedCount} 已完成`}
+          spark={sparkData.dailyCounts}
+        />
+        <Stat
+          label="本周完成"
+          value={weekCompleted}
+          accent
+          delta={weekDeltaEl}
+          spark={sparkData.dailyCompleted}
+        />
         <Stat
           label="逾期"
           value={overdueCount}
+          warn
           delta={<span className={styles.deltaDown}>需处理</span>}
+          spark={sparkData.dailyOverdue}
         />
         <Stat
           label="完成率"
           value={<>{weekRate}<span className={styles.pctSign}>%</span></>}
           delta="目标 80%"
+          spark={sparkData.dailyRate}
         />
       </div>
 
@@ -262,6 +311,17 @@ export function TodayView() {
                   {FILTER_LABELS[f]}
                 </button>
               ))}
+              {activeTagId !== null && (
+                <div className={styles.filterStatus}>
+                  按「{[...systemTags, ...userTags].find((t) => t.id === activeTagId)?.name || ''}」筛选
+                  <span
+                    className={styles.filterStatusX}
+                    onClick={() => setActiveTagId(null)}
+                  >
+                    ×
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -377,11 +437,22 @@ export function TodayView() {
               </div>
             </div>
             <div className={styles.tags}>
-              {tagCounts.map((t, i) => (
-                <Tag key={t.id} tone={i === 0 && t.count > 0 ? 'pri' : 'default'}>
-                  {t.name} · {t.count}
-                </Tag>
-              ))}
+              {tagCounts.map((t) => {
+                const isActive = activeTagId === t.id
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    className={styles.tagActive}
+                    onClick={() => setActiveTagId(isActive ? null : t.id)}
+                    style={{ background: 'transparent', border: 'none', padding: 0, cursor: 'pointer' }}
+                  >
+                    <Tag tone={isActive ? 'pri' : 'default'}>
+                      {t.name} · {t.count}
+                    </Tag>
+                  </button>
+                )
+              })}
               <Tag tone="default">+ 新建</Tag>
             </div>
           </Card>
