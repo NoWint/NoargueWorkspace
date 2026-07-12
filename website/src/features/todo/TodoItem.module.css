@@ -51,3 +51,39 @@
   padding: 4px;
 }
 .starOn { color: var(--primary); }
+
+/* Priority color bar (left edge) */
+.item {
+  position: relative;
+  padding-left: 10px;
+}
+
+.item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 11px;
+  bottom: 11px;
+  width: 2px;
+  background: var(--mt3);
+}
+
+.priHigh::before {
+  background: var(--destructive);
+}
+
+.priMed::before {
+  background: var(--warn);
+}
+
+/* Overdue text */
+.overdue {
+  color: var(--destructive);
+  font: 500 10.5px/1 var(--font-mono);
+}
+
+/* Avatar group container */
+.avatars {
+  flex: none;
+  margin-left: 8px;
+}

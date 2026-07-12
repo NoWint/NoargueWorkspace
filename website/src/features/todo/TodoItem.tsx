@@ -2,13 +2,15 @@ import { useNavigate } from 'react-router-dom'
 import type { Todo } from '@/types'
 import { useTodoStore } from '@/stores/todos'
 import { useComboStore } from '@/stores/combos'
-import { Tag, StatusChip } from '@/design/primitives'
+import { StatusChip, AvatarGroup } from '@/design/primitives'
+import type { AvatarMember } from '@/design/primitives'
 import { CheckIcon } from '@/design/icons'
-import { cn } from '@/lib/utils'
+import { cn, todayStr } from '@/lib/utils'
 import styles from './TodoItem.module.css'
 
 interface TodoItemProps {
   todo: Todo
+  members?: AvatarMember[]
 }
 
 function comboBorderColor(hex: string): string {
@@ -18,17 +20,13 @@ function comboBorderColor(hex: string): string {
   return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, 0.3)`
 }
 
-function priorityLabel(p?: string): string | null {
-  if (!p) return null
-  const map: Record<string, string> = {
-    high: '高优先',
-    medium: '中优先',
-    low: '低优先',
-  }
-  return map[p] ?? p
+const PRIORITY_CLASS: Record<string, string> = {
+  high: styles.priHigh,
+  medium: styles.priMed,
+  low: '',
 }
 
-export function TodoItem({ todo }: TodoItemProps) {
+export function TodoItem({ todo, members }: TodoItemProps) {
   const navigate = useNavigate()
   const toggleComplete = useTodoStore((s) => s.toggleComplete)
   const toggleStar = useTodoStore((s) => s.toggleStar)
@@ -36,11 +34,23 @@ export function TodoItem({ todo }: TodoItemProps) {
 
   const combo = combos.find((c) => c.id === todo.comboId)
   const isDone = !!todo.completed
-  const pri = priorityLabel(todo.priority)
+  const priClass = PRIORITY_CLASS[todo.priority || 'low'] || ''
+
+  // Overdue calculation
+  const today = todayStr()
+  const isOverdue = !isDone && todo.setDate && todo.setDate < today
+  const overdueDays = isOverdue
+    ? Math.floor((Date.now() - new Date(todo.setDate!).getTime()) / 86400000)
+    : 0
+  const overdueText = isOverdue
+    ? overdueDays === 0
+      ? '今日到期'
+      : `逾期 ${overdueDays} 天`
+    : null
 
   return (
     <div
-      className={cn(styles.item, isDone && styles.done)}
+      className={cn(styles.item, isDone && styles.done, priClass)}
       onClick={() => navigate(`/todos/${todo.id}`)}
     >
       <button
@@ -62,10 +72,16 @@ export function TodoItem({ todo }: TodoItemProps) {
               {combo.name}
             </span>
           )}
-          {pri && <Tag tone="warn">{pri}</Tag>}
           {todo.setTime && <span className={styles.time}>{todo.setTime}</span>}
+          {overdueText && <span className={styles.overdue}>{overdueText}</span>}
         </div>
       </div>
+
+      {members && members.length > 0 && (
+        <div className={styles.avatars}>
+          <AvatarGroup members={members} max={3} />
+        </div>
+      )}
 
       <StatusChip tone={isDone ? 'ok' : 'default'}>
         {isDone ? '已完成' : '待开始'}
