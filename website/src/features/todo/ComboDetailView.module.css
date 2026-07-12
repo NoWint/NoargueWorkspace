@@ -1,0 +1,188 @@
+.screen {
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* Hero header */
+.hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.heroLeft { flex: 1; min-width: 0; }
+.hdRow { display: flex; gap: 12px; align-items: flex-start; }
+.hdIcColor {
+  width: 28px; height: 28px;
+  border: 1px solid var(--border);
+  display: grid; place-items: center;
+  flex: none;
+  color: var(--fg);
+}
+.hdIcColor svg { width: 15px; height: 15px; }
+.title {
+  margin: 4px 0 0;
+  font: 600 24px/1.15 var(--font-sans);
+  letter-spacing: -0.01em;
+  color: var(--fg);
+}
+.song { font-family: var(--font-song); color: var(--primary); font-weight: 600; }
+.meta {
+  margin: 8px 0 0; color: var(--mt); font-size: 13px;
+  display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+}
+.sep { color: var(--border); }
+
+/* Actions */
+.actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.btnIcon { width: 12px; height: 12px; flex: none; }
+
+/* Stats */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@media (max-width: 900px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+.deltaUp { color: var(--success); }
+.pctSign { font-size: 14px; color: var(--mt2); }
+
+/* Grid */
+.grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 16px; }
+@media (max-width: 1100px) { .grid { grid-template-columns: 1fr; } }
+
+/* Card head */
+.cardHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.cardHeadL { display: flex; gap: 12px; align-items: flex-start; }
+.hdIc {
+  width: 28px; height: 28px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--mt);
+  display: grid; place-items: center;
+  flex: none;
+}
+.hdIc svg { width: 15px; height: 15px; }
+.cardTitle {
+  margin: 4px 0 0;
+  font: 600 14px/1.3 var(--font-sans);
+  color: var(--fg);
+}
+
+/* Info lines */
+.lines { display: flex; flex-direction: column; }
+.line {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+.line:last-child { border-bottom: 0; }
+.lineLabel {
+  font: 500 11.5px/1 var(--font-sans);
+  color: var(--mt);
+}
+.lineVal {
+  font: 500 11.5px/1 var(--font-mono);
+  color: var(--fg);
+  text-align: right;
+}
+.monoVal {
+  font: 500 11px/1 var(--font-mono);
+  color: var(--mt);
+  text-align: right;
+}
+
+/* Todo list */
+.todoList { display: flex; flex-direction: column; }
+
+/* Empty state */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 40px 20px;
+  color: var(--mt);
+  text-align: center;
+}
+.emptyIcon {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--mt2);
+  display: grid;
+  place-items: center;
+}
+.emptyIcon svg { width: 18px; height: 18px; }
+.emptyTitle {
+  font: 500 14px/1.3 var(--font-sans);
+  color: var(--fg);
+}
+.emptySub {
+  font-size: 12px;
+  color: var(--mt2);
+  max-width: 260px;
+}
+
+/* Members */
+.memberList { display: flex; flex-direction: column; gap: 8px; }
+.member {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.member:last-child { border-bottom: 0; }
+.memberAv {
+  width: 28px; height: 28px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  display: grid; place-items: center;
+  font: 600 12px/1 var(--font-sans);
+  color: var(--fg);
+  flex: none;
+  overflow: hidden;
+}
+.memberAv img { width: 100%; height: 100%; object-fit: cover; }
+.memberInfo { flex: 1; min-width: 0; }
+.memberName {
+  font: 500 12px/1.3 var(--font-sans);
+  color: var(--fg);
+}
+.memberJoined {
+  font: 500 10px/1 var(--font-mono);
+  color: var(--mt2);
+  margin-top: 2px;
+}
+
+/* Loading */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 60px 20px;
+  color: var(--mt);
+  text-align: center;
+}
+
+/* Foot */
+.cardFoot {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 4px; border-top: 1px solid var(--border);
+}
+.footText {
+  font: 500 10.5px/1 var(--font-mono);
+  color: var(--mt);
+}
