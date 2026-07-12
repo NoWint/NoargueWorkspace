@@ -47,14 +47,21 @@ export function LoginView() {
     <div className={styles.wrap}>
       <div className={styles.card}>
         <div className={styles.brand}>
-          <div className={styles.logo}>N</div>
-          <h1 className={styles.title}>NoArgue</h1>
+          <div className={styles.logo}>绿</div>
+          <div className={styles.brandText}>
+            <h1 className={styles.title}>时光绿径</h1>
+            <p className={styles.tagline}>清爽绿意 · 高效待办</p>
+          </div>
         </div>
         <Eyebrow>扫码登录</Eyebrow>
         <p className={styles.desc}>使用微信扫描下方二维码登录</p>
 
         <div className={styles.qrArea}>
-          {status === 'loading' && <Spin tip="生成中..." />}
+          {status === 'loading' && (
+            <Spin tip="生成中...">
+              <div style={{ width: 200, height: 200 }} />
+            </Spin>
+          )}
           {qrUrl && (
             <img
               src={qrUrl}

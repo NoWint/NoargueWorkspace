@@ -5,23 +5,32 @@
   padding: 24px;
 }
 .card {
-  display: flex; flex-direction: column; gap: 12px;
-  padding: 32px;
+  display: flex; flex-direction: column; gap: 14px;
+  padding: 36px 32px;
   border: 1px solid var(--border);
   background: var(--card);
   min-width: 320px;
   align-items: center;
+  box-shadow: 0 1px 0 0 var(--primary-line) inset, 0 18px 48px -24px rgba(0,0,0,0.6);
 }
-.brand { display: flex; align-items: center; gap: 10px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brandText { display: flex; flex-direction: column; gap: 3px; }
 .logo {
-  width: 32px; height: 32px; border-radius: 999px;
+  width: 36px; height: 36px; border-radius: 999px;
   background: var(--primary); color: var(--primary-fg);
   display: grid; place-items: center;
-  font: 600 14px/1 var(--font-sans);
+  font: 600 15px/1 var(--font-song);
+  flex: none;
 }
 .title {
-  font: 600 22px/1 var(--font-sans);
+  font: 600 20px/1.1 var(--font-sans);
   color: var(--fg);
+  letter-spacing: -0.01em;
+}
+.tagline {
+  font: 500 11px/1 var(--font-mono);
+  color: var(--primary);
+  letter-spacing: 0.04em;
 }
 .desc { color: var(--mt); font-size: 13px; }
 .qrArea {
