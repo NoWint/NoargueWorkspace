@@ -1,3 +1,7 @@
+/**
+ * 时光绿径待办 — Web 前端入口
+ * @author  NoWint (https://github.com/NoWint)
+ */
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'

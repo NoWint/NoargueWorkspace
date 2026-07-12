@@ -1,3 +1,7 @@
+/**
+ * 时光绿径待办 — Web 前端
+ * @author  NoWint (https://github.com/NoWint)
+ */
 import { Outlet } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
@@ -9,7 +13,6 @@ export function AppLayout() {
   const { open, setOpen } = useCmdPaletteStore()
   return (
     <div className={styles.app}>
-      <div className={styles.watermark} aria-hidden="true" />
       <Sidebar />
       <main className={styles.main}>
         <Topbar />

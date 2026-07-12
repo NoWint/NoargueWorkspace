@@ -1,3 +1,7 @@
+/**
+ * 时光绿径待办 — Web 前端路由
+ * @author  NoWint (https://github.com/NoWint)
+ */
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores/auth'
 import { AppLayout } from '@/features/layout/AppLayout'
