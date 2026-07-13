@@ -467,7 +467,7 @@ export function TodoDetail() {
             <div key={n.id} className={styles.notifyItem}>
               <div className={styles.notifyInfo}>
                 <span className={styles.notifyTime}>
-                  {dayjs(n.notifyTime).format('YYYY-MM-DD HH:mm')}
+                  {dayjs(n.notifyAt).format('YYYY-MM-DD HH:mm')}
                 </span>
                 <StatusChip tone={n.isSent ? 'ok' : 'default'}>
                   {n.isSent ? '已发送' : '待发送'}

@@ -24,6 +24,16 @@ interface AdminState {
   deleteChangelog: (index: number) => Promise<void>
 }
 
+/**
+ * 兼容两种响应格式：
+ * - spec 1.3 通用：{ success, data: {...} }
+ * - 旧式扁平：{ success, ...fields }
+ */
+function unwrap<T extends Record<string, unknown>>(res: Record<string, unknown>): T {
+  const data = res.data as Record<string, unknown> | undefined
+  return (data || res) as T
+}
+
 export const useAdminStore = create<AdminState>((set, get) => ({
   stats: null,
   users: [],
@@ -38,7 +48,8 @@ export const useAdminStore = create<AdminState>((set, get) => ({
     try {
       set({ loading: true })
       const res = await adminApi.getStats()
-      set({ stats: res.stats })
+      const u = unwrap<{ stats?: AdminStats }>(res as unknown as Record<string, unknown>)
+      set({ stats: u.stats || null })
     } finally {
       set({ loading: false })
     }
@@ -48,7 +59,8 @@ export const useAdminStore = create<AdminState>((set, get) => ({
     try {
       set({ loading: true })
       const res = await adminApi.getUsers(params)
-      set({ users: res.users, total: res.total, page: res.page })
+      const u = unwrap<{ users?: AdminUser[]; total?: number; page?: number }>(res as unknown as Record<string, unknown>)
+      set({ users: u.users || [], total: u.total || 0, page: u.page || 1 })
     } finally {
       set({ loading: false })
     }
@@ -58,7 +70,8 @@ export const useAdminStore = create<AdminState>((set, get) => ({
     try {
       set({ loading: true })
       const res = await adminApi.getUserDetail(userId)
-      set({ userDetail: res.user })
+      const u = unwrap<{ user?: AdminUserDetail }>(res as unknown as Record<string, unknown>)
+      set({ userDetail: u.user || null })
     } finally {
       set({ loading: false })
     }
@@ -66,12 +79,14 @@ export const useAdminStore = create<AdminState>((set, get) => ({
 
   fetchNotices: async () => {
     const res = await adminApi.getNotices()
-    set({ notices: res.notices || [] })
+    const u = unwrap<{ notices?: AdminNotice[] }>(res as unknown as Record<string, unknown>)
+    set({ notices: u.notices || [] })
   },
 
   fetchChangelog: async () => {
     const res = await adminApi.getChangelog()
-    set({ changelog: res.changelog || [] })
+    const u = unwrap<{ changelog?: AdminChangelog[] }>(res as unknown as Record<string, unknown>)
+    set({ changelog: u.changelog || [] })
   },
 
   updateUserLimits: async (userId, data) => {

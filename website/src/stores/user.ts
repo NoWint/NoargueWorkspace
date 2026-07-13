@@ -20,7 +20,8 @@ export const useUserStore = create<UserState>((set) => ({
       return
     }
     const res = await usersApi.search(keyword)
-    const data = (res as any).data || res
+    const r = res as unknown as { data?: { users?: { id: number; nickname: string; avatarUrl: string }[] }; users?: { id: number; nickname: string; avatarUrl: string }[] }
+    const data = r.data || r
     set({ searchResults: data.users || [] })
   },
 
@@ -28,18 +29,19 @@ export const useUserStore = create<UserState>((set) => ({
     try {
       set({ loading: true })
       const res = await usersApi.getProfile(userId)
-      const data = (res as any).data || res
-      const user = data.user || {}
-      const stats = data.stats || {}
+      const r = res as unknown as { data?: { user?: Record<string, unknown>; stats?: Record<string, unknown> }; user?: Record<string, unknown>; stats?: Record<string, unknown> }
+      const data = r.data || r
+      const user = (data.user || {}) as Record<string, unknown>
+      const stats = (data.stats || {}) as Record<string, unknown>
       const profile: UserProfile = {
-        id: user.id,
-        nickname: user.nickname,
-        avatarUrl: user.avatarUrl || user.avatar || '',
-        badgeTitles: user.badgeTitles || [],
-        badgeColors: user.badgeColors || [],
-        postCount: stats.postCount ?? user.postCount ?? 0,
-        createdAt: user.createdAt || '',
-        registeredDays: user.registeredDays ?? 0,
+        id: user.id as number,
+        nickname: user.nickname as string,
+        avatarUrl: (user.avatarUrl as string) || (user.avatar as string) || '',
+        badgeTitles: (user.badgeTitles as string[]) || [],
+        badgeColors: (user.badgeColors as string[]) || [],
+        postCount: (stats.postCount as number) ?? (user.postCount as number) ?? 0,
+        createdAt: (user.createdAt as string) || '',
+        registeredDays: (user.registeredDays as number) ?? 0,
       }
       set({ currentProfile: profile })
     } finally {

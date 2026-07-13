@@ -20,7 +20,7 @@ export const useNotifyStore = create<NotifyState>((set, get) => ({
     try {
       set({ loading: true })
       const res = await notifyApi.getList()
-      const data = (res as any).data || res
+      const data = (res as { data?: { notifications?: TodoNotification[] }; notifications?: TodoNotification[] }).data || res
       set({ notifications: data.notifications || [] })
     } finally {
       set({ loading: false })
@@ -29,7 +29,7 @@ export const useNotifyStore = create<NotifyState>((set, get) => ({
 
   fetchByTodoId: async (todoId) => {
     const res = await notifyApi.getByTodoId(todoId)
-    const data = (res as any).data || res
+    const data = (res as { data?: { notifications?: TodoNotification[] }; notifications?: TodoNotification[] }).data || res
     set({
       todoNotifications: {
         ...get().todoNotifications,

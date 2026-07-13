@@ -86,7 +86,7 @@ export function CollaborationView() {
         })
         if (c.shareCode) {
           collabApi
-            .getQrCode(c.shareCode, false)
+            .getQrCode(c.shareCode)
             .then((r) => {
               if (r.success && r.qrcode) setQrCode(r.qrcode)
             })
@@ -198,10 +198,10 @@ export function CollaborationView() {
     }
   }
 
-  const refreshQr = async (isAuto: boolean) => {
+  const refreshQr = async () => {
     if (!combo?.shareCode) return
     try {
-      const res = await collabApi.getQrCode(combo.shareCode, isAuto)
+      const res = await collabApi.getQrCode(combo.shareCode)
       if (res.success && res.qrcode) setQrCode(res.qrcode)
     } catch {
       /* ignore */
@@ -210,7 +210,7 @@ export function CollaborationView() {
 
   const handleModeToggle = (on: boolean) => {
     setAutoMode(on)
-    refreshQr(on)
+    refreshQr()
   }
 
   if (loading) {

@@ -41,9 +41,9 @@ export function Topbar() {
       )}
       {notifications.slice(0, 5).map((n) => (
         <div key={n.id} className={styles.notifyRow}>
-          <span className={styles.notifyTodoId}>{n.todoId.slice(0, 10)}</span>
+          <span className={styles.notifyTodoId}>{String(n.todoId).slice(0, 10)}</span>
           <span className={styles.notifyTime}>
-            {dayjs(n.notifyTime).format('MM-DD HH:mm')}
+            {dayjs(n.notifyAt).format('MM-DD HH:mm')}
           </span>
           <span className={cn(styles.notifyStatus, n.isSent && styles.notifySentTag)}>
             {n.isSent ? '已发送' : '待发送'}

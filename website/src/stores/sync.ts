@@ -31,13 +31,21 @@ export const useSyncStore = create<SyncState>((set, get) => ({
     set({ status: 'syncing', errorMsg: null })
     try {
       const todos = useTodoStore.getState().todos
-      const localChanges = todos.filter(
-        (t) => (t.updatedAt || 0) > lastSyncAt,
-      )
+      // spec 3.7: localTodos 以 id 为键的对象
+      const localTodos: Record<string, { text: string; updatedAt: string; version?: number }> = {}
+      for (const t of todos) {
+        if ((t.updatedAt || 0) > lastSyncAt) {
+          localTodos[String(t.id)] = {
+            text: t.text,
+            updatedAt: new Date(t.updatedAt || 0).toISOString(),
+            version: t.version,
+          }
+        }
+      }
       const res = await syncApi.incremental({
-        localChanges,
-        localDeletedIds: [],
-        lastSyncAt,
+        syncType: 'incremental',
+        lastSyncTime: new Date(lastSyncAt).toISOString(),
+        localTodos,
       })
       // Merge cloud changes
       if (res.cloudChanges && res.cloudChanges.length > 0) {
@@ -55,6 +63,13 @@ export const useSyncStore = create<SyncState>((set, get) => ({
           }
         }
         useTodoStore.setState({ todos: merged })
+      }
+      // Remove cloud-deleted todos
+      if (res.cloudDeletedIds && res.cloudDeletedIds.length > 0) {
+        const deletedSet = new Set(res.cloudDeletedIds)
+        useTodoStore.setState({
+          todos: useTodoStore.getState().todos.filter((t) => !deletedSet.has(String(t.id))),
+        })
       }
       set({
         status: 'success',
@@ -74,11 +89,25 @@ export const useSyncStore = create<SyncState>((set, get) => ({
   fullSync: async () => {
     set({ status: 'syncing', errorMsg: null })
     try {
-      const res = await syncApi.full()
-      useTodoStore.setState({ todos: res.todos || [] })
+      // spec 3.9: 分页拉取，合并所有页
+      const pageSize = 500
+      let page = 1
+      let allTodos: unknown[] = []
+      let syncedAt = Date.now()
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        const res = await syncApi.full(page, pageSize)
+        const batch = res.todos || []
+        allTodos = allTodos.concat(batch)
+        syncedAt = res.syncedAt || syncedAt
+        if (batch.length < pageSize) break
+        page++
+        if (page > 50) break // 安全上限
+      }
+      useTodoStore.setState({ todos: allTodos as never[] })
       set({
         status: 'success',
-        lastSyncAt: res.syncedAt || Date.now(),
+        lastSyncAt: syncedAt,
         pendingChanges: false,
         errorMsg: null,
       })

@@ -9,9 +9,12 @@ export const todosApi = {
     comboId?: number | string
     tagIds?: string
     search?: string
-    showCompleted?: boolean
+    /** 0=未完成 1=已完成（spec 用 completed，不是 showCompleted） */
+    completed?: 0 | 1
     date?: string
-    parentId?: string
+    /** spec 用 parent_id（snake_case），null=仅根待办 */
+    parent_id?: string | null
+    includeDeleted?: boolean
   }) =>
     http.get<TodoListResponse>('/todos/list', { params }),
 

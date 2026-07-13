@@ -42,7 +42,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
   },
 
   fetchSubtodos: async (parentId) => {
-    const res = await todosApi.getList({ parentId })
+    const res = await todosApi.getList({ parent_id: parentId })
     set({
       subtaskMap: {
         ...get().subtaskMap,

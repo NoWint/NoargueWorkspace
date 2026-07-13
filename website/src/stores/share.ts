@@ -14,6 +14,14 @@ interface ShareState {
   fetchVisitors: (shareId: string) => Promise<void>
 }
 
+/**
+ * 兼容 { success, data: {...} } 与扁平 { success, ...fields } 两种格式（spec 1.3）
+ */
+function unwrap<T extends Record<string, unknown>>(res: Record<string, unknown>): T {
+  const data = res.data as Record<string, unknown> | undefined
+  return (data || res) as T
+}
+
 export const useShareStore = create<ShareState>((set, get) => ({
   snapshots: [],
   visitors: [],
@@ -22,12 +30,14 @@ export const useShareStore = create<ShareState>((set, get) => ({
 
   fetchByTodo: async (todoId) => {
     const res = await shareApi.listByTodo(todoId)
-    set({ snapshots: res.snapshots || [] })
+    const u = unwrap<{ snapshots?: ShareSnapshot[] }>(res as unknown as Record<string, unknown>)
+    set({ snapshots: u.snapshots || [] })
   },
 
   create: async (data) => {
     const res = await shareApi.createSnapshot(data)
-    return res.shareId
+    const u = unwrap<{ shareId?: string }>(res as unknown as Record<string, unknown>)
+    return u.shareId || ''
   },
 
   revoke: async (shareId) => {
@@ -39,8 +49,9 @@ export const useShareStore = create<ShareState>((set, get) => ({
     try {
       set({ loading: true })
       const res = await shareApi.getSnapshot(shareId)
-      if (!res.needPassword) {
-        set({ currentSnapshot: res.data })
+      const u = unwrap<{ data?: Record<string, unknown>; needPassword?: boolean; currentViews?: number; maxViews?: number; revoked?: boolean }>(res as unknown as Record<string, unknown>)
+      if (!u.needPassword) {
+        set({ currentSnapshot: u.data || null })
       }
     } finally {
       set({ loading: false })
@@ -49,8 +60,9 @@ export const useShareStore = create<ShareState>((set, get) => ({
 
   verifyPassword: async (shareId, password) => {
     const res = await shareApi.verifyPassword(shareId, password)
+    const u = unwrap<{ data?: Record<string, unknown> }>(res as unknown as Record<string, unknown>)
     if (res.success) {
-      set({ currentSnapshot: res.data })
+      set({ currentSnapshot: u.data || null })
       return true
     }
     return false
@@ -58,6 +70,7 @@ export const useShareStore = create<ShareState>((set, get) => ({
 
   fetchVisitors: async (shareId) => {
     const res = await shareApi.getVisitors(shareId)
-    set({ visitors: res.visitors || [] })
+    const u = unwrap<{ visitors?: ShareVisitor[] }>(res as unknown as Record<string, unknown>)
+    set({ visitors: u.visitors || [] })
   },
 }))

@@ -51,8 +51,8 @@ export const collabApi = {
   deleteSharedTodo: (comboId: number, todoId: number) =>
     http.delete<{ success: boolean; message?: string }>(`/collab/shared/${comboId}/todos/${todoId}`),
 
-  getQrCode: (shareCode: string, isAuto?: boolean) =>
-    http.get<{ success: boolean; qrcode: string }>('/collab/qrcode', { params: { shareCode, auto: isAuto ? 1 : 0 } }),
+  getQrCode: (shareCode: string) =>
+    http.get<{ success: boolean; qrcode: string }>('/collab/qrcode', { params: { shareCode } }),
 
   getMembers: (comboId: number) =>
     http.get<{ success: boolean; members: { id: number; userId: number; role: 'owner' | 'admin' | 'member'; nickname: string; avatarUrl: string; joinedAt: string }[] }>(`/combos/${comboId}/members`),
