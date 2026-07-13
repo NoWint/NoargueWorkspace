@@ -1,0 +1,42 @@
+.container {
+  padding: 20rpx 0;
+  min-height: 100vh;
+}
+
+.posts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  padding: 0 20rpx;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 200rpx 0;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  color: #999;
+  margin-bottom: 12rpx;
+}
+
+.empty-hint {
+  font-size: 26rpx;
+  color: #ccc;
+}
+
+.loading-posts {
+  padding: 40rpx 0;
+  display: flex;
+  justify-content: center;
+}
+
+.load-more {
+  padding: 30rpx 0;
+  text-align: center;
+  color: #00b26a;
+  font-size: 26rpx;
+}

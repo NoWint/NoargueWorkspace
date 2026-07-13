@@ -11,9 +11,12 @@
       renderMarkdown="{{true}}"
       showStats="{{false}}"
       expanded="{{todoExpanded}}"
+      fileExpanded="{{fileExpanded}}"
       todoItems="{{todoItems}}"
       bind:tapImage="previewImage"
       bind:tapTodoExpand="toggleTodoExpand"
+      bind:tapFileExpand="toggleFileExpand"
+      bind:tapFile="openFile"
       bind:tapTodo="goToTodoDetail"
       bind:tapCombo="handleComboTap"
       bind:tapLocation="openLocation"
@@ -28,32 +31,6 @@
       <view class="stat-item {{isOwner ? 'visitor-link' : ''}}" bind:tap="{{isOwner ? 'showVisitors' : ''}}"><t-icon name="browse" size="28rpx" /><text>{{post.viewsCount}}次浏览{{isOwner ? ' · 查看访客记录' : ''}}</text></view>
       <view class="stat-item {{post.isLiked ? 'liked' : ''}}" catch:tap="toggleLike"><t-icon name="{{post.isLiked ? 'heart-filled' : 'heart'}}" size="28rpx" /><text>{{post.likesCount || 0}}</text></view>
       <view class="stat-item more-btn" bind:tap="onMore"><t-icon name="more" size="36rpx" color="#999" /></view>
-    </view>
-  </view>
-
-  <!-- 文件列表 -->
-  <view wx:if="{{post.files && post.files.length > 0}}" class="post-files">
-    <view class="post-files-header">
-      <t-icon name="file-attachment" size="28rpx" color="#999" />
-      <text class="post-files-title">附件 ({{post.files.length}})</text>
-    </view>
-    <view
-      class="post-file-item {{isFileExpired(item.expires_at) ? 'expired' : ''}}"
-      wx:for="{{post.files}}"
-      wx:key="id"
-      data-index="{{index}}"
-      bindtap="openFile"
-    >
-      <t-icon name="{{getFileIcon(item.content_type)}}" size="48rpx" color="#666" />
-      <view class="post-file-info">
-        <text class="post-file-name">{{item.filename}}</text>
-        <text class="post-file-size">{{item.human_size}}</text>
-      </view>
-      <text wx:if="{{isFileExpired(item.expires_at)}}" class="post-file-status expired-text">已过期</text>
-      <text wx:elif="{{getFileRemainingDays(item.expires_at) <= 1}}" class="post-file-status expiring-text">即将过期</text>
-      <text wx:else class="post-file-arrow">
-        <t-icon name="chevron-right" size="28rpx" color="#ccc" />
-      </text>
     </view>
   </view>
 

@@ -29,6 +29,7 @@
       "pages": [
         "combo-edit/combo-edit",
         "combo-detail/combo-detail",
+        "combo-posts/combo-posts",
         "collaboration/collaboration",
         "combo-stats/combo-stats",
         "report-board/report-board",

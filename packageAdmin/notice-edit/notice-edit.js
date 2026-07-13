@@ -71,6 +71,10 @@ Page({
     this.setData({ [`form.${field}`]: e.detail.value });
   },
 
+  onContentInput(e) {
+    this.setData({ 'form.content': e.detail.value });
+  },
+
   onDateChange(e) {
     this.setData({ 'form.date': e.detail.value });
   },
@@ -145,7 +149,7 @@ Page({
       }
     } catch (err) {
       logger.error('ADMIN', 'SAVE', '保存公告失败', err);
-      wx.showToast({ title: '保存失败', icon: 'none' });
+      wx.showToast({ title: err.message || '保存失败', icon: 'none' });
     }
   }
 });

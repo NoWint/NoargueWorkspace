@@ -1,0 +1,44 @@
+<view class="container">
+  <view wx:if="{{comboPosts.length === 0 && !loadingPosts}}" class="empty-state">
+    <text class="empty-text">暂无帖子</text>
+    <text class="empty-hint">点击右下角发布第一个帖子</text>
+  </view>
+
+  <view wx:if="{{comboPosts.length > 0}}" class="posts-list">
+    <post-card
+      wx:for="{{comboPosts}}"
+      wx:key="postId"
+      wx:for-item="item"
+      post="{{item}}"
+      renderMarkdown="{{true}}"
+      showStats="{{false}}"
+      expanded="{{expandedPostId === item.postId}}"
+      fileExpanded="{{expandedFilePostId === item.postId}}"
+      todoItems="{{[]}}"
+      bind:tapCard="navigateToPostDetail"
+      bind:tapFileExpand="toggleFileExpand"
+      bind:tapFile="openFile"
+    />
+  </view>
+
+  <view wx:if="{{loadingPosts}}" class="loading-posts">
+    <t-loading loading="{{true}}" size="40rpx" />
+  </view>
+
+  <view wx:if="{{comboPostsHasMore && !loadingPosts}}" class="load-more" bindtap="loadMoreComboPosts">
+    <text>加载更多</text>
+  </view>
+</view>
+
+<t-fab
+  wx:if="{{showBackTop}}"
+  icon="arrow-up"
+  bind:click="onToTop"
+  style="right: 32rpx; bottom: 150rpx;"
+/>
+
+<t-fab
+  icon="add"
+  bind:click="navigateToCreatePost"
+  style="right: 32rpx; bottom: 32rpx;"
+/>

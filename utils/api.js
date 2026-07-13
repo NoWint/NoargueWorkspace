@@ -795,6 +795,14 @@ const communityApi = {
   deletePost: (postId) => request({ url: `/posts/${postId}`, method: 'DELETE' }),
   getVisitors: (postId, params) => request({ url: `/posts/${postId}/visitors`, method: 'GET', data: params }),
 
+  // Polls
+  createPoll: (postId, data) => request({ url: `/posts/${postId}/poll`, method: 'POST', data }),
+  getPoll: (postId) => request({ url: `/posts/${postId}/poll`, method: 'GET' }),
+  votePoll: (postId, data) => request({ url: `/posts/${postId}/poll/vote`, method: 'POST', data }),
+  closePoll: (postId) => request({ url: `/posts/${postId}/poll/close`, method: 'POST' }),
+  updatePoll: (postId, data) => request({ url: `/posts/${postId}/poll`, method: 'PATCH', data }),
+  getPollOtherDetails: (postId) => request({ url: `/posts/${postId}/poll/other-details`, method: 'GET' }),
+
   // Likes
   toggleLike: (data) => request({ url: '/likes/toggle', method: 'POST', data }),
   getLikeUsers: (postId) => request({ url: `/likes/${postId}/users`, method: 'GET' }),

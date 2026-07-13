@@ -36,11 +36,7 @@
     <t-icon name="location" size="28rpx" color="#00b26a" />
     <text class="location-text">{{post.location.name || post.location.address || post.location.text || post.location}}</text>
   </view>
-  <view wx:if="{{post.files && post.files.length > 0}}" class="post-files-indicator">
-    <t-icon name="file-attachment" size="24rpx" color="#999" />
-    <text class="post-files-count">{{post.files.length}} 个附件</text>
-  </view>
-  <view wx:if="{{post.todoIds && post.todoIds.length > 0 || post.shareCode}}" class="post-tags">
+  <view wx:if="{{post.todoIds && post.todoIds.length > 0 || (post.files && post.files.length > 0) || post.shareCode}}" class="post-tags">
     <view wx:if="{{post.todoIds && post.todoIds.length > 0}}" class="tag-card" catch:tap="onTapTodoExpand" data-post-id="{{post.postId}}">
       <view class="tag-card-header">
         <t-icon name="check-circle" size="28rpx" color="#00b26a" />
@@ -57,6 +53,21 @@
           </block>
         </block>
         <view wx:else class="tag-card-empty">加载中...</view>
+      </view>
+    </view>
+    <view wx:if="{{post.files && post.files.length > 0}}" class="tag-card" catch:tap="onTapFileExpand">
+      <view class="tag-card-header">
+        <t-icon name="file-attachment" size="28rpx" color="#00b26a" />
+        <text class="tag-card-title">{{post.files.length}}个附件</text>
+        <t-icon name="{{fileExpanded ? 'chevron-up' : 'chevron-down'}}" size="28rpx" color="#999" />
+      </view>
+      <view wx:if="{{fileExpanded}}" class="tag-card-body">
+        <view class="file-mini-item" wx:for="{{post.files}}" wx:key="id" data-index="{{index}}" catch:tap="onTapFile">
+          <t-icon name="{{item._icon}}" size="28rpx" color="#666" />
+          <text class="file-mini-name">{{item.filename}}</text>
+          <text class="file-mini-size">{{item.human_size}}</text>
+          <text wx:if="{{isFileExpired(item.expires_at)}}" class="file-mini-expired">已过期</text>
+        </view>
       </view>
     </view>
     <view wx:if="{{post.shareCode}}" class="tag-item tag-combo" catch:tap="onTapCombo" data-code="{{post.shareCode}}">

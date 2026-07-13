@@ -26,6 +26,7 @@ const reportsRoutes = require('./routes/reportsRoutes');
 const userRoutes = require('./routes/userRoutes');
 const checkinRoutes = require('./routes/checkinRoutes');
 const workReportRoutes = require('./routes/workReportRoutes');
+const pollRoutes = require('./routes/pollRoutes');
 const shareController = require('./controllers/shareController');
 const { authMiddleware, optionalAuth } = require('./middleware/auth');
 const { startNotificationScheduler } = require('./services/wechatService');
@@ -75,6 +76,7 @@ app.use('/reports', reportsRoutes);
 app.use('/users', userRoutes);
 app.use('/checkin', checkinRoutes);
 app.use('/work-reports', workReportRoutes);
+app.use('/posts', pollRoutes);
 
 app.post('/share/snapshot/verify-password/:shareId', optionalAuth, shareController.verifyPassword);
 app.post('/share/snapshot/record-add/:shareId', optionalAuth, shareController.recordAddAction);

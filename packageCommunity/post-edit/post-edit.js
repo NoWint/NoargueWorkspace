@@ -41,6 +41,14 @@ const uploadImage = (filePath, retryCount = 0) => {
   });
 };
 
+function getDocFileType(contentType, ext) {
+  if (contentType.includes('pdf') || ext === 'pdf') return 'pdf';
+  if (contentType.includes('word') || ['doc', 'docx'].includes(ext)) return 'doc';
+  if (contentType.includes('excel') || contentType.includes('spreadsheet') || ['xls', 'xlsx', 'csv'].includes(ext)) return 'xls';
+  if (contentType.includes('powerpoint') || contentType.includes('presentation') || ['ppt', 'pptx'].includes(ext)) return 'ppt';
+  return null;
+}
+
 Page({
   data: {
     navBarHeight: app.globalData.navBarHeight || 44,
@@ -136,7 +144,8 @@ Page({
               selectedTodoIds: draft.selectedTodoIds || [], selectedTodoTexts, selectedTodoPriorities,
               selectedComboCode: draft.selectedComboCode || null,
               selectedComboName: draft.selectedComboName || '',
-              location: draft.location || null
+              location: draft.location || null,
+              attachedFiles: draft.attachedFiles || []
             });
             this.updateMentionCard(draft.body || '');
           } else {
@@ -172,11 +181,14 @@ Page({
   },
 
   onUnload() {
-    const { attachedFiles: unloadFiles } = this.data;
-    if (unloadFiles && unloadFiles.length > 0) {
-      for (const f of unloadFiles) {
-        if (f.id && f.owner_token) {
-          deleteFile({ fileId: f.id, ownerToken: f.owner_token }).catch(() => {});
+    // 编辑模式下保留现有文件（属于帖子），仅清理新上传的未保存文件
+    if (!this.data.editMode) {
+      const { attachedFiles: unloadFiles } = this.data;
+      if (unloadFiles && unloadFiles.length > 0) {
+        for (const f of unloadFiles) {
+          if (f.id && f.owner_token) {
+            deleteFile({ fileId: f.id, ownerToken: f.owner_token }).catch(() => {});
+          }
         }
       }
     }
@@ -211,6 +223,7 @@ Page({
         editMode: true, editPostId: postId,
         title: cached.title || '', body: cached.body || '',
         fileList, imageUrls: cached.images || [],
+        attachedFiles: (cached.files || []).map(f => ({ ...f, _icon: this.getFileIcon(f.content_type, f.filename) })),
         selectedTodoIds: cached.todoIds || [], selectedTodoTexts, selectedTodoPriorities,
         selectedComboCode: cached.shareCode || null,
         selectedComboName: comboName,
@@ -242,6 +255,7 @@ Page({
           editMode: true, editPostId: postId,
           title: post.title || '', body: post.body || '',
           fileList, imageUrls: post.images || [],
+          attachedFiles: (post.files || []).map(f => ({ ...f, _icon: this.getFileIcon(f.content_type, f.filename) })),
           selectedTodoIds: post.todoIds || [], selectedTodoTexts, selectedTodoPriorities,
           selectedComboCode: post.shareCode || null,
           selectedComboName: comboName,
@@ -722,7 +736,8 @@ Page({
             human_size: confirmResult.file.human_size,
             content_type: file.type || 'application/octet-stream',
             expires_at: confirmResult.file.expires_at,
-            owner_token: confirmResult.owner_token
+            owner_token: confirmResult.owner_token,
+            _icon: this.getFileIcon(file.type || 'application/octet-stream', file.name)
           };
 
           this.setData({
@@ -738,6 +753,43 @@ Page({
     wx.hideLoading();
   },
 
+  openFile(e) {
+    const index = e.currentTarget.dataset.index;
+    const file = this.data.attachedFiles[index];
+    if (!file) return;
+    const url = file.raw_url || file.url;
+    if (!url) { wx.showToast({ title: '文件地址无效', icon: 'none' }); return; }
+
+    const ext = file.filename ? file.filename.split('.').pop().toLowerCase() : '';
+    const ct = (file.content_type || '').toLowerCase();
+
+    if (ct.startsWith('image/') || ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'].includes(ext)) {
+      wx.previewImage({ urls: [url] });
+      return;
+    }
+
+    wx.showLoading({ title: '下载中...' });
+    wx.downloadFile({
+      url,
+      success(res) {
+        wx.hideLoading();
+        if (res.statusCode === 200) {
+          wx.openDocument({
+            filePath: res.tempFilePath,
+            fileType: getDocFileType(ct, ext),
+            showMenu: true,
+            success: () => {},
+            fail: () => { wx.showToast({ title: '打开文件失败', icon: 'none' }); }
+          });
+        }
+      },
+      fail() {
+        wx.hideLoading();
+        wx.showToast({ title: '下载文件失败', icon: 'none' });
+      }
+    });
+  },
+
   handleFileRemove(e) {
     const index = e.currentTarget.dataset.index;
     const files = [...this.data.attachedFiles];
@@ -745,21 +797,44 @@ Page({
     this.setData({ attachedFiles: files });
   },
 
-  getFileIcon(contentType) {
-    const FILE_ICONS = {
-      'application/pdf': 'file-pdf',
-      'application/msword': 'file-word',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'file-word',
-      'application/vnd.ms-excel': 'file-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'file-excel',
-      'application/zip': 'file-zip',
-      'application/x-rar-compressed': 'file-zip',
-      'text/plain': 'file-txt',
-      'text/csv': 'file-csv',
-      'image/': 'file-image',
+  getFileIcon(contentType, filename) {
+    if (!contentType && !filename) return '?';
+    const ct = (contentType || '').toLowerCase();
+    const ext = filename ? filename.split('.').pop().toLowerCase() : '';
+    const EXT_MAP = {
+      'pdf': 'PDF', 'doc': 'DOC', 'docx': 'DOC', 'word': 'DOC',
+      'xls': 'XLS', 'xlsx': 'XLS', 'csv': 'CSV', 'excel': 'XLS',
+      'ppt': 'PPT', 'pptx': 'PPT', 'powerpoint': 'PPT',
+      'json': 'JSON', 'yaml': 'YAML', 'yml': 'YAML', 'xml': 'XML',
+      'zip': 'ZIP', 'rar': 'RAR', '7z': '7Z', 'tar': 'TAR', 'gz': 'GZ',
+      'txt': 'TXT', 'text': 'TXT', 'md': 'MD', 'log': 'LOG',
+      'html': 'HTML', 'htm': 'HTML', 'js': 'JS', 'css': 'CSS', 'ts': 'TS',
+      'png': 'IMG', 'jpg': 'IMG', 'jpeg': 'IMG', 'gif': 'IMG', 'webp': 'IMG', 'svg': 'IMG', 'bmp': 'IMG', 'ico': 'IMG', 'image': 'IMG',
+      'mp4': 'VID', 'avi': 'VID', 'mov': 'VID', 'mkv': 'VID', 'flv': 'VID', 'wmv': 'VID', 'video': 'VID',
+      'mp3': 'AUD', 'wav': 'AUD', 'flac': 'AUD', 'aac': 'AUD', 'ogg': 'AUD', 'audio': 'AUD',
+      'one': 'ONE', 'onenote': 'ONE',
+      'pst': 'PST', 'msg': 'MSG', 'outlook': 'PST',
     };
-    const key = Object.keys(FILE_ICONS).find(k => contentType && contentType.startsWith(k));
-    return FILE_ICONS[key] || 'file-unknown';
+    const MIME_MAP = {
+      'application/pdf': 'PDF', 'application/msword': 'DOC',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'DOC',
+      'application/vnd.ms-excel': 'XLS',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'XLS',
+      'application/vnd.ms-powerpoint': 'PPT',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'PPT',
+      'application/json': 'JSON', 'application/xml': 'XML',
+      'application/zip': 'ZIP', 'application/x-rar-compressed': 'RAR', 'application/x-7z-compressed': '7Z',
+      'application/x-yaml': 'YAML', 'text/yaml': 'YAML',
+      'text/plain': 'TXT', 'text/csv': 'CSV', 'text/html': 'HTML', 'text/css': 'CSS',
+      'application/javascript': 'JS',
+      'application/vnd.ms-outlook': 'PST', 'application/onenote': 'ONE',
+      'image/': 'IMG', 'video/': 'VID', 'audio/': 'AUD',
+    };
+    for (const [prefix, label] of Object.entries(MIME_MAP)) {
+      if (ct.startsWith(prefix)) return label;
+    }
+    if (ext && EXT_MAP[ext]) return EXT_MAP[ext];
+    return '?';
   },
 
   async handleSubmit() {
@@ -767,8 +842,11 @@ Page({
     this.setData({ submitting: true });
     try {
       const body = this.convertMentionsInText(this.data.body || '');
+      const postId = this.data.editMode
+        ? this.data.editPostId
+        : `post_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
       const payload = {
-        postId: `post_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+        postId,
         title: this.data.title, body: body || null,
         images: this.data.imageUrls.length > 0 ? this.data.imageUrls : null,
         todoIds: this.data.selectedTodoIds.length > 0 ? this.data.selectedTodoIds : null,
@@ -797,11 +875,14 @@ Page({
   },
 
   goBack() {
-    const { attachedFiles: goBackFiles } = this.data;
-    if (goBackFiles && goBackFiles.length > 0) {
-      for (const f of goBackFiles) {
-        if (f.id && f.owner_token) {
-          deleteFile({ fileId: f.id, ownerToken: f.owner_token }).catch(() => {});
+    // 编辑模式下保留现有文件（属于帖子），仅清理新上传的未保存文件
+    if (!this.data.editMode) {
+      const { attachedFiles: goBackFiles } = this.data;
+      if (goBackFiles && goBackFiles.length > 0) {
+        for (const f of goBackFiles) {
+          if (f.id && f.owner_token) {
+            deleteFile({ fileId: f.id, ownerToken: f.owner_token }).catch(() => {});
+          }
         }
       }
     }
