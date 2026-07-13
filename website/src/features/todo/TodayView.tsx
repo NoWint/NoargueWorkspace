@@ -55,11 +55,14 @@ export function TodayView() {
   const { systemTags, userTags, fetchTags } = useTagStore()
   const [filter, setFilter] = useState<FilterKey>('all')
   const [activeTagId, setActiveTagId] = useState<number | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchTodos()
-    fetchCombos()
-    fetchTags()
+    let mounted = true
+    Promise.all([fetchTodos(), fetchCombos(), fetchTags()])
+      .then(() => { if (mounted) setError(null) })
+      .catch(() => { if (mounted) setError('加载失败，请稍后重试') })
+    return () => { mounted = false }
   }, [fetchTodos, fetchCombos, fetchTags])
 
   const now = new Date()
@@ -326,11 +329,38 @@ export function TodayView() {
           </div>
 
           <div className={styles.todoList}>
-            {loading && <div className={styles.empty}>加载中...</div>}
-            {!loading && filteredTodos.length === 0 && (
-              <div className={styles.empty}>今日暂无待办</div>
+            {loading && (
+              <div className={styles.skeletonList}>
+                {[0, 1, 2, 3].map((i) => (
+                  <div key={i} className={styles.skeletonRow}>
+                    <div className={styles.skeletonCheck} />
+                    <div className={styles.skeletonBody}>
+                      <div className={styles.skeletonTitle} />
+                      <div className={styles.skeletonSub} />
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
-            {filteredTodos.map((t) => (
+            {error && !loading && (
+              <div className={styles.empty}>
+                <div className={styles.emptyIcon}>
+                  <CalendarCheckIcon />
+                </div>
+                <div className={styles.emptyTitle}>加载失败</div>
+                <div className={styles.emptySub}>{error}</div>
+              </div>
+            )}
+            {!loading && !error && filteredTodos.length === 0 && (
+              <div className={styles.empty}>
+                <div className={styles.emptyIcon}>
+                  <CalendarCheckIcon />
+                </div>
+                <div className={styles.emptyTitle}>今日暂无待办</div>
+                <div className={styles.emptySub}>点击右上角"新建待办"开始</div>
+              </div>
+            )}
+            {!loading && !error && filteredTodos.map((t) => (
               <TodoItem key={t.id} todo={t} />
             ))}
           </div>
@@ -445,7 +475,6 @@ export function TodayView() {
                     type="button"
                     className={styles.tagActive}
                     onClick={() => setActiveTagId(isActive ? null : t.id)}
-                    style={{ background: 'transparent', border: 'none', padding: 0, cursor: 'pointer' }}
                   >
                     <Tag tone={isActive ? 'pri' : 'default'}>
                       {t.name} · {t.count}

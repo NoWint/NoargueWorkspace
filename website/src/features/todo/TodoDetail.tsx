@@ -55,6 +55,7 @@ export function TodoDetail() {
   const navigate = useNavigate()
   const [todo, setTodo] = useState<Todo | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const toggleComplete = useTodoStore((s) => s.toggleComplete)
   const toggleStar = useTodoStore((s) => s.toggleStar)
   const deleteTodo = useTodoStore((s) => s.deleteTodo)
@@ -98,8 +99,14 @@ export function TodoDetail() {
     todosApi
       .getById(id)
       .then((res) => {
-        if (res.success && res.todo) setTodo(res.todo)
+        if (res.success && res.todo) {
+          setTodo(res.todo)
+          setError(null)
+        } else {
+          setError('加载失败')
+        }
       })
+      .catch(() => setError('加载失败，请稍后重试'))
       .finally(() => setLoading(false))
     fetchSubtodos(id)
     fetchByTodo(id)
@@ -124,9 +131,19 @@ export function TodoDetail() {
       <div className={styles.screen}>
         <div className={styles.loading}>
           <div className={styles.loadingIcon}>
-            <CheckIcon />
+            <ClockIcon />
           </div>
           <div>加载中...</div>
+        </div>
+      </div>
+    )
+  }
+  if (error && !todo) {
+    return (
+      <div className={styles.screen}>
+        <div className={styles.loading}>
+          <div className={styles.loadingTitle}>加载失败</div>
+          <div className={styles.loadingSub}>{error}</div>
         </div>
       </div>
     )
@@ -135,9 +152,6 @@ export function TodoDetail() {
     return (
       <div className={styles.screen}>
         <div className={styles.loading}>
-          <div className={styles.loadingIcon}>
-            <CheckIcon />
-          </div>
           <div className={styles.loadingTitle}>未找到该待办</div>
           <div className={styles.loadingSub}>可能已被删除或不存在</div>
         </div>
@@ -639,8 +653,7 @@ export function TodoDetail() {
               format="YYYY-MM-DD HH:mm"
               value={shareForm.expiresAt}
               onChange={(v) => v && setShareForm({ ...shareForm, expiresAt: v })}
-              style={{ width: '100%' }}
-              className={styles.picker}
+              className={cn(styles.picker, styles.pickerFull)}
             />
           </div>
           <div className={styles.formRow}>

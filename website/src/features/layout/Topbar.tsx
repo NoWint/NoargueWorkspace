@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Tooltip, Popover } from 'antd'
 import dayjs from 'dayjs'
 import { useThemeToggle } from '@/app/providers'
-import { SearchIcon, BellIcon, MoonIcon, SunIcon, RefreshIcon } from '@/design/icons'
+import { SearchIcon, BellIcon, MoonIcon, SunIcon, RefreshIcon, MenuIcon } from '@/design/icons'
 import { cn } from '@/lib/utils'
 import { useCmdPaletteStore } from '@/stores/cmdPalette'
 import { useSyncStore } from '@/stores/sync'
@@ -12,7 +12,11 @@ import styles from './Topbar.module.css'
 const VIEWS = ['列表', '看板', '时间线'] as const
 type View = (typeof VIEWS)[number]
 
-export function Topbar() {
+interface TopbarProps {
+  onToggleMobileNav?: () => void
+}
+
+export function Topbar({ onToggleMobileNav }: TopbarProps) {
   const { mode, toggle } = useThemeToggle()
   const [view, setView] = useState<View>('列表')
   const searchRef = useRef<HTMLInputElement>(null)
@@ -50,12 +54,23 @@ export function Topbar() {
           </span>
         </div>
       ))}
-      <div className={styles.notifyFooter}>查看全部</div>
+      {notifications.length > 0 && (
+        <div className={styles.notifyFooter}>查看全部 ({notifications.length})</div>
+      )}
     </div>
   )
 
   return (
     <div className={styles.topbar}>
+      <button
+        className={styles.menuBtn}
+        onClick={onToggleMobileNav}
+        type="button"
+        aria-label="菜单"
+      >
+        <MenuIcon />
+      </button>
+
       <div className={styles.search}>
         <SearchIcon className={styles.searchIcon} />
         <input

@@ -8,6 +8,7 @@
   gap: 18px;
   font-size: 13px;
   overflow-y: auto;
+  transition: transform var(--dur) var(--ease);
 }
 .sb::-webkit-scrollbar { width: 6px; }
 .sb::-webkit-scrollbar-thumb { background: var(--mt3); }
@@ -46,13 +47,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 7px 11px;
+  padding: 8px 11px;
   background: var(--primary);
   color: var(--primary-fg);
   cursor: pointer;
   font: 500 12px/1 var(--font-sans);
+  transition: background var(--dur-fast) var(--ease);
 }
 .cta:hover { background: var(--primary-hi); }
+.cta:active { transform: translateY(1px); }
 .ctaLabel { display: flex; align-items: center; gap: 6px; }
 .ctaIcon { flex: none; width: 12px; height: 12px; }
 .ctaKbd {
@@ -66,15 +69,17 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  padding: 6px 6px;
+  padding: 7px 6px;
+  min-height: 28px;
   cursor: pointer;
   font-size: 12.5px;
   color: var(--mt);
   text-decoration: none;
+  transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
 }
-.navItem:hover { color: var(--fg); }
+.navItem:hover { color: var(--fg); background: var(--muted); }
 .navItem:hover .navIcon { color: var(--mt); }
-.navItem.act { color: var(--fg); }
+.navItem.act { color: var(--fg); background: var(--primary-soft); }
 .navItem.act .navIcon { color: var(--primary); }
 .navIcon {
   color: var(--mt2);
@@ -102,18 +107,25 @@
   cursor: pointer;
 }
 .secIcon { color: var(--mt3); width: 10px; height: 10px; }
+.emptyCombo {
+  padding: 6px;
+  font-size: 11.5px;
+  color: var(--mt3);
+}
 .comboItem {
   display: grid;
   grid-template-columns: 10px 1fr auto;
   gap: 8px;
   align-items: center;
-  padding: 5px 6px;
+  padding: 6px;
+  min-height: 28px;
   cursor: pointer;
   font-size: 12px;
   color: var(--mt);
   text-decoration: none;
+  transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
 }
-.comboItem:hover { color: var(--fg); }
+.comboItem:hover { color: var(--fg); background: var(--muted); }
 .dot { width: 8px; height: 8px; border-radius: 2px; flex: none; }
 .comboNm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .comboCt {
@@ -134,9 +146,11 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 6px;
+  padding: 6px;
+  min-height: 28px;
   cursor: pointer;
   color: var(--mt);
+  transition: color var(--dur-fast) var(--ease);
 }
 .userPill:hover { color: var(--fg); }
 .userAv {
@@ -146,7 +160,7 @@
   font: 600 9px/1 var(--font-sans);
   flex: none;
 }
-.handle { font-size: 12px; font-weight: 500; flex: 1; color: var(--fg); }
+.handle { font-size: 12px; font-weight: 500; flex: 1; color: var(--fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .badge {
   min-width: 28px;
   height: 20px;
@@ -165,10 +179,47 @@
   padding-top: 6px;
 }
 .toolLink {
-  padding: 4px 6px;
+  padding: 5px 6px;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
   font-size: 11.5px;
   color: var(--mt2);
   text-decoration: none;
   cursor: pointer;
+  transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
 }
-.toolLink:hover { color: var(--fg); }
+.toolLink:hover { color: var(--fg); background: var(--muted); }
+
+/* 移动端关闭按钮 */
+.mobileClose {
+  display: none;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  background: transparent;
+  color: var(--mt);
+  cursor: pointer;
+  place-items: center;
+}
+.mobileClose:hover { color: var(--fg); }
+.mobileClose svg { width: 16px; height: 16px; }
+
+/* ====== 响应式：手机抽屉 ====== */
+@media (max-width: 768px) {
+  .sb {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 260px;
+    z-index: 50;
+    transform: translateX(-100%);
+    box-shadow: 4px 0 24px rgba(0,0,0,0.3);
+  }
+  .sbMobileOpen { transform: translateX(0); }
+  .mobileClose { display: grid; }
+}

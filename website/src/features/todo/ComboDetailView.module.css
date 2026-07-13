@@ -46,12 +46,19 @@
 /* Stats */
 .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 @media (max-width: 900px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 500px) { .stats { grid-template-columns: 1fr; } }
 .deltaUp { color: var(--success); }
 .pctSign { font-size: 14px; color: var(--mt2); }
 
 /* Grid */
 .grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 16px; }
 @media (max-width: 1100px) { .grid { grid-template-columns: 1fr; } }
+/* Side column (single column always) */
+.sideCol {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 
 /* Card head */
 .cardHead {
@@ -165,18 +172,6 @@
   margin-top: 2px;
 }
 
-/* Loading */
-.loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 60px 20px;
-  color: var(--mt);
-  text-align: center;
-}
-
 /* Foot */
 .cardFoot {
   display: flex; justify-content: space-between; align-items: center;
@@ -197,9 +192,10 @@
   border: 1px solid var(--border);
   background: var(--bg);
   cursor: pointer;
-  transition: border-color 0.15s;
+  transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
 }
 .reqEntry:hover { border-color: var(--mt3); }
+.reqEntry:active { background: var(--card); }
 .reqEntryL { display: flex; gap: 12px; align-items: flex-start; }
 .reqEntryTitle {
   font: 500 13px/1.3 var(--font-sans);
@@ -217,7 +213,96 @@
   height: 18px;
   padding: 0 5px;
   background: var(--destructive);
-  color: #fff;
+  color: var(--bg);
   font: 600 10px/1 var(--font-mono);
+}
+
+/* Skeleton loading */
+.skeletonHero {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.skeletonIcon {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  background: var(--card);
+  animation: skeleton-pulse 1.4s ease-in-out infinite;
+}
+.skeletonBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 4px;
+}
+.skeletonBodyRow {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 4px;
+}
+.skeletonTitle {
+  width: 50%;
+  height: 12px;
+  background: var(--card);
+  animation: skeleton-pulse 1.4s ease-in-out infinite;
+}
+.skeletonSub {
+  width: 30%;
+  height: 9px;
+  background: var(--card);
+  animation: skeleton-pulse 1.4s ease-in-out infinite;
+}
+.skeletonStats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+@media (max-width: 900px) { .skeletonStats { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 500px) { .skeletonStats { grid-template-columns: 1fr; } }
+.skeletonStat {
+  height: 64px;
+  background: var(--card);
+  animation: skeleton-pulse 1.4s ease-in-out infinite;
+}
+.skeletonCard {
+  height: 120px;
+  background: var(--card);
+  animation: skeleton-pulse 1.4s ease-in-out infinite;
+}
+.skeletonList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.skeletonRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.skeletonCheck {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  margin-top: 2px;
+  background: var(--card);
+  animation: skeleton-pulse 1.4s ease-in-out infinite;
+}
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 0.85; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeletonIcon,
+  .skeletonTitle,
+  .skeletonSub,
+  .skeletonStat,
+  .skeletonCard,
+  .skeletonCheck { animation: none; }
 }
 

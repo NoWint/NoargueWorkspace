@@ -1,17 +1,17 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Modal, Input, message, Popconfirm } from 'antd'
 import type { Combo } from '@/types'
 import { useComboStore } from '@/stores/combos'
 import { useTodoStore } from '@/stores/todos'
-import { Button, Card, Eyebrow, Stat, StatusChip, AvatarGroup } from '@/design/primitives'
-import type { AvatarMember } from '@/design/primitives'
+import { Button, Card, Eyebrow, Stat, StatusChip } from '@/design/primitives'
 import {
   ListIcon,
   PlusIcon,
   TrashIcon,
   CheckIcon,
   ClockIcon,
+  EditIcon,
 } from '@/design/icons'
 import { cn } from '@/lib/utils'
 import styles from './CombosView.module.css'
@@ -19,40 +19,6 @@ import styles from './CombosView.module.css'
 const PRESET_COLORS = [
   '#01796f', '#4a9eff', '#eab308', '#62d178',
   '#9c6ade', '#ff6467', '#f97316', '#a1a1a1',
-]
-
-const MOCK_ACTIVITIES = [
-  {
-    id: 1,
-    user: { id: 1, nickname: 'Alice', avatarUrl: undefined },
-    action: '完成了' as const,
-    target: '设计评审会议',
-    time: '10 分钟前',
-    color: '#5b8def',
-  },
-  {
-    id: 2,
-    user: { id: 2, nickname: 'Bob', avatarUrl: undefined },
-    action: '创建了' as const,
-    target: 'API 文档撰写',
-    time: '2 小时前',
-    color: '#d97757',
-  },
-  {
-    id: 3,
-    user: { id: 3, nickname: 'Carol', avatarUrl: undefined },
-    action: '评论了' as const,
-    target: 'Q3 产品评审',
-    time: '昨天',
-    color: '#62d178',
-  },
-]
-
-const MOCK_MEMBERS: AvatarMember[] = [
-  { id: 1, nickname: 'Alice' },
-  { id: 2, nickname: 'Bob' },
-  { id: 3, nickname: 'Carol' },
-  { id: 4, nickname: 'Dan' },
 ]
 
 interface FormState {
@@ -71,6 +37,7 @@ const EMPTY_FORM: FormState = {
 
 export function CombosView() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { combos, fetchCombos, createCombo, updateCombo, deleteCombo, loading } =
     useComboStore()
   const { todos, fetchTodos } = useTodoStore()
@@ -79,11 +46,36 @@ export function CombosView() {
   const [editing, setEditing] = useState<Combo | null>(null)
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
   const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchCombos()
-    fetchTodos()
-  }, [fetchCombos, fetchTodos])
+    let mounted = true
+    Promise.all([fetchCombos(), fetchTodos()])
+      .then(() => {
+        if (!mounted) return
+        setError(null)
+        // If navigated here with editComboId state, open the edit modal
+        const editComboId = (location.state as { editComboId?: number } | null)?.editComboId
+        if (editComboId != null) {
+          // Need to read fresh combos from store after fetch
+          const target = useComboStore.getState().combos.find((c) => c.id === editComboId)
+          if (target) {
+            setEditing(target)
+            setForm({
+              name: target.name,
+              description: target.description || '',
+              color: target.color,
+              icon: target.icon || 'folder',
+            })
+            setModalOpen(true)
+          }
+          // Clear the state so it doesn't re-open on re-renders
+          window.history.replaceState({}, document.title)
+        }
+      })
+      .catch(() => { if (mounted) setError('加载失败，请稍后重试') })
+    return () => { mounted = false }
+  }, [fetchCombos, fetchTodos, location.state])
 
   const activeTodos = useMemo(() => todos.filter((t) => !t.isDeleted), [todos])
   const privateCombos = useMemo(
@@ -178,11 +170,6 @@ export function CombosView() {
           )}
           <div className={styles.comboFoot}>
             <span className={styles.comboCount}>{count} 项待办</span>
-            {combo.isShared && (
-              <div className={styles.comboMembers}>
-                <AvatarGroup members={MOCK_MEMBERS} max={4} />
-              </div>
-            )}
             <div className={styles.comboActions}>
               <button
                 type="button"
@@ -192,7 +179,7 @@ export function CombosView() {
                   openEdit(combo)
                 }}
               >
-                <CheckIcon />
+                <EditIcon />
               </button>
               <Popconfirm
                 title="删除组合"
@@ -294,9 +281,28 @@ export function CombosView() {
           </div>
           <div className={styles.comboList}>
             {loading && privateCombos.length === 0 && (
-              <div className={styles.empty}>加载中...</div>
+              <div className={styles.skeletonList}>
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className={styles.skeletonRow}>
+                    <div className={styles.skeletonIcon} />
+                    <div className={styles.skeletonBody}>
+                      <div className={styles.skeletonTitle} />
+                      <div className={styles.skeletonSub} />
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
-            {!loading && privateCombos.length === 0 && renderEmpty('私有')}
+            {error && !loading && (
+              <div className={styles.empty}>
+                <div className={styles.emptyIcon}>
+                  <ListIcon />
+                </div>
+                <div className={styles.emptyTitle}>加载失败</div>
+                <div className={styles.emptySub}>{error}</div>
+              </div>
+            )}
+            {!loading && !error && privateCombos.length === 0 && renderEmpty('私有')}
             {privateCombos.map(renderComboCard)}
           </div>
         </Card>
@@ -318,14 +324,33 @@ export function CombosView() {
           </div>
           <div className={styles.comboList}>
             {loading && sharedCombos.length === 0 && (
-              <div className={styles.empty}>加载中...</div>
+              <div className={styles.skeletonList}>
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className={styles.skeletonRow}>
+                    <div className={styles.skeletonIcon} />
+                    <div className={styles.skeletonBody}>
+                      <div className={styles.skeletonTitle} />
+                      <div className={styles.skeletonSub} />
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
-            {!loading && sharedCombos.length === 0 && renderEmpty('共享')}
+            {error && !loading && (
+              <div className={styles.empty}>
+                <div className={styles.emptyIcon}>
+                  <ListIcon />
+                </div>
+                <div className={styles.emptyTitle}>加载失败</div>
+                <div className={styles.emptySub}>{error}</div>
+              </div>
+            )}
+            {!loading && !error && sharedCombos.length === 0 && renderEmpty('共享')}
             {sharedCombos.map(renderComboCard)}
           </div>
         </Card>
 
-        {/* Activity feed (mock) */}
+        {/* Activity feed (empty state - pending real data) */}
         <Card>
           <div className={styles.cardHead}>
             <div className={styles.cardHeadL}>
@@ -341,23 +366,13 @@ export function CombosView() {
             </div>
           </div>
           <div className={styles.activity}>
-            {MOCK_ACTIVITIES.map((act) => (
-              <div key={act.id} className={styles.actItem}>
-                <div
-                  className={styles.actAv}
-                  style={{ background: act.color }}
-                >
-                  {act.user.nickname.slice(0, 1)}
-                </div>
-                <div className={styles.actBody}>
-                  <div>
-                    <span className={styles.actName}>{act.user.nickname}</span>{' '}
-                    {act.action}「{act.target}」
-                  </div>
-                  <div className={styles.actTime}>{act.time}</div>
-                </div>
+            <div className={styles.empty}>
+              <div className={styles.emptyIcon}>
+                <ClockIcon />
               </div>
-            ))}
+              <div className={styles.emptyTitle}>暂无动态</div>
+              <div className={styles.emptySub}>最近的组合操作会显示在这里</div>
+            </div>
           </div>
         </Card>
       </div>
@@ -371,7 +386,7 @@ export function CombosView() {
         okText={editing ? '保存' : '创建'}
         cancelText="取消"
         confirmLoading={saving}
-        okButtonProps={{ style: { background: '#01796f', borderColor: '#01796f' } }}
+        okButtonProps={{ className: styles.modalOk }}
         destroyOnClose
       >
         <div className={styles.formRow}>
@@ -406,7 +421,7 @@ export function CombosView() {
                 onClick={() => setForm({ ...form, color: c })}
               >
                 {form.color === c && (
-                  <CheckIcon strokeWidth={2.5} style={{ color: '#fff', width: 13, height: 13 }} />
+                  <CheckIcon strokeWidth={2.5} className={styles.colorCheck} />
                 )}
               </button>
             ))}

@@ -14,6 +14,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 20px;
+  flex-wrap: wrap;
 }
 .heroLeft { flex: 1; min-width: 0; }
 .hdRow { display: flex; gap: 12px; align-items: flex-start; }
@@ -49,15 +50,18 @@
   white-space: nowrap;
   color: var(--fg);
   background: transparent;
+  transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
 }
 .btnPri { background: var(--primary); color: var(--primary-fg); }
 .btnPri:hover { background: var(--primary-hi); }
+.btnPri:active { transform: translateY(1px); }
 .btnSm { height: 24px; padding: 0 9px; font-size: 11px; }
 .btnIcon { width: 12px; height: 12px; flex: none; }
 
 /* Stats */
 .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 @media (max-width: 900px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 500px) { .stats { grid-template-columns: 1fr; } }
 .deltaUp { color: var(--success); }
 .deltaDown { color: var(--destructive); }
 
@@ -78,6 +82,12 @@
   font: 600 14px/1.3 var(--font-sans);
   color: var(--fg);
 }
+.cardHeadR {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
 
 /* Segmented control (matches Topbar style) */
 .seg {
@@ -88,6 +98,7 @@
 }
 .pill {
   height: 22px;
+  min-height: 28px;
   padding: 0 10px;
   display: grid;
   place-items: center;
@@ -96,8 +107,10 @@
   font: 500 11.5px/1 var(--font-sans);
   border: 0;
   background: transparent;
+  transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
 }
 .pill:hover { color: var(--fg); }
+.pill:active { transform: translateY(1px); }
 .pillAct {
   background: var(--fg);
   color: var(--bg);
@@ -110,13 +123,16 @@
   align-items: center;
   gap: 6px;
   padding: 4px 10px;
+  min-height: 28px;
   border: 1px solid var(--border);
   background: transparent;
   color: var(--mt);
   font: 500 11.5px/1 var(--font-sans);
   cursor: pointer;
+  transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
 }
 .comboBtn:hover { color: var(--fg); }
+.comboBtn:active { transform: translateY(1px); }
 .comboAct {
   color: var(--fg);
   border-color: var(--primary-line);
@@ -143,6 +159,41 @@
 
 /* Todo list */
 .todoList { display: flex; flex-direction: column; }
+
+/* Todo row (batch mode) */
+.todoRowBatch {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 0 4px;
+}
+.todoRowMain { flex: 1; min-width: 0; }
+
+/* Skeleton loading */
+.skeletonList { display: flex; flex-direction: column; }
+.skeletonRow {
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+}
+.skeletonCheck {
+  width: 16px; height: 16px;
+  background: var(--muted);
+}
+.skeletonBody { display: flex; flex-direction: column; gap: 6px; }
+.skeletonTitle {
+  height: 13px;
+  width: 60%;
+  background: var(--muted);
+}
+.skeletonSub {
+  height: 10px;
+  width: 35%;
+  background: var(--muted);
+}
 
 /* Empty state */
 .empty {
@@ -182,6 +233,8 @@
   align-items: center;
   padding-top: 4px;
   border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 8px;
 }
 .footText {
   font: 500 10.5px/1 var(--font-mono);
@@ -192,14 +245,17 @@
   align-items: center;
   gap: 4px;
   height: 22px;
+  min-height: 28px;
   padding: 0 8px;
   border: 1px solid var(--border);
   background: var(--bg);
   color: var(--mt);
   font: 500 10.5px/1 var(--font-mono);
   cursor: pointer;
+  transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
 }
 .sortBtn:hover { color: var(--fg); border-color: var(--mt3); }
+.sortBtn:active { transform: translateY(1px); }
 .sortArrow { color: var(--mt2); }
 
 /* Batch mode */
@@ -208,17 +264,23 @@
   align-items: center;
   gap: 4px;
   height: 22px;
+  min-height: 28px;
   padding: 0 8px;
   border: 1px solid var(--border);
   background: var(--bg);
   color: var(--mt);
   font: 500 10.5px/1 var(--font-mono);
   cursor: pointer;
+  transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
 }
 
 .batchToggle:hover {
   color: var(--fg);
   border-color: var(--mt3);
+}
+
+.batchToggle:active {
+  transform: translateY(1px);
 }
 
 .batchToggleAct {
@@ -230,6 +292,8 @@
 .batchCheck {
   width: 16px;
   height: 16px;
+  min-width: 28px;
+  min-height: 28px;
   border: 1px solid var(--mt3);
   display: grid;
   place-items: center;
@@ -238,6 +302,15 @@
   padding: 0;
   flex: none;
   margin-right: 8px;
+  transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+
+.batchCheck:hover {
+  border-color: var(--primary-line);
+}
+
+.batchCheck:active {
+  transform: translateY(1px);
 }
 
 .batchCheckOn {
@@ -259,10 +332,4 @@
   width: 11px;
   height: 11px;
   flex: none;
-}
-
-.cardHeadR {
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }

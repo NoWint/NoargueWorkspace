@@ -8,7 +8,7 @@ import { useComboStore } from '@/stores/combos'
 import { useTagStore } from '@/stores/tags'
 import { todosApi } from '@/api/todos'
 import { Button, Card, Eyebrow, Tag } from '@/design/primitives'
-import { PlusIcon, CheckIcon, ClockIcon, TagIcon } from '@/design/icons'
+import { PlusIcon, CheckIcon, ClockIcon, TagIcon, TrashIcon } from '@/design/icons'
 import { todayStr, cn } from '@/lib/utils'
 import styles from './TodoForm.module.css'
 import { ImageUploader } from './ImageUploader'
@@ -62,7 +62,15 @@ export function TodoForm({ mode }: TodoFormProps) {
           setSelectedCombo(t.comboId)
           setPriority((t.priority as 'high' | 'medium' | 'low') || 'low')
           setImages(t.images || [])
-          setLocationName(t.locationText || '')
+          const locText = t.locationText || ''
+          const locMatch = locText.match(/^(.+?)（(.+?)）$/)
+          if (locMatch) {
+            setLocationName(locMatch[1])
+            setLocationAddress(locMatch[2])
+          } else {
+            setLocationName(locText)
+            setLocationAddress('')
+          }
           fetchSubtodos(id).then(() => {
             const subs = useTodoStore.getState().subtaskMap[id] || []
             setSubtasks(subs.map((s) => ({ id: s.id, text: s.text })))
@@ -197,23 +205,21 @@ export function TodoForm({ mode }: TodoFormProps) {
             </div>
 
             <div className={styles.row}>
-              <div className={styles.fieldGroup} style={{ flex: 1 }}>
+              <div className={cn(styles.fieldGroup, styles.fieldFlex)}>
                 <div className={styles.fieldLabel}>日期</div>
                 <Form.Item name="setDate" className={styles.formItem}>
                   <DatePicker
-                    style={{ width: '100%' }}
-                    className={styles.picker}
+                    className={cn(styles.picker, styles.pickerFull)}
                     format="YYYY-MM-DD"
                   />
                 </Form.Item>
               </div>
-              <div className={styles.fieldGroup} style={{ flex: 1 }}>
+              <div className={cn(styles.fieldGroup, styles.fieldFlex)}>
                 <div className={styles.fieldLabel}>时间</div>
                 <Form.Item name="setTime" className={styles.formItem}>
                   <TimePicker
                     format="HH:mm"
-                    style={{ width: '100%' }}
-                    className={styles.picker}
+                    className={cn(styles.picker, styles.pickerFull)}
                   />
                 </Form.Item>
               </div>
@@ -278,7 +284,7 @@ export function TodoForm({ mode }: TodoFormProps) {
                   )}
                   onClick={() => setPriority('high')}
                 >
-                  <span className={styles.priDot} style={{ background: 'var(--destructive)' }} />
+                  <span className={cn(styles.priDot, styles.priDotHigh)} />
                   高
                 </button>
                 <button
@@ -290,7 +296,7 @@ export function TodoForm({ mode }: TodoFormProps) {
                   )}
                   onClick={() => setPriority('medium')}
                 >
-                  <span className={styles.priDot} style={{ background: 'var(--warn)' }} />
+                  <span className={cn(styles.priDot, styles.priDotMed)} />
                   中
                 </button>
                 <button
@@ -302,7 +308,7 @@ export function TodoForm({ mode }: TodoFormProps) {
                   )}
                   onClick={() => setPriority('low')}
                 >
-                  <span className={styles.priDot} style={{ background: 'var(--mt3)' }} />
+                  <span className={cn(styles.priDot, styles.priDotLow)} />
                   低
                 </button>
               </div>
@@ -371,8 +377,9 @@ export function TodoForm({ mode }: TodoFormProps) {
                       type="button"
                       className={styles.subtaskRemove}
                       onClick={() => setSubtasks(subtasks.filter((_, idx) => idx !== i))}
+                      aria-label="删除子任务"
                     >
-                      ×
+                      <TrashIcon className={styles.subtaskRemoveIcon} />
                     </button>
                   </div>
                 ))}

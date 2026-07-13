@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { message } from 'antd'
 import { uploadApi } from '@/api/upload'
-import { UploadIcon } from '@/design/icons'
+import { UploadIcon, TrashIcon } from '@/design/icons'
 import styles from './ImageUploader.module.css'
 
 interface ImageUploaderProps {
@@ -27,11 +27,14 @@ export function ImageUploader({ images, onChange, max = 9 }: ImageUploaderProps)
     const toUpload = files.slice(0, remaining)
     e.target.value = '' // reset for re-select
 
+    // Accumulate uploaded URLs locally to avoid stale closure over `images`
+    const uploaded: string[] = []
     for (let i = 0; i < toUpload.length; i++) {
       setUploadingIdx(i)
       try {
         const url = await uploadApi.uploadTodoImage(toUpload[i])
-        onChange([...images, url])
+        uploaded.push(url)
+        onChange([...images, ...uploaded])
       } catch (err) {
         message.error(err instanceof Error ? err.message : '图片上传失败')
       }
@@ -57,7 +60,7 @@ export function ImageUploader({ images, onChange, max = 9 }: ImageUploaderProps)
               className={styles.thumbRemove}
               onClick={() => handleRemove(idx)}
             >
-              ×
+              <TrashIcon />
             </button>
           </div>
         ))}
@@ -83,7 +86,7 @@ export function ImageUploader({ images, onChange, max = 9 }: ImageUploaderProps)
           type="file"
           accept="image/*"
           multiple
-          style={{ display: 'none' }}
+          className={styles.fileInput}
           onChange={handleSelect}
         />
       </div>

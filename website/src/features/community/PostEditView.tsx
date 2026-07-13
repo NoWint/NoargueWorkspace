@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Input, message } from 'antd'
-import type { Post } from '@/api/posts'
+import type { CreatePollRequest, Post } from '@/api/posts'
+import { postsApi } from '@/api/posts'
 import { useCommunityStore } from '@/stores/community'
 import { useTodoStore } from '@/stores/todos'
 import { useComboStore } from '@/stores/combos'
@@ -9,6 +10,7 @@ import { Button, Card, Eyebrow } from '@/design/primitives'
 import { CheckIcon, LocationIcon, PlusIcon } from '@/design/icons'
 import { cn } from '@/lib/utils'
 import { ImageUploader } from '@/features/todo/ImageUploader'
+import { PollEditor } from './PollEditor'
 import styles from './PostEditView.module.css'
 
 export function PostEditView() {
@@ -29,6 +31,8 @@ export function PostEditView() {
   const [locAddress, setLocAddress] = useState('')
   const [saving, setSaving] = useState(false)
   const [loaded, setLoaded] = useState(false)
+  const [showPollEditor, setShowPollEditor] = useState(false)
+  const [pollData, setPollData] = useState<CreatePollRequest | null>(null)
 
   useEffect(() => {
     fetchTodos()
@@ -86,9 +90,14 @@ export function PostEditView() {
       message.warning('请输入标题')
       return
     }
+    if (showPollEditor && !pollData) {
+      message.warning('请完善投票信息（标题 + 至少 2 个选项）')
+      return
+    }
     setSaving(true)
     try {
       const location = buildLocation()
+      let targetPostId = ''
       if (isEdit && postId) {
         await update(postId, {
           title: title.trim(),
@@ -97,14 +106,14 @@ export function PostEditView() {
           todoIds,
           location,
         })
+        targetPostId = postId
         message.success('已更新')
-        navigate(`/community/${postId}`)
       } else {
-        const newPostId = `post_${Date.now()}_${Math.random()
+        targetPostId = `post_${Date.now()}_${Math.random()
           .toString(36)
           .slice(2, 8)}`
         await create({
-          postId: newPostId,
+          postId: targetPostId,
           title: title.trim(),
           body,
           images,
@@ -113,8 +122,16 @@ export function PostEditView() {
           location,
         })
         message.success('已发布')
-        navigate(`/community/${newPostId}`)
       }
+      // 创建投票（仅当原本没有投票且用户填写了投票数据）
+      if (pollData && !currentPost?.poll) {
+        try {
+          await postsApi.createPoll(targetPostId, pollData)
+        } catch (e) {
+          message.error((e as Error).message || '投票创建失败')
+        }
+      }
+      navigate(`/community/${targetPostId}`)
     } catch (e) {
       message.error((e as Error).message || '保存失败')
     } finally {
@@ -301,6 +318,57 @@ export function PostEditView() {
             })}
           </div>
         </div>
+      </Card>
+
+      {/* Poll */}
+      <Card>
+        {isEdit && currentPost?.poll ? (
+          <div className={styles.fieldGroup}>
+            <div className={styles.pollReadOnlyHead}>
+              <span className={styles.fieldLabel}>投票（已创建，不可编辑）</span>
+            </div>
+            <div className={styles.pollROTitle}>{currentPost.poll.title}</div>
+            <div className={styles.pollROMeta}>
+              {currentPost.poll.type === 1 ? '单选' : '多选'}
+              {currentPost.poll.isAnonymous ? ' · 匿名' : ''}
+              {currentPost.poll.allowOther ? ' · 允许其他' : ''}
+              {` · ${currentPost.poll.options.length} 个选项`}
+              {currentPost.poll.totalVotes > 0
+                ? ` · ${currentPost.poll.totalVotes} 人参与`
+                : ''}
+              {currentPost.poll.isEnded ? ' · 已结束' : ''}
+            </div>
+          </div>
+        ) : showPollEditor ? (
+          <div className={styles.fieldGroup}>
+            <div className={styles.pollEditorHead}>
+              <span className={styles.fieldLabel}>投票</span>
+              <button
+                type="button"
+                className={styles.pollRemoveBtn}
+                onClick={() => {
+                  setShowPollEditor(false)
+                  setPollData(null)
+                }}
+              >
+                移除投票
+              </button>
+            </div>
+            <PollEditor onChange={setPollData} />
+          </div>
+        ) : (
+          <div className={styles.fieldGroup}>
+            <div className={styles.fieldLabel}>投票（选填）</div>
+            <button
+              type="button"
+              className={styles.addPollBtn}
+              onClick={() => setShowPollEditor(true)}
+            >
+              <PlusIcon className={styles.addPollIcon} />
+              添加投票
+            </button>
+          </div>
+        )}
       </Card>
     </div>
   )

@@ -34,6 +34,15 @@
   --font-sans: "Geist", -apple-system, "SF Pro Text", "PingFang SC", system-ui, sans-serif;
   --font-mono: "Geist Mono", "SF Mono", ui-monospace, monospace;
   --font-song: "Songti SC", "STSong", "SimSun", serif;
+
+  /* 动效 token */
+  --dur-fast: 120ms;
+  --dur: 180ms;
+  --dur-slow: 280ms;
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* 焦点环 token */
+  --ring: 0 0 0 2px var(--bg), 0 0 0 3px var(--primary-line);
 }
 
 [data-theme="light"] {

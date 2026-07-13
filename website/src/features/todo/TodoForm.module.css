@@ -49,8 +49,9 @@
 
 /* Form */
 .form { display: flex; flex-direction: column; gap: 14px; }
-.row { display: flex; gap: 12px; }
+.row { display: flex; gap: 12px; flex-wrap: wrap; }
 .fieldGroup { display: flex; flex-direction: column; gap: 8px; }
+.fieldFlex { flex: 1; min-width: 0; }
 .fieldLabel {
   font: 500 10px/1 var(--font-mono);
   color: var(--mt2);
@@ -119,6 +120,7 @@
 }
 
 /* Picker (DatePicker / TimePicker) */
+.pickerFull { width: 100% !important; }
 .picker :global(.ant-picker-input > input) {
   color: var(--fg) !important;
   font-size: 13px !important;
@@ -142,13 +144,16 @@
   align-items: center;
   gap: 6px;
   padding: 4px 10px;
+  min-height: 28px;
   border: 1px solid var(--border);
   background: transparent;
   color: var(--mt);
   font: 500 11.5px/1 var(--font-sans);
   cursor: pointer;
+  transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
 }
 .chipBtn:hover { color: var(--fg); }
+.chipBtn:active { transform: translateY(1px); }
 .chipAct {
   color: var(--fg);
   border-color: var(--primary-line);
@@ -169,7 +174,13 @@
   background: transparent;
   padding: 0;
   cursor: pointer;
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  transition: opacity var(--dur-fast) var(--ease);
 }
+.tagBtn:hover { opacity: 0.8; }
+.tagBtn:active { transform: translateY(1px); }
 .emptyHint {
   color: var(--mt2);
   font-size: 12px;
@@ -179,6 +190,7 @@
 .formActions {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
   margin-top: 8px;
   padding-top: 14px;
   border-top: 1px solid var(--border);
@@ -193,6 +205,7 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 14px;
+  flex-wrap: wrap;
 }
 .cardHeadL { display: flex; gap: 12px; align-items: flex-start; }
 .cardTitle {
@@ -306,6 +319,7 @@
 .priBtn {
   flex: 1;
   padding: 8px 12px;
+  min-height: 28px;
   border: 1px solid var(--border);
   background: var(--card);
   color: var(--mt);
@@ -315,11 +329,16 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
+  transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
 }
 
 .priBtn:hover {
   border-color: var(--mt2);
   color: var(--fg);
+}
+
+.priBtn:active {
+  transform: translateY(1px);
 }
 
 .priAct {
@@ -328,13 +347,13 @@
 
 .priActHigh {
   border-color: var(--destructive);
-  background: rgba(255, 100, 103, 0.08);
+  background: color-mix(in srgb, var(--destructive) 8%, transparent);
   color: var(--destructive);
 }
 
 .priActMed {
   border-color: var(--warn);
-  background: rgba(234, 179, 8, 0.08);
+  background: color-mix(in srgb, var(--warn) 8%, transparent);
   color: var(--warn);
 }
 
@@ -349,6 +368,10 @@
   height: 7px;
   flex: none;
 }
+
+.priDotHigh { background: var(--destructive); }
+.priDotMed { background: var(--warn); }
+.priDotLow { background: var(--mt3); }
 
 /* Subtasks */
 .subtaskList {
@@ -377,12 +400,25 @@
   cursor: pointer;
   border: 0;
   background: transparent;
-  font-size: 14px;
-  padding: 2px 4px;
+  padding: 4px;
+  min-width: 28px;
+  min-height: 28px;
+  display: grid;
+  place-items: center;
+  transition: color var(--dur-fast) var(--ease);
 }
 
 .subtaskRemove:hover {
   color: var(--destructive);
+}
+
+.subtaskRemove:active {
+  transform: translateY(1px);
+}
+
+.subtaskRemoveIcon {
+  width: 13px;
+  height: 13px;
 }
 
 .subtaskInput {
@@ -393,6 +429,7 @@
   font-size: 13px;
   padding: 0 10px;
   outline: none;
+  transition: border-color var(--dur-fast) var(--ease);
 }
 
 .subtaskInput:focus {

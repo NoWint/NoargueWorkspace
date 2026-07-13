@@ -20,6 +20,7 @@ export interface Post {
   isLiked: boolean
   isEdited: boolean
   isDeleted: boolean
+  poll: PollSummary | null
   user: {
     id: number
     nickname: string
@@ -29,6 +30,58 @@ export interface Post {
   }
   createdAt: string
   updatedAt: string
+}
+
+/** 投票摘要（帖子列表/详情中的 poll 字段，不含 otherDetails） */
+export interface PollSummary {
+  pollId: number
+  title: string
+  type: number
+  isAnonymous: boolean
+  allowOther: boolean
+  totalVotes: number
+  endTime: string | null
+  isEnded: boolean
+  isVoted: boolean
+  userVotedOptionIds: number[]
+  options: PollOption[]
+}
+
+export interface PollOption {
+  optionId: number
+  text: string
+  voteCount: number
+  isOther: boolean
+}
+
+/** 投票详情（GET /posts/:postId/poll 响应） */
+export interface PollDetail {
+  poll: PollSummary
+  otherDetails: PollOtherDetail[]
+}
+
+export interface PollOtherDetail {
+  userId: number
+  nickname: string
+  avatar: string
+  customText: string
+  createdAt: string
+}
+
+/** 创建投票请求 */
+export interface CreatePollRequest {
+  title: string
+  type?: number
+  allowOther?: boolean
+  isAnonymous?: boolean
+  endTime?: string
+  options: { text: string; isOther: boolean }[]
+}
+
+/** 投票请求 */
+export interface VotePollRequest {
+  optionIds: number[]
+  otherTexts?: Record<string, string>
 }
 
 export interface PostFile {
@@ -96,4 +149,20 @@ export const postsApi = {
 
   getVisitors: (postId: string) =>
     http.get<{ success: boolean; data?: { visitors: PostVisitor[] }; visitors?: PostVisitor[] }>(`/posts/${postId}/visitors`),
+
+  /** 7.9 创建投票（仅帖主） */
+  createPoll: (postId: string, data: CreatePollRequest) =>
+    http.post<{ success: boolean; data: { pollId: number } }>(`/posts/${postId}/poll`, data),
+
+  /** 7.10 获取投票详情 */
+  getPoll: (postId: string) =>
+    http.get<{ success: boolean; data: PollDetail }>(`/posts/${postId}/poll`),
+
+  /** 7.11 投票 / 改票 */
+  votePoll: (postId: string, data: VotePollRequest) =>
+    http.post<{ success: boolean; data: { poll: PollSummary } }>(`/posts/${postId}/poll/vote`, data),
+
+  /** 7.12 关闭投票（帖主或管理员） */
+  closePoll: (postId: string) =>
+    http.post<{ success: boolean; data: { poll: PollSummary } }>(`/posts/${postId}/poll/close`),
 }

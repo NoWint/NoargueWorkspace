@@ -22,6 +22,7 @@ import {
   UserIcon,
 } from '@/design/icons'
 import { cn } from '@/lib/utils'
+import { PollView } from './PollView'
 import styles from './PostDetailView.module.css'
 
 function formatTime(ts: string): string {
@@ -502,6 +503,17 @@ export function PostDetailView() {
           )}
         </div>
       </Card>
+
+      {/* Poll */}
+      {post.poll && (
+        <Card>
+          <PollView
+            poll={post.poll}
+            postId={post.postId}
+            isOwner={isAuthor}
+          />
+        </Card>
+      )}
 
       {/* Like + stats */}
       <Card>

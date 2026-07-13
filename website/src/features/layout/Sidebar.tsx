@@ -15,11 +15,17 @@ import {
   ChatIcon,
   TagIcon,
   UserIcon,
+  CloseIcon,
 } from '@/design/icons'
 import { cn } from '@/lib/utils'
 import styles from './Sidebar.module.css'
 
-export function Sidebar() {
+interface SidebarProps {
+  mobileOpen?: boolean
+  onCloseMobile?: () => void
+}
+
+export function Sidebar({ mobileOpen = false, onCloseMobile }: SidebarProps) {
   const navigate = useNavigate()
   const user = useAuthStore((s) => s.user)
   const combos = useComboStore((s) => s.combos)
@@ -39,8 +45,16 @@ export function Sidebar() {
   const navClass = ({ isActive }: { isActive: boolean }) =>
     cn(styles.navItem, isActive && styles.act)
 
+  const handleNav = (path: string) => {
+    navigate(path)
+    onCloseMobile?.()
+  }
+
   return (
-    <aside className={styles.sb}>
+    <aside
+      className={cn(styles.sb, mobileOpen && styles.sbMobileOpen)}
+      data-mobile-open={mobileOpen}
+    >
       <div className={styles.ws}>
         <img className={styles.wsAv} src="https://api.yzjtiantian.cn/uploads/logo/logo.png" alt="时光绿径" />
         <div className={styles.wsNm}>时光绿径</div>
@@ -49,7 +63,7 @@ export function Sidebar() {
 
       <div
         className={styles.cta}
-        onClick={() => navigate('/todos/new')}
+        onClick={() => handleNav('/todos/new')}
         role="button"
         tabIndex={0}
       >
@@ -61,34 +75,34 @@ export function Sidebar() {
       </div>
 
       <nav className={styles.nav}>
-        <NavLink to="/" end className={navClass}>
+        <NavLink to="/" end className={navClass} onClick={onCloseMobile}>
           <CalendarIcon className={styles.navIcon} />
           <span>今日</span>
           {todayCount > 0 && <span className={styles.ct}>{todayCount}</span>}
         </NavLink>
-        <NavLink to="/todos" className={navClass}>
+        <NavLink to="/todos" className={navClass} onClick={onCloseMobile}>
           <ListIcon className={styles.navIcon} />
           <span>全部待办</span>
           <span className={styles.ct}>{activeTodos.length}</span>
         </NavLink>
-        <NavLink to="/calendar" className={navClass}>
+        <NavLink to="/calendar" className={navClass} onClick={onCloseMobile}>
           <CalendarIcon className={styles.navIcon} />
           <span>日历</span>
         </NavLink>
-        <NavLink to="/combos" className={navClass}>
+        <NavLink to="/combos" className={navClass} onClick={onCloseMobile}>
           <ListIcon className={styles.navIcon} />
           <span>组合</span>
         </NavLink>
-        <NavLink to="/stats" className={navClass}>
+        <NavLink to="/stats" className={navClass} onClick={onCloseMobile}>
           <ChartIcon className={styles.navIcon} />
           <span>统计</span>
         </NavLink>
-        <NavLink to="/star" className={navClass}>
+        <NavLink to="/star" className={navClass} onClick={onCloseMobile}>
           <StarIcon className={styles.navIcon} />
           <span>收藏</span>
           {starredCount > 0 && <span className={styles.ct}>{starredCount}</span>}
         </NavLink>
-        <NavLink to="/search" className={navClass}>
+        <NavLink to="/search" className={navClass} onClick={onCloseMobile}>
           <SearchIcon className={styles.navIcon} />
           <span>搜索</span>
         </NavLink>
@@ -99,19 +113,19 @@ export function Sidebar() {
         <div className={styles.secHead}>
           <span>功能</span>
         </div>
-        <NavLink to="/checkin" className={navClass}>
+        <NavLink to="/checkin" className={navClass} onClick={onCloseMobile}>
           <CalendarCheckIcon className={styles.navIcon} />
           <span>签到</span>
         </NavLink>
-        <NavLink to="/leaderboard" className={navClass}>
+        <NavLink to="/leaderboard" className={navClass} onClick={onCloseMobile}>
           <ChartIcon className={styles.navIcon} />
           <span>排行榜</span>
         </NavLink>
-        <NavLink to="/community" className={navClass}>
+        <NavLink to="/community" className={navClass} onClick={onCloseMobile}>
           <ChatIcon className={styles.navIcon} />
           <span>社区</span>
         </NavLink>
-        <NavLink to="/reports" className={navClass}>
+        <NavLink to="/reports" className={navClass} onClick={onCloseMobile}>
           <ListIcon className={styles.navIcon} />
           <span>工作报告</span>
         </NavLink>
@@ -122,8 +136,16 @@ export function Sidebar() {
           <span>组合</span>
           <PlusIcon className={styles.secIcon} />
         </div>
+        {allCombos.length === 0 && (
+          <div className={styles.emptyCombo}>暂无组合</div>
+        )}
         {allCombos.map((c) => (
-          <NavLink key={c.id} to={`/combos/${c.id}`} className={styles.comboItem}>
+          <NavLink
+            key={c.id}
+            to={`/combos/${c.id}`}
+            className={styles.comboItem}
+            onClick={onCloseMobile}
+          >
             <span className={styles.dot} style={{ background: c.color }} />
             <span className={styles.comboNm}>{c.name}</span>
             <span className={styles.comboCt}>{comboCount(c.id)}</span>
@@ -132,15 +154,15 @@ export function Sidebar() {
       </div>
 
       <div className={styles.footer}>
-        <NavLink to="/trash" className={navClass}>
+        <NavLink to="/trash" className={navClass} onClick={onCloseMobile}>
           <TrashIcon className={styles.navIcon} />
           <span>回收站</span>
         </NavLink>
-        <NavLink to="/tags" className={navClass}>
+        <NavLink to="/tags" className={navClass} onClick={onCloseMobile}>
           <TagIcon className={styles.navIcon} />
           <span>标签管理</span>
         </NavLink>
-        <NavLink to="/user-center" className={navClass}>
+        <NavLink to="/user-center" className={navClass} onClick={onCloseMobile}>
           <UserIcon className={styles.navIcon} />
           <span>用户中心</span>
         </NavLink>
@@ -150,32 +172,32 @@ export function Sidebar() {
           <div className={styles.secHead}>
             <span>更多工具</span>
           </div>
-          <NavLink to="/password-generator" className={styles.toolLink}>
+          <NavLink to="/password-generator" className={styles.toolLink} onClick={onCloseMobile}>
             密码生成器
           </NavLink>
-          <NavLink to="/eating" className={styles.toolLink}>
+          <NavLink to="/eating" className={styles.toolLink} onClick={onCloseMobile}>
             今天吃什么
           </NavLink>
-          <NavLink to="/motivation" className={styles.toolLink}>
+          <NavLink to="/motivation" className={styles.toolLink} onClick={onCloseMobile}>
             每日激励
           </NavLink>
-          <NavLink to="/datamanage" className={styles.toolLink}>
+          <NavLink to="/datamanage" className={styles.toolLink} onClick={onCloseMobile}>
             数据管理
           </NavLink>
-          <NavLink to="/notice" className={styles.toolLink}>
+          <NavLink to="/notice" className={styles.toolLink} onClick={onCloseMobile}>
             公告
           </NavLink>
-          <NavLink to="/changelog" className={styles.toolLink}>
+          <NavLink to="/changelog" className={styles.toolLink} onClick={onCloseMobile}>
             更新日志
           </NavLink>
-          <NavLink to="/guide" className={styles.toolLink}>
+          <NavLink to="/guide" className={styles.toolLink} onClick={onCloseMobile}>
             使用指南
           </NavLink>
         </div>
 
         <div
           className={styles.userPill}
-          onClick={() => navigate('/user-center')}
+          onClick={() => handleNav('/user-center')}
           role="button"
           tabIndex={0}
         >
@@ -188,6 +210,18 @@ export function Sidebar() {
           </span>
         </div>
       </div>
+
+      {/* 移动端关闭按钮 */}
+      {mobileOpen && (
+        <button
+          className={styles.mobileClose}
+          onClick={onCloseMobile}
+          type="button"
+          aria-label="关闭菜单"
+        >
+          <CloseIcon />
+        </button>
+      )}
     </aside>
   )
 }

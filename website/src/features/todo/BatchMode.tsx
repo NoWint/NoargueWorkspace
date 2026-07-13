@@ -61,22 +61,15 @@ export function BatchMode({ selectedIds, onDone, onCancel }: BatchModeProps) {
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
         footer={null}
-        width={420}
+        width="90%"
+        style={{ maxWidth: 420 }}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 0' }}>
+        <div className={styles.targetList}>
           <button
             type="button"
+            className={styles.targetBtn}
             onClick={() => handleMove(null)}
             disabled={moving}
-            style={{
-              padding: '8px 12px',
-              border: '1px solid var(--border)',
-              background: 'var(--card)',
-              cursor: 'pointer',
-              textAlign: 'left',
-              color: 'var(--fg)',
-              font: '500 12.5px/1.3 var(--font-sans)',
-            }}
           >
             移出组合
           </button>
@@ -84,22 +77,11 @@ export function BatchMode({ selectedIds, onDone, onCancel }: BatchModeProps) {
             <button
               key={c.id}
               type="button"
+              className={styles.targetBtn}
               onClick={() => handleMove(c.id)}
               disabled={moving}
-              style={{
-                padding: '8px 12px',
-                border: '1px solid var(--border)',
-                background: 'var(--card)',
-                cursor: 'pointer',
-                textAlign: 'left',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                color: 'var(--fg)',
-                font: '500 12.5px/1.3 var(--font-sans)',
-              }}
             >
-              <span style={{ width: 8, height: 8, background: c.color, flex: 'none' }} />
+              <span className={styles.targetDot} style={{ background: c.color }} />
               {c.name}
             </button>
           ))}

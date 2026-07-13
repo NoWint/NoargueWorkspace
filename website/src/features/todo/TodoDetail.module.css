@@ -14,6 +14,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 20px;
+  flex-wrap: wrap;
 }
 .heroLeft { flex: 1; min-width: 0; }
 .hdRow { display: flex; gap: 12px; align-items: flex-start; }
@@ -75,6 +76,7 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 14px;
+  flex-wrap: wrap;
 }
 .cardHeadL { display: flex; gap: 12px; align-items: flex-start; }
 .cardTitle {
@@ -162,7 +164,7 @@
 .deleteBtn:hover {
   color: var(--destructive) !important;
   border-color: var(--destructive) !important;
-  background: rgba(255, 100, 103, 0.08) !important;
+  background: color-mix(in srgb, var(--destructive) 8%, transparent) !important;
 }
 
 /* Responsive: on small screens, stack action footer */
@@ -177,6 +179,9 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 6px;
+}
+@media (max-width: 600px) {
+  .gallery { grid-template-columns: repeat(2, 1fr); }
 }
 
 .galleryImg {
@@ -290,6 +295,7 @@
   border-color: var(--border) !important;
   color: var(--fg) !important;
 }
+.pickerFull { width: 100% !important; }
 .picker :global(.ant-picker-input > input) {
   color: var(--fg) !important;
   font-size: 13px !important;

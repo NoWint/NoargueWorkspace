@@ -7,20 +7,29 @@
   border-bottom: 1px solid var(--border);
   font-size: 13px;
   cursor: pointer;
+  position: relative;
+  padding-left: 10px;
+  transition: background var(--dur-fast) var(--ease);
 }
 .item:last-child { border-bottom: 0; }
 .item:hover { background: var(--muted); }
+.item:active { transform: translateY(1px); }
 
 .done .title { color: var(--mt2); text-decoration: line-through; }
 
 .check {
   width: 16px; height: 16px;
+  min-width: 28px;
+  min-height: 28px;
   border: 1px solid var(--mt3);
   display: grid; place-items: center;
   cursor: pointer;
   background: transparent;
   padding: 0;
+  transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
 }
+.check:hover { border-color: var(--primary-line); }
+.check:active { transform: translateY(1px); }
 .done .check { background: var(--primary); border-color: var(--primary); }
 .check svg { width: 10px; height: 10px; color: var(--primary-fg); }
 
@@ -32,6 +41,7 @@
 .sub {
   display: flex; gap: 8px; align-items: center;
   margin-top: 3px; color: var(--mt); font-size: 11.5px;
+  flex-wrap: wrap;
 }
 .tag {
   font: 500 10px/1 var(--font-mono);
@@ -47,17 +57,19 @@
   cursor: pointer;
   border: 0;
   background: transparent;
-  font-size: 14px;
   padding: 4px;
+  min-width: 28px;
+  min-height: 28px;
+  display: grid;
+  place-items: center;
+  transition: color var(--dur-fast) var(--ease);
 }
+.star:hover { color: var(--primary); }
+.star:active { transform: translateY(1px); }
 .starOn { color: var(--primary); }
+.starIcon { width: 14px; height: 14px; }
 
 /* Priority color bar (left edge) */
-.item {
-  position: relative;
-  padding-left: 10px;
-}
-
 .item::before {
   content: "";
   position: absolute;

@@ -9,7 +9,7 @@
 }
 
 /* Hero */
-.hero { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+.hero { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
 .heroLeft { flex: 1; min-width: 0; }
 .heroTitle {
   margin: 8px 0 6px;
@@ -33,6 +33,7 @@
 /* Stats */
 .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 @media (max-width: 900px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 500px) { .stats { grid-template-columns: 1fr; } }
 .deltaUp { color: var(--success); }
 .deltaDown { color: var(--destructive); }
 .pctSign { font-size: 14px; color: var(--mt2); }
@@ -42,7 +43,7 @@
 @media (max-width: 1100px) { .grid { grid-template-columns: 1fr; } }
 
 /* Card */
-.cardHead { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; }
+.cardHead { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; flex-wrap: wrap; }
 .cardHeadL { display: flex; gap: 12px; align-items: flex-start; }
 .hdIc {
   width: 28px; height: 28px;
@@ -60,25 +61,86 @@
 }
 
 /* Filters */
-.filters { display: flex; gap: 6px; }
+.filters { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 .filterBtn {
   height: 24px;
+  min-height: 28px;
   padding: 0 9px;
   font: 500 11px/1 var(--font-sans);
   color: var(--mt);
   background: transparent;
   border: 1px solid transparent;
   cursor: pointer;
+  transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
 }
 .filterBtn:hover { color: var(--fg); background: var(--muted); }
+.filterBtn:active { transform: translateY(1px); }
 .filterAct { color: var(--fg); border-color: var(--border); }
 
 /* Todo list */
 .todoList { display: flex; flex-direction: column; }
-.empty { color: var(--mt); padding: 20px 0; }
+
+/* Skeleton loading */
+.skeletonList { display: flex; flex-direction: column; }
+.skeletonRow {
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+}
+.skeletonCheck {
+  width: 16px; height: 16px;
+  background: var(--muted);
+}
+.skeletonBody { display: flex; flex-direction: column; gap: 6px; }
+.skeletonTitle {
+  height: 13px;
+  width: 60%;
+  background: var(--muted);
+}
+.skeletonSub {
+  height: 10px;
+  width: 35%;
+  background: var(--muted);
+}
+
+/* Empty state */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 40px 20px;
+  color: var(--mt);
+  text-align: center;
+}
+.emptyIcon {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--mt2);
+  display: grid;
+  place-items: center;
+}
+.emptyIcon svg { width: 18px; height: 18px; }
+.emptyTitle {
+  font: 500 14px/1.3 var(--font-sans);
+  color: var(--fg);
+}
+.emptySub {
+  font-size: 12px;
+  color: var(--mt2);
+  max-width: 260px;
+}
+
 .cardFoot {
   display: flex; justify-content: space-between; align-items: center;
   padding-top: 4px; border-top: 1px solid var(--border);
+  flex-wrap: wrap; gap: 8px;
 }
 .footText {
   font: 500 10.5px/1 var(--font-mono);
@@ -125,6 +187,7 @@
 .calCell {
   position: relative;
   padding: 6px 0;
+  min-width: 28px;
   color: var(--fg);
 }
 .calOut { color: var(--mt3); }
@@ -150,7 +213,13 @@
 /* Tag active state */
 .tagActive {
   cursor: pointer;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  transition: opacity var(--dur-fast) var(--ease);
 }
+.tagActive:hover { opacity: 0.8; }
+.tagActive:active { transform: translateY(1px); }
 
 /* Filter status indicator */
 .filterStatus {
@@ -158,6 +227,7 @@
   align-items: center;
   gap: 6px;
   padding: 3px 9px;
+  min-height: 28px;
   border: 1px solid var(--primary-line);
   background: var(--primary-soft);
   color: var(--primary-hi);
@@ -169,4 +239,14 @@
   cursor: pointer;
   font: 600 12px/1 var(--font-sans);
   padding: 0 2px;
+  min-width: 20px;
+  min-height: 20px;
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--primary-hi);
+  transition: color var(--dur-fast) var(--ease);
 }
+.filterStatusX:hover { color: var(--destructive); }
+.filterStatusX:active { transform: translateY(1px); }

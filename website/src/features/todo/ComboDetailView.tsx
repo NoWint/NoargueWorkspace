@@ -46,6 +46,7 @@ export function ComboDetailView() {
   const { todos, fetchTodos, loading } = useTodoStore()
   const [combo, setCombo] = useState<ComboDetail | null>(null)
   const [detailLoading, setDetailLoading] = useState(true)
+  const [detailError, setDetailError] = useState<string | null>(null)
   const [pendingRequests, setPendingRequests] = useState(0)
 
   const fetchRequests = useCallback(async (comboId: number, userRole?: string | null) => {
@@ -64,13 +65,17 @@ export function ComboDetailView() {
   }, [])
 
   useEffect(() => {
-    fetchTodos()
-    if (!id) return
+    fetchTodos().catch(() => { /* handled by store */ })
+    if (!id) {
+      setDetailLoading(false)
+      return
+    }
     const numId = Number(id)
     if (Number.isNaN(numId)) {
       setDetailLoading(false)
       return
     }
+    setDetailError(null)
     combosApi
       .getById(numId)
       .then((res) => {
@@ -79,8 +84,11 @@ export function ComboDetailView() {
           if (res.combo.isShared) {
             fetchRequests(numId, res.combo.userRole ?? null)
           }
+        } else {
+          setDetailError('加载组合失败')
         }
       })
+      .catch(() => setDetailError('加载失败，请稍后重试'))
       .finally(() => setDetailLoading(false))
   }, [id, fetchTodos, fetchRequests])
 
@@ -103,11 +111,33 @@ export function ComboDetailView() {
   if (detailLoading) {
     return (
       <div className={styles.screen}>
-        <div className={styles.loading}>
+        <div className={styles.skeletonHero}>
+          <div className={styles.skeletonIcon} />
+          <div className={styles.skeletonBody}>
+            <div className={styles.skeletonTitle} />
+            <div className={styles.skeletonSub} />
+          </div>
+        </div>
+        <div className={styles.skeletonStats}>
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className={styles.skeletonStat} />
+          ))}
+        </div>
+        <div className={styles.skeletonCard} />
+        <div className={styles.skeletonCard} />
+      </div>
+    )
+  }
+
+  if (detailError && !combo) {
+    return (
+      <div className={styles.screen}>
+        <div className={styles.empty}>
           <div className={styles.emptyIcon}>
             <ListIcon />
           </div>
-          <div>加载中...</div>
+          <div className={styles.emptyTitle}>加载失败</div>
+          <div className={styles.emptySub}>{detailError}</div>
         </div>
       </div>
     )
@@ -116,7 +146,7 @@ export function ComboDetailView() {
   if (!combo) {
     return (
       <div className={styles.screen}>
-        <div className={styles.loading}>
+        <div className={styles.empty}>
           <div className={styles.emptyIcon}>
             <ListIcon />
           </div>
@@ -182,7 +212,7 @@ export function ComboDetailView() {
           <Button
             variant="sec"
             size="sm"
-            onClick={() => navigate('/combos')}
+            onClick={() => navigate('/combos', { state: { editComboId: combo.id } })}
           >
             编辑
           </Button>
@@ -233,7 +263,17 @@ export function ComboDetailView() {
 
           <div className={styles.todoList}>
             {loading && comboTodos.length === 0 && (
-              <div className={styles.empty}>加载中...</div>
+              <div className={styles.skeletonList}>
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className={styles.skeletonRow}>
+                    <div className={styles.skeletonCheck} />
+                    <div className={styles.skeletonBodyRow}>
+                      <div className={styles.skeletonTitle} />
+                      <div className={styles.skeletonSub} />
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
             {!loading && comboTodos.length === 0 && (
               <div className={styles.empty}>
@@ -259,7 +299,7 @@ export function ComboDetailView() {
         </Card>
 
         {/* Side column: info + members */}
-        <div className={styles.grid} style={{ gridTemplateColumns: '1fr' }}>
+        <div className={styles.sideCol}>
           {/* Combo info */}
           <Card>
             <div className={styles.cardHead}>

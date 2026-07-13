@@ -24,16 +24,25 @@
   position: absolute;
   top: 2px;
   right: 2px;
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   display: grid;
   place-items: center;
   background: rgba(0, 0, 0, 0.6);
-  color: #fff;
+  color: var(--primary-fg);
   border: 0;
   cursor: pointer;
-  font-size: 12px;
   line-height: 1;
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.thumbRemove svg {
+  width: 11px;
+  height: 11px;
+}
+
+.thumbRemove:hover {
+  background: rgba(0, 0, 0, 0.8);
 }
 
 .thumbUploading {
@@ -42,6 +51,12 @@
   display: grid;
   place-items: center;
   background: rgba(0, 0, 0, 0.4);
+  color: var(--primary-fg);
+}
+
+.thumbUploading svg {
+  width: 20px;
+  height: 20px;
 }
 
 .uploadBtn {
@@ -54,11 +69,16 @@
   place-items: center;
   cursor: pointer;
   flex: none;
+  transition: border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
 }
 
 .uploadBtn:hover {
   border-color: var(--primary);
   color: var(--primary);
+}
+
+.uploadBtn:active {
+  background: var(--card);
 }
 
 .uploadBtn svg {
@@ -69,6 +89,10 @@
 .uploadBtn:disabled {
   cursor: not-allowed;
   opacity: 0.5;
+}
+
+.fileInput {
+  display: none;
 }
 
 .hint {

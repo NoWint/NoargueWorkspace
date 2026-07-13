@@ -1,0 +1,209 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+
+/* 头部 */
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.titleRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.title {
+  margin: 0;
+  font: 600 15px/1.4 var(--font-sans);
+  color: var(--fg);
+  word-break: break-word;
+  flex: 1;
+  min-width: 0;
+}
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  flex: none;
+}
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 6px;
+  font: 500 10px/1.4 var(--font-mono);
+  border: 1px solid var(--border);
+  color: var(--mt);
+  background: var(--bg);
+}
+.tagIcon { width: 10px; height: 10px; flex: none; }
+.tagPri {
+  color: var(--primary);
+  border-color: var(--primary-line);
+  background: var(--primary-soft);
+}
+.tagOk {
+  color: var(--success);
+  border-color: rgba(98,209,120,0.3);
+  background: rgba(98,209,120,0.08);
+}
+.tagWarn {
+  color: var(--warn);
+  border-color: rgba(234,179,8,0.3);
+  background: rgba(234,179,8,0.08);
+}
+
+/* 选项列表 */
+.optionList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* 可点击选项（未投票 / 改票中） */
+.optionBtn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--fg);
+  font: 500 13px/1.4 var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease);
+}
+.optionBtn:hover:not(:disabled) {
+  border-color: var(--mt3);
+}
+.optionBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.optionAct {
+  border-color: var(--primary-line);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.indicator {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  display: grid;
+  place-items: center;
+  flex: none;
+  transition: all var(--dur-fast) var(--ease);
+}
+.radio { border-radius: 0; }
+.checkbox { border-radius: 0; }
+.indicatorAct {
+  border-color: var(--primary);
+  background: var(--primary);
+}
+.indicatorIcon {
+  width: 11px;
+  height: 11px;
+  color: var(--primary-fg);
+}
+.optionText {
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+}
+
+/* "其他" 选项输入框 */
+.otherInput {
+  margin-top: 6px;
+  background: var(--input) !important;
+  border-color: var(--border) !important;
+  color: var(--fg) !important;
+  font: 400 13px/1.4 var(--font-sans) !important;
+}
+.otherInput:hover { border-color: var(--mt3) !important; }
+.otherInput:focus { border-color: var(--primary-line) !important; }
+
+/* 结果展示项 */
+.resultItem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+.resultVoted {
+  border-color: var(--primary-line);
+  background: var(--primary-soft);
+}
+.resultHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.resultText {
+  flex: 1;
+  min-width: 0;
+  font: 500 13px/1.4 var(--font-sans);
+  color: var(--fg);
+  word-break: break-word;
+}
+.resultCount {
+  font: 500 11px/1 var(--font-mono);
+  color: var(--mt);
+  flex: none;
+}
+.bar {
+  width: 100%;
+  height: 4px;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.barFill {
+  display: block;
+  height: 100%;
+  background: var(--mt3);
+  transition: width var(--dur) var(--ease);
+}
+.barFillVoted {
+  background: var(--primary);
+}
+
+/* 操作区 */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* 底部信息 */
+.foot {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  font: 500 11px/1 var(--font-mono);
+  color: var(--mt2);
+}
+.footItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.footIcon { width: 11px; height: 11px; flex: none; }
+.footEnded { color: var(--warn); }

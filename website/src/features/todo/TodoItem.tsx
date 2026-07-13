@@ -4,7 +4,7 @@ import { useTodoStore } from '@/stores/todos'
 import { useComboStore } from '@/stores/combos'
 import { StatusChip, AvatarGroup } from '@/design/primitives'
 import type { AvatarMember } from '@/design/primitives'
-import { CheckIcon } from '@/design/icons'
+import { CheckIcon, StarIcon } from '@/design/icons'
 import { cn, todayStr } from '@/lib/utils'
 import styles from './TodoItem.module.css'
 
@@ -44,15 +44,16 @@ export function TodoItem({ todo, members }: TodoItemProps) {
 
   // Overdue calculation
   const today = todayStr()
+  const isToday = todo.setDate === today
   const isOverdue = !isDone && todo.setDate && todo.setDate < today
   const overdueDays = isOverdue
     ? Math.floor((Date.now() - new Date(todo.setDate!).getTime()) / 86400000)
     : 0
-  const overdueText = isOverdue
-    ? overdueDays === 0
+  const dueText = isOverdue
+    ? `逾期 ${Math.max(overdueDays, 1)} 天`
+    : isToday
       ? '今日到期'
-      : `逾期 ${overdueDays} 天`
-    : null
+      : null
 
   return (
     <div
@@ -79,7 +80,7 @@ export function TodoItem({ todo, members }: TodoItemProps) {
             </span>
           )}
           {todo.setTime && <span className={styles.time}>{todo.setTime}</span>}
-          {overdueText && <span className={styles.overdue}>{overdueText}</span>}
+          {dueText && <span className={styles.overdue}>{dueText}</span>}
           {subtaskHint && <span className={styles.subtaskHint}>{subtaskHint}</span>}
         </div>
       </div>
@@ -98,8 +99,9 @@ export function TodoItem({ todo, members }: TodoItemProps) {
         className={cn(styles.star, todo.isStar && styles.starOn)}
         onClick={(e) => { e.stopPropagation(); toggleStar(todo.id) }}
         type="button"
+        aria-label={todo.isStar ? '取消收藏' : '收藏'}
       >
-        {todo.isStar ? '★' : '☆'}
+        <StarIcon className={styles.starIcon} />
       </button>
     </div>
   )

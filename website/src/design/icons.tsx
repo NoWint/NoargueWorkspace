@@ -44,4 +44,8 @@ export {
   SettingIcon,
   ToolsIcon,
   ChartBarIcon,
+  CloseIcon,
+  ViewModuleIcon as MenuIcon,
+  FilterIcon,
+  MoreIcon as DotsIcon,
 } from 'tdesign-icons-react'

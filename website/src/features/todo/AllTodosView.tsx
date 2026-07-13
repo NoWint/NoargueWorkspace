@@ -32,10 +32,14 @@ export function AllTodosView() {
   const [sort, setSort] = useState<Sort>('newest')
   const [batchMode, setBatchMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchTodos()
-    fetchCombos()
+    let mounted = true
+    Promise.all([fetchTodos(), fetchCombos()])
+      .then(() => { if (mounted) setError(null) })
+      .catch(() => { if (mounted) setError('加载失败，请稍后重试') })
+    return () => { mounted = false }
   }, [fetchTodos, fetchCombos])
 
   const activeTodos = useMemo(() => todos.filter((t) => !t.isDeleted), [todos])
@@ -242,14 +246,28 @@ export function AllTodosView() {
 
           <div className={styles.todoList}>
             {loading && (
+              <div className={styles.skeletonList}>
+                {[0, 1, 2, 3].map((i) => (
+                  <div key={i} className={styles.skeletonRow}>
+                    <div className={styles.skeletonCheck} />
+                    <div className={styles.skeletonBody}>
+                      <div className={styles.skeletonTitle} />
+                      <div className={styles.skeletonSub} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {error && !loading && (
               <div className={styles.empty}>
                 <div className={styles.emptyIcon}>
                   <ListIcon />
                 </div>
-                <div>加载中...</div>
+                <div className={styles.emptyTitle}>加载失败</div>
+                <div className={styles.emptySub}>{error}</div>
               </div>
             )}
-            {!loading && filtered.length === 0 && (
+            {!loading && !error && filtered.length === 0 && (
               <div className={styles.empty}>
                 <div className={styles.emptyIcon}>
                   <ListIcon />
@@ -271,6 +289,7 @@ export function AllTodosView() {
                 key={t.id}
                 className={cn(
                   styles.todoRow,
+                  batchMode && styles.todoRowBatch,
                   batchMode && selectedIds.includes(t.id) && styles.itemSel,
                 )}
                 onClick={batchMode ? (e) => {
@@ -281,7 +300,6 @@ export function AllTodosView() {
                       : [...prev, t.id],
                   )
                 } : undefined}
-                style={batchMode ? { display: 'flex', alignItems: 'center', cursor: 'pointer', padding: '0 4px' } : undefined}
               >
                 {batchMode && (
                   <button
@@ -302,7 +320,7 @@ export function AllTodosView() {
                     {selectedIds.includes(t.id) && <CheckIcon strokeWidth={2.5} />}
                   </button>
                 )}
-                <div style={{ flex: 1, minWidth: 0 }}>
+                <div className={styles.todoRowMain}>
                   <TodoItem todo={t} />
                 </div>
               </div>
