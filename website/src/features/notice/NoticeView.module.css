@@ -68,13 +68,17 @@
   justify-content: space-between;
   align-items: center;
   gap: 12px;
+  min-height: 28px;
   padding: 12px 14px;
   background: transparent;
   border: none;
   cursor: pointer;
   text-align: left;
+  transition: background var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
 }
 .noticeHead:hover { background: var(--muted); }
+.noticeHead:active { transform: scale(0.99); }
+.noticeHead:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px; }
 .noticeHeadL {
   display: flex;
   flex-direction: column;
@@ -97,7 +101,7 @@
   font: 500 12px/1 var(--font-mono);
   color: var(--mt);
   flex: none;
-  transition: transform 0.15s;
+  transition: transform var(--dur) var(--ease), color var(--dur) var(--ease);
 }
 .chevronOpen { transform: rotate(180deg); color: var(--primary); }
 
@@ -136,4 +140,10 @@
   text-align: center;
   font: 500 12px/1.4 var(--font-sans);
   color: var(--mt);
+}
+
+@media (max-width: 480px) {
+  .screen { padding: 18px 16px; gap: 16px; }
+  .noticeHead { padding: 10px 12px; }
+  .noticeBody { padding: 0 12px 12px; }
 }

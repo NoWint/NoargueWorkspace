@@ -88,18 +88,21 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 24px;
+  min-height: 28px;
   padding: 0 10px;
   border: 1px solid var(--border);
   background: transparent;
   color: var(--mt);
   font: 500 11px/1 var(--font-sans);
   cursor: pointer;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease), background var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
 }
 .bulkBtn:hover { color: var(--fg); border-color: var(--mt3); }
-.bulkBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+.bulkBtn:active { transform: scale(0.97); }
+.bulkBtn:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.bulkBtn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 .bulkDel { color: var(--destructive); }
-.bulkDel:hover { color: var(--destructive); border-color: rgba(255,100,103,0.4); }
+.bulkDel:hover { color: var(--destructive); border-color: color-mix(in srgb, var(--destructive) 40%, transparent); }
 .bulkDel:disabled:hover { color: var(--destructive); border-color: var(--border); }
 .bulkIcon { width: 12px; height: 12px; }
 
@@ -107,29 +110,35 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 24px;
+  min-height: 28px;
   padding: 0 10px;
   border: 1px solid var(--border);
   background: transparent;
   color: var(--mt);
   font: 500 11px/1 var(--font-sans);
   cursor: pointer;
+  transition: color var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
 }
 .selectAll:hover { color: var(--fg); }
+.selectAll:active { transform: scale(0.97); }
+.selectAll:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 
 .sortBtn {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  height: 24px;
+  min-height: 28px;
   padding: 0 8px;
   border: 1px solid var(--border);
   background: var(--bg);
   color: var(--mt);
   font: 500 10.5px/1 var(--font-mono);
   cursor: pointer;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
 }
 .sortBtn:hover { color: var(--fg); border-color: var(--mt3); }
+.sortBtn:active { transform: scale(0.97); }
+.sortBtn:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 .sortArrow { color: var(--mt2); }
 
 /* Trash list */
@@ -153,8 +162,10 @@
   display: grid; place-items: center;
   cursor: pointer;
   flex: none;
+  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease);
 }
 .checkbox:hover { border-color: var(--mt); }
+.checkbox:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 .checkboxChecked {
   background: var(--primary);
   border-color: var(--primary);
@@ -178,23 +189,26 @@
 }
 .itemSep { color: var(--border); }
 
-.itemActions { display: flex; gap: 6px; flex: none; }
+.itemActions { display: flex; gap: 6px; flex: none; flex-wrap: wrap; }
 .actBtn {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  height: 26px;
+  min-height: 28px;
   padding: 0 10px;
   border: 1px solid var(--border);
   background: transparent;
   color: var(--mt);
   font: 500 11px/1 var(--font-sans);
   cursor: pointer;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
 }
 .actBtn:hover { color: var(--fg); border-color: var(--mt3); }
+.actBtn:active { transform: scale(0.97); }
+.actBtn:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 .actRestore:hover { color: var(--primary); border-color: var(--primary-line); }
 .actDel { color: var(--destructive); }
-.actDel:hover { color: var(--destructive); border-color: rgba(255,100,103,0.4); }
+.actDel:hover { color: var(--destructive); border-color: color-mix(in srgb, var(--destructive) 40%, transparent); }
 .actIcon { width: 12px; height: 12px; }
 
 /* Empty state */
@@ -236,4 +250,10 @@
 .footText {
   font: 500 10.5px/1 var(--font-mono);
   color: var(--mt);
+}
+
+@media (max-width: 480px) {
+  .screen { padding: 18px 16px; gap: 16px; }
+  .trashItem { padding: 10px 12px; flex-wrap: wrap; }
+  .itemActions { width: 100%; }
 }

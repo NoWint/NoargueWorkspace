@@ -290,7 +290,7 @@ export function SearchView() {
               >
                 {FILTER_LABELS[f]}
                 {f !== 'all' && results.byType[f].length > 0 && (
-                  <span style={{ marginLeft: 4, opacity: 0.7 }}>
+                  <span className={styles.pillCount}>
                     {results.byType[f].length}
                   </span>
                 )}

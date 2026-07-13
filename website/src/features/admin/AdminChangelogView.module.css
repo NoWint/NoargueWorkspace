@@ -146,16 +146,21 @@
   margin-left: auto;
 }
 .iconBtn {
-  width: 26px; height: 26px;
+  width: 28px; height: 28px;
   display: grid; place-items: center;
   border: 1px solid var(--border);
   background: transparent;
   color: var(--mt);
   cursor: pointer;
+  transition: color var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease),
+              background var(--dur-fast) var(--ease);
 }
 .iconBtn:hover { color: var(--fg); border-color: var(--mt3); }
+.iconBtn:active { background: var(--muted); }
 .iconBtn svg { width: 13px; height: 13px; }
-.delBtn:hover { color: var(--destructive); border-color: rgba(255,100,103,0.4); }
+.delBtn:hover { color: var(--destructive); border-color: var(--destructive); }
+.delBtn:active { background: var(--muted); }
 
 /* Empty */
 .empty {
@@ -266,22 +271,32 @@
   color: var(--mt);
   cursor: pointer;
   flex: none;
+  transition: color var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease),
+              background var(--dur-fast) var(--ease);
 }
-.contentDelBtn:hover { color: var(--destructive); border-color: rgba(255,100,103,0.4); }
+.contentDelBtn:hover { color: var(--destructive); border-color: var(--destructive); }
+.contentDelBtn:active { background: var(--muted); }
+.contentDelBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+.contentDelBtn:disabled:hover { color: var(--mt); border-color: var(--border); }
 .contentDelBtn svg { width: 13px; height: 13px; }
 
 .contentAddBtn {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  height: 28px;
-  padding: 0 10px;
+  min-height: 28px;
+  padding: 6px 10px;
   border: 1px dashed var(--border);
   background: transparent;
   color: var(--mt);
   font: 500 11px/1 var(--font-sans);
   cursor: pointer;
   align-self: flex-start;
+  transition: color var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease),
+              background var(--dur-fast) var(--ease);
 }
 .contentAddBtn:hover { color: var(--fg); border-color: var(--mt3); }
+.contentAddBtn:active { background: var(--muted); }
 .contentAddBtn svg { width: 12px; height: 12px; }

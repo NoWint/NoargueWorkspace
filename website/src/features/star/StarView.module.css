@@ -22,3 +22,7 @@
 
 .cardFoot { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid var(--border); }
 .footText { font: 500 10.5px/1 var(--font-mono); color: var(--mt); }
+
+@media (max-width: 480px) {
+  .screen { padding: 18px 16px; gap: 16px; }
+}

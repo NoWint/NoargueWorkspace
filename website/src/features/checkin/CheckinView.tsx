@@ -6,6 +6,8 @@ import { cn } from '@/lib/utils'
 import { useCheckinStore } from '@/stores/checkin'
 import styles from './CheckinView.module.css'
 
+type LoadState = 'idle' | 'loading' | 'error'
+
 const MILESTONES = [7, 15, 30, 60]
 
 const WEEK_LABELS = ['日', '一', '二', '三', '四', '五', '六']
@@ -35,13 +37,45 @@ export function CheckinView() {
   const now = todayDate()
   const [year, setYear] = useState(now.getFullYear())
   const [month, setMonth] = useState(now.getMonth() + 1)
+  const [statusState, setStatusState] = useState<LoadState>('idle')
+  const [statusError, setStatusError] = useState('')
+  const [monthState, setMonthState] = useState<LoadState>('idle')
+  const [monthError, setMonthError] = useState('')
 
   useEffect(() => {
+    let cancelled = false
+    setStatusState('loading')
+    setStatusError('')
     fetchStatus()
+      .then(() => {
+        if (!cancelled) setStatusState('idle')
+      })
+      .catch((e: unknown) => {
+        if (cancelled) return
+        setStatusState('error')
+        setStatusError((e as Error)?.message || '加载签到状态失败')
+      })
+    return () => {
+      cancelled = true
+    }
   }, [fetchStatus])
 
   useEffect(() => {
+    let cancelled = false
+    setMonthState('loading')
+    setMonthError('')
     fetchMonth(year, month)
+      .then(() => {
+        if (!cancelled) setMonthState('idle')
+      })
+      .catch((e: unknown) => {
+        if (cancelled) return
+        setMonthState('error')
+        setMonthError((e as Error)?.message || '加载月度记录失败')
+      })
+    return () => {
+      cancelled = true
+    }
   }, [year, month, fetchMonth])
 
   const checkedInDates = useMemo(() => {
@@ -76,12 +110,12 @@ export function CheckinView() {
   }, [status?.streak])
 
   const handleCheckin = async () => {
-    if (status?.checkedIn || checkinLoading) return
+    if (status?.checkedIn || todayChecked || checkinLoading) return
     try {
       const res = await checkin()
       const badgeMsg = res.newBadges.length > 0 ? `，获得徽章：${res.newBadges.join('、')}` : ''
       message.success(`签到成功 +${res.points} 积分${badgeMsg}`)
-      fetchMonth(year, month)
+      fetchMonth(year, month).catch(() => {})
     } catch (e) {
       message.error((e as Error).message || '签到失败')
     }
@@ -128,41 +162,52 @@ export function CheckinView() {
         </div>
       </div>
 
+      {statusState === 'error' && (
+        <div className={cn(styles.notice, styles.noticeErr)}>{statusError}</div>
+      )}
+
       {/* Checkin card with big button */}
       <Card>
-        <div className={styles.checkinCard}>
-          <div className={styles.checkinLeft}>
-            <Eyebrow>TODAY</Eyebrow>
-            <div className={styles.bigStreak}>
-              {status?.streak ?? 0}
-              <span className={styles.bigStreakUnit}>天</span>
+        {statusState === 'loading' && !status ? (
+          <div className={styles.skeleton}>
+            <div className={styles.skeletonBar} />
+            <div className={styles.skeletonBar} />
+          </div>
+        ) : (
+          <div className={styles.checkinCard}>
+            <div className={styles.checkinLeft}>
+              <Eyebrow>TODAY</Eyebrow>
+              <div className={styles.bigStreak}>
+                {status?.streak ?? 0}
+                <span className={styles.bigStreakUnit}>天</span>
+              </div>
+              <div className={styles.checkinSub}>连续签到</div>
             </div>
-            <div className={styles.checkinSub}>连续签到</div>
+            <div className={styles.checkinRight}>
+              <button
+                type="button"
+                className={cn(
+                  styles.bigBtn,
+                  (status?.checkedIn || todayChecked) && styles.bigBtnDone,
+                )}
+                onClick={handleCheckin}
+                disabled={status?.checkedIn || todayChecked || checkinLoading}
+              >
+                {status?.checkedIn || todayChecked ? (
+                  <>
+                    <CheckIcon className={styles.bigBtnIcon} />
+                    今日已签到
+                  </>
+                ) : (
+                  <>
+                    <StarIcon className={styles.bigBtnIcon} />
+                    立即签到
+                  </>
+                )}
+              </button>
+            </div>
           </div>
-          <div className={styles.checkinRight}>
-            <button
-              type="button"
-              className={cn(
-                styles.bigBtn,
-                (status?.checkedIn || todayChecked) && styles.bigBtnDone,
-              )}
-              onClick={handleCheckin}
-              disabled={status?.checkedIn || todayChecked || checkinLoading}
-            >
-              {status?.checkedIn || todayChecked ? (
-                <>
-                  <CheckIcon className={styles.bigBtnIcon} />
-                  今日已签到
-                </>
-              ) : (
-                <>
-                  <StarIcon className={styles.bigBtnIcon} />
-                  立即签到
-                </>
-              )}
-            </button>
-          </div>
-        </div>
+        )}
       </Card>
 
       {/* Stats */}
@@ -272,39 +317,43 @@ export function CheckinView() {
           </div>
         </div>
 
-        <div className={styles.calendarGrid}>
-          {WEEK_LABELS.map((w) => (
-            <div key={w} className={styles.calWeekHead}>
-              {w}
-            </div>
-          ))}
-          {monthMatrix.map((d, idx) => {
-            if (d === null) {
-              return <div key={`e-${idx}`} className={styles.calCellEmpty} />
-            }
-            const cellDate = new Date(year, month - 1, d)
-            const dateStr = ymd(cellDate)
-            const checked = checkedInDates.has(dateStr)
-            const isToday = dateStr === todayStr
-            return (
-              <div
-                key={d}
-                className={cn(
-                  styles.calCell,
-                  checked && styles.calCellChecked,
-                  isToday && !checked && styles.calCellToday,
-                )}
-              >
-                <span className={styles.calDay}>{d}</span>
-                {checked && (
-                  <span className={styles.calDot}>
-                    <CheckIcon />
-                  </span>
-                )}
+        {monthState === 'error' ? (
+          <div className={cn(styles.notice, styles.noticeErr)}>{monthError}</div>
+        ) : (
+          <div className={styles.calendarGrid}>
+            {WEEK_LABELS.map((w) => (
+              <div key={w} className={styles.calWeekHead}>
+                {w}
               </div>
-            )
-          })}
-        </div>
+            ))}
+            {monthMatrix.map((d, idx) => {
+              if (d === null) {
+                return <div key={`e-${idx}`} className={styles.calCellEmpty} />
+              }
+              const cellDate = new Date(year, month - 1, d)
+              const dateStr = ymd(cellDate)
+              const checked = checkedInDates.has(dateStr)
+              const isToday = dateStr === todayStr
+              return (
+                <div
+                  key={d}
+                  className={cn(
+                    styles.calCell,
+                    checked && styles.calCellChecked,
+                    isToday && !checked && styles.calCellToday,
+                  )}
+                >
+                  <span className={styles.calDay}>{d}</span>
+                  {checked && (
+                    <span className={styles.calDot}>
+                      <CheckIcon />
+                    </span>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
 
         <div className={styles.calLegend}>
           <span className={styles.legendItem}>

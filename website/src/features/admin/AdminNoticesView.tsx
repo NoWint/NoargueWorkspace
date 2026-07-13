@@ -220,7 +220,6 @@ export function AdminNoticesView() {
         okText={editingIndex === null ? '创建' : '保存'}
         cancelText="取消"
         confirmLoading={saving}
-        okButtonProps={{ style: { background: '#01796f', borderColor: '#01796f' } }}
         destroyOnClose
       >
         <div className={styles.formRow}>

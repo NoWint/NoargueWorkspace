@@ -1,15 +1,39 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { message } from 'antd'
 import { useUserStore } from '@/stores/user'
 import { useCommunityStore } from '@/stores/community'
 import { Button, Card, Eyebrow, Stat } from '@/design/primitives'
-import { ChatIcon, ClockIcon, UserCircleIcon } from '@/design/icons'
+import { ChatIcon, ClockIcon, RefreshIcon, UserCircleIcon } from '@/design/icons'
 import { PostCard } from './CommunityHomeView'
 import styles from './UserHomeView.module.css'
 
 function avatarInitial(name: string): string {
   return (name || '?').slice(0, 1).toUpperCase()
+}
+
+/** 帖子卡片骨架（UserHomeView 列表用单列骨架） */
+function PostCardSkeleton() {
+  return (
+    <Card>
+      <div className={styles.skeleton}>
+        <div className={styles.skRow}>
+          <div className={styles.skLine} style={{ width: '40px', height: '40px' }} />
+          <div className={styles.skMain}>
+            <div className={styles.skLine} style={{ width: '40%', height: '12px' }} />
+            <div className={styles.skLine} style={{ width: '60%', height: '10px' }} />
+          </div>
+        </div>
+        <div className={styles.skLine} style={{ width: '90%', height: '16px' }} />
+        <div className={styles.skLine} style={{ width: '75%' }} />
+        <div className={styles.skRow}>
+          <div className={styles.skLine} style={{ width: '60px', height: '12px' }} />
+          <div className={styles.skLine} style={{ width: '60px', height: '12px' }} />
+          <div className={styles.skLine} style={{ width: '60px', height: '12px' }} />
+        </div>
+      </div>
+    </Card>
+  )
 }
 
 export function UserHomeView() {
@@ -24,11 +48,15 @@ export function UserHomeView() {
   const userPosts = rawUserPosts || []
 
   const uid = Number(userId)
+  const [profileError, setProfileError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!userId || Number.isNaN(uid)) return
+    setProfileError(null)
     getProfile(uid).catch((e) => {
-      message.error((e as Error).message || '加载用户失败')
+      const msg = (e as Error).message || '加载用户失败'
+      setProfileError(msg)
+      message.error(msg)
     })
     fetchUserPosts(uid, true).catch((e) => {
       message.error((e as Error).message || '加载帖子失败')
@@ -38,6 +66,13 @@ export function UserHomeView() {
   const handleLoadMore = () => {
     fetchUserPosts(uid, false).catch((e) => {
       message.error((e as Error).message || '加载失败')
+    })
+  }
+
+  const handleRetryProfile = () => {
+    setProfileError(null)
+    getProfile(uid).catch((e) => {
+      setProfileError((e as Error).message || '加载用户失败')
     })
   }
 
@@ -60,6 +95,8 @@ export function UserHomeView() {
 
   const badges = currentProfile?.badgeTitles || []
   const badgeColors = currentProfile?.badgeColors || []
+  /** 帖子总数：来自 profile.postCount（后端统计），仅当存在时显示 */
+  const totalCount = currentProfile?.postCount
 
   return (
     <div className={styles.screen}>
@@ -85,18 +122,37 @@ export function UserHomeView() {
         </div>
       </div>
 
-      {/* Profile card */}
-      {userLoading && !currentProfile && (
+      {/* Profile card - loading skeleton */}
+      {userLoading && !currentProfile && !profileError && (
         <Card>
-          <div className={styles.empty}>
-            <div className={styles.emptyIcon}>
-              <UserCircleIcon />
+          <div className={styles.profile}>
+            <div className={styles.skLine} style={{ width: '64px', height: '64px' }} />
+            <div className={styles.profileMain}>
+              <div className={styles.skLine} style={{ width: '40%', height: '18px' }} />
+              <div className={styles.skLine} style={{ width: '60%', height: '12px', marginTop: '12px' }} />
             </div>
-            <div>加载中...</div>
           </div>
         </Card>
       )}
 
+      {/* Profile card - error */}
+      {profileError && !currentProfile && (
+        <Card>
+          <div className={styles.errorBox}>
+            <div className={styles.errorText}>{profileError}</div>
+            <Button
+              variant="gh"
+              size="sm"
+              icon={<RefreshIcon className={styles.btnIcon} />}
+              onClick={handleRetryProfile}
+            >
+              重试
+            </Button>
+          </div>
+        </Card>
+      )}
+
+      {/* Profile card - loaded */}
       {currentProfile && (
         <Card>
           <div className={styles.profile}>
@@ -143,7 +199,11 @@ export function UserHomeView() {
       {/* Posts */}
       <div className={styles.postsHead}>
         <Eyebrow>POSTS · 帖子</Eyebrow>
-        <span className={styles.postsCount}>{userPosts.length} 条</span>
+        <span className={styles.postsCount}>
+          {typeof totalCount === 'number'
+            ? `共 ${totalCount} 条`
+            : `已加载 ${userPosts.length} 条`}
+        </span>
       </div>
 
       {userPosts.length === 0 && !postLoading && (
@@ -158,6 +218,14 @@ export function UserHomeView() {
         </Card>
       )}
 
+      {userPosts.length === 0 && postLoading && (
+        <>
+          {Array.from({ length: 3 }).map((_, i) => (
+            <PostCardSkeleton key={i} />
+          ))}
+        </>
+      )}
+
       {userPosts.map((p) => (
         <PostCard
           key={p.postId}
@@ -166,6 +234,10 @@ export function UserHomeView() {
           onClick={(id) => navigate(`/community/${id}`)}
         />
       ))}
+
+      {postLoading && userPosts.length > 0 && (
+        <PostCardSkeleton />
+      )}
 
       {hasMore && userPosts.length > 0 && (
         <div className={styles.loadMoreRow}>

@@ -246,7 +246,6 @@ export function TagManageView() {
         okText={editing ? '保存' : '创建'}
         cancelText="取消"
         confirmLoading={saving}
-        okButtonProps={{ style: { background: '#01796f', borderColor: '#01796f' } }}
         destroyOnClose
       >
         <div className={styles.formRow}>
@@ -271,7 +270,7 @@ export function TagManageView() {
                 onClick={() => setForm({ ...form, color: c })}
               >
                 {form.color === c && (
-                  <CheckIcon strokeWidth={2.5} style={{ color: '#fff', width: 13, height: 13 }} />
+                  <CheckIcon strokeWidth={2.5} className={styles.swatchCheck} />
                 )}
               </button>
             ))}

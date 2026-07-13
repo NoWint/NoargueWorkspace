@@ -26,6 +26,7 @@ export function JoinCollabView() {
   const [combo, setCombo] = useState<ComboInfo | null>(null)
   const [querying, setQuerying] = useState(false)
   const [joining, setJoining] = useState(false)
+  const [queryError, setQueryError] = useState('')
 
   const handleQuery = async () => {
     const code = shareCode.trim().toUpperCase()
@@ -35,6 +36,7 @@ export function JoinCollabView() {
     }
     setQuerying(true)
     setCombo(null)
+    setQueryError('')
     try {
       const res = await collabApi.join(code)
       if (res.success) {
@@ -56,10 +58,10 @@ export function JoinCollabView() {
           message.info(res.message || '查询成功')
         }
       } else {
-        message.error(res.message || '邀请码无效')
+        setQueryError(res.message || '邀请码无效')
       }
     } catch (e) {
-      message.error((e as Error).message || '查询失败')
+      setQueryError((e as Error).message || '查询失败')
     } finally {
       setQuerying(false)
     }
@@ -160,7 +162,12 @@ export function JoinCollabView() {
               邀请码由组合超管分享，不区分大小写
             </div>
           </div>
-          <div className={styles.actionBar} style={{ marginTop: 12 }}>
+          {queryError && (
+            <div className={cn(styles.notice, styles.noticeErr, styles.noticeSpaced)}>
+              {queryError}
+            </div>
+          )}
+          <div className={styles.actionBar}>
             <Button
               variant="pri"
               size="sm"
@@ -206,7 +213,7 @@ export function JoinCollabView() {
             </button>
           </div>
           {mode === 'request' && (
-            <div className={styles.formRow} style={{ marginTop: 12 }}>
+            <div className={cn(styles.formRow, styles.formRowSpaced)}>
               <span className={styles.formLabel}>申请留言</span>
               <textarea
                 className={styles.msgInput}
@@ -233,7 +240,7 @@ export function JoinCollabView() {
                   <h3 className={styles.cardTitle}>
                     组合 <span className={styles.song}>信息</span>
                   </h3>
-                </div>
+              </div>
               </div>
             </div>
             <div className={styles.infoCard}>
@@ -256,7 +263,7 @@ export function JoinCollabView() {
                 </div>
               </div>
             </div>
-            <div className={styles.actionBar} style={{ marginTop: 12 }}>
+            <div className={styles.actionBar}>
               <Button
                 variant="pri"
                 size="sm"

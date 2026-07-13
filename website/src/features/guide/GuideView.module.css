@@ -58,7 +58,12 @@
   cursor: pointer;
   text-align: left;
   padding: 0;
+  min-height: 28px;
+  transition: opacity var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
 }
+.sectionHead:hover { opacity: 0.85; }
+.sectionHead:active { transform: scale(0.99); }
+.sectionHead:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 .sectionHeadL {
   display: flex;
   gap: 12px;
@@ -80,7 +85,7 @@
   font: 500 14px/1 var(--font-mono);
   color: var(--mt);
   flex: none;
-  transition: transform 0.15s;
+  transition: transform var(--dur) var(--ease), color var(--dur) var(--ease);
   padding-top: 6px;
 }
 .chevronOpen { transform: rotate(180deg); color: var(--primary); }
@@ -116,4 +121,10 @@
   margin-top: 4px;
   font: 400 12.5px/1.6 var(--font-sans);
   color: var(--mt);
+}
+
+@media (max-width: 480px) {
+  .screen { padding: 18px 16px; gap: 16px; }
+  .sectionBody { margin-top: 12px; padding-top: 12px; }
+  .guideBody { font-size: 12px; }
 }

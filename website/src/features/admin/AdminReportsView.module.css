@@ -58,20 +58,24 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  height: 28px;
-  padding: 0 14px;
+  min-height: 28px;
+  padding: 6px 14px;
   border: none;
   background: transparent;
   color: var(--mt);
   font: 500 12px/1 var(--font-sans);
   cursor: pointer;
+  transition: color var(--dur-fast) var(--ease),
+              background var(--dur-fast) var(--ease);
 }
 .tab:hover { color: var(--fg); }
+.tab:active { background: var(--muted); }
 .tabAct {
   background: var(--primary);
   color: var(--primary-fg);
 }
-.tabAct:hover { color: var(--primary-fg); }
+.tabAct:hover { color: var(--primary-fg); background: var(--primary-hi); }
+.tabAct:active { background: var(--primary); }
 .tabCount {
   font: 500 10px/1 var(--font-mono);
   padding: 2px 5px;
@@ -79,7 +83,7 @@
   color: var(--mt2);
 }
 .tabAct .tabCount {
-  background: rgba(255, 255, 255, 0.18);
+  background: color-mix(in srgb, var(--primary-fg) 18%, transparent);
   color: var(--primary-fg);
 }
 
@@ -188,15 +192,19 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  height: 26px;
-  padding: 0 10px;
+  min-height: 28px;
+  padding: 6px 10px;
   border: 1px solid var(--border);
   background: transparent;
   color: var(--mt);
   font: 500 11px/1 var(--font-sans);
   cursor: pointer;
+  transition: color var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease),
+              background var(--dur-fast) var(--ease);
 }
 .actionBtn:hover { color: var(--fg); border-color: var(--mt3); }
+.actionBtn:active { background: var(--muted); }
 .actionPri {
   background: var(--primary);
   border-color: var(--primary);
@@ -207,6 +215,7 @@
   border-color: var(--primary-hi);
   color: var(--primary-fg);
 }
+.actionPri:active { background: var(--primary); }
 .actionBtn svg { width: 11px; height: 11px; }
 
 /* Pagination */
@@ -224,19 +233,23 @@
 }
 .pagerBtns { display: flex; gap: 6px; align-items: center; }
 .pagerBtn {
-  height: 26px;
-  padding: 0 10px;
+  min-height: 28px;
+  padding: 6px 10px;
   border: 1px solid var(--border);
   background: var(--bg);
   color: var(--mt);
   font: 500 11px/1 var(--font-sans);
   cursor: pointer;
+  transition: color var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease),
+              background var(--dur-fast) var(--ease);
 }
 .pagerBtn:hover:not(:disabled) { color: var(--fg); border-color: var(--mt3); }
+.pagerBtn:active:not(:disabled) { background: var(--muted); }
 .pagerBtn:disabled { opacity: 0.4; cursor: not-allowed; }
 .pagerCur {
-  height: 26px;
-  padding: 0 12px;
+  min-height: 28px;
+  padding: 6px 12px;
   display: inline-flex;
   align-items: center;
   border: 1px solid var(--primary);
@@ -303,9 +316,13 @@
   text-align: left;
   width: 100%;
   color: inherit;
+  transition: border-color var(--dur-fast) var(--ease),
+              background var(--dur-fast) var(--ease);
 }
 .actionOption:hover { border-color: var(--mt3); }
+.actionOption:active { background: var(--muted); }
 .actionOptionAct { border-color: var(--primary); background: var(--primary-soft); }
+.actionOptionAct:hover { border-color: var(--primary); background: var(--primary-soft); }
 .actionOptionRadio {
   width: 14px; height: 14px;
   border: 1px solid var(--border);

@@ -513,7 +513,7 @@ export function AdminUsersView() {
               <span className={styles.detailLabel}>管理徽章</span>
               <div className={styles.badgeList}>
                 {badgeDrafts.length === 0 && (
-                  <div className={cn(styles.detailInfoKey)} style={{ padding: '8px 0' }}>
+                  <div className={cn(styles.detailInfoKey, styles.badgeEmpty)}>
                     暂无徽章
                   </div>
                 )}
@@ -555,9 +555,9 @@ export function AdminUsersView() {
               <Button
                 variant="pri"
                 size="sm"
+                className={styles.saveBadgesRow}
                 onClick={handleSaveBadges}
                 disabled={savingBadges}
-                style={{ marginTop: 8, alignSelf: 'flex-start' }}
               >
                 {savingBadges ? '保存中...' : '保存徽章'}
               </Button>

@@ -57,6 +57,7 @@ export function CollaborationView() {
   const [requests, setRequests] = useState<JoinRequest[]>([])
   const [qrCode, setQrCode] = useState<string>('')
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
   const [autoMode, setAutoMode] = useState(false)
   const [acting, setActing] = useState(false)
 
@@ -67,6 +68,8 @@ export function CollaborationView() {
       setLoading(false)
       return
     }
+    setLoading(true)
+    setLoadError('')
     try {
       const [comboRes, membersRes, reqRes] = await Promise.all([
         combosApi.getById(comboId),
@@ -92,9 +95,13 @@ export function CollaborationView() {
             })
             .catch(() => {})
         }
+      } else {
+        setLoadError('加载组合失败')
       }
       if (membersRes.success) setMembers(membersRes.members || [])
       if (reqRes.success) setRequests((reqRes.requests || []).filter((r) => r.status === 'pending'))
+    } catch (e) {
+      setLoadError((e as Error)?.message || '加载失败')
     } finally {
       setLoading(false)
     }
@@ -217,10 +224,24 @@ export function CollaborationView() {
     return (
       <div className={styles.screen}>
         <div className={styles.loading}>
+          <div className={styles.skeletonBar} />
+          <div className={styles.skeletonBar} />
+          <div className={styles.skeletonBar} />
+          <div className={styles.skeletonBar} />
+        </div>
+      </div>
+    )
+  }
+
+  if (loadError && !combo) {
+    return (
+      <div className={styles.screen}>
+        <div className={styles.empty}>
           <div className={styles.emptyIcon}>
             <ListIcon />
           </div>
-          <div>加载中...</div>
+          <div className={styles.emptyTitle}>加载失败</div>
+          <div className={styles.emptySub}>{loadError}</div>
         </div>
       </div>
     )

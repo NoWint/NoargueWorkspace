@@ -22,9 +22,13 @@ function rankBadge(rank: number): string {
 export function LeaderboardView() {
   const { leaderboard, fetchLeaderboard, loading } = useCheckinStore()
   const [tab, setTab] = useState<Tab>('streak')
+  const [error, setError] = useState('')
 
   useEffect(() => {
-    fetchLeaderboard(tab)
+    setError('')
+    fetchLeaderboard(tab).catch((e: unknown) => {
+      setError((e as Error)?.message || '加载排行榜失败')
+    })
   }, [tab, fetchLeaderboard])
 
   const top3 = leaderboard.slice(0, 3)
@@ -142,9 +146,22 @@ export function LeaderboardView() {
 
         <div className={styles.rankList}>
           {loading && leaderboard.length === 0 && (
-            <div className={styles.empty}>加载中...</div>
+            <div className={styles.skeleton}>
+              <div className={styles.skeletonBar} />
+              <div className={styles.skeletonBar} />
+              <div className={styles.skeletonBar} />
+            </div>
           )}
-          {!loading && leaderboard.length === 0 && (
+          {!loading && error && leaderboard.length === 0 && (
+            <div className={styles.empty}>
+              <div className={styles.emptyIcon}>
+                <ChartIcon />
+              </div>
+              <div className={styles.emptyTitle}>加载失败</div>
+              <div className={styles.emptySub}>{error}</div>
+            </div>
+          )}
+          {!loading && !error && leaderboard.length === 0 && (
             <div className={styles.empty}>
               <div className={styles.emptyIcon}>
                 <ChartIcon />

@@ -113,11 +113,11 @@ export function ReportDetailView() {
   if (loading && !currentReport) {
     return (
       <div className={styles.screen}>
-        <div className={styles.empty}>
-          <div className={styles.emptyIcon}>
-            <ListIcon />
-          </div>
-          <div>加载中...</div>
+        <div className={styles.skeleton}>
+          <div className={styles.skeletonBar} />
+          <div className={styles.skeletonBar} />
+          <div className={styles.skeletonBar} />
+          <div className={styles.skeletonBar} />
         </div>
       </div>
     )

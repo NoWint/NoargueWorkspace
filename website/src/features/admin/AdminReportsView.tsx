@@ -317,7 +317,6 @@ export function AdminReportsView() {
         okText="确认处理"
         cancelText="取消"
         confirmLoading={processing}
-        okButtonProps={{ style: { background: '#01796f', borderColor: '#01796f' } }}
         destroyOnClose
         width={600}
       >

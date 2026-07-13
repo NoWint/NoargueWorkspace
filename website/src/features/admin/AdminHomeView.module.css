@@ -119,16 +119,32 @@
   justify-content: space-between;
   gap: 12px;
   padding: 12px 14px;
+  min-height: 28px;
   border: 1px solid var(--border);
   background: var(--bg);
   cursor: pointer;
   text-align: left;
   width: 100%;
   color: inherit;
+  transition: border-color var(--dur-fast) var(--ease),
+              background var(--dur-fast) var(--ease);
 }
 .quickItem:hover {
   border-color: var(--primary-line);
   background: var(--primary-soft);
+}
+.quickItem:active {
+  background: var(--muted);
+}
+.quickItemStatic {
+  cursor: default;
+}
+.quickItemStatic:hover {
+  border-color: var(--border);
+  background: var(--bg);
+}
+.quickItemStatic:active {
+  background: var(--bg);
 }
 .quickMain { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
 .quickLabel {
@@ -143,7 +159,13 @@
   width: 14px; height: 14px;
   color: var(--mt2);
   flex: none;
+  transition: transform var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
 }
+.quickItem:hover .quickArrow {
+  color: var(--primary);
+  transform: translateX(2px);
+}
+.rateNumStatic { font-size: 16px; }
 
 /* Empty */
 .empty {

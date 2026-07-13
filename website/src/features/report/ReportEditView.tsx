@@ -235,11 +235,11 @@ export function ReportEditView({ mode }: ReportEditViewProps) {
   if (isEdit && !currentReport && !loaded) {
     return (
       <div className={styles.screen}>
-        <div className={styles.empty}>
-          <div className={styles.emptyIcon}>
-            <ListIcon />
-          </div>
-          <div>加载中...</div>
+        <div className={styles.skeleton}>
+          <div className={styles.skeletonBar} />
+          <div className={styles.skeletonBar} />
+          <div className={styles.skeletonBar} />
+          <div className={styles.skeletonBar} />
         </div>
       </div>
     )
@@ -338,7 +338,7 @@ export function ReportEditView({ mode }: ReportEditViewProps) {
                 ))}
               </div>
             </div>
-            <div className={styles.fieldGroup} style={{ flex: 1 }}>
+            <div className={cn(styles.fieldGroup, styles.fieldGroupGrow)}>
               <div className={styles.fieldLabel}>
                 {type === 'daily' ? '报告日期' : '本周起始日期'}
               </div>

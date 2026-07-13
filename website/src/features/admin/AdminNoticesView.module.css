@@ -93,16 +93,21 @@
 .noticeMetaSep { color: var(--border); }
 .noticeActions { display: flex; gap: 4px; flex: none; }
 .iconBtn {
-  width: 26px; height: 26px;
+  width: 28px; height: 28px;
   display: grid; place-items: center;
   border: 1px solid var(--border);
   background: transparent;
   color: var(--mt);
   cursor: pointer;
+  transition: color var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease),
+              background var(--dur-fast) var(--ease);
 }
 .iconBtn:hover { color: var(--fg); border-color: var(--mt3); }
+.iconBtn:active { background: var(--muted); }
 .iconBtn svg { width: 13px; height: 13px; }
-.delBtn:hover { color: var(--destructive); border-color: rgba(255,100,103,0.4); }
+.delBtn:hover { color: var(--destructive); border-color: var(--destructive); }
+.delBtn:active { background: var(--muted); }
 .noticeContent {
   font: 400 12.5px/1.6 var(--font-sans);
   color: var(--mt);

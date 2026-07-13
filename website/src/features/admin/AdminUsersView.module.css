@@ -167,15 +167,19 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  height: 24px;
+  min-height: 28px;
   padding: 0 10px;
   border: 1px solid var(--border);
   background: transparent;
   color: var(--mt);
   font: 500 10.5px/1 var(--font-sans);
   cursor: pointer;
+  transition: color var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease),
+              background var(--dur-fast) var(--ease);
 }
 .actionBtn:hover { color: var(--fg); border-color: var(--mt3); }
+.actionBtn:active { background: var(--muted); }
 .actionBtn svg { width: 11px; height: 11px; }
 
 .badges { display: flex; gap: 3px; flex-wrap: wrap; }
@@ -204,19 +208,23 @@
 }
 .pagerBtns { display: flex; gap: 6px; align-items: center; }
 .pagerBtn {
-  height: 26px;
-  padding: 0 10px;
+  min-height: 28px;
+  padding: 6px 10px;
   border: 1px solid var(--border);
   background: var(--bg);
   color: var(--mt);
   font: 500 11px/1 var(--font-sans);
   cursor: pointer;
+  transition: color var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease),
+              background var(--dur-fast) var(--ease);
 }
 .pagerBtn:hover:not(:disabled) { color: var(--fg); border-color: var(--mt3); }
+.pagerBtn:active:not(:disabled) { background: var(--muted); }
 .pagerBtn:disabled { opacity: 0.4; cursor: not-allowed; }
 .pagerCur {
-  height: 26px;
-  padding: 0 12px;
+  min-height: 28px;
+  padding: 6px 12px;
   display: inline-flex;
   align-items: center;
   border: 1px solid var(--primary);
@@ -360,25 +368,34 @@
   background: transparent;
   color: var(--mt);
   cursor: pointer;
+  transition: color var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease);
 }
-.badgeDelBtn:hover { color: var(--destructive); border-color: rgba(255,100,103,0.4); }
+.badgeDelBtn:hover { color: var(--destructive); border-color: var(--destructive); }
+.badgeDelBtn:active { background: var(--muted); }
 .badgeDelBtn svg { width: 13px; height: 13px; }
 
 .badgeAddBtn {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  height: 28px;
-  padding: 0 10px;
+  min-height: 28px;
+  padding: 6px 10px;
   border: 1px dashed var(--border);
   background: transparent;
   color: var(--mt);
   font: 500 11px/1 var(--font-sans);
   cursor: pointer;
   align-self: flex-start;
+  transition: color var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease);
 }
 .badgeAddBtn:hover { color: var(--fg); border-color: var(--mt3); }
+.badgeAddBtn:active { background: var(--muted); }
 .badgeAddBtn svg { width: 12px; height: 12px; }
+
+.badgeEmpty { padding: 8px 0; }
+.saveBadgesRow { margin-top: 8px; align-self: flex-start; }
 
 /* Stats list */
 .statsList {

@@ -212,7 +212,7 @@ export function ReportTemplatesView() {
           <div className={styles.hdRow}>
             <div
               className={styles.hdIcColor}
-              style={{ background: combo?.color || 'var(--primary)' }}
+              style={combo?.color ? { background: combo.color } : undefined}
             >
               <ListIcon />
             </div>

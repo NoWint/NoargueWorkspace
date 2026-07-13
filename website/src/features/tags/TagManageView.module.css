@@ -46,15 +46,18 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  height: 28px;
+  min-height: 28px;
   padding: 0 12px;
   border: 1px solid var(--border);
   background: transparent;
   color: var(--mt);
   font: 500 11px/1 var(--font-sans);
   cursor: pointer;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease), background var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
 }
 .actBtn:hover { color: var(--fg); border-color: var(--mt3); }
+.actBtn:active { transform: scale(0.97); }
+.actBtn:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 .actPri {
   background: var(--primary);
   border-color: var(--primary);
@@ -65,7 +68,7 @@
   border-color: var(--primary-hi);
   color: var(--primary-fg);
 }
-.actSm { height: 24px; padding: 0 10px; font-size: 10.5px; }
+.actSm { min-height: 24px; padding: 0 10px; font-size: 10.5px; }
 .actIcon { width: 12px; height: 12px; flex: none; }
 
 /* Stats */
@@ -132,16 +135,19 @@
 }
 .tagActions { display: flex; gap: 4px; flex: none; margin-left: auto; }
 .iconBtn {
-  width: 26px; height: 26px;
+  width: 28px; height: 28px;
   display: grid; place-items: center;
   border: 1px solid var(--border);
   background: transparent;
   color: var(--mt);
   cursor: pointer;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
 }
 .iconBtn:hover { color: var(--fg); border-color: var(--mt3); }
+.iconBtn:active { transform: scale(0.95); }
+.iconBtn:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 .iconBtn svg { width: 13px; height: 13px; }
-.delBtn:hover { color: var(--destructive); border-color: rgba(255,100,103,0.4); }
+.delBtn:hover { color: var(--destructive); border-color: color-mix(in srgb, var(--destructive) 40%, transparent); }
 
 /* Empty */
 .empty {
@@ -166,12 +172,28 @@
   cursor: pointer;
   display: grid; place-items: center;
   position: relative;
+  transition: border-color var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
 }
 .colorSwatch:hover { border-color: var(--mt3); }
+.colorSwatch:active { transform: scale(0.92); }
+.colorSwatch:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 .colorAct { border-color: var(--fg); }
 .colorAct::after {
   content: '';
   position: absolute;
   inset: 3px;
   border: 1px solid var(--fg);
+}
+.swatchCheck {
+  width: 13px;
+  height: 13px;
+  color: var(--primary-fg);
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 480px) {
+  .screen { padding: 18px 16px; gap: 16px; }
+  .tagItem { padding: 10px 12px; flex-wrap: wrap; }
+  .tagActions { margin-left: 0; }
 }

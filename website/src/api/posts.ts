@@ -10,7 +10,7 @@ export interface Post {
   files: PostFile[]
   todoIds: number[]
   shareCode: string
-  location: { name: string; latitude: number; longitude: number; address?: string } | null
+  location: { name: string; latitude?: number; longitude?: number; address?: string } | null
   ipAddress: string
   ipProvince: string
   likesCount: number

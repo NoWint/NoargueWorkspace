@@ -13,15 +13,27 @@
 .capVal { font: 600 32px/1 var(--font-mono); color: var(--fg); }
 .capMax { color: var(--mt2); font-size: 18px; }
 .capLabel { font: 500 12px/1 var(--font-mono); color: var(--mt); }
-.increaseBtn { display: inline-flex; align-items: center; height: 36px; padding: 0 18px; border: 1px solid var(--primary); background: var(--primary); color: var(--primary-fg); font: 600 13px/1 var(--font-sans); cursor: pointer; }
+.increaseBtn { display: inline-flex; align-items: center; min-height: 36px; padding: 0 18px; border: 1px solid var(--primary); background: var(--primary); color: var(--primary-fg); font: 600 13px/1 var(--font-sans); cursor: pointer; transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), transform var(--dur-fast) var(--ease); }
 .increaseBtn:hover { background: var(--primary-hi); border-color: var(--primary-hi); }
-.increaseBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+.increaseBtn:active { transform: scale(0.97); }
+.increaseBtn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.increaseBtn:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 
 .capBar { margin-top: 16px; height: 6px; border: 1px solid var(--border); background: var(--bg); overflow: hidden; }
-.capBarFill { height: 100%; background: var(--primary); transition: width 0.3s; }
+.capBarFill { height: 100%; background: var(--primary); transition: width var(--dur) var(--ease); }
 
 .quoteBox { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 40px 24px; text-align: center; }
-.quoteText { font: 600 24px/1.5 var(--font-song); color: var(--fg); max-width: 560px; letter-spacing: 0.02em; }
-.quoteRefresh { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 14px; border: 1px solid var(--border); background: var(--bg); color: var(--mt); font: 500 12px/1 var(--font-sans); cursor: pointer; }
+.quoteText { font: 600 24px/1.5 var(--font-song); color: var(--fg); max-width: 560px; letter-spacing: 0.02em; transition: color var(--dur) var(--ease); }
+.quoteRefresh { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 0 14px; border: 1px solid var(--border); background: var(--bg); color: var(--mt); font: 500 12px/1 var(--font-sans); cursor: pointer; transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease), background var(--dur) var(--ease), transform var(--dur-fast) var(--ease); }
 .quoteRefresh:hover { color: var(--primary); border-color: var(--primary-line); }
+.quoteRefresh:active { transform: scale(0.97); }
+.quoteRefresh:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 .quoteIcon { width: 13px; height: 13px; }
+
+@media (max-width: 480px) {
+  .screen { padding: 18px 16px; gap: 16px; }
+  .capVal { font-size: 28px; }
+  .capMax { font-size: 16px; }
+  .quoteText { font-size: 20px; }
+  .quoteBox { padding: 28px 16px; }
+}

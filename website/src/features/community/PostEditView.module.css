@@ -25,6 +25,8 @@
   color: var(--mt);
   display: grid; place-items: center;
   flex: none;
+  transition: color var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease);
 }
 .hdIc svg { width: 15px; height: 15px; }
 .title {
@@ -55,16 +57,20 @@
 .input {
   background: var(--input) !important;
   border-color: var(--border) !important;
+  border-radius: 0 !important;
   color: var(--fg) !important;
+  transition: border-color var(--dur-fast) var(--ease);
 }
 .input:hover { border-color: var(--mt3) !important; }
 .input:focus { border-color: var(--primary-line) !important; }
 .textarea {
   background: var(--input) !important;
   border-color: var(--border) !important;
+  border-radius: 0 !important;
   color: var(--fg) !important;
   font: 400 13px/1.6 var(--font-sans) !important;
   resize: vertical;
+  transition: border-color var(--dur-fast) var(--ease);
 }
 .textarea:hover { border-color: var(--mt3) !important; }
 .textarea:focus { border-color: var(--primary-line) !important; }
@@ -74,7 +80,7 @@
   gap: 10px;
   flex-wrap: wrap;
 }
-.locRow > * { flex: 1; min-width: 160px; }
+.locRow > * { flex: 1; min-width: min(160px, 100%); }
 
 /* Chips (combo) */
 .chips {
@@ -86,6 +92,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  min-height: 28px;
   height: 30px;
   padding: 0 12px;
   border: 1px solid var(--border);
@@ -93,17 +100,29 @@
   color: var(--mt);
   font: 500 12px/1 var(--font-sans);
   cursor: pointer;
+  transition: color var(--dur-fast) var(--ease),
+              background var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease);
 }
 .chipBtn:hover { border-color: var(--mt3); color: var(--fg); }
+.chipBtn:active { background: var(--muted); }
 .chipAct {
   border-color: var(--primary-line);
   background: var(--primary-soft);
   color: var(--primary);
 }
+.chipAct:hover {
+  border-color: var(--primary);
+  color: var(--primary-hi);
+}
+.chipAct .chipDot {
+  border-color: var(--primary-fg);
+}
 .chipDot {
   width: 8px; height: 8px;
   flex: none;
   border: 1px solid var(--border);
+  transition: border-color var(--dur-fast) var(--ease);
 }
 .emptyHint {
   font: 500 12px/1 var(--font-mono);
@@ -115,29 +134,38 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  max-height: 360px;
+  overflow-y: auto;
 }
 .todoItem {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
+  min-height: 28px;
   border: 1px solid var(--border);
   background: var(--bg);
   color: var(--fg);
   cursor: pointer;
   text-align: left;
+  transition: border-color var(--dur-fast) var(--ease),
+              background var(--dur-fast) var(--ease);
 }
 .todoItem:hover { border-color: var(--mt3); }
+.todoItem:active { background: var(--muted); }
 .todoAct {
   border-color: var(--primary-line);
   background: var(--primary-soft);
 }
+.todoAct:hover { border-color: var(--primary); }
 .todoCheck {
   width: 16px; height: 16px;
   border: 1px solid var(--border);
   background: var(--bg);
   display: grid; place-items: center;
   flex: none;
+  transition: background var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease);
 }
 .todoAct .todoCheck {
   border-color: var(--primary);
@@ -210,6 +238,7 @@
   color: var(--mt);
   font: 500 11px/1 var(--font-mono);
   padding: 4px 10px;
+  min-height: 28px;
   cursor: pointer;
   transition: all var(--dur-fast) var(--ease);
 }
@@ -217,11 +246,15 @@
   border-color: var(--destructive);
   color: var(--destructive);
 }
+.pollRemoveBtn:active {
+  background: var(--muted);
+}
 .addPollBtn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 9px 14px;
+  min-height: 28px;
   border: 1px dashed var(--border);
   background: transparent;
   color: var(--mt);
@@ -235,4 +268,33 @@
   color: var(--primary);
   background: var(--primary-soft);
 }
+.addPollBtn:active {
+  background: var(--muted);
+}
 .addPollIcon { width: 13px; height: 13px; }
+
+/* Skeleton */
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.skLine {
+  height: 14px;
+  background: var(--muted);
+  border: 1px solid var(--border2);
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+.skLine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--bg2), transparent);
+  animation: sk-shimmer 1.4s var(--ease) infinite;
+}
+@keyframes sk-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}

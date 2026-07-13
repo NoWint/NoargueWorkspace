@@ -144,3 +144,9 @@
   font: 500 12px/1.4 var(--font-sans);
   color: var(--mt);
 }
+
+@media (max-width: 480px) {
+  .screen { padding: 18px 16px; gap: 16px; }
+  .timelineR { padding-bottom: 16px; }
+  .logList { padding-left: 14px; }
+}

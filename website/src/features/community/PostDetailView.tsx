@@ -62,6 +62,11 @@ export function PostDetailView() {
   const [replyTo, setReplyTo] = useState<PostComment | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [removing, setRemoving] = useState(false)
+  const [deletingCommentId, setDeletingCommentId] = useState<number | null>(null)
+  const [postLikeLoading, setPostLikeLoading] = useState(false)
+  const [commentLikeLoading, setCommentLikeLoading] = useState<number | null>(null)
+
+  const COMMENT_MAX_LENGTH = 2000
 
   const [likeModalOpen, setLikeModalOpen] = useState(false)
   const [likeUsers, setLikeUsers] = useState<LikeUser[]>([])
@@ -153,16 +158,21 @@ export function PostDetailView() {
   }
 
   const handleDeleteComment = async (commentId: number) => {
+    if (deletingCommentId !== null) return
+    setDeletingCommentId(commentId)
     try {
       await commentsApi.delete(commentId)
       message.success('已删除')
       await reloadComments()
     } catch (e) {
       message.error((e as Error).message || '删除失败')
+    } finally {
+      setDeletingCommentId(null)
     }
   }
 
   const handleToggleCommentLike = async (commentId: number) => {
+    if (commentLikeLoading !== null) return
     const apply = (list: PostComment[]): PostComment[] =>
       list.map((c) => {
         if (c.id === commentId) {
@@ -179,19 +189,25 @@ export function PostDetailView() {
         return c
       })
     setComments((prev) => apply(prev))
+    setCommentLikeLoading(commentId)
     try {
       await commentsApi.toggleLike(commentId)
     } catch {
       await reloadComments()
+    } finally {
+      setCommentLikeLoading(null)
     }
   }
 
   const handleLikePost = async () => {
-    if (!postId) return
+    if (!postId || postLikeLoading) return
+    setPostLikeLoading(true)
     try {
       await toggleLike(postId)
     } catch (e) {
       message.error((e as Error).message || '操作失败')
+    } finally {
+      setPostLikeLoading(false)
     }
   }
 
@@ -245,12 +261,15 @@ export function PostDetailView() {
   if (loading && !currentPost) {
     return (
       <div className={styles.screen}>
-        <div className={styles.empty}>
-          <div className={styles.emptyIcon}>
-            <ListIcon />
+        <Card>
+          <div className={styles.skeleton}>
+            <div className={styles.skLine} style={{ width: '40%', height: '12px' }} />
+            <div className={styles.skLine} style={{ width: '90%', height: '20px' }} />
+            <div className={styles.skLine} style={{ width: '95%' }} />
+            <div className={styles.skLine} style={{ width: '80%' }} />
+            <div className={styles.skLine} style={{ width: '60%' }} />
           </div>
-          <div>加载中...</div>
-        </div>
+        </Card>
       </div>
     )
   }
@@ -325,6 +344,7 @@ export function PostDetailView() {
               type="button"
               className={cn(styles.footBtn, c.isLiked && styles.footLiked)}
               onClick={() => handleToggleCommentLike(c.id)}
+              disabled={commentLikeLoading !== null}
             >
               <HeartIcon className={styles.footIcon} />
               {c.likesCount}
@@ -347,10 +367,15 @@ export function PostDetailView() {
                 cancelText="取消"
                 okButtonProps={{ danger: true }}
                 onConfirm={() => handleDeleteComment(c.id)}
+                disabled={deletingCommentId !== null}
               >
-                <button type="button" className={styles.footBtn}>
+                <button
+                  type="button"
+                  className={styles.footBtn}
+                  disabled={deletingCommentId === c.id}
+                >
                   <TrashIcon className={styles.footIcon} />
-                  删除
+                  {deletingCommentId === c.id ? '删除中' : '删除'}
                 </button>
               </Popconfirm>
             )}
@@ -522,6 +547,8 @@ export function PostDetailView() {
             type="button"
             className={cn(styles.likeBtn, post.isLiked && styles.likeBtnAct)}
             onClick={handleLikePost}
+            disabled={postLikeLoading}
+            aria-pressed={post.isLiked}
           >
             <HeartIcon className={styles.likeIcon} />
             {post.isLiked ? '已赞' : '点赞'}
@@ -571,6 +598,20 @@ export function PostDetailView() {
           {comments.length === 0 && !commentLoading && (
             <div className={styles.commentEmpty}>暂无评论，快来抢沙发</div>
           )}
+          {commentLoading && comments.length === 0 && (
+            <div className={styles.commentSkeletonWrap}>
+              {Array.from({ length: 2 }).map((_, i) => (
+                <div key={i} className={styles.commentSkeleton}>
+                  <div className={styles.skLine} style={{ width: '32px', height: '32px' }} />
+                  <div className={styles.commentSkMain}>
+                    <div className={styles.skLine} style={{ width: '50%', height: '12px' }} />
+                    <div className={styles.skLine} style={{ width: '80%', height: '12px' }} />
+                    <div className={styles.skLine} style={{ width: '60px', height: '10px' }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
           {comments.map((c) => renderComment(c))}
         </div>
 
@@ -613,6 +654,8 @@ export function PostDetailView() {
                 : '写下你的评论...'
             }
             autoSize={{ minRows: 2, maxRows: 6 }}
+            maxLength={COMMENT_MAX_LENGTH}
+            showCount
             className={styles.textarea}
           />
           <div className={styles.inputActions}>
@@ -678,21 +721,35 @@ export function PostDetailView() {
           <div className={styles.modalLoading}>暂无浏览记录</div>
         ) : (
           <div className={styles.userList}>
-            {visitors.map((v) => (
-              <div key={v.id} className={styles.userRow}>
-                <div className={styles.userAv}>
-                  {v.user?.avatarUrl ? (
-                    <img src={v.user.avatarUrl} alt={v.user.nickname} />
-                  ) : (
-                    avatarInitial(v.user?.nickname || '?')
-                  )}
+            {visitors.map((v) => {
+              const clickable = !!v.userId
+              return (
+                <div
+                  key={v.id}
+                  className={cn(styles.userRow, !clickable && styles.userRowPlain)}
+                  onClick={clickable
+                    ? () => {
+                        setVisitorModalOpen(false)
+                        navigate(`/community/user/${v.userId}`)
+                      }
+                    : undefined}
+                  role={clickable ? 'button' : undefined}
+                  tabIndex={clickable ? 0 : undefined}
+                >
+                  <div className={styles.userAv}>
+                    {v.user?.avatarUrl ? (
+                      <img src={v.user.avatarUrl} alt={v.user.nickname} />
+                    ) : (
+                      avatarInitial(v.user?.nickname || '?')
+                    )}
+                  </div>
+                  <span className={styles.userName}>
+                    {v.user?.nickname || `访客 ${v.visitorIp || ''}`}
+                  </span>
+                  <span className={styles.userTime}>{formatTime(v.viewedAt)}</span>
                 </div>
-                <span className={styles.userName}>
-                  {v.user?.nickname || `访客 ${v.visitorIp || ''}`}
-                </span>
-                <span className={styles.userTime}>{formatTime(v.viewedAt)}</span>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </Modal>

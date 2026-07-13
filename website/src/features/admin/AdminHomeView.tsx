@@ -175,7 +175,7 @@ export function AdminHomeView() {
         )}
         {stats && (
           <div className={styles.quickGrid}>
-            <div className={styles.quickItem} style={{ cursor: 'default' }}>
+            <div className={`${styles.quickItem} ${styles.quickItemStatic}`}>
               <div className={styles.quickMain}>
                 <span className={styles.quickLabel}>
                   <UsersIcon style={{ width: 12, height: 12, verticalAlign: '-2px', marginRight: 4 }} />
@@ -183,9 +183,9 @@ export function AdminHomeView() {
                 </span>
                 <span className={styles.quickSub}>人均待办 {(stats.userCount > 0 ? (stats.todoCount / stats.userCount) : 0).toFixed(1)}</span>
               </div>
-              <span className={styles.rateNum} style={{ fontSize: 16 }}>{stats.userCount}</span>
+              <span className={`${styles.rateNum} ${styles.rateNumStatic}`}>{stats.userCount}</span>
             </div>
-            <div className={styles.quickItem} style={{ cursor: 'default' }}>
+            <div className={`${styles.quickItem} ${styles.quickItemStatic}`}>
               <div className={styles.quickMain}>
                 <span className={styles.quickLabel}>
                   <ListIcon style={{ width: 12, height: 12, verticalAlign: '-2px', marginRight: 4 }} />
@@ -193,7 +193,7 @@ export function AdminHomeView() {
                 </span>
                 <span className={styles.quickSub}>完成率 {completionRate}%</span>
               </div>
-              <span className={styles.rateNum} style={{ fontSize: 16 }}>{stats.todoCount}</span>
+              <span className={`${styles.rateNum} ${styles.rateNumStatic}`}>{stats.todoCount}</span>
             </div>
           </div>
         )}

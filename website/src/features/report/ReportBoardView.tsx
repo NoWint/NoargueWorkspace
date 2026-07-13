@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Select, message } from 'antd'
+import { Select } from 'antd'
 import { Button, Card, Eyebrow, StatusChip } from '@/design/primitives'
 import {
   ListIcon,
@@ -86,6 +86,7 @@ export function ReportBoardView() {
   const [tab, setTab] = useState<Tab>('daily')
   const [periodDate, setPeriodDate] = useState<string>(todayStr())
   const [userId, setUserId] = useState<number | undefined>(undefined)
+  const [boardError, setBoardError] = useState('')
 
   const comboId = Number(id)
 
@@ -103,8 +104,9 @@ export function ReportBoardView() {
 
   useEffect(() => {
     if (!comboId || Number.isNaN(comboId)) return
+    setBoardError('')
     fetchBoard({ comboId, type: tab, reportDate: periodDate, userId }).catch((e) => {
-      message.error((e as Error).message || '加载失败')
+      setBoardError((e as Error)?.message || '加载失败')
     })
   }, [comboId, tab, periodDate, userId, fetchBoard])
 
@@ -160,7 +162,7 @@ export function ReportBoardView() {
           <div className={styles.hdRow}>
             <div
               className={styles.hdIcColor}
-              style={{ background: combo?.color || 'var(--primary)' }}
+              style={combo?.color ? { background: combo.color } : undefined}
             >
               <ChartIcon />
             </div>
@@ -193,6 +195,10 @@ export function ReportBoardView() {
           </Button>
         </div>
       </div>
+
+      {boardError && (
+        <div className={cn(styles.notice, styles.noticeErr)}>{boardError}</div>
+      )}
 
       {/* Tabs */}
       <div className={styles.tabsRow}>
@@ -235,7 +241,16 @@ export function ReportBoardView() {
       </div>
 
       {/* Member groups */}
-      {visibleMembers.length === 0 && !loading && (
+      {visibleMembers.length === 0 && loading && (
+        <Card>
+          <div className={styles.skeleton}>
+            <div className={styles.skeletonBar} />
+            <div className={styles.skeletonBar} />
+            <div className={styles.skeletonBar} />
+          </div>
+        </Card>
+      )}
+      {visibleMembers.length === 0 && !loading && !boardError && (
         <Card>
           <div className={styles.empty}>
             <div className={styles.emptyIcon}>

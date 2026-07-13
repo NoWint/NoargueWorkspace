@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Input, message } from 'antd'
 import type { CreatePollRequest, Post } from '@/api/posts'
@@ -12,6 +12,9 @@ import { cn } from '@/lib/utils'
 import { ImageUploader } from '@/features/todo/ImageUploader'
 import { PollEditor } from './PollEditor'
 import styles from './PostEditView.module.css'
+
+const TITLE_MAX_LENGTH = 100
+const BODY_MAX_LENGTH = 10000
 
 export function PostEditView() {
   const { postId } = useParams()
@@ -34,10 +37,28 @@ export function PostEditView() {
   const [showPollEditor, setShowPollEditor] = useState(false)
   const [pollData, setPollData] = useState<CreatePollRequest | null>(null)
 
+  /** 标记是否有未保存的变更（用于离开警告） */
+  const dirtyRef = useRef(false)
+  const setDirty = (v: boolean) => {
+    dirtyRef.current = v
+  }
+
   useEffect(() => {
     fetchTodos()
     fetchCombos()
   }, [fetchTodos, fetchCombos])
+
+  /** 离开页面时如果有未保存变更，提示用户 */
+  useEffect(() => {
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (dirtyRef.current) {
+        e.preventDefault()
+        e.returnValue = ''
+      }
+    }
+    window.addEventListener('beforeunload', onBeforeUnload)
+    return () => window.removeEventListener('beforeunload', onBeforeUnload)
+  }, [])
 
   useEffect(() => {
     if (!isEdit || !postId) return
@@ -60,7 +81,17 @@ export function PostEditView() {
       setLocName(currentPost.location.name || '')
       setLocAddress(currentPost.location.address || '')
     }
+    setDirty(false)
   }, [isEdit, currentPost])
+
+  /** 包装 setter，自动标记 dirty */
+  const updateTitle = (v: string) => { setTitle(v); setDirty(true) }
+  const updateBody = (v: string) => { setBody(v); setDirty(true) }
+  const updateLocName = (v: string) => { setLocName(v); setDirty(true) }
+  const updateLocAddress = (v: string) => { setLocAddress(v); setDirty(true) }
+  const updateImages = (v: string[]) => { setImages(v); setDirty(true) }
+  const updateTodoIds = (next: number[]) => { setTodoIds(next); setDirty(true) }
+  const updateComboId = (v: number | null) => { setComboId(v); setDirty(true) }
 
   const availableTodos = useMemo(
     () => todos.filter((t) => !t.isDeleted),
@@ -70,24 +101,30 @@ export function PostEditView() {
   const handleToggleTodo = (id: string) => {
     const numId = Number(id)
     if (Number.isNaN(numId)) return
-    setTodoIds((prev) =>
-      prev.includes(numId) ? prev.filter((x) => x !== numId) : [...prev, numId],
-    )
+    const next = todoIds.includes(numId)
+      ? todoIds.filter((x) => x !== numId)
+      : [...todoIds, numId]
+    updateTodoIds(next)
   }
 
   const buildLocation = (): Post['location'] | undefined => {
     if (!locName.trim() && !locAddress.trim()) return undefined
-    return {
+    const loc: NonNullable<Post['location']> = {
       name: locName.trim(),
-      address: locAddress.trim(),
-      latitude: 0,
-      longitude: 0,
     }
+    if (locAddress.trim()) {
+      loc.address = locAddress.trim()
+    }
+    return loc
   }
 
   const handleSave = async () => {
     if (!title.trim()) {
       message.warning('请输入标题')
+      return
+    }
+    if (body.length > BODY_MAX_LENGTH) {
+      message.warning(`正文不能超过 ${BODY_MAX_LENGTH} 字`)
       return
     }
     if (showPollEditor && !pollData) {
@@ -131,6 +168,7 @@ export function PostEditView() {
           message.error((e as Error).message || '投票创建失败')
         }
       }
+      setDirty(false)
       navigate(`/community/${targetPostId}`)
     } catch (e) {
       message.error((e as Error).message || '保存失败')
@@ -142,12 +180,15 @@ export function PostEditView() {
   if (isEdit && !currentPost && !loaded) {
     return (
       <div className={styles.screen}>
-        <div className={styles.empty}>
-          <div className={styles.emptyIcon}>
-            <PlusIcon />
+        <Card>
+          <div className={styles.skeleton}>
+            <div className={styles.skLine} style={{ width: '40%', height: '12px' }} />
+            <div className={styles.skLine} style={{ width: '90%', height: '20px' }} />
+            <div className={styles.skLine} style={{ width: '95%' }} />
+            <div className={styles.skLine} style={{ width: '80%' }} />
+            <div className={styles.skLine} style={{ width: '60%' }} />
           </div>
-          <div>加载中...</div>
-        </div>
+        </Card>
       </div>
     )
   }
@@ -206,9 +247,10 @@ export function PostEditView() {
           <div className={styles.fieldLabel}>标题</div>
           <Input
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => updateTitle(e.target.value)}
             placeholder="帖子标题"
-            maxLength={100}
+            maxLength={TITLE_MAX_LENGTH}
+            showCount
             className={styles.input}
           />
         </div>
@@ -216,9 +258,11 @@ export function PostEditView() {
           <div className={styles.fieldLabel}>正文</div>
           <Input.TextArea
             value={body}
-            onChange={(e) => setBody(e.target.value)}
+            onChange={(e) => updateBody(e.target.value)}
             autoSize={{ minRows: 5, maxRows: 20 }}
             placeholder="分享你的想法..."
+            maxLength={BODY_MAX_LENGTH}
+            showCount
             className={styles.textarea}
           />
         </div>
@@ -228,7 +272,7 @@ export function PostEditView() {
       <Card>
         <div className={styles.fieldGroup}>
           <div className={styles.fieldLabel}>图片</div>
-          <ImageUploader images={images} onChange={setImages} max={9} />
+          <ImageUploader images={images} onChange={updateImages} max={9} />
         </div>
       </Card>
 
@@ -239,14 +283,14 @@ export function PostEditView() {
           <div className={styles.locRow}>
             <Input
               value={locName}
-              onChange={(e) => setLocName(e.target.value)}
+              onChange={(e) => updateLocName(e.target.value)}
               placeholder="位置名称"
               className={styles.input}
               prefix={<LocationIcon className={styles.locIcon} />}
             />
             <Input
               value={locAddress}
-              onChange={(e) => setLocAddress(e.target.value)}
+              onChange={(e) => updateLocAddress(e.target.value)}
               placeholder="详细地址"
               className={styles.input}
             />
@@ -263,7 +307,7 @@ export function PostEditView() {
               <button
                 type="button"
                 className={cn(styles.chipBtn, !comboId && styles.chipAct)}
-                onClick={() => setComboId(null)}
+                onClick={() => updateComboId(null)}
               >
                 无
               </button>
@@ -275,7 +319,7 @@ export function PostEditView() {
                     styles.chipBtn,
                     comboId === c.id && styles.chipAct,
                   )}
-                  onClick={() => setComboId(c.id)}
+                  onClick={() => updateComboId(c.id)}
                 >
                   <span
                     className={styles.chipDot}
@@ -308,6 +352,7 @@ export function PostEditView() {
                   type="button"
                   className={cn(styles.todoItem, active && styles.todoAct)}
                   onClick={() => handleToggleTodo(t.id)}
+                  title={t.text}
                 >
                   <span className={styles.todoCheck}>
                     {active && <CheckIcon className={styles.todoCheckIcon} />}

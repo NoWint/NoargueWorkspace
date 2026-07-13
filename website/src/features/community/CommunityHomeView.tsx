@@ -12,6 +12,7 @@ import {
   HeartIcon,
   MapPinIcon,
   PlusIcon,
+  RefreshIcon,
 } from '@/design/icons'
 import { cn } from '@/lib/utils'
 import styles from './CommunityHomeView.module.css'
@@ -45,6 +46,7 @@ interface PostCardProps {
 export function PostCard({ post, onToggleLike, onClick }: PostCardProps) {
   const [liked, setLiked] = useState(post.isLiked)
   const [likeCount, setLikeCount] = useState(post.likesCount)
+  const [likeLoading, setLikeLoading] = useState(false)
 
   useEffect(() => {
     setLiked(post.isLiked)
@@ -53,14 +55,18 @@ export function PostCard({ post, onToggleLike, onClick }: PostCardProps) {
 
   const handleLike = async (e: React.MouseEvent) => {
     e.stopPropagation()
+    if (likeLoading) return
     const nextLiked = !liked
     setLiked(nextLiked)
     setLikeCount((c) => c + (nextLiked ? 1 : -1))
+    setLikeLoading(true)
     try {
       await onToggleLike?.(post.postId)
     } catch {
       setLiked(!nextLiked)
       setLikeCount((c) => c + (nextLiked ? -1 : 1))
+    } finally {
+      setLikeLoading(false)
     }
   }
 
@@ -75,6 +81,8 @@ export function PostCard({ post, onToggleLike, onClick }: PostCardProps) {
   const files = post.files || []
   const badges = post.user.badgeTitles || []
   const badgeColors = post.user.badgeColors || []
+  const visibleImages = images.slice(0, 4)
+  const extraCount = images.length - visibleImages.length
 
   return (
     <Card>
@@ -121,9 +129,16 @@ export function PostCard({ post, onToggleLike, onClick }: PostCardProps) {
 
         {images.length > 0 && (
           <div className={styles.imgGrid}>
-            {images.slice(0, 4).map((url, i) => (
-              <div key={i} className={styles.imgCell}>
+            {visibleImages.map((url, i) => (
+              <div
+                key={i}
+                className={styles.imgCell}
+                aria-label={i === visibleImages.length - 1 && extraCount > 0 ? `共 ${images.length} 张图片` : undefined}
+              >
                 <img src={url} alt="" className={styles.img} loading="lazy" />
+                {i === visibleImages.length - 1 && extraCount > 0 && (
+                  <span className={styles.imgMore}>+{extraCount}</span>
+                )}
               </div>
             ))}
           </div>
@@ -154,6 +169,8 @@ export function PostCard({ post, onToggleLike, onClick }: PostCardProps) {
             type="button"
             className={cn(styles.actBtn, liked && styles.actLiked)}
             onClick={handleLike}
+            disabled={likeLoading}
+            aria-pressed={liked}
           >
             <HeartIcon className={styles.actIcon} />
             {likeCount}
@@ -172,6 +189,24 @@ export function PostCard({ post, onToggleLike, onClick }: PostCardProps) {
   )
 }
 
+/** 骨架卡片占位 */
+function PostCardSkeleton() {
+  return (
+    <Card>
+      <div className={styles.skeleton}>
+        <div className={styles.skLine} style={{ width: '40%' }} />
+        <div className={styles.skLine} style={{ width: '90%', height: '16px' }} />
+        <div className={styles.skLine} style={{ width: '75%' }} />
+        <div className={styles.skRow}>
+          <div className={styles.skLine} style={{ width: '60px', height: '12px' }} />
+          <div className={styles.skLine} style={{ width: '60px', height: '12px' }} />
+          <div className={styles.skLine} style={{ width: '60px', height: '12px' }} />
+        </div>
+      </div>
+    </Card>
+  )
+}
+
 export function CommunityHomeView() {
   const navigate = useNavigate()
   const rawPosts = useCommunityStore((s) => s.posts)
@@ -180,10 +215,14 @@ export function CommunityHomeView() {
   const fetchPosts = useCommunityStore((s) => s.fetchPosts)
   const toggleLike = useCommunityStore((s) => s.toggleLike)
   const posts = rawPosts || []
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    setError(null)
     fetchPosts(true).catch((e) => {
-      message.error((e as Error).message || '加载失败')
+      const msg = (e as Error).message || '加载失败'
+      setError(msg)
+      message.error(msg)
     })
   }, [fetchPosts])
 
@@ -194,6 +233,13 @@ export function CommunityHomeView() {
   const handleLoadMore = () => {
     fetchPosts(false).catch((e) => {
       message.error((e as Error).message || '加载失败')
+    })
+  }
+
+  const handleRetry = () => {
+    setError(null)
+    fetchPosts(true).catch((e) => {
+      setError((e as Error).message || '加载失败')
     })
   }
 
@@ -225,7 +271,7 @@ export function CommunityHomeView() {
         </div>
       </div>
 
-      {posts.length === 0 && !loading && (
+      {posts.length === 0 && !loading && !error && (
         <Card>
           <div className={styles.empty}>
             <div className={styles.emptyIcon}>
@@ -238,12 +284,20 @@ export function CommunityHomeView() {
       )}
 
       {posts.length === 0 && loading && (
+        <div className={styles.postGrid}>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <PostCardSkeleton key={i} />
+          ))}
+        </div>
+      )}
+
+      {posts.length === 0 && error && !loading && (
         <Card>
-          <div className={styles.empty}>
-            <div className={styles.emptyIcon}>
-              <ChatIcon />
-            </div>
-            <div>加载中...</div>
+          <div className={styles.errorBox}>
+            <div className={styles.errorText}>{error}</div>
+            <Button variant="gh" size="sm" icon={<RefreshIcon className={styles.btnIcon} />} onClick={handleRetry}>
+              重试
+            </Button>
           </div>
         </Card>
       )}
@@ -258,6 +312,9 @@ export function CommunityHomeView() {
               onClick={(id) => navigate(`/community/${id}`)}
             />
           ))}
+          {loading && (
+            <PostCardSkeleton />
+          )}
         </div>
       )}
 

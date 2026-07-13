@@ -25,6 +25,8 @@
   color: var(--mt);
   display: grid; place-items: center;
   flex: none;
+  transition: color var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease);
 }
 .hdIc svg { width: 15px; height: 15px; }
 .title {
@@ -38,7 +40,7 @@
   margin: 8px 0 0; color: var(--mt); font-size: 13px;
   display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
 }
-.sep { color: var(--border); }
+.sep { color: var(--mt3); }
 
 /* Actions */
 .actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
@@ -92,7 +94,7 @@
   align-items: center;
   padding: 1px 6px;
   font: 500 10px/1.4 var(--font-sans);
-  color: #fff;
+  color: var(--primary-fg);
   max-width: 90px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -125,6 +127,11 @@
   overflow: hidden;
   border: 1px solid var(--border);
   background: var(--bg);
+  position: relative;
+  transition: border-color var(--dur-fast) var(--ease);
+}
+.imgCell:hover {
+  border-color: var(--primary-line);
 }
 .imgCell :global(.ant-image) {
   width: 100%;
@@ -134,6 +141,10 @@
   width: 100% !important;
   height: 100% !important;
   object-fit: cover;
+  transition: transform var(--dur-slow) var(--ease);
+}
+.imgCell:hover :global(.ant-image-img) {
+  transform: scale(1.04);
 }
 
 /* File list */
@@ -153,10 +164,15 @@
   color: var(--fg);
   text-decoration: none;
   cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease),
+              background var(--dur-fast) var(--ease);
 }
 .fileItem:hover {
   border-color: var(--primary-line);
   background: var(--primary-soft);
+}
+.fileItem:active {
+  background: var(--muted);
 }
 .fileIcon { width: 16px; height: 16px; color: var(--mt); flex: none; }
 .fileMain { flex: 1; min-width: 0; }
@@ -200,20 +216,30 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  min-height: 28px;
   padding: 6px 14px;
   border: 1px solid var(--border);
   background: var(--bg);
   color: var(--mt);
   font: 500 13px/1 var(--font-sans);
   cursor: pointer;
+  transition: color var(--dur-fast) var(--ease),
+              background var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease);
 }
-.likeBtn:hover { border-color: var(--mt3); color: var(--fg); }
+.likeBtn:hover:not(:disabled) { border-color: var(--mt3); color: var(--fg); }
+.likeBtn:active:not(:disabled) { background: var(--muted); }
+.likeBtn:disabled { cursor: not-allowed; opacity: 0.5; }
 .likeBtnAct {
   border-color: var(--primary-line);
   background: var(--primary-soft);
   color: var(--primary);
 }
-.likeBtnAct:hover { color: var(--primary); }
+.likeBtnAct:hover:not(:disabled) {
+  color: var(--primary-hi);
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
 .likeIcon { width: 15px; height: 15px; flex: none; }
 .likeCount {
   font: 600 13px/1 var(--font-mono);
@@ -222,18 +248,23 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  min-height: 28px;
   border: none;
   background: transparent;
   color: var(--mt);
   font: 500 12px/1 var(--font-mono);
   cursor: pointer;
-  padding: 0;
+  padding: 4px 6px;
+  transition: color var(--dur-fast) var(--ease),
+              background var(--dur-fast) var(--ease);
 }
-.statBtn:hover { color: var(--fg); }
+.statBtn:hover { color: var(--fg); background: var(--muted); }
+.statBtn:active { background: var(--accent); }
 .statStatic {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  min-height: 28px;
   font: 500 12px/1 var(--font-mono);
   color: var(--mt);
 }
@@ -315,7 +346,7 @@
 .commentFoot {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   margin-top: 8px;
   flex-wrap: wrap;
 }
@@ -323,6 +354,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  min-height: 28px;
   font: 500 11px/1 var(--font-mono);
   color: var(--mt2);
 }
@@ -330,16 +362,21 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  min-height: 28px;
   border: none;
   background: transparent;
   color: var(--mt);
   font: 500 11px/1 var(--font-mono);
   cursor: pointer;
-  padding: 0;
+  padding: 4px 6px;
+  transition: color var(--dur-fast) var(--ease),
+              background var(--dur-fast) var(--ease);
 }
-.footBtn:hover { color: var(--fg); }
+.footBtn:hover:not(:disabled) { color: var(--fg); background: var(--muted); }
+.footBtn:active:not(:disabled) { background: var(--accent); }
+.footBtn:disabled { cursor: not-allowed; opacity: 0.5; }
 .footLiked { color: var(--primary); }
-.footLiked:hover { color: var(--primary); }
+.footLiked:hover:not(:disabled) { color: var(--primary-hi); background: var(--primary-soft); }
 .replyList {
   display: flex;
   flex-direction: column;
@@ -372,19 +409,25 @@
 }
 .replyCancel {
   margin-left: auto;
+  min-height: 28px;
+  padding: 4px 8px;
   border: none;
   background: transparent;
   color: var(--mt2);
   font: 500 11px/1 var(--font-mono);
   cursor: pointer;
+  transition: color var(--dur-fast) var(--ease);
 }
 .replyCancel:hover { color: var(--destructive); }
+.replyCancel:active { color: var(--destructive); opacity: 0.7; }
 .textarea {
   background: var(--input) !important;
   border-color: var(--border) !important;
+  border-radius: 0 !important;
   color: var(--fg) !important;
   font: 400 13px/1.6 var(--font-sans) !important;
   resize: vertical;
+  transition: border-color var(--dur-fast) var(--ease);
 }
 .textarea:hover { border-color: var(--mt3) !important; }
 .textarea:focus { border-color: var(--primary-line) !important; }
@@ -404,7 +447,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  max-height: 360px;
+  max-height: 60vh;
   overflow-y: auto;
 }
 .userRow {
@@ -412,11 +455,19 @@
   align-items: center;
   gap: 10px;
   padding: 8px 10px;
+  min-height: 28px;
   border: 1px solid var(--border);
   background: var(--bg);
   cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease),
+              background var(--dur-fast) var(--ease);
 }
-.userRow:hover { border-color: var(--primary-line); }
+.userRow:hover { border-color: var(--primary-line); background: var(--muted); }
+.userRow:active { background: var(--accent); }
+.userRowPlain {
+  cursor: default;
+}
+.userRowPlain:hover { border-color: var(--border); background: var(--bg); }
 .userAv {
   width: 28px; height: 28px;
   border: 1px solid var(--border);
@@ -470,4 +521,45 @@
   font-size: 12px;
   color: var(--mt2);
   max-width: 260px;
+}
+
+/* Skeleton */
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.skLine {
+  height: 14px;
+  background: var(--muted);
+  border: 1px solid var(--border2);
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+.skLine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--bg2), transparent);
+  animation: sk-shimmer 1.4s var(--ease) infinite;
+}
+.commentSkeletonWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.commentSkeleton {
+  display: flex;
+  gap: 12px;
+}
+.commentSkMain {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+@keyframes sk-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }

@@ -148,10 +148,10 @@ export function ComboStatsView() {
     return (
       <div className={styles.screen}>
         <div className={styles.loading}>
-          <div className={styles.emptyIcon}>
-            <ChartIcon />
-          </div>
-          <div>加载中...</div>
+          <div className={styles.skeletonBar} />
+          <div className={styles.skeletonBar} />
+          <div className={styles.skeletonBar} />
+          <div className={styles.skeletonBar} />
         </div>
       </div>
     )
@@ -224,10 +224,13 @@ export function ComboStatsView() {
           </button>
           <button
             type="button"
-            className={cn(styles.tab, tab === 'global' && styles.tabAct)}
+            className={cn(
+              styles.tab,
+              tab === 'global' && styles.tabAct,
+              !canViewGlobal && styles.tabDisabled,
+            )}
             onClick={() => setTab('global')}
             disabled={!canViewGlobal}
-            style={!canViewGlobal ? { opacity: 0.4, cursor: 'not-allowed' } : undefined}
           >
             全局统计 {!canViewGlobal && '（需管理权限）'}
           </button>
@@ -278,8 +281,8 @@ export function ComboStatsView() {
               <span className={styles.distLabel}>已完成</span>
               <div className={styles.distTrack}>
                 <div
-                  className={styles.distFill}
-                  style={{ width: pct(stats.completed) + '%', background: 'var(--success)' }}
+                  className={cn(styles.distFill, styles.distFillSuccess)}
+                  style={{ width: pct(stats.completed) + '%' }}
                 />
               </div>
               <span className={styles.distVal}>{stats.completed}</span>
@@ -288,8 +291,8 @@ export function ComboStatsView() {
               <span className={styles.distLabel}>未完成</span>
               <div className={styles.distTrack}>
                 <div
-                  className={styles.distFill}
-                  style={{ width: pct(stats.total - stats.completed) + '%', background: 'var(--warn)' }}
+                  className={cn(styles.distFill, styles.distFillWarn)}
+                  style={{ width: pct(stats.total - stats.completed) + '%' }}
                 />
               </div>
               <span className={styles.distVal}>{stats.total - stats.completed}</span>
@@ -298,8 +301,8 @@ export function ComboStatsView() {
               <span className={styles.distLabel}>已逾期</span>
               <div className={styles.distTrack}>
                 <div
-                  className={styles.distFill}
-                  style={{ width: pct(stats.overdue) + '%', background: 'var(--destructive)' }}
+                  className={cn(styles.distFill, styles.distFillDanger)}
+                  style={{ width: pct(stats.overdue) + '%' }}
                 />
               </div>
               <span className={styles.distVal}>{stats.overdue}</span>

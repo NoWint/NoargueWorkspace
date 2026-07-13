@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Spin, message } from 'antd'
 import { useAuthStore } from '@/stores/auth'
 import { Button, Eyebrow } from '@/design/primitives'
+import { cn } from '@/lib/utils'
 import styles from './LoginView.module.css'
 
 export function LoginView() {
@@ -59,15 +60,14 @@ export function LoginView() {
         <div className={styles.qrArea}>
           {status === 'loading' && (
             <Spin tip="生成中...">
-              <div style={{ width: 200, height: 200 }} />
+              <div className={styles.qrPlaceholder} />
             </Spin>
           )}
           {qrUrl && (
             <img
               src={qrUrl}
               alt="登录二维码"
-              className={styles.qrImg}
-              style={{ opacity: status === 'scanned' ? 0.5 : 1 }}
+              className={cn(styles.qrImg, status === 'scanned' && styles.qrScanned)}
             />
           )}
           {status === 'scanned' && (

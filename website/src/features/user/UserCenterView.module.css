@@ -91,13 +91,13 @@
 .avatarMask {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  color: #fff;
+  background: color-mix(in srgb, var(--fg) 55%, transparent);
+  color: var(--primary-fg);
   display: grid;
   place-items: center;
   font: 500 11px/1 var(--font-sans);
   opacity: 0;
-  transition: opacity 0.15s;
+  transition: opacity var(--dur) var(--ease);
 }
 .avatar:hover .avatarMask { opacity: 1; }
 .fileInput { display: none; }
@@ -109,17 +109,21 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 .nameEditBtn {
-  height: 22px;
+  min-height: 22px;
   padding: 0 8px;
   border: 1px solid var(--border);
   background: transparent;
   color: var(--mt);
   font: 500 10.5px/1 var(--font-mono);
   cursor: pointer;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
 }
 .nameEditBtn:hover { color: var(--fg); border-color: var(--mt3); }
+.nameEditBtn:active { transform: scale(0.97); }
+.nameEditBtn:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 .profileSub {
   margin-top: 4px;
   font: 500 12px/1.4 var(--font-sans);
@@ -148,7 +152,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  height: 28px;
+  min-height: 28px;
   padding: 0 12px;
   border: 1px solid var(--border);
   background: transparent;
@@ -156,9 +160,12 @@
   font: 500 11px/1 var(--font-sans);
   cursor: pointer;
   margin-top: 10px;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease), background var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
 }
 .actBtn:hover { color: var(--fg); border-color: var(--mt3); }
-.actBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.actBtn:active { transform: scale(0.97); }
+.actBtn:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.actBtn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 .actPri {
   background: var(--primary);
   border-color: var(--primary);
@@ -170,7 +177,7 @@
   color: var(--primary-fg);
 }
 .actDel { color: var(--destructive); }
-.actDel:hover { color: var(--destructive); border-color: rgba(255,100,103,0.4); }
+.actDel:hover { color: var(--destructive); border-color: color-mix(in srgb, var(--destructive) 40%, transparent); }
 .actIcon { width: 12px; height: 12px; }
 
 /* Stats */
@@ -249,4 +256,12 @@
 .authorLink:hover {
   color: var(--primary);
   border-bottom-color: var(--primary);
+}
+
+@media (max-width: 480px) {
+  .screen { padding: 18px 16px; gap: 16px; }
+  .profile { gap: 12px; flex-wrap: wrap; }
+  .avatar { width: 56px; height: 56px; }
+  .avatarText { font-size: 22px; }
+  .nameInput { width: 140px; }
 }
