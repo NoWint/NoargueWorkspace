@@ -1,5 +1,13 @@
 const { communityApi } = require('../../utils/api.js');
 
+function getDocFileType(contentType, ext) {
+  if (contentType.includes('pdf') || ext === 'pdf') return 'pdf';
+  if (contentType.includes('word') || ['doc', 'docx'].includes(ext)) return 'doc';
+  if (contentType.includes('excel') || contentType.includes('spreadsheet') || ['xls', 'xlsx', 'csv'].includes(ext)) return 'xls';
+  if (contentType.includes('powerpoint') || contentType.includes('presentation') || ['ppt', 'pptx'].includes(ext)) return 'ppt';
+  return null;
+}
+
 Page({
   data: {
     comboId: '',
@@ -79,14 +87,27 @@ Page({
   openFile(e) {
     const { file } = e.detail || {};
     if (!file) return;
+    const url = file.raw_url || file.url;
+    if (!url) { wx.showToast({ title: '文件地址无效', icon: 'none' }); return; }
+
+    const ext = file.filename ? file.filename.split('.').pop().toLowerCase() : '';
+    const ct = (file.content_type || '').toLowerCase();
+
+    if (ct.startsWith('image/') || ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'].includes(ext)) {
+      wx.previewImage({ urls: [url] });
+      return;
+    }
+
     wx.showLoading({ title: '下载中...' });
     wx.downloadFile({
-      url: file.raw_url || file.url,
+      url,
       success(res) {
         wx.hideLoading();
         if (res.statusCode === 200) {
           wx.openDocument({
             filePath: res.tempFilePath,
+            fileType: getDocFileType(ct, ext),
+            showMenu: true,
             success: () => {},
             fail: () => { wx.showToast({ title: '打开文件失败', icon: 'none' }); },
           });
