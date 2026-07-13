@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import type { Todo } from '@/types'
 import { syncApi } from '@/api/sync'
 import { useTodoStore } from './todos'
 
@@ -31,14 +32,25 @@ export const useSyncStore = create<SyncState>((set, get) => ({
     set({ status: 'syncing', errorMsg: null })
     try {
       const todos = useTodoStore.getState().todos
-      // spec 3.7: localTodos 以 id 为键的对象
-      const localTodos: Record<string, { text: string; updatedAt: string; version?: number }> = {}
+      // spec 3.7: localTodos 以 id 为键的对象，需包含所有变更字段
+      type LocalTodo = Omit<Partial<Todo>, 'updatedAt'> & { updatedAt: string }
+      const localTodos: Record<string, LocalTodo> = {}
       for (const t of todos) {
         if ((t.updatedAt || 0) > lastSyncAt) {
           localTodos[String(t.id)] = {
             text: t.text,
-            updatedAt: new Date(t.updatedAt || 0).toISOString(),
+            setDate: t.setDate,
+            setTime: t.setTime,
+            remarks: t.remarks,
+            completed: t.completed,
+            isStar: t.isStar,
+            priority: t.priority,
+            comboId: t.comboId,
+            tags: t.tags,
+            images: t.images,
+            isDeleted: t.isDeleted,
             version: t.version,
+            updatedAt: new Date(t.updatedAt || 0).toISOString(),
           }
         }
       }

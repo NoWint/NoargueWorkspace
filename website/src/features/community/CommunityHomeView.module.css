@@ -171,6 +171,17 @@
   color: var(--primary-fg);
   font: 600 16px/1 var(--font-mono);
 }
+.imgFallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: var(--muted);
+  color: var(--mt2);
+  font: 500 10.5px/1.4 var(--font-sans);
+  text-align: center;
+  padding: 8px;
+}
 
 /* Meta row */
 .postMetaRow {

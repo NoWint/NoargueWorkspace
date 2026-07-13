@@ -11,6 +11,8 @@ import styles from './TodoItem.module.css'
 interface TodoItemProps {
   todo: Todo
   members?: AvatarMember[]
+  /** 禁用导航点击（用于批量模式，由父级处理选择） */
+  disableNav?: boolean
 }
 
 function comboBorderColor(hex: string): string {
@@ -31,7 +33,7 @@ const PRIORITY_CLASS: Record<string, string> = {
   low: '',
 }
 
-export function TodoItem({ todo, members }: TodoItemProps) {
+export function TodoItem({ todo, members, disableNav }: TodoItemProps) {
   const navigate = useNavigate()
   const toggleComplete = useTodoStore((s) => s.toggleComplete)
   const toggleStar = useTodoStore((s) => s.toggleStar)
@@ -62,8 +64,8 @@ export function TodoItem({ todo, members }: TodoItemProps) {
 
   return (
     <div
-      className={cn(styles.item, isDone && styles.done, priClass)}
-      onClick={() => navigate(`/todos/${todo.id}`)}
+      className={cn(styles.item, isDone && styles.done, priClass, disableNav && styles.itemNoNav)}
+      onClick={disableNav ? undefined : () => navigate(`/todos/${todo.id}`)}
     >
       <button
         className={styles.check}

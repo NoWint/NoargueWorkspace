@@ -5,6 +5,9 @@ import { useSyncStore } from './sync'
 
 type Filter = 'all' | 'today' | 'completed' | 'uncompleted' | 'starred'
 
+// fetchTodos 并发保护计数器
+let fetchSeq = 0
+
 interface TodoState {
   todos: Todo[]
   loading: boolean
@@ -32,25 +35,27 @@ export const useTodoStore = create<TodoState>((set, get) => ({
   setFilter: (f) => set({ filter: f }),
 
   fetchTodos: async () => {
+    // 请求序号保护：如果并发调用，只有最后一次的结果会生效
+    const seq = ++fetchSeq
     try {
       set({ loading: true })
       const allTodos: Todo[] = []
       let page = 1
       const pageSize = 100
-      // Loop through pages until all todos are loaded
       while (true) {
         const res = await todosApi.getList({ page, pageSize })
+        // 如果期间有新的 fetchTodos 被调用，放弃本次结果
+        if (seq !== fetchSeq) return
         const batch = res.todos || []
         allTodos.push(...batch)
         const total = res.total || 0
         if (allTodos.length >= total || batch.length < pageSize) break
         page++
-        // Safety limit: max 20 pages (2000 todos)
         if (page > 20) break
       }
-      set({ todos: allTodos })
+      if (seq === fetchSeq) set({ todos: allTodos })
     } finally {
-      set({ loading: false })
+      if (seq === fetchSeq) set({ loading: false })
     }
   },
 
@@ -120,13 +125,45 @@ export const useTodoStore = create<TodoState>((set, get) => ({
     const todo = get().todos.find((t) => t.id === id)
     if (!todo) return
     const newCompleted = todo.completed ? 0 : Date.now()
-    await get().updateTodo(id, { completed: newCompleted })
+    // 乐观更新：立即反映到 UI
+    set({
+      todos: get().todos.map((t) =>
+        t.id === id ? { ...t, completed: newCompleted } : t,
+      ),
+    })
+    try {
+      await get().updateTodo(id, { completed: newCompleted })
+    } catch (err) {
+      // 回滚
+      set({
+        todos: get().todos.map((t) =>
+          t.id === id ? { ...t, completed: todo.completed } : t,
+        ),
+      })
+      throw err
+    }
   },
 
   toggleStar: async (id) => {
     const todo = get().todos.find((t) => t.id === id)
     if (!todo) return
-    await get().updateTodo(id, { isStar: !todo.isStar })
+    // 乐观更新
+    set({
+      todos: get().todos.map((t) =>
+        t.id === id ? { ...t, isStar: !todo.isStar } : t,
+      ),
+    })
+    try {
+      await get().updateTodo(id, { isStar: !todo.isStar })
+    } catch (err) {
+      // 回滚
+      set({
+        todos: get().todos.map((t) =>
+          t.id === id ? { ...t, isStar: todo.isStar } : t,
+        ),
+      })
+      throw err
+    }
   },
 
   restoreTodo: async (id) => {

@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores/auth'
 import { useComboStore } from '@/stores/combos'
@@ -37,7 +38,11 @@ export function Sidebar({ mobileOpen = false, onCloseMobile }: SidebarProps) {
     (t) => t.setDate === new Date().toISOString().slice(0, 10),
   ).length
   const starredCount = activeTodos.filter((t) => t.isStar).length
-  const allCombos = [...combos, ...sharedCombos]
+  // 去重：sharedCombos 可能与 combos 中的共享组合重复
+  const allCombos = useMemo(() => {
+    const seen = new Set(combos.map((c) => c.id))
+    return [...combos, ...sharedCombos.filter((c) => !seen.has(c.id))]
+  }, [combos, sharedCombos])
 
   const comboCount = (id: number) =>
     activeTodos.filter((t) => t.comboId === id).length
@@ -64,6 +69,7 @@ export function Sidebar({ mobileOpen = false, onCloseMobile }: SidebarProps) {
       <div
         className={styles.cta}
         onClick={() => handleNav('/todos/new')}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleNav('/todos/new') } }}
         role="button"
         tabIndex={0}
       >
@@ -172,16 +178,16 @@ export function Sidebar({ mobileOpen = false, onCloseMobile }: SidebarProps) {
           <div className={styles.secHead}>
             <span>更多工具</span>
           </div>
-          <NavLink to="/password-generator" className={styles.toolLink} onClick={onCloseMobile}>
+          <NavLink to="/tools/password" className={styles.toolLink} onClick={onCloseMobile}>
             密码生成器
           </NavLink>
-          <NavLink to="/eating" className={styles.toolLink} onClick={onCloseMobile}>
+          <NavLink to="/tools/eating" className={styles.toolLink} onClick={onCloseMobile}>
             今天吃什么
           </NavLink>
-          <NavLink to="/motivation" className={styles.toolLink} onClick={onCloseMobile}>
+          <NavLink to="/tools/motivation" className={styles.toolLink} onClick={onCloseMobile}>
             每日激励
           </NavLink>
-          <NavLink to="/datamanage" className={styles.toolLink} onClick={onCloseMobile}>
+          <NavLink to="/tools/data" className={styles.toolLink} onClick={onCloseMobile}>
             数据管理
           </NavLink>
           <NavLink to="/notice" className={styles.toolLink} onClick={onCloseMobile}>
@@ -198,6 +204,7 @@ export function Sidebar({ mobileOpen = false, onCloseMobile }: SidebarProps) {
         <div
           className={styles.userPill}
           onClick={() => handleNav('/user-center')}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleNav('/user-center') } }}
           role="button"
           tabIndex={0}
         >

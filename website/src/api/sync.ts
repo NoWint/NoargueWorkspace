@@ -16,8 +16,8 @@ export interface SyncRequestBody {
   syncType: 'incremental' | 'full'
   /** 上次同步时间（ISO 8601 字符串），首次同步传 null */
   lastSyncTime: string | null
-  /** 本地待办（按 id 索引） */
-  localTodos: Record<string, { text: string; updatedAt: string; version?: number } | Todo>
+  /** 本地待办（按 id 索引），需包含所有变更字段 */
+  localTodos: Record<string, Omit<Partial<Todo>, 'updatedAt'> & { updatedAt: string }>
 }
 
 export const syncApi = {

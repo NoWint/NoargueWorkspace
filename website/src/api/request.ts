@@ -8,6 +8,9 @@ const instance = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
+// 防止重复 401 跳转
+let isRedirecting = false
+
 instance.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = localStorage.getItem('authToken')
   if (token) {
@@ -19,13 +22,44 @@ instance.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 instance.interceptors.response.use(
   (response: AxiosResponse) => response.data,
   (error) => {
-    if (error.response?.status === 401) {
+    const status = error.response?.status
+
+    // 401: 清除登录态并跳转（避免重复跳转）
+    if (status === 401) {
       localStorage.removeItem('authToken')
-      window.location.href = '/login'
+      if (!isRedirecting) {
+        isRedirecting = true
+        // 用 replace 避免回退到需要登录的页面；加 delay 让当前事件循环完成
+        setTimeout(() => {
+          window.location.replace('/login')
+          isRedirecting = false
+        }, 0)
+      }
       return Promise.reject(error)
     }
-    const msg = error.response?.data?.message || error.message || '网络请求失败'
-    message.error(msg)
+
+    // 网络错误 / 超时：统一提示，但避免被取消的请求也弹 toast
+    if (axios.isCancel(error) || error.code === 'ERR_CANCELED') {
+      return Promise.reject(error)
+    }
+
+    const msg =
+      error.response?.data?.message ||
+      (error.code === 'ECONNABORTED' ? '请求超时，请稍后重试' : '') ||
+      error.message ||
+      '网络请求失败'
+
+    // 避免重复 toast：同一条消息 1.5s 内只弹一次
+    const cacheKey = '__lastErrMsg'
+    const cacheTime = (window as unknown as Record<string, unknown>)[cacheKey + '_t'] as number
+    const cacheVal = (window as unknown as Record<string, unknown>)[cacheKey] as string
+    const now = Date.now()
+    if (cacheVal !== msg || !cacheTime || now - cacheTime > 1500) {
+      ;(window as unknown as Record<string, unknown>)[cacheKey] = msg
+      ;(window as unknown as Record<string, unknown>)[cacheKey + '_t'] = now
+      message.error(msg)
+    }
+
     return Promise.reject(error)
   },
 )

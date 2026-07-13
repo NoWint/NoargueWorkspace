@@ -55,7 +55,7 @@ export function TodoForm({ mode }: TodoFormProps) {
   const [loading, setLoading] = useState(false)
   const [textValue, setTextValue] = useState('')
   const [priority, setPriority] = useState<'high' | 'medium' | 'low'>('low')
-  const [subtasks, setSubtasks] = useState<{ id?: string; text: string }[]>([])
+  const [subtasks, setSubtasks] = useState<{ id?: string; text: string; _key: string }[]>([])
   const [subtaskInput, setSubtaskInput] = useState('')
   const [images, setImages] = useState<string[]>([])
   const [locationName, setLocationName] = useState('')
@@ -84,7 +84,7 @@ export function TodoForm({ mode }: TodoFormProps) {
           setLocationAddress(t.location?.address || '')
           fetchSubtodos(id).then(() => {
             const subs = useTodoStore.getState().subtaskMap[id] || []
-            setSubtasks(subs.map((s) => ({ id: s.id, text: s.text })))
+            setSubtasks(subs.map((s) => ({ id: s.id, text: s.text, _key: `s_${s.id}` })))
           })
         }
       })
@@ -104,9 +104,9 @@ export function TodoForm({ mode }: TodoFormProps) {
     setLoading(true)
     try {
       // Build subtasks array for batch creation/update (API spec 3.2/3.4)
-      const subtaskInputs: SubtaskInput[] = subtasks.map((s) => ({
-        id: s.id,
-        text: s.text,
+      const subtaskInputs: SubtaskInput[] = subtasks.map(({ id, text }) => ({
+        id,
+        text,
       }))
 
       const data = {
@@ -364,7 +364,7 @@ export function TodoForm({ mode }: TodoFormProps) {
               <div className={styles.fieldLabel}>子任务</div>
               <div className={styles.subtaskList}>
                 {subtasks.map((s, i) => (
-                  <div key={i} className={styles.subtaskItem}>
+                  <div key={s._key} className={styles.subtaskItem}>
                     <span className={styles.subtaskText}>{s.text}</span>
                     <button
                       type="button"
@@ -386,7 +386,7 @@ export function TodoForm({ mode }: TodoFormProps) {
                       e.preventDefault()
                       const text = subtaskInput.trim()
                       if (text) {
-                        setSubtasks([...subtasks, { text }])
+                        setSubtasks([...subtasks, { text, _key: `n_${Date.now()}_${Math.random().toString(36).slice(2, 6)}` }])
                         setSubtaskInput('')
                       }
                     }

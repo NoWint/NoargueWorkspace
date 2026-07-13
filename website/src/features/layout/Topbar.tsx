@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Tooltip, Popover } from 'antd'
 import dayjs from 'dayjs'
 import { useThemeToggle } from '@/app/providers'
@@ -9,16 +10,13 @@ import { useSyncStore } from '@/stores/sync'
 import { useNotifyStore } from '@/stores/notify'
 import styles from './Topbar.module.css'
 
-const VIEWS = ['列表', '看板', '时间线'] as const
-type View = (typeof VIEWS)[number]
-
 interface TopbarProps {
   onToggleMobileNav?: () => void
 }
 
 export function Topbar({ onToggleMobileNav }: TopbarProps) {
+  const navigate = useNavigate()
   const { mode, toggle } = useThemeToggle()
-  const [view, setView] = useState<View>('列表')
   const searchRef = useRef<HTMLInputElement>(null)
   const setCmdOpen = useCmdPaletteStore((s) => s.setOpen)
   const { status, pendingChanges, errorMsg, syncNow } = useSyncStore()
@@ -55,7 +53,13 @@ export function Topbar({ onToggleMobileNav }: TopbarProps) {
         </div>
       ))}
       {notifications.length > 0 && (
-        <div className={styles.notifyFooter}>查看全部 ({notifications.length})</div>
+        <button
+          type="button"
+          className={styles.notifyFooter}
+          onClick={() => navigate('/search')}
+        >
+          查看全部 ({notifications.length})
+        </button>
       )}
     </div>
   )
@@ -87,18 +91,6 @@ export function Topbar({ onToggleMobileNav }: TopbarProps) {
       </div>
 
       <div className={styles.toolbar}>
-        <div className={styles.seg}>
-          {VIEWS.map((v) => (
-            <button
-              key={v}
-              type="button"
-              className={cn(styles.pill, view === v && styles.pillAct)}
-              onClick={() => setView(v)}
-            >
-              {v}
-            </button>
-          ))}
-        </div>
         <Tooltip title={syncLabel} placement="bottom">
           <button
             className={cn(

@@ -321,7 +321,7 @@ export function AllTodosView() {
                   </button>
                 )}
                 <div className={styles.todoRowMain}>
-                  <TodoItem todo={t} />
+                  <TodoItem todo={t} disableNav={batchMode} />
                 </div>
               </div>
             ))}

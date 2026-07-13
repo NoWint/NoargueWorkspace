@@ -10,7 +10,6 @@ import {
   ClockIcon,
   CalendarIcon,
   TagIcon,
-  MicIcon,
   BatchIcon,
   PlusIcon,
 } from '@/design/icons'
@@ -240,10 +239,12 @@ export function TodayView() {
           </div>
         </div>
         <div className={styles.actions}>
-          <Button variant="gh" size="sm" icon={<MicIcon className={styles.btnIcon} />}>
-            语音添加
-          </Button>
-          <Button variant="sec" size="sm" icon={<BatchIcon className={styles.btnIcon} />}>
+          <Button
+            variant="sec"
+            size="sm"
+            icon={<BatchIcon className={styles.btnIcon} />}
+            onClick={() => navigate('/todos')}
+          >
             批量管理
           </Button>
           <Button
@@ -482,7 +483,13 @@ export function TodayView() {
                   </button>
                 )
               })}
-              <Tag tone="default">+ 新建</Tag>
+              <button
+                type="button"
+                onClick={() => navigate('/tags')}
+                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+              >
+                <Tag tone="default">+ 新建</Tag>
+              </button>
             </div>
           </Card>
         </div>

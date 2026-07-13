@@ -14,6 +14,10 @@
 .item:last-child { border-bottom: 0; }
 .item:hover { background: var(--muted); }
 .item:active { transform: translateY(1px); }
+/* 批量模式下禁用 hover/active 反馈，由父级处理 */
+.itemNoNav { cursor: default; }
+.itemNoNav:hover { background: transparent; }
+.itemNoNav:active { transform: none; }
 
 .done .title { color: var(--mt2); text-decoration: line-through; }
 

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { message } from 'antd'
 import type { Post } from '@/api/posts'
 import { useCommunityStore } from '@/stores/community'
 import { Button, Card, Eyebrow } from '@/design/primitives'
@@ -135,7 +134,24 @@ export function PostCard({ post, onToggleLike, onClick }: PostCardProps) {
                 className={styles.imgCell}
                 aria-label={i === visibleImages.length - 1 && extraCount > 0 ? `共 ${images.length} 张图片` : undefined}
               >
-                <img src={url} alt="" className={styles.img} loading="lazy" />
+                <img
+                  src={url}
+                  alt=""
+                  className={styles.img}
+                  loading="lazy"
+                  onError={(e) => {
+                    const el = e.currentTarget
+                    el.style.display = 'none'
+                    const parent = el.parentElement
+                    if (parent && !parent.querySelector('[data-fallback]')) {
+                      const fb = document.createElement('div')
+                      fb.setAttribute('data-fallback', '')
+                      fb.className = styles.imgFallback
+                      fb.textContent = '图片加载失败'
+                      parent.appendChild(fb)
+                    }
+                  }}
+                />
                 {i === visibleImages.length - 1 && extraCount > 0 && (
                   <span className={styles.imgMore}>+{extraCount}</span>
                 )}
@@ -220,9 +236,8 @@ export function CommunityHomeView() {
   useEffect(() => {
     setError(null)
     fetchPosts(true).catch((e) => {
-      const msg = (e as Error).message || '加载失败'
-      setError(msg)
-      message.error(msg)
+      // request 拦截器已统一弹 toast，这里只设置本地 error 状态
+      setError((e as Error).message || '加载失败')
     })
   }, [fetchPosts])
 
@@ -231,8 +246,8 @@ export function CommunityHomeView() {
   }
 
   const handleLoadMore = () => {
-    fetchPosts(false).catch((e) => {
-      message.error((e as Error).message || '加载失败')
+    fetchPosts(false).catch(() => {
+      // request 拦截器已统一弹 toast
     })
   }
 
