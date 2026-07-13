@@ -311,7 +311,17 @@ export function UserCenterView() {
           </div>
           <div className={styles.metaRow}>
             <span className={styles.metaKey}>注册时间</span>
-            <span className={styles.metaVal}>{user?.createdAt ?? '—'}</span>
+            <span className={styles.metaVal}>
+              {user?.createdAt
+                ? new Date(user.createdAt).toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
+                : '—'}
+            </span>
           </div>
           <div className={styles.metaRow}>
             <span className={styles.metaKey}>管理员</span>

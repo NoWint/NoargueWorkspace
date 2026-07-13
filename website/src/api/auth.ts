@@ -15,7 +15,7 @@ export const authApi = {
     http.post<ApiResponse<{ sceneId: string; qrcodeUrl: string; expiresAt: number }>>('/auth/qrcode/generate'),
 
   getQrCodeStatus: (sceneId: string) =>
-    http.get<QrCodeStatusResponse>('/auth/qrcode/status', { params: { scene: sceneId } }),
+    http.get<QrCodeStatusResponse>('/auth/qrcode/status', { params: { sceneId } }),
 
   confirmQrCodeLogin: (sceneId: string) =>
     http.post<{ success: boolean; message?: string }>('/auth/qrcode/confirm', { sceneId }),

@@ -202,7 +202,11 @@ export function Sidebar({ mobileOpen = false, onCloseMobile }: SidebarProps) {
           tabIndex={0}
         >
           <div className={styles.userAv}>
-            {user?.nickname?.[0] || '?'}
+            {user?.avatarUrl ? (
+              <img src={user.avatarUrl} alt={user.nickname || 'avatar'} className={styles.userAvImg} />
+            ) : (
+              user?.nickname?.[0] || '?'
+            )}
           </div>
           <span className={styles.handle}>{user?.nickname || '未登录'}</span>
           <span className={styles.badge}>

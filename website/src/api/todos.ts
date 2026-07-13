@@ -1,5 +1,14 @@
 import http from './request'
-import type { TodoListResponse, TodoItemResponse, TodoCreateResponse, TodoDeletedResponse, Todo } from '@/types'
+import type { TodoListResponse, TodoItemResponse, TodoCreateResponse, TodoDeletedResponse, Todo, SubtaskInput } from '@/types'
+
+/** 创建/更新待办时的请求体（比 Todo 多了 tagIds 和 subtasks） */
+export type TodoWriteInput = Partial<Omit<Todo, 'tags' | 'parentId'>> & {
+  tagIds?: number[]
+  subtasks?: SubtaskInput[]
+  location?: { name: string; address: string; latitude: number; longitude: number } | null
+  /** 后端用 snake_case parent_id（唯一不一致的字段） */
+  parent_id?: string | null
+}
 
 export const todosApi = {
   getList: (params?: {
@@ -26,10 +35,10 @@ export const todosApi = {
     return http.get<TodoItemResponse>(`/todos/${id}`)
   },
 
-  create: (data: Partial<Todo>) =>
+  create: (data: TodoWriteInput) =>
     http.post<TodoCreateResponse>('/todos/create', data),
 
-  update: (id: number | string, data: Partial<Todo>) =>
+  update: (id: number | string, data: TodoWriteInput) =>
     http.put<TodoCreateResponse>(`/todos/${id}`, data),
 
   delete: (id: number | string) =>

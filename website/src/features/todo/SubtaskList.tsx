@@ -23,7 +23,7 @@ export function SubtaskList({ parentId }: SubtaskListProps) {
     const text = input.trim()
     if (!text) return
     setInput('')
-    await createTodo({ text, parentId, setDate: undefined })
+    await createTodo({ text, parent_id: parentId, setDate: undefined })
     await fetchSubtodos(parentId)
   }
 

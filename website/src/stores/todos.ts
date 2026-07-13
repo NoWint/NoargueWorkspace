@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { Todo } from '@/types'
-import { todosApi } from '@/api/todos'
+import { todosApi, type TodoWriteInput } from '@/api/todos'
 import { useSyncStore } from './sync'
 
 type Filter = 'all' | 'today' | 'completed' | 'uncompleted' | 'starred'
@@ -13,8 +13,8 @@ interface TodoState {
   setFilter: (f: Filter) => void
   fetchTodos: () => Promise<void>
   fetchSubtodos: (parentId: string) => Promise<void>
-  createTodo: (data: Partial<Todo>) => Promise<Todo>
-  updateTodo: (id: string, data: Partial<Todo>) => Promise<void>
+  createTodo: (data: TodoWriteInput) => Promise<Todo>
+  updateTodo: (id: string, data: TodoWriteInput) => Promise<void>
   deleteTodo: (id: string) => Promise<void>
   toggleComplete: (id: string) => Promise<void>
   toggleStar: (id: string) => Promise<void>
@@ -34,8 +34,21 @@ export const useTodoStore = create<TodoState>((set, get) => ({
   fetchTodos: async () => {
     try {
       set({ loading: true })
-      const res = await todosApi.getList()
-      set({ todos: res.todos || [] })
+      const allTodos: Todo[] = []
+      let page = 1
+      const pageSize = 100
+      // Loop through pages until all todos are loaded
+      while (true) {
+        const res = await todosApi.getList({ page, pageSize })
+        const batch = res.todos || []
+        allTodos.push(...batch)
+        const total = res.total || 0
+        if (allTodos.length >= total || batch.length < pageSize) break
+        page++
+        // Safety limit: max 20 pages (2000 todos)
+        if (page > 20) break
+      }
+      set({ todos: allTodos })
     } finally {
       set({ loading: false })
     }
@@ -54,7 +67,19 @@ export const useTodoStore = create<TodoState>((set, get) => ({
   createTodo: async (data) => {
     const res = await todosApi.create(data)
     if (res.success && res.todo) {
-      set({ todos: [...get().todos, res.todo] })
+      const newTodos = [...get().todos, res.todo]
+      // Batch-created subtasks are returned as a flat list
+      if (res.subtasks && res.subtasks.length > 0) {
+        newTodos.push(...res.subtasks)
+        // Cache subtasks in subtaskMap
+        set({
+          subtaskMap: {
+            ...get().subtaskMap,
+            [res.todo.id]: res.subtasks,
+          },
+        })
+      }
+      set({ todos: newTodos })
       useSyncStore.getState().markPending()
       return res.todo
     }
@@ -71,6 +96,12 @@ export const useTodoStore = create<TodoState>((set, get) => ({
       set({
         todos: get().todos.map((t) => (t.id === id ? res.todo! : t)),
       })
+      // If subtasks were updated (full replacement), refresh subtask cache
+      if (data.subtasks !== undefined) {
+        // newSubtodos contains only newly created subtasks
+        // Full refresh from server to get the complete list
+        await get().fetchSubtodos(id)
+      }
       useSyncStore.getState().markPending()
     }
   },

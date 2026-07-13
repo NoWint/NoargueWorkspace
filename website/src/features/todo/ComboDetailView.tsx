@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import type { Combo } from '@/types'
+import type { Post } from '@/api/posts'
 import { combosApi } from '@/api/combos'
 import { collabApi } from '@/api/collab'
+import { postsApi } from '@/api/posts'
 import { useTodoStore } from '@/stores/todos'
 import { Button, Card, Eyebrow, Stat, StatusChip } from '@/design/primitives'
 import {
@@ -12,6 +14,8 @@ import {
   BellIcon,
   ChartIcon,
   ClockIcon,
+  HeartIcon,
+  ChatIcon,
 } from '@/design/icons'
 import { TodoItem } from './TodoItem'
 import styles from './ComboDetailView.module.css'
@@ -27,6 +31,7 @@ interface Member {
 interface ComboDetail extends Combo {
   shareCode?: string
   todoCount?: number
+  comboPostCount?: number
   memberCount?: number
   userRole?: string | null
   members: Member[]
@@ -48,6 +53,8 @@ export function ComboDetailView() {
   const [detailLoading, setDetailLoading] = useState(true)
   const [detailError, setDetailError] = useState<string | null>(null)
   const [pendingRequests, setPendingRequests] = useState(0)
+  const [comboPosts, setComboPosts] = useState<Post[]>([])
+  const [postsLoading, setPostsLoading] = useState(false)
 
   const fetchRequests = useCallback(async (comboId: number, userRole?: string | null) => {
     if (userRole !== 'owner' && userRole !== 'admin') {
@@ -61,6 +68,26 @@ export function ComboDetailView() {
       }
     } catch {
       setPendingRequests(0)
+    }
+  }, [])
+
+  const fetchComboPosts = useCallback(async (comboId: number) => {
+    setPostsLoading(true)
+    try {
+      const res = await postsApi.getComboPosts(comboId, { limit: 10 })
+      const data = (res as unknown as Record<string, unknown>).data as
+        | { list?: Post[] }
+        | undefined
+      const list =
+        data?.list ||
+        (res as unknown as Record<string, unknown>).posts as Post[] ||
+        (res as unknown as Record<string, unknown>).list as Post[] ||
+        []
+      setComboPosts(list)
+    } catch {
+      setComboPosts([])
+    } finally {
+      setPostsLoading(false)
     }
   }, [])
 
@@ -84,13 +111,15 @@ export function ComboDetailView() {
           if (res.combo.isShared) {
             fetchRequests(numId, res.combo.userRole ?? null)
           }
+          // Fetch combo posts (帖子圈)
+          fetchComboPosts(numId)
         } else {
           setDetailError('加载组合失败')
         }
       })
       .catch(() => setDetailError('加载失败，请稍后重试'))
       .finally(() => setDetailLoading(false))
-  }, [id, fetchTodos, fetchRequests])
+  }, [id, fetchTodos, fetchRequests, fetchComboPosts])
 
   const comboTodos = useMemo(
     () =>
@@ -412,6 +441,89 @@ export function ComboDetailView() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Posts circle (帖子圈) */}
+      <div className={styles.postsSection}>
+        <Card>
+          <div className={styles.cardHead}>
+            <div className={styles.cardHeadL}>
+              <div className={styles.hdIc}>
+                <ChatIcon />
+              </div>
+              <div>
+                <Eyebrow>POSTS</Eyebrow>
+                <h3 className={styles.cardTitle}>
+                  帖子 <span className={styles.song}>圈</span>
+                </h3>
+              </div>
+            </div>
+            <div className={styles.cardHeadR}>
+              <StatusChip tone="acc">{comboPosts.length} 篇</StatusChip>
+              <Button
+                variant="gh"
+                size="sm"
+                icon={<PlusIcon className={styles.btnIcon} />}
+                onClick={() => navigate(`/community/new?comboId=${combo.id}`)}
+              >
+                发帖
+              </Button>
+            </div>
+          </div>
+
+          {postsLoading && comboPosts.length === 0 && (
+            <div className={styles.postsEmpty}>加载中...</div>
+          )}
+          {!postsLoading && comboPosts.length === 0 && (
+            <div className={styles.postsEmpty}>
+              <div className={styles.emptyIcon}>
+                <ChatIcon />
+              </div>
+              <div className={styles.emptyTitle}>暂无帖子</div>
+              <div className={styles.emptySub}>点击"发帖"分享内容到组合</div>
+            </div>
+          )}
+          {comboPosts.length > 0 && (
+            <div className={styles.postsList}>
+              {comboPosts.map((post) => (
+                <div
+                  key={post.postId}
+                  className={styles.postRow}
+                  onClick={() => navigate(`/community/${post.postId}`)}
+                >
+                  <div className={styles.postAv}>
+                    {post.user?.avatar ? (
+                      <img src={post.user.avatar} alt={post.user.nickname} />
+                    ) : (
+                      post.user?.nickname?.[0] || '?'
+                    )}
+                  </div>
+                  <div className={styles.postMain}>
+                    <div className={styles.postTitle}>{post.title || '无标题'}</div>
+                    <div className={styles.postMeta}>
+                      <span>{post.user?.nickname || '匿名'}</span>
+                      {post.createdAt && (
+                        <>
+                          <span className={styles.sep}>·</span>
+                          <span>{post.createdAt.slice(0, 10)}</span>
+                        </>
+                      )}
+                      <span className={styles.sep}>·</span>
+                      <span className={styles.postStat}>
+                        <HeartIcon className={styles.postStatIcon} />
+                        {post.likesCount || 0}
+                      </span>
+                      <span className={styles.postStat}>
+                        <ChatIcon className={styles.postStatIcon} />
+                        {post.commentsCount || 0}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
       </div>
     </div>
   )

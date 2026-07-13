@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Input, message } from 'antd'
-import type { CreatePollRequest, Post } from '@/api/posts'
+import type { CreatePollRequest, Post, PostFile } from '@/api/posts'
 import { postsApi } from '@/api/posts'
+import { uploadApi } from '@/api/upload'
 import { useCommunityStore } from '@/stores/community'
 import { useTodoStore } from '@/stores/todos'
 import { useComboStore } from '@/stores/combos'
 import { Button, Card, Eyebrow } from '@/design/primitives'
-import { CheckIcon, LocationIcon, PlusIcon } from '@/design/icons'
+import { CheckIcon, LocationIcon, PlusIcon, TrashIcon, UploadIcon } from '@/design/icons'
 import { cn } from '@/lib/utils'
 import { ImageUploader } from '@/features/todo/ImageUploader'
 import { PollEditor } from './PollEditor'
@@ -15,10 +16,30 @@ import styles from './PostEditView.module.css'
 
 const TITLE_MAX_LENGTH = 100
 const BODY_MAX_LENGTH = 10000
+const FILE_MAX_COUNT = 9
+
+/** 根据文件名/MIME 推断文件类型短标签（用于列表展示） */
+function getFileTypeLabel(contentType: string, filename: string): string {
+  const ct = (contentType || '').toLowerCase()
+  const ext = filename ? filename.split('.').pop()?.toLowerCase() || '' : ''
+  if (ct.includes('pdf') || ext === 'pdf') return 'PDF'
+  if (ct.includes('word') || ['doc', 'docx'].includes(ext)) return 'DOC'
+  if (ct.includes('excel') || ct.includes('spreadsheet') || ['xls', 'xlsx', 'csv'].includes(ext)) return 'XLS'
+  if (ct.includes('powerpoint') || ct.includes('presentation') || ['ppt', 'pptx'].includes(ext)) return 'PPT'
+  if (ct.includes('zip') || ['zip', 'rar', '7z', 'tar', 'gz'].includes(ext)) return 'ZIP'
+  if (ct.includes('image') || ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg'].includes(ext)) return 'IMG'
+  if (ct.includes('video') || ['mp4', 'avi', 'mov', 'mkv', 'flv', 'wmv'].includes(ext)) return 'VID'
+  if (ct.includes('audio') || ['mp3', 'wav', 'flac', 'aac', 'ogg'].includes(ext)) return 'AUD'
+  if (ct.includes('json') || ext === 'json') return 'JSON'
+  if (ct.includes('text/plain') || ext === 'txt') return 'TXT'
+  if (ct.includes('text/html') || ext === 'html') return 'HTML'
+  return ext ? ext.toUpperCase().slice(0, 4) : 'FILE'
+}
 
 export function PostEditView() {
   const { postId } = useParams()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const isEdit = !!postId
 
   const { create, update, fetchById, currentPost } = useCommunityStore()
@@ -28,8 +49,14 @@ export function PostEditView() {
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [images, setImages] = useState<string[]>([])
+  const [files, setFiles] = useState<PostFile[]>([])
+  const [uploadingFiles, setUploadingFiles] = useState(false)
   const [todoIds, setTodoIds] = useState<number[]>([])
-  const [comboId, setComboId] = useState<number | null>(null)
+  // Read comboId from URL query param (e.g. /community/new?comboId=5)
+  const [comboId, setComboId] = useState<number | null>(() => {
+    const param = searchParams.get('comboId')
+    return param ? Number(param) : null
+  })
   const [locName, setLocName] = useState('')
   const [locAddress, setLocAddress] = useState('')
   const [saving, setSaving] = useState(false)
@@ -37,8 +64,15 @@ export function PostEditView() {
   const [showPollEditor, setShowPollEditor] = useState(false)
   const [pollData, setPollData] = useState<CreatePollRequest | null>(null)
 
+  /** storage.to 文件上传所需的 visitor token（每个编辑会话生成一次） */
+  const visitorTokenRef = useRef<string>('')
+  useEffect(() => {
+    visitorTokenRef.current = uploadApi.generateVisitorToken()
+  }, [])
+
   /** 标记是否有未保存的变更（用于离开警告） */
   const dirtyRef = useRef(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const setDirty = (v: boolean) => {
     dirtyRef.current = v
   }
@@ -75,6 +109,7 @@ export function PostEditView() {
     setTitle(currentPost.title || '')
     setBody(currentPost.body || '')
     setImages(currentPost.images || [])
+    setFiles(currentPost.files || [])
     setTodoIds(currentPost.todoIds || [])
     setComboId(currentPost.comboId ?? null)
     if (currentPost.location) {
@@ -90,6 +125,7 @@ export function PostEditView() {
   const updateLocName = (v: string) => { setLocName(v); setDirty(true) }
   const updateLocAddress = (v: string) => { setLocAddress(v); setDirty(true) }
   const updateImages = (v: string[]) => { setImages(v); setDirty(true) }
+  const updateFiles = (next: PostFile[]) => { setFiles(next); setDirty(true) }
   const updateTodoIds = (next: number[]) => { setTodoIds(next); setDirty(true) }
   const updateComboId = (v: number | null) => { setComboId(v); setDirty(true) }
 
@@ -118,6 +154,47 @@ export function PostEditView() {
     return loc
   }
 
+  /** 选择文件并依次上传到 storage.to */
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = Array.from(e.target.files || [])
+    e.target.value = '' // reset for re-select
+    if (selected.length === 0) return
+
+    const remaining = FILE_MAX_COUNT - files.length
+    if (remaining <= 0) {
+      message.warning(`最多上传 ${FILE_MAX_COUNT} 个文件`)
+      return
+    }
+    const toUpload = selected.slice(0, remaining)
+    setUploadingFiles(true)
+    const uploaded: PostFile[] = []
+    for (let i = 0; i < toUpload.length; i++) {
+      try {
+        const fileMeta = await uploadApi.uploadPostFile(
+          toUpload[i],
+          visitorTokenRef.current || uploadApi.generateVisitorToken(),
+        )
+        uploaded.push(fileMeta)
+        updateFiles([...files, ...uploaded])
+      } catch (err) {
+        message.error(`"${toUpload[i].name}" 上传失败：${err instanceof Error ? err.message : '未知错误'}`)
+      }
+    }
+    setUploadingFiles(false)
+  }
+
+  /** 删除已上传文件（仅从列表移除，不调用 storage.to 删除接口） */
+  const handleFileRemove = (idx: number) => {
+    const next = files.filter((_, i) => i !== idx)
+    updateFiles(next)
+  }
+
+  /** 打开已上传文件（图片直接新窗口预览，其他下载 raw_url） */
+  const handleFileOpen = (file: PostFile) => {
+    const url = file.raw_url || file.url
+    if (url) window.open(url, '_blank', 'noopener,noreferrer')
+  }
+
   const handleSave = async () => {
     if (!title.trim()) {
       message.warning('请输入标题')
@@ -140,6 +217,7 @@ export function PostEditView() {
           title: title.trim(),
           body,
           images,
+          files,
           todoIds,
           location,
         })
@@ -154,6 +232,7 @@ export function PostEditView() {
           title: title.trim(),
           body,
           images,
+          files,
           todoIds,
           comboId: comboId ?? undefined,
           location,
@@ -272,7 +351,80 @@ export function PostEditView() {
       <Card>
         <div className={styles.fieldGroup}>
           <div className={styles.fieldLabel}>图片</div>
-          <ImageUploader images={images} onChange={updateImages} max={9} />
+          <ImageUploader images={images} onChange={updateImages} max={9} mode="post" />
+        </div>
+      </Card>
+
+      {/* Files */}
+      <Card>
+        <div className={styles.fieldGroup}>
+          <div className={styles.fieldLabel}>附件文件（选填，最多 {FILE_MAX_COUNT} 个）</div>
+          {files.length > 0 && (
+            <div className={styles.fileList}>
+              {files.map((f, idx) => (
+                <div key={f.id || idx} className={styles.fileItem}>
+                  <button
+                    type="button"
+                    className={styles.fileIcon}
+                    onClick={() => handleFileOpen(f)}
+                    title="打开文件"
+                  >
+                    {getFileTypeLabel(f.content_type, f.filename)}
+                  </button>
+                  <div className={styles.fileMeta}>
+                    <button
+                      type="button"
+                      className={styles.fileName}
+                      onClick={() => handleFileOpen(f)}
+                      title={f.filename}
+                    >
+                      {f.filename}
+                    </button>
+                    <div className={styles.fileSub}>
+                      <span>{f.human_size || `${(f.size / 1024).toFixed(1)} KB`}</span>
+                      {f.expires_at && (
+                        <span className={styles.fileExpires}>
+                          · 有效期至 {new Date(f.expires_at).toLocaleDateString('zh-CN')}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className={styles.fileRemove}
+                    onClick={() => handleFileRemove(idx)}
+                    title="移除文件"
+                  >
+                    <TrashIcon />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          {uploadingFiles && (
+            <div className={styles.fileUploading}>
+              <UploadIcon className={styles.fileUploadingIcon} />
+              <span>正在上传文件...</span>
+            </div>
+          )}
+          {files.length < FILE_MAX_COUNT && (
+            <button
+              type="button"
+              className={styles.fileAddBtn}
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadingFiles}
+            >
+              <PlusIcon className={styles.fileAddIcon} />
+              添加文件
+            </button>
+          )}
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            className={styles.fileInputHidden}
+            onChange={handleFileSelect}
+          />
         </div>
       </Card>
 

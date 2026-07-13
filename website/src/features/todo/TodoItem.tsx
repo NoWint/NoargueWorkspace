@@ -20,9 +20,14 @@ function comboBorderColor(hex: string): string {
   return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, 0.3)`
 }
 
+/** Map backend priority (p1~p4) to UI class key */
 const PRIORITY_CLASS: Record<string, string> = {
+  p1: styles.priHigh,
   high: styles.priHigh,
+  p2: styles.priMed,
   medium: styles.priMed,
+  p3: '',
+  p4: '',
   low: '',
 }
 
@@ -40,7 +45,7 @@ export function TodoItem({ todo, members }: TodoItemProps) {
 
   const combo = combos.find((c) => c.id === todo.comboId)
   const isDone = !!todo.completed
-  const priClass = PRIORITY_CLASS[todo.priority || 'low'] || ''
+  const priClass = PRIORITY_CLASS[todo.priority || 'p3'] || ''
 
   // Overdue calculation
   const today = todayStr()

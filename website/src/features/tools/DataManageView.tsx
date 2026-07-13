@@ -78,7 +78,7 @@ export function DataManageView() {
           setTime: t.setTime,
           remarks: t.remarks,
           isStar: !!t.isStar,
-          tags: t.tags,
+          tagIds: t.tags,
         })
         ok++
       } catch {

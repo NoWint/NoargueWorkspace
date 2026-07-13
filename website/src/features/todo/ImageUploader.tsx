@@ -8,9 +8,15 @@ interface ImageUploaderProps {
   images: string[]
   onChange: (images: string[]) => void
   max?: number
+  /**
+   * 上传模式：
+   * - 'todo'（默认）走后端 /upload/image（待办图片，spec 11.2）
+   * - 'post' 走 img.scdn.io（社区帖子图片，spec 11.4）
+   */
+  mode?: 'todo' | 'post'
 }
 
-export function ImageUploader({ images, onChange, max = 9 }: ImageUploaderProps) {
+export function ImageUploader({ images, onChange, max = 9, mode = 'todo' }: ImageUploaderProps) {
   const fileRef = useRef<HTMLInputElement>(null)
   const [uploadingIdx, setUploadingIdx] = useState<number | null>(null)
 
@@ -32,7 +38,9 @@ export function ImageUploader({ images, onChange, max = 9 }: ImageUploaderProps)
     for (let i = 0; i < toUpload.length; i++) {
       setUploadingIdx(i)
       try {
-        const url = await uploadApi.uploadTodoImage(toUpload[i])
+        const url = mode === 'post'
+          ? await uploadApi.uploadPostImage(toUpload[i])
+          : await uploadApi.uploadTodoImage(toUpload[i])
         uploaded.push(url)
         onChange([...images, ...uploaded])
       } catch (err) {

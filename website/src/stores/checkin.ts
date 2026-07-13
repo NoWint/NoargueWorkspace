@@ -1,9 +1,9 @@
 import { create } from 'zustand'
-import { checkinApi, type CheckinStatus, type CheckinRecord, type LeaderboardEntry } from '@/api/checkin'
+import { checkinApi, type CheckinStatus, type LeaderboardEntry } from '@/api/checkin'
 
 interface CheckinState {
   status: CheckinStatus | null
-  monthRecords: CheckinRecord[]
+  monthDates: string[]
   leaderboard: LeaderboardEntry[]
   loading: boolean
   checkinLoading: boolean
@@ -15,7 +15,7 @@ interface CheckinState {
 
 export const useCheckinStore = create<CheckinState>((set) => ({
   status: null,
-  monthRecords: [],
+  monthDates: [],
   leaderboard: [],
   loading: false,
   checkinLoading: false,
@@ -24,7 +24,7 @@ export const useCheckinStore = create<CheckinState>((set) => ({
     try {
       set({ loading: true })
       const res = await checkinApi.getStatus()
-      const data = (res as any).data || (res as any).status || null
+      const data = (res as any).data || null
       set({ status: data as CheckinStatus | null })
     } finally {
       set({ loading: false })
@@ -33,9 +33,8 @@ export const useCheckinStore = create<CheckinState>((set) => ({
 
   fetchMonth: async (year, month) => {
     const res = await checkinApi.getMonth(year, month)
-    const data = (res as any).data || res
-    const records = data.records || data.list || []
-    set({ monthRecords: records as CheckinRecord[] })
+    const data = (res as any).data || {}
+    set({ monthDates: (data.dates || []) as string[] })
   },
 
   fetchLeaderboard: async (type = 'streak') => {
@@ -53,7 +52,7 @@ export const useCheckinStore = create<CheckinState>((set) => ({
       const data = (res as any).data || res
       return {
         points: data.points || 0,
-        streak: data.streak || 0,
+        streak: data.streak || data.streakDays || 0,
         newBadges: (data.newBadges || []) as string[],
       }
     } finally {

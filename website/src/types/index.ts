@@ -23,6 +23,7 @@ export interface Todo {
   setTime?: string
   remarks?: string
   locationText?: string
+  location?: { name: string; address: string; latitude: number; longitude: number } | null
   completed: number
   isStar: boolean
   priority?: string
@@ -35,6 +36,14 @@ export interface Todo {
   time: number
   createdAt?: string
   updatedAt?: number
+}
+
+/** 子待办输入（创建/更新时传入，支持无限嵌套） */
+export interface SubtaskInput {
+  id?: string
+  text: string
+  completed?: boolean
+  subtasks?: SubtaskInput[]
 }
 
 // ====== 组合 ======
@@ -110,6 +119,8 @@ export interface TodoCreateResponse {
   success: boolean
   message: string
   todo: Todo
+  subtasks?: Todo[]
+  newSubtodos?: Todo[]
 }
 
 export interface TodoDeletedResponse {

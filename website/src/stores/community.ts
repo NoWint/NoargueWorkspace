@@ -15,11 +15,15 @@ interface CommunityState {
   posts: Post[]
   currentPost: Post | null
   userPosts: Post[]
+  comboPosts: Post[]
+  comboPostsCursor: string | null
+  comboPostsHasMore: boolean
   cursor: string | null
   hasMore: boolean
   loading: boolean
   fetchPosts: (reset?: boolean) => Promise<void>
   fetchUserPosts: (userId: number, reset?: boolean) => Promise<void>
+  fetchComboPosts: (comboId: number, reset?: boolean) => Promise<void>
   fetchById: (postId: string) => Promise<void>
   create: (data: Parameters<typeof postsApi.create>[0]) => Promise<string>
   update: (postId: string, data: Parameters<typeof postsApi.update>[1]) => Promise<void>
@@ -31,6 +35,9 @@ export const useCommunityStore = create<CommunityState>((set, get) => ({
   posts: [],
   currentPost: null,
   userPosts: [],
+  comboPosts: [],
+  comboPostsCursor: null,
+  comboPostsHasMore: true,
   cursor: null,
   hasMore: true,
   loading: false,
@@ -65,6 +72,24 @@ export const useCommunityStore = create<CommunityState>((set, get) => ({
         userPosts: reset ? list : [...get().userPosts, ...list],
         cursor: nextCursor,
         hasMore,
+      })
+    } finally {
+      set({ loading: false })
+    }
+  },
+
+  fetchComboPosts: async (comboId, reset = false) => {
+    if (get().loading) return
+    if (!reset && !get().comboPostsHasMore) return
+    try {
+      set({ loading: true })
+      const cursor = reset ? null : get().comboPostsCursor
+      const res = await postsApi.getComboPosts(comboId, { cursor: cursor || undefined })
+      const { list, nextCursor, hasMore } = extractCursorPage<Post>(res as unknown as Record<string, unknown>)
+      set({
+        comboPosts: reset ? list : [...get().comboPosts, ...list],
+        comboPostsCursor: nextCursor,
+        comboPostsHasMore: hasMore,
       })
     } finally {
       set({ loading: false })

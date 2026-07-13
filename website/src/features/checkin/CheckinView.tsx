@@ -27,7 +27,7 @@ function ymd(d: Date): string {
 export function CheckinView() {
   const {
     status,
-    monthRecords,
+    monthDates,
     fetchStatus,
     fetchMonth,
     checkin,
@@ -79,12 +79,8 @@ export function CheckinView() {
   }, [year, month, fetchMonth])
 
   const checkedInDates = useMemo(() => {
-    const set = new Set<string>()
-    for (const r of monthRecords) {
-      set.add(r.checkInDate)
-    }
-    return set
-  }, [monthRecords])
+    return new Set(monthDates)
+  }, [monthDates])
 
   const monthMatrix = useMemo(() => {
     const firstDay = new Date(year, month - 1, 1)
@@ -101,13 +97,13 @@ export function CheckinView() {
   const todayChecked = checkedInDates.has(todayStr)
 
   const milestoneState = useMemo(() => {
-    const streak = status?.streak || 0
+    const streak = status?.streakDays || 0
     return MILESTONES.map((m) => ({
       days: m,
       reached: streak >= m,
       remaining: Math.max(0, m - streak),
     }))
-  }, [status?.streak])
+  }, [status?.streakDays])
 
   const handleCheckin = async () => {
     if (status?.checkedIn || todayChecked || checkinLoading) return
@@ -178,7 +174,7 @@ export function CheckinView() {
             <div className={styles.checkinLeft}>
               <Eyebrow>TODAY</Eyebrow>
               <div className={styles.bigStreak}>
-                {status?.streak ?? 0}
+                {status?.streakDays ?? 0}
                 <span className={styles.bigStreakUnit}>天</span>
               </div>
               <div className={styles.checkinSub}>连续签到</div>
@@ -214,13 +210,13 @@ export function CheckinView() {
       <div className={styles.stats}>
         <Stat
           label="连续签到"
-          value={status?.streak ?? 0}
+          value={status?.streakDays ?? 0}
           accent
           delta="天"
         />
         <Stat
           label="总积分"
-          value={status?.points ?? 0}
+          value={status?.totalPoints ?? 0}
           delta="可用积分"
         />
         <Stat
@@ -234,7 +230,7 @@ export function CheckinView() {
         />
         <Stat
           label="累计天数"
-          value={status?.totalDays ?? 0}
+          value={status?.totalCheckins ?? 0}
           delta="总签到"
         />
       </div>

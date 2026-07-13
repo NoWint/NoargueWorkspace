@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Input, DatePicker, TimePicker, Form, message } from 'antd'
 import dayjs from 'dayjs'
-import type { Todo } from '@/types'
+import type { SubtaskInput } from '@/types'
 import { useTodoStore } from '@/stores/todos'
 import { useComboStore } from '@/stores/combos'
 import { useTagStore } from '@/stores/tags'
@@ -12,6 +12,23 @@ import { PlusIcon, CheckIcon, ClockIcon, TagIcon, TrashIcon } from '@/design/ico
 import { todayStr, cn } from '@/lib/utils'
 import styles from './TodoForm.module.css'
 import { ImageUploader } from './ImageUploader'
+
+type PriorityUI = 'high' | 'medium' | 'low'
+
+/** UI 优先级 → 后端 p1~p4 */
+const PRIORITY_TO_API: Record<PriorityUI, string> = {
+  high: 'p1',
+  medium: 'p2',
+  low: 'p3',
+}
+
+/** 后端 p1~p4 → UI 优先级 */
+const PRIORITY_FROM_API: Record<string, PriorityUI> = {
+  p1: 'high',
+  p2: 'medium',
+  p3: 'low',
+  p4: 'low',
+}
 
 interface TodoFormProps {
   mode: 'create' | 'edit'
@@ -60,17 +77,11 @@ export function TodoForm({ mode }: TodoFormProps) {
           setTextValue(t.text || '')
           setSelectedTags(t.tags || [])
           setSelectedCombo(t.comboId)
-          setPriority((t.priority as 'high' | 'medium' | 'low') || 'low')
+          setPriority(PRIORITY_FROM_API[t.priority || 'p3'] || 'low')
           setImages(t.images || [])
-          const locText = t.locationText || ''
-          const locMatch = locText.match(/^(.+?)（(.+?)）$/)
-          if (locMatch) {
-            setLocationName(locMatch[1])
-            setLocationAddress(locMatch[2])
-          } else {
-            setLocationName(locText)
-            setLocationAddress('')
-          }
+          // Backend returns `location` as an object { name, address, latitude, longitude }
+          setLocationName(t.location?.name || '')
+          setLocationAddress(t.location?.address || '')
           fetchSubtodos(id).then(() => {
             const subs = useTodoStore.getState().subtaskMap[id] || []
             setSubtasks(subs.map((s) => ({ id: s.id, text: s.text })))
@@ -92,56 +103,38 @@ export function TodoForm({ mode }: TodoFormProps) {
   const handleSubmit = async (values: FormValues) => {
     setLoading(true)
     try {
-      const data: Partial<Todo> = {
+      // Build subtasks array for batch creation/update (API spec 3.2/3.4)
+      const subtaskInputs: SubtaskInput[] = subtasks.map((s) => ({
+        id: s.id,
+        text: s.text,
+      }))
+
+      const data = {
         text: values.text,
         remarks: values.remarks,
         setDate: values.setDate?.format('YYYY-MM-DD'),
         setTime: values.setTime?.format('HH:mm'),
-        tags: selectedTags,
+        tagIds: selectedTags,
         comboId: selectedCombo,
-        priority,
+        priority: PRIORITY_TO_API[priority],
         images,
-        locationText: locationName
-          ? locationAddress
-            ? `${locationName}（${locationAddress}）`
-            : locationName
-          : undefined,
+        location: locationName
+          ? {
+              name: locationName,
+              address: locationAddress,
+              latitude: 0,
+              longitude: 0,
+            }
+          : null,
+        subtasks: subtaskInputs,
       }
-      let mainTodoId: string | undefined
+
       if (mode === 'create') {
-        const created = await createTodo(data)
-        mainTodoId = created.id
+        await createTodo(data)
         message.success('创建成功')
       } else if (id) {
         await updateTodo(id, data)
-        mainTodoId = id
         message.success('更新成功')
-      }
-      // Handle subtasks
-      if (mainTodoId) {
-        if (mode === 'edit') {
-          await fetchSubtodos(mainTodoId)
-          const existing = useTodoStore.getState().subtaskMap[mainTodoId] || []
-          const keptIds = new Set(subtasks.filter((s) => s.id).map((s) => s.id))
-          for (const ex of existing) {
-            if (!keptIds.has(ex.id)) {
-              await useTodoStore.getState().deleteTodo(ex.id)
-            }
-          }
-          for (const sub of subtasks) {
-            if (sub.id) {
-              const orig = existing.find((s) => s.id === sub.id)
-              if (orig && orig.text !== sub.text) {
-                await useTodoStore.getState().updateTodo(sub.id, { text: sub.text })
-              }
-            }
-          }
-        }
-        for (const sub of subtasks) {
-          if (!sub.id) {
-            await createTodo({ text: sub.text, parentId: mainTodoId })
-          }
-        }
       }
       navigate('/')
     } catch (err) {

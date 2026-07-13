@@ -265,7 +265,19 @@ export function TodoDetail() {
           {todo.priority && (
             <ListLine
               left={<span className={styles.lineLabel}>优先级</span>}
-              right={<Tag tone="warn">{todo.priority}</Tag>}
+              right={
+                <Tag tone="warn">
+                  {todo.priority === 'p1'
+                    ? '高'
+                    : todo.priority === 'p2'
+                      ? '中'
+                      : todo.priority === 'p3'
+                        ? '低'
+                        : todo.priority === 'p4'
+                          ? '最低'
+                          : todo.priority}
+                </Tag>
+              }
             />
           )}
           {tagObjs.length > 0 && (
@@ -282,11 +294,14 @@ export function TodoDetail() {
               }
             />
           )}
-          {todo.locationText && (
+          {todo.location && (
             <ListLine
               left={<span className={styles.lineLabel}>位置</span>}
               right={
-                <span className={styles.lineVal}>{todo.locationText}</span>
+                <span className={styles.lineVal}>
+                  {todo.location.name}
+                  {todo.location.address ? `（${todo.location.address}）` : ''}
+                </span>
               }
             />
           )}

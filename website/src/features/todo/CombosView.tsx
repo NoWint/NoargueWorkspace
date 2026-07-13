@@ -38,7 +38,7 @@ const EMPTY_FORM: FormState = {
 export function CombosView() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { combos, fetchCombos, createCombo, updateCombo, deleteCombo, loading } =
+  const { combos, sharedCombos, fetchCombos, createCombo, updateCombo, deleteCombo, loading } =
     useComboStore()
   const { todos, fetchTodos } = useTodoStore()
 
@@ -82,9 +82,12 @@ export function CombosView() {
     () => combos.filter((c) => !c.isShared),
     [combos],
   )
-  const sharedCombos = useMemo(
-    () => combos.filter((c) => c.isShared),
-    [combos],
+  const allSharedCombos = useMemo(
+    () => [
+      ...combos.filter((c) => c.isShared),
+      ...(sharedCombos as Combo[]),
+    ],
+    [combos, sharedCombos],
   )
 
   const comboCount = (id: number) =>
@@ -237,7 +240,7 @@ export function CombosView() {
           <div className={styles.meta}>
             <span>私有 {privateCombos.length}</span>
             <span className={styles.sep}>·</span>
-            <span>共享 {sharedCombos.length}</span>
+            <span>共享 {allSharedCombos.length}</span>
             <span className={styles.sep}>·</span>
             <span>已分组 {todosInCombos} / {totalTodos}</span>
           </div>
@@ -256,9 +259,9 @@ export function CombosView() {
 
       {/* Stats */}
       <div className={styles.stats}>
-        <Stat label="组合总数" value={combos.length} delta="全部组合" />
+        <Stat label="组合总数" value={combos.length + (sharedCombos as Combo[]).length} delta="全部组合" />
         <Stat label="私有组合" value={privateCombos.length} delta="个人使用" />
-        <Stat label="共享组合" value={sharedCombos.length} accent delta="协作管理" />
+        <Stat label="共享组合" value={allSharedCombos.length} accent delta="协作管理" />
         <Stat label="已分组待办" value={todosInCombos} delta={`共 ${totalTodos} 项`} />
       </div>
 
@@ -323,7 +326,7 @@ export function CombosView() {
             </div>
           </div>
           <div className={styles.comboList}>
-            {loading && sharedCombos.length === 0 && (
+            {loading && allSharedCombos.length === 0 && (
               <div className={styles.skeletonList}>
                 {[0, 1, 2].map((i) => (
                   <div key={i} className={styles.skeletonRow}>
@@ -345,8 +348,8 @@ export function CombosView() {
                 <div className={styles.emptySub}>{error}</div>
               </div>
             )}
-            {!loading && !error && sharedCombos.length === 0 && renderEmpty('共享')}
-            {sharedCombos.map(renderComboCard)}
+            {!loading && !error && allSharedCombos.length === 0 && renderEmpty('共享')}
+            {allSharedCombos.map(renderComboCard)}
           </div>
         </Card>
 
